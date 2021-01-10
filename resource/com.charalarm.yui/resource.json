@@ -20,7 +20,16 @@
          "com-charalarm-yui-8.caf",
          "com-charalarm-yui-9.caf",
          "com-charalarm-yui-10.caf",
-         "com-charalarm-yui-11.caf"
+         "com-charalarm-yui-11.caf",
+         "com-charalarm-yui-12.caf",
+         "com-charalarm-yui-13.caf",
+         "com-charalarm-yui-14.caf",
+         "com-charalarm-yui-15.caf",
+         "com-charalarm-yui-16.caf",
+         "com-charalarm-yui-17.caf",
+         "com-charalarm-yui-18.caf",
+         "com-charalarm-yui-19.caf",
+         "com-charalarm-yui-20.caf"
       ]
    },
    "expression":{
@@ -48,15 +57,23 @@
             "comfused.png"
          ],
          "voices":[
-            "com-charalarm-yui-5.caf"
+            "com-charalarm-yui-5.caf",
+            "com-charalarm-yui-12.caf",
+            "com-charalarm-yui-13.caf",
+            "com-charalarm-yui-14.caf"
+
          ]
       }
    },
    "call":{
       "normal":{
          "images":[
-            "com-charalarm-yui-10.caf",
-            "com-charalarm-yui-11.caf"
+            "com-charalarm-yui-15.caf",
+            "com-charalarm-yui-16.caf",
+            "com-charalarm-yui-17.caf",
+            "com-charalarm-yui-18.caf",
+            "com-charalarm-yui-19.caf",
+            "com-charalarm-yui-20.caf"
          ]
       }
    }
