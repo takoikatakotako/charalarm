@@ -1,13 +1,13 @@
 {
    "version":1,
    "resource":{
-      "image":[
+      "images":[
          "thumbnail.png",
          "normal.png",
          "smile.png",
          "comfused.png"
       ],
-      "voice":[
+      "voices":[
          "self-introduction.caf",
          "com-charalarm-yui-0.caf",
          "com-charalarm-yui-1.caf",
