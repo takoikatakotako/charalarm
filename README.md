@@ -6,8 +6,8 @@ Charalarm は好きな2次元のキャラクターに起こされたい！とい
 
 ## ドキュメント
 
-- [キャラクター追加について](documents/add-character.md)
-- [キャラクター追加に必要な素材について](documents/add-character-resource.md)
+- [キャラクター追加について](documents/adding-character.md)
+- [キャラクター追加に必要な素材について](documents/adding-character-resource.md)
 
 
 ## お問い合わせ
@@ -19,3 +19,23 @@ Charalarm は好きな2次元のキャラクターに起こされたい！とい
 ## プライバシーポリシー
 
 [こちら](https://charalarm.com/privacy/index.html) をご参照ください。
+
+
+
+## Overview
+
+'I wants to awake by my favorite 2D character!' is my dream.
+Charalarm is a personally developed mobile app that I make to fulfill my dream.
+You select the character to make a wake-up call in the app and sets an alarm.
+You can get up happily by receiving a call from the character on the phone at the time when the alarm is set.
+
+
+## Document
+
+- [About materials required to add characters](documents/adding-character-resource-english.md)
+
+
+## Contact
+
+
+## Privacy Policy

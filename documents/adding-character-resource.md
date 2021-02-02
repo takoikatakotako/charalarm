@@ -18,7 +18,7 @@
 画像のアスペクト比は変わりません。
 立ち絵画像の横幅は 1200px 以上 2000px 以下の 背景が透過済み png 画像をご用意ください。
 
-<img src="image/add-character-top-padding.png" width="200">
+<img src="image/adding-character-top-padding.png" width="200">
 
 
 ### サムネイル画像
@@ -26,8 +26,8 @@
 キャラクター選択画面、プロフィール画面で表示されるサムネイル画像です。
 縦横が 500px 以下の正方形の png 画像をご用意ください。
 
-<img src="image/add-character-charalist-thmbnail.png" width="200">
-<img src="image/add-character-profile-thmbnail.png" width="200">
+<img src="image/adding-character-charalist-thmbnail.png" width="200">
+<img src="image/adding-character-profile-thmbnail.png" width="200">
 
 
 ### タップボイス
