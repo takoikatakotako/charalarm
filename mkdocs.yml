@@ -1,0 +1,26 @@
+site_name: 'Charalarmについて'
+
+# Documentation and theme
+docs_dir: 'docs'
+theme:
+  name: 'material'
+  language: 'ja'
+
+extra:
+  search:
+    language: 'jp'
+nav:
+  - 'Charalarmについて': 'index.md'
+  - 'リポジトリ一覧': 'repositories.md'
+  - 'インフラのアーキテクチャーについて': 'infra-architecture.md'
+  - 'アプリケーションのアーキテクチャーについて': 'app-architecture.md'
+  - 'APIのエンドポイントについて': 'api-endpoint.md'
+  - 'Localstackについて': 'localstack.md'
+  - '証明書などのアップデートについて': 'update.md'
+  - 'DynamoDBについて': 'dynamodb.md'
+  - 'SQSについて': 'sqs.md'
+  - 'キャラクターについて': 'chara.md'
+  - 'キャラクターのリソースについて': 'chara-resource.md'
+  - 'プライバシーポリシー': 'privacy.md'
+  - '利用規約': 'teams.md'
+  - 'お問い合わせ': 'contact.md'
