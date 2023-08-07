@@ -1,0 +1,31 @@
+name: Deoloy to S3
+
+on:
+  workflow_dispatch:
+
+env:
+  APPLICATION_VERSION: 0.0.1
+  S3_BUCKET_NAME: charalarm.sandbox.swiswiswift.com
+  AWS_ROLE_ARN: arn:aws:iam::986921280333:role/charalarm-github-action-role
+
+jobs:
+  test:
+    name: Build to Deploy
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: ${{ env.AWS_ROLE_ARN }}
+          role-session-name: charalarm-github-action-role-${{ github.run_id }} # CloudTrailイベントに表示されるユーザー名
+          aws-region: ap-northeast-1
+
+      - name: Deploy
+        run: |
+          cd script && sh build-deploy.sh
+
