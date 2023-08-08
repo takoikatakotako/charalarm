@@ -34,3 +34,8 @@ jobs:
 
       - name: Build Docs
         run: mkdocs build
+
+      - name: Upload Docs
+        run: |
+          aws s3 sync ./site $S3_BUCKET_URL --exact-timestamps --delete
+  
