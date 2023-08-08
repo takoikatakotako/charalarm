@@ -17,9 +17,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+
       - uses: actions/setup-python@v2
         with:
           python-version: '3.11.4'
+
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
@@ -27,7 +29,8 @@ jobs:
           role-session-name: charalarm-github-action-role-${{ github.run_id }} # CloudTrailイベントに表示されるユーザー名
           aws-region: ap-northeast-1
 
-      - name: Deploy
-        run: |
-          pip install mkdocs
+      - name: Install MkDocs
+        run: pip install mkdocs
 
+      - name: Build Docs
+        run: mkdocs build
