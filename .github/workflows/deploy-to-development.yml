@@ -1,4 +1,4 @@
-name: Deoloy to S3
+name: Deoloy to Development
 
 on:
   workflow_dispatch:
@@ -27,5 +27,5 @@ jobs:
 
       - name: Deploy
         run: |
-          cd script && sh build-deploy.sh
+          ls
 
