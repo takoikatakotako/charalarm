@@ -4,9 +4,9 @@ on:
   workflow_dispatch:
 
 env:
-  APPLICATION_VERSION: 0.0.1
   S3_BUCKET_NAME: charalarm.sandbox.swiswiswift.com
   AWS_ROLE_ARN: arn:aws:iam::986921280333:role/charalarm-github-action-role
+  CLOUD_FRONT_DISTRIBUTION_ID: E20BNEENO8WWHC
 
 jobs:
   test:
@@ -32,6 +32,9 @@ jobs:
       - name: Install MkDocs
         run: pip install mkdocs
 
+      - name: Install MkDocs Material
+        run: pip install mkdocs-material
+
       - name: Build Docs
         run: mkdocs build
 
@@ -39,3 +42,6 @@ jobs:
         run: |
           aws s3 sync ./site $S3_BUCKET_URL --exact-timestamps --delete
   
+      - name: Delete Cache
+        run: |
+          aws cloudfront create-invalidation --distribution-id $CLOUD_FRONT_DISTRIBUTION_ID --paths "/*"
