@@ -4,9 +4,9 @@ on:
   workflow_dispatch:
 
 env:
-  S3_BUCKET_NAME: charalarm.sandbox.swiswiswift.com
+  S3_BUCKET_URL: s3://charalarm.sandbox.swiswiswift.com/docs
   AWS_ROLE_ARN: arn:aws:iam::986921280333:role/charalarm-github-action-role
-  CLOUD_FRONT_DISTRIBUTION_ID: E20BNEENO8WWHC
+  CLOUD_FRONT_DISTRIBUTION_ID: E12EUM7O0FZ375
 
 jobs:
   test:
