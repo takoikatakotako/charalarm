@@ -18,7 +18,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - uses: actions/setup-python@v2
+      - uses: actions/setup-python@v4
         with:
           python-version: '3.11.4'
 
@@ -40,7 +40,7 @@ jobs:
 
       - name: Upload Docs
         run: |
-          aws s3 sync ./site $S3_BUCKET_URL --exact-timestamps --delete
+          aws s3 sync ./site ${{ env.S3_BUCKET_URL }} --exact-timestamps --delete
   
       - name: Delete Cache
         run: |
