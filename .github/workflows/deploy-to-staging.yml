@@ -2,6 +2,9 @@ name: Deoloy to Staging
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - main
 
 env:
   S3_BUCKET_URL: s3://charalarm.swiswiswift.com/docs

@@ -2,6 +2,9 @@ name: Deoloy to Development
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - develop
 
 env:
   S3_BUCKET_URL: s3://charalarm.sandbox.swiswiswift.com/docs
