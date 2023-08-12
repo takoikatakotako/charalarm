@@ -11,6 +11,7 @@ extra:
     language: 'jp'
 nav:
   - 'Charalarmについて': 'index.md'
+  - 'ロードマップ': 'roadmap.md'
   - 'リポジトリ一覧': 'repositories.md'
   - 'インフラのアーキテクチャーについて': 'infra-architecture.md'
   - 'アプリケーションのアーキテクチャーについて': 'app-architecture.md'
