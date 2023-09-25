@@ -142,16 +142,49 @@ aws dynamodb put-item \
 
 ## ずんだもん
 
+東北ずん子・ずんだもんプロジェクトのずんだもんです。
+
 ### CharaID
 
 jp.zunko.zundamon
 
 ### description
 
-ずんだもん
+東北ずん子が所持するずんだアローに変身するずんだ餅の妖精。
+
+### profiles
+
+| title    | name              | url                                                                  |
+|----------|-------------------|----------------------------------------------------------------------|
+| プロジェクト   | 東北ずん子・ずんだもんプロジェクト | [https://zunko.jp/](https://zunko.jp/)                               |
+| イラストレーター | 坂本アヒル             | [https://twitter.com/sakamoto_AHR](https://twitter.com/sakamoto_AHR) |
+
+### calls
+
+| message    | voice                            |
+|------------|----------------------------------|
+| もしもし、起きるのだ。 | call-on-weekday-morning.caf      |
+
+### expressions
+
+**normal**
+
+images
+
+- normal.png
+
+voices
+
+- tap-general-1.caf
+
 
 ### DDL
 
 ```
-
+aws dynamodb put-item \
+    --table-name chara-table \
+    --item '{"charaID":{"S":"jp.zunko.zundamon"},"enable":{"BOOL":true},"name":{"S":"ずんだもん"},"created_at":{"S":"2023-06-05"},"updated_at":{"S":"2023-06-14"},"description":{"S":"東北ずん子が所持するずんだアローに変身するずんだ餅の妖精。"},"calls":{"L":[{"M":{"message":{"S":"もしもし、起きるのだ。"},"voiceFileName":{"S":"call-on-weekday-morning.caf "}}}]},"expressions":{"M":{"normal":{"M":{"imageFileNames":{"L":[{"S":"normal.png"}]},"voiceFileNames":{"L":[{"S":"tap-general-1.caf"}]}}}}}}' \
+    --profile {PROFILE}
 ```
+
+
