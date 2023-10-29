@@ -2,6 +2,21 @@
 
 APIのエンドポイントとレスポンス一覧です。
 
+## Develop
+オリジン: [https://charalarm.sandbox.swiswiswift.com](https://charalarm.sandbox.swiswiswift.com)
+リソース: [https://resource.charalarm.sandbox.swiswiswift.com/com.charalarm.yui/thumbnail.png](https://resource.charalarm.sandbox.swiswiswift.com/com.charalarm.yui/thumbnail.png)
+API: [https://api.charalarm.sandbox.swiswiswift.com/healthcheck](https://api.charalarm.sandbox.swiswiswift.com/healthcheck)
+
+## Staging
+オリジン: [https://charalarm.swiswiswift.com](https://charalarm.swiswiswift.com)
+リソース: [https://resource.charalarm.swiswiswift.com/com.charalarm.yui/thumbnail.png](https://resource.charalarm.swiswiswift.com/com.charalarm.yui/thumbnail.png)
+API: [https://api.charalarm.swiswiswift.com/healthcheck](https://api.charalarm.swiswiswift.com/healthcheck)
+
+# Production
+オリジン: [https://charalarm.com](https://charalarm.com)
+リソース: [https://resource.charalarm.com/com.charalarm.yui/thumbnail.png](https://resource.charalarm.com/com.charalarm.yui/thumbnail.png)
+API: [https://api2.charalarm.com/healthcheck](https://api2.charalarm.com/healthcheck)
+
 
 # /
 
