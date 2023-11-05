@@ -72,6 +72,6 @@ voices
 ```
 aws dynamodb put-item \
     --table-name chara-table \
-    --item file://chara-resource/com.charalarm.uyi/chara.json \
+    --item file://chara-resource/com.charalarm.uyi.json \
     --profile {PROFILE}
 ```
