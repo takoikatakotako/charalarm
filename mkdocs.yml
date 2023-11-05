@@ -23,7 +23,9 @@ nav:
     - 'SQSについて': 'sqs.md'
   - 'キャラクターについて':
     - 'キャラクターについて': 'chara.md'
-    - 'キャラクターのリソースについて': 'chara-resource.md'
+    - '井上結衣': 'chara-yui.md'
+    - '紅葉': 'chara-momiji.md'
+    - 'ずんだもん': 'chara-zundamon.md'
   - 'プライバシーポリシー': 'privacy.md'
   - '利用規約': 'teams.md'
   - 'お問い合わせ': 'contact.md'
