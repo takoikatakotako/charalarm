@@ -98,11 +98,23 @@ jp.zunko.zundamon
 
 images
 
-- normal.png
+- normal-0.png
+- normal-1.png
+- woo-0.png
+- woo-1.png
 
 voices
 
-- tap-general-1.caf
+- tap-11.caf
+- tap-12.caf
+- tap-13.caf
+- tap-14.caf
+- tap-15.caf
+- tap-16.caf
+- tap-17.caf
+- tap-18.caf
+- tap-19.caf
+- tap-20.caf
 
 
 ### DDL
