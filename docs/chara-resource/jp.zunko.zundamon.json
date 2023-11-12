@@ -17,6 +17,36 @@
   "description":{
     "S":"東北ずん子が所持するずんだアローに変身するずんだ餅の妖精。"
   },
+  "profiles":{
+    "L":[
+      {
+        "M":{
+          "title":{
+            "S":"イラストレーター"
+          },
+          "name":{
+            "S":"坂本アヒル様"
+          },
+          "url":{
+            "S":"https://twitter.com/sakamoto_AHR"
+          }
+        }
+      },
+      {
+        "M":{
+          "title":{
+            "S":"声優"
+          },
+          "name":{
+            "S":"VoiceVox様"
+          },
+          "url":{
+            "S":"https://voicevox.hiroshiba.jp/"
+          }
+        }
+      }
+    ]
+  },
   "calls":{
     "L":[
       {
