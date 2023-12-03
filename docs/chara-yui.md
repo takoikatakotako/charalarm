@@ -69,9 +69,11 @@ voices
 
 ### DDL
 
+[com.charalarm.yui.json](chara-resource/com.charalarm.yui.json) を使用。
+
 ```
 aws dynamodb put-item \
     --table-name chara-table \
-    --item file://chara-resource/com.charalarm.uyi.json \
+    --item file://chara-resource/com.charalarm.yui.json \
     --profile {PROFILE}
 ```

@@ -47,6 +47,8 @@ voices
 
 ### DDL
 
+[com.senpu-ki-soft.momiji.json](chara-resource/com.senpu-ki-soft.momiji.json) を使用。
+
 ```
 aws dynamodb put-item \
     --table-name chara-table \

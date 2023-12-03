@@ -119,7 +119,7 @@ voices
 
 ### DDL
 
-[chara-zundamon.json](chara-zundamon.json) を使用。
+[jp.zunko.zundamon.json](chara-resource/jp.zunko.zundamon.json) を使用。
 
 ```
 aws dynamodb put-item \
