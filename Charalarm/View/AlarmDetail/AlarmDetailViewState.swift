@@ -134,7 +134,7 @@ class AlarmDetailViewState: ObservableObject {
     private func createAlarm() {
         guard let userID = keychainRepository.getUserID(),
               let authToken = keychainRepository.getAuthToken() else {
-            alertMessage = "不明なエラーです（UserDefaultsに匿名ユーザー名とかがない）"
+            alertMessage = "Error"
             showingAlert = true
             return
         }
@@ -147,7 +147,8 @@ class AlarmDetailViewState: ObservableObject {
                 dismissSubject.send()
                 showingIndicator = false
             } catch {
-                alertMessage = "xxxx"
+                print(error)
+                alertMessage = "Error"
                 showingAlert = true
             }
         }
