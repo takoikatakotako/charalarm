@@ -1608,6 +1608,7 @@
       }
     },
     "tutorial-failed-to-save-user-information" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1924,9 +1925,6 @@
 
     },
     "ずんだもん" : {
-
-    },
-    "プレミアムプラン" : {
 
     },
     "ボイス" : {

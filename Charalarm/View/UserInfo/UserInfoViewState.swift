@@ -6,7 +6,7 @@ class UserInfoViewState: ObservableObject {
     @Published var userInfo: UserInfo?
     @Published var alert: UserInfoAlertItem?
 
-    private let appDelegate = UIApplication.shared.delegate as? AppDelegate
+//    private let appDelegate = UIApplication.shared.delegate as? AppDelegate
     private let apiRepository = APIRepository()
     private let keychainRepository = KeychainRepository()
     private let userDefaultsRepository = UserDefaultsRepository()
@@ -36,11 +36,13 @@ class UserInfoViewState: ObservableObject {
     }
 
     var pushToken: String? {
-        return appDelegate?.model.pushToken
+        return "temp"
+        // return appDelegate?.model.pushToken
     }
 
     var voipPushToken: String? {
-        return appDelegate?.model.voipPushToken
+        return "temp"
+        // return appDelegate?.model.voipPushToken
     }
 
     var premiumPlanAtUserDefaults: String {

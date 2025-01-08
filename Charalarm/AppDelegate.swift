@@ -10,7 +10,6 @@ import StoreKit
 import DatadogCore
 import DatadogLogs
 
-@UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
     let model = AppDelegateModel(apiRepository: APIRepository(), keychainRepository: KeychainRepository())
 
@@ -23,6 +22,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         // 課金周りの監視
         observeTransactionUpdates()
+
+        //
+        model.registerDefaults()
 
         // プッシュ通知を要求
         UIApplication.shared.registerForRemoteNotifications()
@@ -155,8 +157,7 @@ extension AppDelegate {
                     model.setEnablePremiumPlan(enable: false)
                 } else if let expirationDate = transaction.expirationDate,
                           Date() < expirationDate // 有効期限内
-                          && !transaction.isUpgraded // アップグレードされていない
-                {
+                          && !transaction.isUpgraded {
                     // 有効なサブスクリプションなのでproductIdに対応した特典を有効にする
                     model.setEnablePremiumPlan(enable: true)
                 }
@@ -167,7 +168,7 @@ extension AppDelegate {
     }
 
     private func updateSubscriptionStatus() async {
-        var validSubscription: Transaction?
+        var validSubscription: StoreKit.Transaction?
         for await verificationResult in Transaction.currentEntitlements {
             if case .verified(let transaction) = verificationResult,
                transaction.productType == .autoRenewable && !transaction.isUpgraded {

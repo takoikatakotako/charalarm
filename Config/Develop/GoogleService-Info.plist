@@ -2,22 +2,18 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>CLIENT_ID</key>
-	<string>433226445875-iqru10glvfhq0dri9hk4j7ugof2es1ff.apps.googleusercontent.com</string>
-	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.433226445875-iqru10glvfhq0dri9hk4j7ugof2es1ff</string>
 	<key>API_KEY</key>
-	<string>AIzaSyDOe-11hWzkaatELEXzhArjY521aJ-lWgI</string>
+	<string>AIzaSyC46CxmkODGUcEyY6qJvODX86DA6vlbGL4</string>
 	<key>GCM_SENDER_ID</key>
-	<string>433226445875</string>
+	<string>983259461023</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.swiswiswift.CharacterAlarm</string>
+	<string>com.swiswiswift.sandbox.charalarm</string>
 	<key>PROJECT_ID</key>
-	<string>characteralarm-stg</string>
+	<string>charalarm-development</string>
 	<key>STORAGE_BUCKET</key>
-	<string>characteralarm-stg.appspot.com</string>
+	<string>charalarm-development.appspot.com</string>
 	<key>IS_ADS_ENABLED</key>
 	<false></false>
 	<key>IS_ANALYTICS_ENABLED</key>
@@ -29,8 +25,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:433226445875:ios:883595f7cbe4e47a985f46</string>
-	<key>DATABASE_URL</key>
-	<string>https://characteralarm-stg.firebaseio.com</string>
+	<string>1:983259461023:ios:9d5ad2fcb29e45143139aa</string>
 </dict>
 </plist>

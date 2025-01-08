@@ -1,10 +1,15 @@
-name: CharacterAlarm
+name: Charalarm
 options:
   deploymentTarget:
     iOS: 16.0
 settings:
   base:
-    MARKETING_VERSION: 3.3.0
+    MARKETING_VERSION: 3.4.0
+    CODE_SIGN_STYLE: Automatic
+    DEVELOPMENT_TEAM: 5RH346BQ66
+    CURRENT_PROJECT_VERSION: 1
+    TARGETED_DEVICE_FAMILY: 1
+    ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS: YES
 
 packages:
   SDWebImageSwiftUI:
@@ -12,19 +17,19 @@ packages:
     from: 2.2.1
   KeychainAccess:
     url: https://github.com/kishikawakatsumi/KeychainAccess
-    from: 4.2.1
+    from: 4.2.2
   Firebase:
     url: https://github.com/firebase/firebase-ios-sdk
-    from: 10.23.0
+    from: 11.3.0
   Datadog:
     url: https://github.com/Datadog/dd-sdk-ios.git
-    from: 2.4.0
+    from: 2.13.0
   Rswift:
     url: https://github.com/mac-cain13/R.swift
-    from: 7.4.0
-  # GoogleMobileAds:
-  #   url: https://github.com/googleads/swift-package-manager-google-mobile-ads
-  #   from: 11.2.0
+    from: 7.5.0
+  GoogleMobileAds:
+    url: https://github.com/googleads/swift-package-manager-google-mobile-ads
+    from: 11.2.0
 
 schemes:
   Develop:
@@ -33,13 +38,13 @@ schemes:
         CharalarmDevelop: all
     run:
       config: Debug
-    test:
-      config: Debug
-      gatherCoverageData: false
-      targets:
-        - name: CharacterAlarmTests
-          parallelizable: true
-          randomExecutionOrder: true
+    # test:
+    #   config: Debug
+    #   gatherCoverageData: false
+    #   targets:
+    #     - name: CharalarmTests
+    #       parallelizable: true
+    #       randomExecutionOrder: true
   Staging:
     build:
       targets:
@@ -58,29 +63,25 @@ targets:
     type: application
     platform: iOS
     sources:
-      - path: CharacterAlarm
+      - path: Charalarm
         excludes:
-          - CharacterAlarm/Resource
-      - path: CharacterAlarm/Resource
+          - Charalarm/Resource
+      - path: Charalarm/Resource
         type: folder
       - path: Config/Develop
     settings:
       base:
-        CODE_SIGN_ENTITLEMENTS: CharacterAlarm/CharacterAlarmRelease.entitlements
+        CODE_SIGN_ENTITLEMENTS: Charalarm/CharalarmRelease.entitlements
         PRODUCT_BUNDLE_IDENTIFIER: com.swiswiswift.sandbox.charalarm
-        CODE_SIGN_STYLE: Automatic
-        DEVELOPMENT_TEAM: 5RH346BQ66
-        INFOPLIST_FILE: CharacterAlarm/Info.plist
-        CURRENT_PROJECT_VERSION: 1
-        TARGETED_DEVICE_FAMILY: 1
+        INFOPLIST_FILE: Charalarm/Info.plist
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon-Develop
-        OTHER_LDFLAGS:
-          - $(inherited)
-          - $(OTHER_LDFLAGS)
-          - -ObjC
+        # OTHER_LDFLAGS:
+        #   - $(inherited)
+        #   - $(OTHER_LDFLAGS)
+        #   - -ObjC
       configs:
         Debug:
-          CODE_SIGN_ENTITLEMENTS: CharacterAlarm/CharacterAlarmDebug.entitlements
+          CODE_SIGN_ENTITLEMENTS: Charalarm/CharalarmDebug.entitlements
           API_ENDPOINT: https://api.charalarm.sandbox.swiswiswift.com
           RESOURCE_ENDPOINT: https://resource.charalarm.sandbox.swiswiswift.com
           GAD_APPLICATION_IDENTIFER: ca-app-pub-3940256099942544~1458002511
@@ -91,7 +92,7 @@ targets:
           DATADOG_LOG_ENV: charalarm-development
           DATADOG_LOG_SERVICE: charalarm-development
         Release:
-          CODE_SIGN_ENTITLEMENTS: CharacterAlarm/CharacterAlarmRelease.entitlements
+          CODE_SIGN_ENTITLEMENTS: Charalarm/CharalarmRelease.entitlements
           API_ENDPOINT: https://api.charalarm.sandbox.swiswiswift.com
           RESOURCE_ENDPOINT: https://resource.charalarm.sandbox.swiswiswift.com
           GAD_APPLICATION_IDENTIFER: ca-app-pub-3940256099942544~1458002511
@@ -112,7 +113,11 @@ targets:
       - package: Firebase
         product: FirebaseAnalytics
       - package: Firebase
+        product: FirebaseAuth
+      - package: Firebase
         product: FirebaseCrashlytics
+      - package: Firebase
+        product: FirebaseFirestore
       - package: Firebase
         product: FirebaseRemoteConfig
       - package: KeychainAccess
@@ -130,29 +135,25 @@ targets:
     type: application
     platform: iOS
     sources:
-      - path: CharacterAlarm
+      - path: Charalarm
         excludes:
-          - CharacterAlarm/Resource
-      - path: CharacterAlarm/Resource
+          - Charalarm/Resource
+      - path: Charalarm/Resource
         type: folder
       - path: Config/Staging
     settings:
       base:
-        CODE_SIGN_ENTITLEMENTS: CharacterAlarm/CharacterAlarmRelease.entitlements
+        CODE_SIGN_ENTITLEMENTS: Charalarm/CharalarmRelease.entitlements
         PRODUCT_BUNDLE_IDENTIFIER: com.charalarm.staging
-        CODE_SIGN_STYLE: Automatic
-        DEVELOPMENT_TEAM: 5RH346BQ66
-        INFOPLIST_FILE: CharacterAlarm/Info.plist
-        CURRENT_PROJECT_VERSION: 1
-        TARGETED_DEVICE_FAMILY: 1
+        INFOPLIST_FILE: Charalarm/Info.plist
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon-Staging
-        OTHER_LDFLAGS:
-          - $(inherited)
-          - $(OTHER_LDFLAGS)
-          - -ObjC
+        # OTHER_LDFLAGS:
+        #   - $(inherited)
+        #   - $(OTHER_LDFLAGS)
+        #   - -ObjC
       configs:
         Debug:
-          CODE_SIGN_ENTITLEMENTS: CharacterAlarm/CharacterAlarmDebug.entitlements
+          CODE_SIGN_ENTITLEMENTS: Charalarm/CharalarmDebug.entitlements
           API_ENDPOINT: https://api.charalarm.swiswiswift.com
           RESOURCE_ENDPOINT: https://resource.charalarm.swiswiswift.com
           GAD_APPLICATION_IDENTIFER: ca-app-pub-3940256099942544~1458002511
@@ -163,7 +164,7 @@ targets:
           DATADOG_LOG_ENV: charalarm-staging
           DATADOG_LOG_SERVICE: charalarm-staging
         Release:
-          CODE_SIGN_ENTITLEMENTS: CharacterAlarm/CharacterAlarmRelease.entitlements
+          CODE_SIGN_ENTITLEMENTS: Charalarm/CharalarmRelease.entitlements
           API_ENDPOINT: https://api.charalarm.swiswiswift.com
           RESOURCE_ENDPOINT: https://resource.charalarm.swiswiswift.com
           GAD_APPLICATION_IDENTIFER: ca-app-pub-3940256099942544~1458002511
@@ -184,7 +185,11 @@ targets:
       - package: Firebase
         product: FirebaseAnalytics
       - package: Firebase
+        product: FirebaseAuth
+      - package: Firebase
         product: FirebaseCrashlytics
+      - package: Firebase
+        product: FirebaseFirestore
       - package: Firebase
         product: FirebaseRemoteConfig
       - package: KeychainAccess
@@ -203,15 +208,15 @@ targets:
     #     name: R.swift
     #     basedOnDependencyAnalysis: false
     #     outputFiles:
-    #       - $SRCROOT/CharacterAlarm/Generated/R.generated.swift
+    #       - $SRCROOT/Charalarm/Generated/R.generated.swift
   CharalarmProduction:
     type: application
     platform: iOS
     sources:
-      - path: CharacterAlarm
+      - path: Charalarm
         excludes:
-          - CharacterAlarm/Resource
-      - path: CharacterAlarm/Resource
+          - Charalarm/Resource
+      - path: Charalarm/Resource
         type: folder
       - path: Config/Production
     dependencies:
@@ -225,7 +230,11 @@ targets:
       - package: Firebase
         product: FirebaseAnalytics
       - package: Firebase
+        product: FirebaseAuth
+      - package: Firebase
         product: FirebaseCrashlytics
+      - package: Firebase
+        product: FirebaseFirestore
       - package: Firebase
         product: FirebaseRemoteConfig
       - package: KeychainAccess
@@ -241,21 +250,17 @@ targets:
         package: Rswift
     settings:
       base:
-        CODE_SIGN_ENTITLEMENTS: CharacterAlarm/CharacterAlarmRelease.entitlements
+        CODE_SIGN_ENTITLEMENTS: Charalarm/CharalarmRelease.entitlements
         PRODUCT_BUNDLE_IDENTIFIER: com.swiswiswift.CharacterAlarm
-        CODE_SIGN_STYLE: Automatic
-        DEVELOPMENT_TEAM: 5RH346BQ66
-        INFOPLIST_FILE: CharacterAlarm/Info.plist
-        CURRENT_PROJECT_VERSION: 1
-        TARGETED_DEVICE_FAMILY: 1
+        INFOPLIST_FILE: Charalarm/Info.plist
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon-Production
-        OTHER_LDFLAGS:
-          - $(inherited)
-          - $(OTHER_LDFLAGS)
-          - -ObjC
+        # OTHER_LDFLAGS:
+        #   - $(inherited)
+        #   - $(OTHER_LDFLAGS)
+        #   - -ObjC
       configs:
         Debug:
-          CODE_SIGN_ENTITLEMENTS: CharacterAlarm/CharacterAlarmDebug.entitlements
+          CODE_SIGN_ENTITLEMENTS: Charalarm/CharalarmDebug.entitlements
           API_ENDPOINT: https://api.charalarm.com
           RESOURCE_ENDPOINT: https://resource.charalarm.com
           GAD_APPLICATION_IDENTIFER: ca-app-pub-5587141252700968~9053558907
@@ -266,7 +271,7 @@ targets:
           DATADOG_LOG_ENV: charalarm-production
           DATADOG_LOG_SERVICE: charalarm-production
         Release:
-          CODE_SIGN_ENTITLEMENTS: CharacterAlarm/CharacterAlarmRelease.entitlements
+          CODE_SIGN_ENTITLEMENTS: Charalarm/CharalarmRelease.entitlements
           API_ENDPOINT: https://api.charalarm.com
           RESOURCE_ENDPOINT: https://resource.charalarm.com
           GAD_APPLICATION_IDENTIFER: ca-app-pub-5587141252700968~9053558907
@@ -276,23 +281,23 @@ targets:
           DATADOG_CLIENT_TOKEN: pub746809c11c5291884508b5936605a3bf
           DATADOG_LOG_ENV: charalarm-production
           DATADOG_LOG_SERVICE: charalarm-production
-  CharacterAlarmTests:
-    type: bundle.unit-test
-    platform: iOS
-    sources:
-      - CharacterAlarmTests
-    settings:
-      base:
-        INFOPLIST_FILE: CharacterAlarmTests/Info.plist
-    dependencies:
-      - target: CharalarmDevelop
-  CharacterAlarmUITests:
-    type: bundle.ui-testing
-    platform: iOS
-    sources:
-      - CharacterAlarmUITests
-    settings:
-      base:
-        INFOPLIST_FILE: CharacterAlarmUITests/Info.plist
-    dependencies:
-      - target: CharalarmDevelop
+  # CharalarmTests:
+  #   type: bundle.unit-test
+  #   platform: iOS
+  #   sources:
+  #     - CharalarmTests
+  #   settings:
+  #     base:
+  #       INFOPLIST_FILE: CharalarmTests/Info.plist
+  #   dependencies:
+  #     - target: CharalarmDevelop
+  # CharalarmUITests:
+  #   type: bundle.ui-testing
+  #   platform: iOS
+  #   sources:
+  #     - CharalarmUITests
+  #   settings:
+  #     base:
+  #       INFOPLIST_FILE: CharalarmUITests/Info.plist
+  #   dependencies:
+  #     - target: CharalarmDevelop

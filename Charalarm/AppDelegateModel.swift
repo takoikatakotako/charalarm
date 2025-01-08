@@ -27,6 +27,10 @@ class AppDelegateModel {
         self.voiceFileURL = voiceFileURL
     }
 
+    func registerDefaults() {
+        userDefaultsRepository.registerDefaults()
+    }
+
     // MARK: - Push Notification
     // Pushトークンを登録
     func registerPushToken(token: String) {
