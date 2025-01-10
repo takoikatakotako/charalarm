@@ -1,0 +1,50 @@
+name: Deoloy to Development
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - develop
+
+env:
+  S3_BUCKET_URL: s3://charalarm.sandbox.swiswiswift.com/docs
+  AWS_ROLE_ARN: arn:aws:iam::397693451628:role/charalarm-github-action-role
+  CLOUD_FRONT_DISTRIBUTION_ID: E12EUM7O0FZ375
+
+jobs:
+  test:
+    name: Build to Deploy
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.11.4'
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: ${{ env.AWS_ROLE_ARN }}
+          role-session-name: charalarm-github-action-role-${{ github.run_id }} # CloudTrailイベントに表示されるユーザー名
+          aws-region: ap-northeast-1
+
+      - name: Install MkDocs
+        run: pip install mkdocs
+
+      - name: Install MkDocs Material
+        run: pip install mkdocs-material
+
+      - name: Build Docs
+        run: mkdocs build
+
+      - name: Upload Docs
+        run: |
+          aws s3 sync ./site ${{ env.S3_BUCKET_URL }} --exact-timestamps --delete
+  
+      - name: Delete Cache
+        run: |
+          aws cloudfront create-invalidation --distribution-id ${{ env.CLOUD_FRONT_DISTRIBUTION_ID }} --paths "/*"

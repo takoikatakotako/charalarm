@@ -1,0 +1,35 @@
+# Development環境でのCloudFrontのキャッシュを削除
+name: Remove Cloudfront Cache For Development
+
+on:
+  workflow_dispatch:
+
+env:
+  AWS_ROLE_ARN: arn:aws:iam::397693451628:role/charalarm-github-action-role
+  LP_CLOUD_FRONT_DISTRIBUTION_ID: E12EUM7O0FZ375
+  RESOURCE_CLOUD_FRONT_DISTRIBUTION_ID: E31U567YMKPMZF
+
+jobs:
+  test:
+    name: Build and Deploy
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: ${{ env.AWS_ROLE_ARN }}
+          role-session-name: charalarm-github-action-role-${{ github.run_id }} # CloudTrailイベントに表示されるユーザー名
+          aws-region: ap-northeast-1
+
+      - name: Delete Chaches for charalarm.sandbox.swiswiswift.com
+        run: |
+          aws cloudfront create-invalidation --distribution-id $LP_CLOUD_FRONT_DISTRIBUTION_ID --paths "/*"
+
+      - name: Delete Chaches for resource.charalarm.sandbox.swiswiswift.com
+        run: |
+          aws cloudfront create-invalidation --distribution-id $RESOURCE_CLOUD_FRONT_DISTRIBUTION_ID --paths "/*"
