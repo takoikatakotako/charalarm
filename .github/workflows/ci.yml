@@ -20,6 +20,10 @@ jobs:
     - name: Install Mint
       run: brew install mint
 
+    # パッケージのインストール
+    - name: Mint Bootstrap
+      run: mint bootstrap
+
     # swiftlintの実行
     - name: Run SwiftLint
       run: mint run swiftlint --strict
