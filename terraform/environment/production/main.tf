@@ -7,16 +7,16 @@ terraform {
   }
 
   backend "s3" {
-    bucket = "charalarm.terraform.state"
-    key    = "production/terraform.tfstate"
-    region = "ap-northeast-1"
+    bucket  = "charalarm.terraform.state"
+    key     = "production/terraform.tfstate"
+    region  = "ap-northeast-1"
     profile = "charalarm-management"
   }
 }
 
 provider "aws" {
-  profile                  = "charalarm-production"
-  region                   = "ap-northeast-1"
+  profile = "charalarm-production"
+  region  = "ap-northeast-1"
 }
 
 
