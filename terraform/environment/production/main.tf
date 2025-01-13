@@ -7,7 +7,7 @@ terraform {
   }
 
   backend "s3" {
-    bucket = "charalarm.terraform.state2"
+    bucket = "charalarm.terraform.state"
     key    = "production/terraform.tfstate"
     region = "ap-northeast-1"
     profile = "charalarm-management"
