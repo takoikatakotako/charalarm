@@ -1,23 +1,47 @@
+# terraform {
+#   required_providers {
+#     aws = {
+#       source  = "hashicorp/aws"
+#       version = "4.65.0"
+#     }
+#   }
+
+#   backend "s3" {
+#     bucket = "charalarm.terraform.state"
+#     key    = "terraform.tfstate"
+#     region = "ap-northeast-1"
+#   }
+# }
+
+# provider "aws" {
+#   profile                  = local.aws_profile
+#   region                   = "ap-northeast-1"
+#   shared_credentials_files = ["~/.aws/credentials"]
+# }
+
 terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "4.65.0"
+      version = "5.83.1"
     }
   }
 
   backend "s3" {
-    bucket = "charalarm.terraform.state"
-    key    = "terraform.tfstate"
+    bucket = "charalarm.terraform.state2"
+    key    = "staging/terraform.tfstate"
     region = "ap-northeast-1"
+    profile = "charalarm-management"
   }
 }
 
 provider "aws" {
-  profile                  = local.aws_profile
+  profile                  = "charalarm-staging"
   region                   = "ap-northeast-1"
-  shared_credentials_files = ["~/.aws/credentials"]
 }
+
+
+
 
 module "dynamodb" {
   source = "./dynamodb"
