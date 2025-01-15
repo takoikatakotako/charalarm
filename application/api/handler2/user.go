@@ -3,10 +3,12 @@ package handler2
 import (
 	"github.com/labstack/echo/v4"
 	"github.com/takoikatakotako/charalarm-api/entity2/response2"
+	"github.com/takoikatakotako/charalarm-api/service2"
 	"net/http"
 )
 
 type User struct {
+	Service service2.User
 }
 
 func (u *User) UserSignupPost(c echo.Context) error {

@@ -4,12 +4,26 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/takoikatakotako/charalarm-api/handler2"
+	"github.com/takoikatakotako/charalarm-api/repository2"
+	"github.com/takoikatakotako/charalarm-api/service2"
 )
 
 func main() {
+	// repository
+	awsRepository := repository2.AWS{
+		Profile: "Local",
+	}
 
+	// service
+	userService := service2.User{
+		AWS: awsRepository,
+	}
+
+	// handler
 	healthcheckHandler := handler2.Healthcheck{}
-	userHandler := handler2.User{}
+	userHandler := handler2.User{
+		Service: userService,
+	}
 	alarmHandler := handler2.Alarm{}
 	charaHandler := handler2.Chara{}
 	pushTokenHandler := handler2.PushToken{}
