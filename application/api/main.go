@@ -11,7 +11,7 @@ import (
 func main() {
 	// repository
 	awsRepository := repository2.AWS{
-		Profile: "Local",
+		Profile: "charalarm-development",
 	}
 
 	// service
