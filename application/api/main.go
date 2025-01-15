@@ -1,5 +1,47 @@
 package main
 
+import (
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
+	"github.com/takoikatakotako/charalarm-api/handler2"
+)
+
 func main() {
-	println("hello")
+
+	healthcheckHandler := handler2.Healthcheck{}
+	userHandler := handler2.User{}
+	alarmHandler := handler2.Alarm{}
+	charaHandler := handler2.Chara{}
+	pushTokenHandler := handler2.PushToken{}
+	newsHandler := handler2.News{}
+
+	e := echo.New()
+	e.Use(middleware.Logger())
+
+	// healthcheck
+	e.GET("/healthcheck/", healthcheckHandler.HealthcheckGet)
+
+	// user
+	e.POST("/user/signup/", userHandler.UserSignupPost)
+	e.POST("/user/signup/", userHandler.UserWithdrawPost)
+	e.GET("/user/info/", userHandler.UserInfoGet)
+
+	// alarm
+	e.GET("/alarm/list/", alarmHandler.AlarmListGet)
+	e.POST("/alarm/add/", alarmHandler.AlarmAddPost)
+	e.POST("/alarm/edit/", alarmHandler.AlarmEditPost)
+	e.POST("/alarm/delete/", alarmHandler.AlarmDeletePost)
+
+	// chara
+	e.GET("/chara/list/", charaHandler.CharaListGet)
+	e.GET("/chara/:id/", charaHandler.CharaIDGet)
+
+	// push-token
+	e.POST("/push-token/ios/push/add/", pushTokenHandler.PushTokenPushAdd)
+	e.POST("/push-token/ios/voip-push/add/", pushTokenHandler.PushTokenVoIPPushAdd)
+
+	// news
+	e.GET("/news/list/", newsHandler.NewsListGet)
+
+	e.Logger.Fatal(e.Start(":8080"))
 }

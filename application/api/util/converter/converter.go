@@ -143,7 +143,7 @@ func databaseCharaProfileToResponseCharaProfile(databaseCharaProfile database.Ch
 }
 
 func databaseCharaToResponseCharaResourceList(databaseChara database.Chara, resourceBaseURL string) []response.CharaResource {
-	// response.CharaResourcesを作成
+	// response2.CharaResourcesを作成
 	responseCharaResources := make([]response.CharaResource, 0)
 
 	// expressionsのリソースを生成

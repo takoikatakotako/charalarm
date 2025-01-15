@@ -14,12 +14,12 @@ import (
 // 	repository := SNSRepository{IsLocal: true}
 
 // 	token := uuid.New().String()
-// 	response, err := repository.CreateIOSVoipPushPlatformEndpoint(token)
+// 	response2, err := repository.CreateIOSVoipPushPlatformEndpoint(token)
 // 	if err != nil {
 // 		t.Errorf("unexpected error: %v", err)
 // 	}
 
-// 	assert.NotEqual(t, len(response.EndpointArn), 0)
+// 	assert.NotEqual(t, len(response2.EndpointArn), 0)
 // }
 
 func TestMain(m *testing.M) {
