@@ -14,14 +14,14 @@ type User struct {
 	AWS repository2.AWS
 }
 
-func (s *User) Signup(userID string, authToken string, platform string, ipAddress string) (response.MessageResponse, error) {
+func (u *User) Signup(userID string, authToken string, platform string, ipAddress string) (response.MessageResponse, error) {
 	// バリデーション
 	if !validator.IsValidUUID(userID) || !validator.IsValidUUID(authToken) {
 		return response.MessageResponse{}, errors.New(message.ErrorInvalidValue)
 	}
 
 	// Check User Is Exist
-	isExist, err := s.AWS.IsExistUser(userID)
+	isExist, err := u.AWS.IsExistUser(userID)
 	if err != nil {
 		return response.MessageResponse{}, err
 	}
@@ -42,10 +42,47 @@ func (s *User) Signup(userID string, authToken string, platform string, ipAddres
 		UpdatedAt:           currentTime.Format(time.RFC3339),
 		RegisteredIPAddress: ipAddress,
 	}
-	err = s.AWS.InsertUser(user)
+	err = u.AWS.InsertUser(user)
 	if err != nil {
 		return response.MessageResponse{}, err
 	}
 
 	return response.MessageResponse{Message: message.UserSignupSuccess}, nil
+}
+
+func (u *User) Withdraw(userID string, authToken string) error {
+	// バリデーション
+	if !validator.IsValidUUID(userID) || !validator.IsValidUUID(authToken) {
+		return errors.New(message.InvalidValue)
+	}
+
+	// ユーザーを取得
+	user, err := u.AWS.GetUser(userID)
+	if err != nil {
+		return err
+	}
+
+	// UserID, AuthTokenの一致を確認
+	if user.UserID == userID && user.AuthToken == authToken {
+	} else {
+		// 認証失敗
+		return errors.New(message.ErrorAuthenticationFailure)
+	}
+
+	// PlatformEndpointを削除する
+	if user.IOSPlatformInfo.PushTokenSNSEndpoint != "" {
+		err = u.AWS.SNSDeletePlatformApplicationEndpoint(user.IOSPlatformInfo.PushTokenSNSEndpoint)
+		if err != nil {
+			return err
+		}
+	}
+
+	if user.IOSPlatformInfo.VoIPPushTokenSNSEndpoint != "" {
+		err = u.AWS.SNSDeletePlatformApplicationEndpoint(user.IOSPlatformInfo.VoIPPushTokenSNSEndpoint)
+		if err != nil {
+			return err
+		}
+	}
+
+	return u.AWS.DeleteUser(userID)
 }

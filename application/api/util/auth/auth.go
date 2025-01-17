@@ -3,7 +3,7 @@ package auth
 import (
 	"encoding/base64"
 	"errors"
-	"github.com/takoikatakotako/charalarm-backend/util/validator"
+	"github.com/takoikatakotako/charalarm-api/util/validator"
 	"strings"
 )
 

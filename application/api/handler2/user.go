@@ -5,6 +5,7 @@ import (
 	"github.com/takoikatakotako/charalarm-api/entity/request"
 	"github.com/takoikatakotako/charalarm-api/entity2/response2"
 	"github.com/takoikatakotako/charalarm-api/service2"
+	"github.com/takoikatakotako/charalarm-api/util/auth"
 	"net/http"
 )
 
@@ -27,6 +28,17 @@ func (u *User) UserSignupPost(c echo.Context) error {
 }
 
 func (u *User) UserWithdrawPost(c echo.Context) error {
+	authorizationHeader := c.Request().Header.Get("Authorization")
+	userID, authToken, err := auth.Basic(authorizationHeader)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, "Error!")
+	}
+
+	err = u.Service.Withdraw(userID, authToken)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, "Error!")
+	}
+
 	res := response2.Message{
 		Message: Healthy,
 	}

@@ -4,11 +4,10 @@ import (
 	"context"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
-	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
+	"github.com/aws/aws-sdk-go-v2/service/sns"
 )
 
-// Private Methods
-func (a *AWS) createDynamoDBClient() (*dynamodb.Client, error) {
+func (a *AWS) createSNSClient() (*sns.Client, error) {
 	ctx := context.Background()
 
 	if a.Profile == "" {
@@ -18,7 +17,7 @@ func (a *AWS) createDynamoDBClient() (*dynamodb.Client, error) {
 		if err != nil {
 			return nil, err
 		}
-		return dynamodb.NewFromConfig(c), nil
+		return sns.NewFromConfig(c), nil
 	} else if a.Profile == "Local" {
 		// CIなど Local Stack を利用する場合
 		c, err := config.LoadDefaultConfig(ctx, config.WithRegion("ap-northeast-1"))
@@ -34,13 +33,29 @@ func (a *AWS) createDynamoDBClient() (*dynamodb.Client, error) {
 		if err != nil {
 			return nil, err
 		}
-		return dynamodb.NewFromConfig(c), nil
+		return sns.NewFromConfig(c), nil
 	} else {
 		// プロファイルを利用する場合
 		c, err := config.LoadDefaultConfig(ctx, config.WithRegion("ap-northeast-1"), config.WithSharedConfigProfile(a.Profile))
 		if err != nil {
 			return nil, err
 		}
-		return dynamodb.NewFromConfig(c), nil
+		return sns.NewFromConfig(c), nil
 	}
+}
+
+// DeletePlatformApplicationEndpoint エンドポイントを削除するコードを追加
+func (a *AWS) SNSDeletePlatformApplicationEndpoint(endpointArn string) error {
+	client, err := a.createSNSClient()
+	if err != nil {
+		return err
+	}
+
+	// プッシュ通知を発火
+	input := &sns.DeleteEndpointInput{
+		EndpointArn: aws.String(endpointArn),
+	}
+
+	_, err = client.DeleteEndpoint(context.Background(), input)
+	return err
 }
