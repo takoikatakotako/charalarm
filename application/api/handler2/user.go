@@ -16,13 +16,15 @@ type User struct {
 func (u *User) UserSignupPost(c echo.Context) error {
 	req := new(request.UserSignUp)
 	if err := c.Bind(&req); err != nil {
-		return c.String(http.StatusInternalServerError, "Error!")
+		res := response2.Message{Message: "Error!"}
+		return c.JSON(http.StatusInternalServerError, res)
 	}
 	ipAddress := c.RealIP()
 
 	res, err := u.Service.Signup(req.UserID, req.AuthToken, req.Platform, ipAddress)
 	if err != nil {
-		return c.String(http.StatusInternalServerError, "Error!")
+		res := response2.Message{Message: "Error!"}
+		return c.JSON(http.StatusInternalServerError, res)
 	}
 	return c.JSON(http.StatusOK, res)
 }
@@ -31,12 +33,14 @@ func (u *User) UserWithdrawPost(c echo.Context) error {
 	authorizationHeader := c.Request().Header.Get("Authorization")
 	userID, authToken, err := auth.Basic(authorizationHeader)
 	if err != nil {
-		return c.String(http.StatusInternalServerError, "Error!")
+		res := response2.Message{Message: "Error!"}
+		return c.JSON(http.StatusInternalServerError, res)
 	}
 
 	err = u.Service.Withdraw(userID, authToken)
 	if err != nil {
-		return c.String(http.StatusInternalServerError, "Error!")
+		res := response2.Message{Message: "Error!"}
+		return c.JSON(http.StatusInternalServerError, res)
 	}
 
 	res := response2.Message{
