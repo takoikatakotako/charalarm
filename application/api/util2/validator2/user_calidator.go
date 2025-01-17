@@ -1,9 +1,9 @@
-package validator
+package validator2
 
 import (
 	"errors"
 	"github.com/takoikatakotako/charalarm-api/entity/database"
-	"github.com/takoikatakotako/charalarm-api/util/message"
+	"github.com/takoikatakotako/charalarm-api/util2/message"
 	"time"
 )
 

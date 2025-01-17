@@ -11,6 +11,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/takoikatakotako/charalarm-api/entity/database"
 	"github.com/takoikatakotako/charalarm-api/util/message"
+	"github.com/takoikatakotako/charalarm-api/util/validator"
 )
 
 // GetUser Userを取得する
@@ -80,37 +81,36 @@ func (a *AWS) IsExistUser(userID string) (bool, error) {
 	}
 }
 
-//
-//func (a *AWS) InsertUser(user database.User) error {
-//	// Validate User
-//	err := validator.ValidateUser(user)
-//	if err != nil {
-//		return err
-//	}
-//
-//	// 新規レコードの追加
-//	ctx := context.Background()
-//	client, err := a.createDynamoDBClient()
-//	if err != nil {
-//		return err
-//	}
-//
-//	av, err := attributevalue.MarshalMap(user)
-//	if err != nil {
-//		fmt.Printf("dynamodb marshal: %s\n", err.Error())
-//		return err
-//	}
-//	_, err = client.PutItem(ctx, &dynamodb.PutItemInput{
-//		TableName: aws.String(database.UserTableName),
-//		Item:      av,
-//	})
-//	if err != nil {
-//		fmt.Printf("put item: %s\n", err.Error())
-//		return err
-//	}
-//
-//	return nil
-//}
+func (a *AWS) InsertUser(user database.User) error {
+	// Validate User
+	err := validator.ValidateUser(user)
+	if err != nil {
+		return err
+	}
+
+	// 新規レコードの追加
+	ctx := context.Background()
+	client, err := a.createDynamoDBClient()
+	if err != nil {
+		return err
+	}
+
+	av, err := attributevalue.MarshalMap(user)
+	if err != nil {
+		fmt.Printf("dynamodb marshal: %s\n", err.Error())
+		return err
+	}
+	_, err = client.PutItem(ctx, &dynamodb.PutItemInput{
+		TableName: aws.String(database.UserTableName),
+		Item:      av,
+	})
+	if err != nil {
+		fmt.Printf("put item: %s\n", err.Error())
+		return err
+	}
+
+	return nil
+}
 
 func (a *AWS) UpdateUserPremiumPlan(userID string, enablePremiumPlan bool) error {
 	client, err := a.createDynamoDBClient()

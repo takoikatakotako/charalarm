@@ -37,7 +37,7 @@ func main() {
 
 	// user
 	e.POST("/user/signup/", userHandler.UserSignupPost)
-	e.POST("/user/signup/", userHandler.UserWithdrawPost)
+	e.POST("/user/withdraw/", userHandler.UserWithdrawPost)
 	e.GET("/user/info/", userHandler.UserInfoGet)
 
 	// alarm

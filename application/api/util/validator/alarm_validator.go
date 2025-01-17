@@ -3,8 +3,8 @@ package validator
 import (
 	"errors"
 	"fmt"
-	"github.com/takoikatakotako/charalarm-backend/entity/database"
-	"github.com/takoikatakotako/charalarm-backend/util/message"
+	"github.com/takoikatakotako/charalarm-api/entity/database"
+	"github.com/takoikatakotako/charalarm-api/util/message"
 )
 
 func ValidateAlarm(alarm database.Alarm) error {

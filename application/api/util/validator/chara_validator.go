@@ -2,8 +2,8 @@ package validator
 
 import (
 	"errors"
-	"github.com/takoikatakotako/charalarm-backend/entity/database"
-	"github.com/takoikatakotako/charalarm-backend/util/message"
+	"github.com/takoikatakotako/charalarm-api/entity/database"
+	"github.com/takoikatakotako/charalarm-api/util/message"
 )
 
 func ValidateChara(chara database.Chara) error {

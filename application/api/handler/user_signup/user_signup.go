@@ -3,16 +3,16 @@ package main
 import (
 	"context"
 	"encoding/json"
-	"github.com/takoikatakotako/charalarm-backend/entity/response"
-	"github.com/takoikatakotako/charalarm-backend/repository/dynamodb"
-	"github.com/takoikatakotako/charalarm-backend/util/message"
+	"github.com/takoikatakotako/charalarm-api/entity/response"
+	"github.com/takoikatakotako/charalarm-api/repository/dynamodb"
+	"github.com/takoikatakotako/charalarm-api/util/message"
 	"net/http"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
-	"github.com/takoikatakotako/charalarm-backend/entity/request"
-	"github.com/takoikatakotako/charalarm-backend/handler"
-	"github.com/takoikatakotako/charalarm-backend/service"
+	"github.com/takoikatakotako/charalarm-api/entity/request"
+	"github.com/takoikatakotako/charalarm-api/handler"
+	"github.com/takoikatakotako/charalarm-api/service"
 )
 
 func Handler(ctx context.Context, event events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
