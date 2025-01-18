@@ -28,6 +28,9 @@ func main() {
 		AWS:         awsRepository,
 		Environment: environmentRepository,
 	}
+	pushTokenService := service2.PushToken{
+		AWS: awsRepository,
+	}
 
 	// handler
 	healthcheckHandler := handler2.Healthcheck{}
@@ -40,7 +43,9 @@ func main() {
 	charaHandler := handler2.Chara{
 		Service: charaService,
 	}
-	pushTokenHandler := handler2.PushToken{}
+	pushTokenHandler := handler2.PushToken{
+		Service: pushTokenService,
+	}
 	newsHandler := handler2.News{}
 
 	e := echo.New()

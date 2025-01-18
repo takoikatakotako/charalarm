@@ -56,15 +56,51 @@ func (a *Alarm) AlarmAddPost(c echo.Context) error {
 }
 
 func (a *Alarm) AlarmEditPost(c echo.Context) error {
-	res := response2.Maintenance{
-		Maintenance: true,
+	authorizationHeader := c.Request().Header.Get("Authorization")
+	userID, authToken, err := auth.Basic(authorizationHeader)
+	if err != nil {
+		res := response2.Message{Message: "Error!"}
+		return c.JSON(http.StatusInternalServerError, res)
+	}
+
+	req := new(request.AddAlarmRequest)
+	if err := c.Bind(&req); err != nil {
+		res := response2.Message{Message: "Error!"}
+		return c.JSON(http.StatusInternalServerError, res)
+	}
+
+	err = a.Service.EditAlarm(userID, authToken, req.Alarm)
+	if err != nil {
+		res := response2.Message{Message: "Error!"}
+		return c.JSON(http.StatusInternalServerError, res)
+	}
+	res := response2.Message{
+		Message: "Health",
 	}
 	return c.JSON(http.StatusOK, res)
 }
 
 func (a *Alarm) AlarmDeletePost(c echo.Context) error {
-	res := response2.Maintenance{
-		Maintenance: true,
+	authorizationHeader := c.Request().Header.Get("Authorization")
+	userID, authToken, err := auth.Basic(authorizationHeader)
+	if err != nil {
+		res := response2.Message{Message: "Error!"}
+		return c.JSON(http.StatusInternalServerError, res)
+	}
+
+	req := new(request.DeleteAlarmRequest)
+	if err := c.Bind(&req); err != nil {
+		res := response2.Message{Message: "Error!"}
+		return c.JSON(http.StatusInternalServerError, res)
+	}
+
+	err = a.Service.DeleteAlarm(userID, authToken, req.AlarmID)
+	if err != nil {
+		res := response2.Message{Message: "Error!"}
+		return c.JSON(http.StatusInternalServerError, res)
+	}
+	res := response2.Message{
+		Message: "Health",
 	}
 	return c.JSON(http.StatusOK, res)
 }

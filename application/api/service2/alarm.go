@@ -79,56 +79,56 @@ func (a *Alarm) AddAlarm(userID string, authToken string, requestAlarm request.A
 	return a.AWS.InsertAlarm(databaseAlarm)
 }
 
-//// EditAlarm アラームを更新
-//func (s *AlarmService) EditAlarm(userID string, authToken string, requestAlarm request.Alarm) error {
-//	// ユーザーを取得
-//	user, err := s.DynamoDBRepository.GetUser(userID)
-//	if err != nil {
-//		return err
-//	}
-//
-//	// UserID, AuthToken, Alarm.UserID が一致する
-//	if user.UserID == userID && user.AuthToken == authToken && requestAlarm.UserID == userID {
-//	} else {
-//		return errors.New(message.ErrorAuthenticationFailure)
-//	}
-//
-//	// DatabaseAlarmに変換
-//	var target string
-//	if requestAlarm.Type == "IOS_PUSH_NOTIFICATION" {
-//		target = user.IOSPlatformInfo.PushTokenSNSEndpoint
-//	} else if requestAlarm.Type == "IOS_VOIP_PUSH_NOTIFICATION" {
-//		target = user.IOSPlatformInfo.VoIPPushTokenSNSEndpoint
-//	} else {
-//		// 不明なターゲット
-//		pc, fileName, line, _ := runtime.Caller(1)
-//		funcName := runtime.FuncForPC(pc).Name()
-//		msg := "不明ターゲット"
-//		logger.Warn(msg, fileName, funcName, line)
-//		return errors.New(message.ErrorInvalidValue)
-//	}
-//	databaseAlarm := converter.RequestAlarmToDatabaseAlarm(requestAlarm, target)
-//
-//	// アラームを更新する
-//	return s.DynamoDBRepository.UpdateAlarm(databaseAlarm)
-//}
-//
-//// DeleteAlarm アラームを削除
-//func (s *AlarmService) DeleteAlarm(userID string, authToken string, alarmID string) error {
-//	// ユーザーを取得
-//	anonymousUser, err := s.DynamoDBRepository.GetUser(userID)
-//	if err != nil {
-//		return err
-//	}
-//
-//	// UserID, AuthTokenが一致するか確認する
-//	if anonymousUser.UserID != userID || anonymousUser.AuthToken != authToken {
-//		return errors.New(message.AuthenticationFailure)
-//	}
-//
-//	// アラームを削除する
-//	return s.DynamoDBRepository.DeleteAlarm(alarmID)
-//}
+// EditAlarm アラームを更新
+func (a *Alarm) EditAlarm(userID string, authToken string, requestAlarm request.Alarm) error {
+	// ユーザーを取得
+	user, err := a.AWS.GetUser(userID)
+	if err != nil {
+		return err
+	}
+
+	// UserID, AuthToken, Alarm.UserID が一致する
+	if user.UserID == userID && user.AuthToken == authToken && requestAlarm.UserID == userID {
+	} else {
+		return errors.New(message.ErrorAuthenticationFailure)
+	}
+
+	// DatabaseAlarmに変換
+	var target string
+	if requestAlarm.Type == "IOS_PUSH_NOTIFICATION" {
+		target = user.IOSPlatformInfo.PushTokenSNSEndpoint
+	} else if requestAlarm.Type == "IOS_VOIP_PUSH_NOTIFICATION" {
+		target = user.IOSPlatformInfo.VoIPPushTokenSNSEndpoint
+	} else {
+		// 不明なターゲット
+		pc, fileName, line, _ := runtime.Caller(1)
+		funcName := runtime.FuncForPC(pc).Name()
+		msg := "不明ターゲット"
+		logger.Warn(msg, fileName, funcName, line)
+		return errors.New(message.ErrorInvalidValue)
+	}
+	databaseAlarm := converter.RequestAlarmToDatabaseAlarm(requestAlarm, target)
+
+	// アラームを更新する
+	return a.AWS.UpdateAlarm(databaseAlarm)
+}
+
+// DeleteAlarm アラームを削除
+func (a *Alarm) DeleteAlarm(userID string, authToken string, alarmID string) error {
+	// ユーザーを取得
+	anonymousUser, err := a.AWS.GetUser(userID)
+	if err != nil {
+		return err
+	}
+
+	// UserID, AuthTokenが一致するか確認する
+	if anonymousUser.UserID != userID || anonymousUser.AuthToken != authToken {
+		return errors.New(message.AuthenticationFailure)
+	}
+
+	// アラームを削除する
+	return a.AWS.DeleteAlarm(alarmID)
+}
 
 // GetAlarmList アラームを取得
 func (a *Alarm) GetAlarmList(userID string, authToken string) ([]response.Alarm, error) {
