@@ -50,8 +50,17 @@ func (u *User) UserWithdrawPost(c echo.Context) error {
 }
 
 func (u *User) UserInfoGet(c echo.Context) error {
-	res := response2.Message{
-		Message: Healthy,
+	authorizationHeader := c.Request().Header.Get("Authorization")
+	userID, authToken, err := auth.Basic(authorizationHeader)
+	if err != nil {
+		res := response2.Message{Message: "Error!"}
+		return c.JSON(http.StatusInternalServerError, res)
+	}
+
+	res, err := u.Service.GetUser(userID, authToken)
+	if err != nil {
+		res := response2.Message{Message: "Error!"}
+		return c.JSON(http.StatusInternalServerError, res)
 	}
 	return c.JSON(http.StatusOK, res)
 }

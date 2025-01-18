@@ -5,6 +5,7 @@ import (
 	"github.com/takoikatakotako/charalarm-api/entity/database"
 	"github.com/takoikatakotako/charalarm-api/entity/response"
 	"github.com/takoikatakotako/charalarm-api/repository2"
+	"github.com/takoikatakotako/charalarm-api/util/converter"
 	"github.com/takoikatakotako/charalarm-api/util/message"
 	"github.com/takoikatakotako/charalarm-api/util/validator"
 	"time"
@@ -12,6 +13,22 @@ import (
 
 type User struct {
 	AWS repository2.AWS
+}
+
+func (u *User) GetUser(userID string, authToken string) (response.UserInfoResponse, error) {
+	// ユーザーを取得
+	user, err := u.AWS.GetUser(userID)
+	if err != nil {
+		return response.UserInfoResponse{}, err
+	}
+
+	// UserID, authTokenが一致するか確認する
+	if user.UserID == userID && user.AuthToken == authToken {
+		return converter.DatabaseUserToResponseUserInfo(user), nil
+	}
+
+	// 一致しない場合
+	return response.UserInfoResponse{}, errors.New(message.AuthenticationFailure)
 }
 
 func (u *User) Signup(userID string, authToken string, platform string, ipAddress string) (response.MessageResponse, error) {
@@ -85,4 +102,23 @@ func (u *User) Withdraw(userID string, authToken string) error {
 	}
 
 	return u.AWS.DeleteUser(userID)
+}
+
+func (u *User) UpdatePremiumPlan(userID string, authToken string, enablePremiumPlan bool) error {
+	// バリデーション
+	if !validator.IsValidUUID(userID) || !validator.IsValidUUID(authToken) {
+		return errors.New(message.ErrorInvalidValue)
+	}
+
+	// Check User Is Exist
+	isExist, err := u.AWS.IsExistUser(userID)
+	if err != nil {
+		return err
+	}
+	if !isExist {
+		return errors.New(message.ErrorInvalidValue)
+	}
+
+	// プレミアムプランを更新
+	return u.AWS.UpdateUserPremiumPlan(userID, enablePremiumPlan)
 }

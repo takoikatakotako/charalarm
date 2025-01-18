@@ -3,15 +3,29 @@ package handler2
 import (
 	"github.com/labstack/echo/v4"
 	"github.com/takoikatakotako/charalarm-api/entity2/response2"
+	"github.com/takoikatakotako/charalarm-api/service2"
+	"github.com/takoikatakotako/charalarm-api/util/auth"
 	"net/http"
 )
 
-type Alarm struct{}
+type Alarm struct {
+	Service service2.Alarm
+}
 
 func (a *Alarm) AlarmListGet(c echo.Context) error {
-	res := response2.Maintenance{
-		Maintenance: true,
+	authorizationHeader := c.Request().Header.Get("Authorization")
+	userID, authToken, err := auth.Basic(authorizationHeader)
+	if err != nil {
+		res := response2.Message{Message: "Error!"}
+		return c.JSON(http.StatusInternalServerError, res)
 	}
+
+	res, err := a.Service.GetAlarmList(userID, authToken)
+	if err != nil {
+		res := response2.Message{Message: "Error!"}
+		return c.JSON(http.StatusInternalServerError, res)
+	}
+
 	return c.JSON(http.StatusOK, res)
 }
 
