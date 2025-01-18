@@ -13,10 +13,20 @@ func main() {
 	awsRepository := repository2.AWS{
 		Profile: "charalarm-development",
 	}
+	environmentRepository := repository2.Environment{
+		IsLocal: true,
+	}
 
 	// service
 	userService := service2.User{
 		AWS: awsRepository,
+	}
+	alarmService := service2.Alarm{
+		AWS: awsRepository,
+	}
+	charaService := service2.Chara{
+		AWS:         awsRepository,
+		Environment: environmentRepository,
 	}
 
 	// handler
@@ -24,8 +34,12 @@ func main() {
 	userHandler := handler2.User{
 		Service: userService,
 	}
-	alarmHandler := handler2.Alarm{}
-	charaHandler := handler2.Chara{}
+	alarmHandler := handler2.Alarm{
+		Service: alarmService,
+	}
+	charaHandler := handler2.Chara{
+		Service: charaService,
+	}
 	pushTokenHandler := handler2.PushToken{}
 	newsHandler := handler2.News{}
 
@@ -48,7 +62,7 @@ func main() {
 
 	// chara
 	e.GET("/chara/list/", charaHandler.CharaListGet)
-	e.GET("/chara/:id/", charaHandler.CharaIDGet)
+	e.GET("/chara/id/:id/", charaHandler.CharaIDGet)
 
 	// push-token
 	e.POST("/push-token/ios/push/add/", pushTokenHandler.PushTokenPushAdd)

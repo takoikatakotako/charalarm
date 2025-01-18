@@ -2,6 +2,7 @@ package handler2
 
 import (
 	"github.com/labstack/echo/v4"
+	"github.com/takoikatakotako/charalarm-api/entity/request"
 	"github.com/takoikatakotako/charalarm-api/entity2/response2"
 	"github.com/takoikatakotako/charalarm-api/service2"
 	"github.com/takoikatakotako/charalarm-api/util/auth"
@@ -30,8 +31,26 @@ func (a *Alarm) AlarmListGet(c echo.Context) error {
 }
 
 func (a *Alarm) AlarmAddPost(c echo.Context) error {
-	res := response2.Maintenance{
-		Maintenance: true,
+	authorizationHeader := c.Request().Header.Get("Authorization")
+	userID, authToken, err := auth.Basic(authorizationHeader)
+	if err != nil {
+		res := response2.Message{Message: "Error!"}
+		return c.JSON(http.StatusInternalServerError, res)
+	}
+
+	req := new(request.AddAlarmRequest)
+	if err := c.Bind(&req); err != nil {
+		res := response2.Message{Message: "Error!"}
+		return c.JSON(http.StatusInternalServerError, res)
+	}
+
+	err = a.Service.AddAlarm(userID, authToken, req.Alarm)
+	if err != nil {
+		res := response2.Message{Message: "Error!"}
+		return c.JSON(http.StatusInternalServerError, res)
+	}
+	res := response2.Message{
+		Message: "Health",
 	}
 	return c.JSON(http.StatusOK, res)
 }

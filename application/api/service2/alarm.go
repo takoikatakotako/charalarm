@@ -3,6 +3,7 @@ package service2
 import (
 	"errors"
 	"fmt"
+	"github.com/takoikatakotako/charalarm-api/entity/request"
 	"github.com/takoikatakotako/charalarm-api/entity/response"
 	"github.com/takoikatakotako/charalarm-api/repository2"
 	"github.com/takoikatakotako/charalarm-api/util/converter"
@@ -19,65 +20,65 @@ type Alarm struct {
 	AWS repository2.AWS
 }
 
-//// AddAlarm アラームを追加
-//func (s *AlarmService) AddAlarm(userID string, authToken string, requestAlarm request.Alarm) error {
-//	// ユーザーを取得
-//	user, err := s.DynamoDBRepository.GetUser(userID)
-//	if err != nil {
-//		return err
-//	}
-//
-//	// UserID, AuthToken, Alarm.UserID が一致する
-//	if user.UserID == userID && user.AuthToken == authToken && requestAlarm.UserID == userID {
-//	} else {
-//		return errors.New(message.ErrorAuthenticationFailure)
-//	}
-//
-//	// 既に登録されたアラームの件数を取得
-//	list, err := s.DynamoDBRepository.GetAlarmList(userID)
-//	if err != nil {
-//		return err
-//	}
-//
-//	// 件数が多い場合はエラーを吐く
-//	if len(list) > MaxUsersAlarm {
-//		return errors.New("なんか登録してるアラームの件数多くね？")
-//	}
-//
-//	// すでに登録されていないか調べる
-//	isExist, err := s.DynamoDBRepository.IsExistAlarm(requestAlarm.AlarmID)
-//	if err != nil {
-//		// すでに登録されているのが贈られてくのは不審
-//		pc, fileName, line, _ := runtime.Caller(1)
-//		funcName := runtime.FuncForPC(pc).Name()
-//		msg := "すでに登録されたアラーム"
-//		logger.Warn(msg, fileName, funcName, line)
-//		return err
-//	}
-//	if isExist {
-//		return errors.New(message.ErrorAlarmAlreadyExists)
-//	}
-//
-//	// DatabaseAlarmに変換
-//	var target string
-//	if requestAlarm.Type == "IOS_PUSH_NOTIFICATION" {
-//		target = user.IOSPlatformInfo.PushTokenSNSEndpoint
-//	} else if requestAlarm.Type == "IOS_VOIP_PUSH_NOTIFICATION" {
-//		target = user.IOSPlatformInfo.VoIPPushTokenSNSEndpoint
-//	} else {
-//		// 不明なターゲット
-//		pc, fileName, line, _ := runtime.Caller(1)
-//		funcName := runtime.FuncForPC(pc).Name()
-//		msg := "不明なターゲット"
-//		logger.Warn(msg, fileName, funcName, line)
-//		return errors.New(message.ErrorInvalidValue)
-//	}
-//	databaseAlarm := converter.RequestAlarmToDatabaseAlarm(requestAlarm, target)
-//
-//	// アラームを追加する
-//	return s.DynamoDBRepository.InsertAlarm(databaseAlarm)
-//}
-//
+// AddAlarm アラームを追加
+func (a *Alarm) AddAlarm(userID string, authToken string, requestAlarm request.Alarm) error {
+	// ユーザーを取得
+	user, err := a.AWS.GetUser(userID)
+	if err != nil {
+		return err
+	}
+
+	// UserID, AuthToken, Alarm.UserID が一致する
+	if user.UserID == userID && user.AuthToken == authToken && requestAlarm.UserID == userID {
+	} else {
+		return errors.New(message.ErrorAuthenticationFailure)
+	}
+
+	// 既に登録されたアラームの件数を取得
+	list, err := a.AWS.GetAlarmList(userID)
+	if err != nil {
+		return err
+	}
+
+	// 件数が多い場合はエラーを吐く
+	if len(list) > MaxUsersAlarm {
+		return errors.New("なんか登録してるアラームの件数多くね？")
+	}
+
+	// すでに登録されていないか調べる
+	isExist, err := a.AWS.IsExistAlarm(requestAlarm.AlarmID)
+	if err != nil {
+		// すでに登録されているのが贈られてくのは不審
+		pc, fileName, line, _ := runtime.Caller(1)
+		funcName := runtime.FuncForPC(pc).Name()
+		msg := "すでに登録されたアラーム"
+		logger.Warn(msg, fileName, funcName, line)
+		return err
+	}
+	if isExist {
+		return errors.New(message.ErrorAlarmAlreadyExists)
+	}
+
+	// DatabaseAlarmに変換
+	var target string
+	if requestAlarm.Type == "IOS_PUSH_NOTIFICATION" {
+		target = user.IOSPlatformInfo.PushTokenSNSEndpoint
+	} else if requestAlarm.Type == "IOS_VOIP_PUSH_NOTIFICATION" {
+		target = user.IOSPlatformInfo.VoIPPushTokenSNSEndpoint
+	} else {
+		// 不明なターゲット
+		pc, fileName, line, _ := runtime.Caller(1)
+		funcName := runtime.FuncForPC(pc).Name()
+		msg := "不明なターゲット"
+		logger.Warn(msg, fileName, funcName, line)
+		return errors.New(message.ErrorInvalidValue)
+	}
+	databaseAlarm := converter.RequestAlarmToDatabaseAlarm(requestAlarm, target)
+
+	// アラームを追加する
+	return a.AWS.InsertAlarm(databaseAlarm)
+}
+
 //// EditAlarm アラームを更新
 //func (s *AlarmService) EditAlarm(userID string, authToken string, requestAlarm request.Alarm) error {
 //	// ユーザーを取得
