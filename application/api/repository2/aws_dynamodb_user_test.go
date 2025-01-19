@@ -1,4 +1,4 @@
-package dynamodb
+package repository2
 
 import (
 	"github.com/google/uuid"
@@ -9,8 +9,8 @@ import (
 )
 
 func TestDynamoDBRepository_InsertUser(t *testing.T) {
-	// DynamoDBRepository
-	repository := DynamoDBRepository{IsLocal: true}
+	// AWS Repository
+	repository := AWS{Profile: "local"}
 
 	// ユーザー作成
 	userID := uuid.New().String()
@@ -33,8 +33,8 @@ func TestDynamoDBRepository_InsertUser(t *testing.T) {
 }
 
 func TestInsertUserAndExist(t *testing.T) {
-	// DynamoDBRepository
-	repository := DynamoDBRepository{IsLocal: true}
+	// AWS Repository
+	repository := AWS{Profile: "local"}
 
 	// UserInfo
 	userID := uuid.New().String()
@@ -67,8 +67,8 @@ func TestInsertUserAndExist(t *testing.T) {
 }
 
 func TestInsertUserAndDelete(t *testing.T) {
-	// DynamoDBRepository
-	repository := DynamoDBRepository{IsLocal: true}
+	// AWS Repository
+	repository := AWS{Profile: "local"}
 
 	userID := uuid.New().String()
 	authToken := uuid.New().String()
@@ -106,8 +106,8 @@ func TestInsertUserAndDelete(t *testing.T) {
 }
 
 func TestDynamoDBRepository_UpdateUserPremiumPlan(t *testing.T) {
-	// DynamoDBRepository
-	repository := DynamoDBRepository{IsLocal: true}
+	// AWS Repository
+	repository := AWS{Profile: "local"}
 
 	userID := uuid.New().String()
 	authToken := uuid.New().String()
@@ -145,7 +145,6 @@ func TestDynamoDBRepository_UpdateUserPremiumPlan(t *testing.T) {
 }
 
 // private methods
-
 func createUser(userID string, authToken string) database.User {
 	platform := "iOS"
 	currentTime := time.Now()
@@ -160,6 +159,5 @@ func createUser(userID string, authToken string) database.User {
 		UpdatedAt:           currentTime.Format(time.RFC3339),
 		RegisteredIPAddress: ipAddress,
 	}
-
 	return user
 }
