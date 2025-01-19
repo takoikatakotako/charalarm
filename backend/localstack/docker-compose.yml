@@ -6,7 +6,6 @@ services:
       - "4566:4566"
     environment:
       - SERVICES=s3,sqs,sns,dynamodb
-      - DEFAULT_REGION=ap-northeast-1
     volumes:
       - ./createTable.sh:/docker-entrypoint-initaws.d/createTable.sh
       - ./createQueue.sh:/docker-entrypoint-initaws.d/createQueue.sh

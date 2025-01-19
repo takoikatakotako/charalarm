@@ -6,12 +6,25 @@ import (
 	"github.com/takoikatakotako/charalarm-api/handler2"
 	"github.com/takoikatakotako/charalarm-api/repository2"
 	"github.com/takoikatakotako/charalarm-api/service2"
+	"os"
 )
 
+func getEnvironment(key string, defaultValue string) string {
+	// 環境変数の値を取得
+	value := os.Getenv(key)
+	if value == "" {
+		return defaultValue
+	}
+	return value
+}
+
 func main() {
+	// environment
+	profile := getEnvironment("CHARALARM_AWS_PROFILE", "local")
+
 	// repository
 	awsRepository := repository2.AWS{
-		Profile: "charalarm-development",
+		Profile: profile,
 	}
 	environmentRepository := repository2.Environment{
 		IsLocal: true,

@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/aws/aws-sdk-go-v2/aws"
-	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/sns"
 	"github.com/takoikatakotako/charalarm-api/entity2/sns2"
 	"strings"
@@ -17,40 +16,11 @@ const (
 )
 
 func (a *AWS) createSNSClient() (*sns.Client, error) {
-	ctx := context.Background()
-
-	if a.Profile == "" {
-		// AWSなどの場合
-		// DynamoDB クライアントの生成
-		c, err := config.LoadDefaultConfig(ctx, config.WithRegion("ap-northeast-1"))
-		if err != nil {
-			return nil, err
-		}
-		return sns.NewFromConfig(c), nil
-	} else if a.Profile == "Local" {
-		// CIなど Local Stack を利用する場合
-		c, err := config.LoadDefaultConfig(ctx, config.WithRegion("ap-northeast-1"))
-		if err != nil {
-			return nil, err
-		}
-		c.EndpointResolverWithOptions = aws.EndpointResolverWithOptionsFunc(func(service, region string, options ...interface{}) (aws.Endpoint, error) {
-			return aws.Endpoint{
-				URL:           "http://localhost:4566",
-				SigningRegion: "ap-northeast-1",
-			}, nil
-		})
-		if err != nil {
-			return nil, err
-		}
-		return sns.NewFromConfig(c), nil
-	} else {
-		// プロファイルを利用する場合
-		c, err := config.LoadDefaultConfig(ctx, config.WithRegion("ap-northeast-1"), config.WithSharedConfigProfile(a.Profile))
-		if err != nil {
-			return nil, err
-		}
-		return sns.NewFromConfig(c), nil
+	cfg, err := a.createAWSConfig()
+	if err != nil {
+		return nil, err
 	}
+	return sns.NewFromConfig(cfg), nil
 }
 
 // DeletePlatformApplicationEndpoint エンドポイントを削除するコードを追加
