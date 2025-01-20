@@ -30,6 +30,10 @@ jobs:
       working-directory: application/mock
       run: make setup
 
+    # Local Stack の起動完了まで待つ
+    - name: Wait SetUp Localstack
+      run: sleep 30s
+
     # Application API の実行
     - name: Run Test
       env:
@@ -37,5 +41,3 @@ jobs:
           AWS_SECRET_ACCESS_KEY: "dummy"
       working-directory: application/api
       run: make test
-
-
