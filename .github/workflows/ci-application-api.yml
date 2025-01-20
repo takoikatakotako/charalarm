@@ -32,6 +32,9 @@ jobs:
 
     # Application API の実行
     - name: Run Test
+      env:
+          AWS_ACCESS_KEY_ID: "dummy"
+          AWS_SECRET_ACCESS_KEY: "dummy"
       working-directory: application/api
       run: make test
 
