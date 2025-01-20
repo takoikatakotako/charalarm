@@ -1,0 +1,12 @@
+services:
+  charalarm-localstack:
+    image: localstack/localstack:4.0.3
+    ports:
+      - "4566:4566"
+    environment:
+      - SERVICES=s3,sqs,sns,dynamodb
+      - DEFAULT_REGION=ap-northeast-1
+    volumes:
+      - ./createTable.sh:/etc/localstack/init/ready.d/createTable.sh
+      - ./createQueue.sh:/etc/localstack/init/ready.d/createQueue.sh
+      - ./createPlatformApplication.sh:/etc/localstack/init/ready.d/createPlatformApplication.sh
