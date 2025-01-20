@@ -18,17 +18,3 @@ jobs:
     # チェックアウト
     - uses: actions/checkout@v4
 
-    # # mintのインストール
-    # - name: Install Mint
-    #   working-directory: ios
-    #   run: brew install mint
-
-    # # パッケージのインストール
-    # - name: Mint Bootstrap
-    #   working-directory: ios
-    #   run: mint bootstrap
-
-    # # swiftlintの実行
-    # - name: Run SwiftLint
-    #   working-directory: ios
-    #   run: mint run swiftlint --strict
