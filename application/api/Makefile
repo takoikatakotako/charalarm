@@ -1,3 +1,4 @@
 .PHONY: test
 test:
-		echo hello
+		go test ./...
+
