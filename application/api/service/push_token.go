@@ -1,13 +1,13 @@
-package service2
+package service
 
 import (
 	"errors"
-	"github.com/takoikatakotako/charalarm-api/repository2"
+	"github.com/takoikatakotako/charalarm-api/repository"
 	"github.com/takoikatakotako/charalarm-api/util/message"
 )
 
 type PushToken struct {
-	AWS repository2.AWS
+	AWS repository.AWS
 }
 
 func (p *PushToken) AddIOSPushToken(userID string, authToken string, pushToken string) error {

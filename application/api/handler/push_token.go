@@ -1,16 +1,16 @@
-package handler2
+package handler
 
 import (
 	"github.com/labstack/echo/v4"
 	"github.com/takoikatakotako/charalarm-api/entity/request"
 	"github.com/takoikatakotako/charalarm-api/entity/response"
-	"github.com/takoikatakotako/charalarm-api/service2"
+	"github.com/takoikatakotako/charalarm-api/service"
 	"github.com/takoikatakotako/charalarm-api/util/auth"
 	"net/http"
 )
 
 type PushToken struct {
-	Service service2.PushToken
+	Service service.PushToken
 }
 
 func (p *PushToken) PushTokenPushAdd(c echo.Context) error {

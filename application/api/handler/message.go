@@ -1,4 +1,4 @@
-package handler2
+package handler
 
 const (
 	WithdrawSuccess                    = "Withdraw Success!"

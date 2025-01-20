@@ -1,4 +1,4 @@
-package repository2
+package repository
 
 import (
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"

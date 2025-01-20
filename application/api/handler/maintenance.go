@@ -1,4 +1,4 @@
-package handler2
+package handler
 
 import (
 	"github.com/labstack/echo/v4"
@@ -6,12 +6,11 @@ import (
 	"net/http"
 )
 
-type News struct {
-}
+type Maintenance struct{}
 
-func (n *News) NewsListGet(c echo.Context) error {
-	res := response.Message{
-		Message: Healthy,
+func (m *Maintenance) MaintenanceGet(c echo.Context) error {
+	res := response.Maintenance{
+		Maintenance: false,
 	}
 	return c.JSON(http.StatusOK, res)
 }

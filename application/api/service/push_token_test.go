@@ -1,9 +1,9 @@
-package service2
+package service
 
 import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
-	"github.com/takoikatakotako/charalarm-api/repository2"
+	"github.com/takoikatakotako/charalarm-api/repository"
 	"strings"
 	"testing"
 )
@@ -11,7 +11,7 @@ import (
 // iOSPushTokenを登録できる
 func TestPushTokenService_AddIOSPushToken(t *testing.T) {
 	// AWS Repository
-	awsRepository := repository2.AWS{Profile: "local"}
+	awsRepository := repository.AWS{Profile: "local"}
 
 	// Service
 	userService := User{AWS: awsRepository}
@@ -49,7 +49,7 @@ func TestPushTokenService_AddIOSPushToken(t *testing.T) {
 // iOSPushTokenを変更できる
 func TestPushTokenService_AddIOSPushTokenCanChange(t *testing.T) {
 	// AWS Repository
-	awsRepository := repository2.AWS{Profile: "local"}
+	awsRepository := repository.AWS{Profile: "local"}
 
 	// Service
 	userService := User{AWS: awsRepository}
@@ -109,7 +109,7 @@ func TestPushTokenService_AddIOSPushTokenCanChange(t *testing.T) {
 // iOSPushTokenを複数回更新できる
 func TestPushTokenService_AddIOSPushTokenMultiTimes(t *testing.T) {
 	// AWS Repository
-	awsRepository := repository2.AWS{Profile: "local"}
+	awsRepository := repository.AWS{Profile: "local"}
 
 	// Service
 	userService := User{AWS: awsRepository}
@@ -153,7 +153,7 @@ func TestPushTokenService_AddIOSPushTokenMultiTimes(t *testing.T) {
 // iOSVoIPPushTokenを登録できる
 func TestPushTokenService_AddIOSVoipPushToken(t *testing.T) {
 	// AWS Repository
-	awsRepository := repository2.AWS{Profile: "local"}
+	awsRepository := repository.AWS{Profile: "local"}
 
 	// Service
 	userService := User{AWS: awsRepository}
@@ -193,7 +193,7 @@ func TestPushTokenService_AddIOSVoipPushToken(t *testing.T) {
 // iOSVoIPPushTokenを変更できる
 func TestPushTokenService_AddIOSVoipPushTokenCanChange(t *testing.T) {
 	// AWS Repository
-	awsRepository := repository2.AWS{Profile: "local"}
+	awsRepository := repository.AWS{Profile: "local"}
 
 	// Service
 	userService := User{AWS: awsRepository}
@@ -251,7 +251,7 @@ func TestPushTokenService_AddIOSVoipPushTokenCanChange(t *testing.T) {
 // iOSVoIPPushTokenを複数回変更できる
 func TestPushTokenService_AddIOSVoipPushTokenMultiChange(t *testing.T) {
 	// AWS Repository
-	awsRepository := repository2.AWS{Profile: "local"}
+	awsRepository := repository.AWS{Profile: "local"}
 
 	// Service
 	userService := User{AWS: awsRepository}

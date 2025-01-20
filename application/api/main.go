@@ -3,9 +3,9 @@ package main
 import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"github.com/takoikatakotako/charalarm-api/handler2"
-	"github.com/takoikatakotako/charalarm-api/repository2"
-	"github.com/takoikatakotako/charalarm-api/service2"
+	"github.com/takoikatakotako/charalarm-api/handler"
+	"github.com/takoikatakotako/charalarm-api/repository"
+	"github.com/takoikatakotako/charalarm-api/service"
 	"os"
 )
 
@@ -23,45 +23,45 @@ func main() {
 	profile := getEnvironment("CHARALARM_AWS_PROFILE", "local")
 
 	// repository
-	awsRepository := repository2.AWS{
+	awsRepository := repository.AWS{
 		Profile: profile,
 	}
-	environmentRepository := repository2.Environment{
+	environmentRepository := repository.Environment{
 		IsLocal: true,
 	}
 
 	// service
-	userService := service2.User{
+	userService := service.User{
 		AWS: awsRepository,
 	}
-	alarmService := service2.Alarm{
+	alarmService := service.Alarm{
 		AWS: awsRepository,
 	}
-	charaService := service2.Chara{
+	charaService := service.Chara{
 		AWS:         awsRepository,
 		Environment: environmentRepository,
 	}
-	pushTokenService := service2.PushToken{
+	pushTokenService := service.PushToken{
 		AWS: awsRepository,
 	}
 
 	// handler
-	healthcheckHandler := handler2.Healthcheck{}
-	maintenanceHandler := handler2.Maintenance{}
-	requireHandler := handler2.Require{}
-	userHandler := handler2.User{
+	healthcheckHandler := handler.Healthcheck{}
+	maintenanceHandler := handler.Maintenance{}
+	requireHandler := handler.Require{}
+	userHandler := handler.User{
 		Service: userService,
 	}
-	alarmHandler := handler2.Alarm{
+	alarmHandler := handler.Alarm{
 		Service: alarmService,
 	}
-	charaHandler := handler2.Chara{
+	charaHandler := handler.Chara{
 		Service: charaService,
 	}
-	pushTokenHandler := handler2.PushToken{
+	pushTokenHandler := handler.PushToken{
 		Service: pushTokenService,
 	}
-	newsHandler := handler2.News{}
+	newsHandler := handler.News{}
 
 	e := echo.New()
 	e.Use(middleware.Logger())
@@ -70,7 +70,7 @@ func main() {
 	e.GET("/healthcheck/", healthcheckHandler.HealthcheckGet)
 	e.GET("/maintenance/", maintenanceHandler.MaintenanceGet)
 	e.GET("/require/", requireHandler.RequireGet)
-	
+
 	// user
 	e.GET("/user/info/", userHandler.UserInfoGet)
 	e.POST("/user/signup/", userHandler.UserSignupPost)

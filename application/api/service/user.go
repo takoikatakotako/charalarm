@@ -1,10 +1,10 @@
-package service2
+package service
 
 import (
 	"errors"
 	"github.com/takoikatakotako/charalarm-api/entity/database"
 	"github.com/takoikatakotako/charalarm-api/entity/response"
-	"github.com/takoikatakotako/charalarm-api/repository2"
+	"github.com/takoikatakotako/charalarm-api/repository"
 	"github.com/takoikatakotako/charalarm-api/util/converter"
 	"github.com/takoikatakotako/charalarm-api/util/message"
 	"github.com/takoikatakotako/charalarm-api/util/validator"
@@ -12,7 +12,7 @@ import (
 )
 
 type User struct {
-	AWS repository2.AWS
+	AWS repository.AWS
 }
 
 func (u *User) GetUser(userID string, authToken string) (response.UserInfoResponse, error) {

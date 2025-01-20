@@ -1,15 +1,15 @@
-package service2
+package service
 
 import (
 	"github.com/takoikatakotako/charalarm-api/entity/database"
 	"github.com/takoikatakotako/charalarm-api/entity/response"
-	"github.com/takoikatakotako/charalarm-api/repository2"
+	"github.com/takoikatakotako/charalarm-api/repository"
 	"github.com/takoikatakotako/charalarm-api/util/converter"
 )
 
 type Chara struct {
-	AWS         repository2.AWS
-	Environment repository2.Environment
+	AWS         repository.AWS
+	Environment repository.Environment
 }
 
 // GetChara キャラクターを取得

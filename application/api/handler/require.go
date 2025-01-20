@@ -1,4 +1,4 @@
-package handler2
+package handler
 
 import (
 	"github.com/labstack/echo/v4"
@@ -6,11 +6,11 @@ import (
 	"net/http"
 )
 
-type Maintenance struct{}
+type Require struct{}
 
-func (m *Maintenance) MaintenanceGet(c echo.Context) error {
-	res := response.Maintenance{
-		Maintenance: false,
+func (r *Require) RequireGet(c echo.Context) error {
+	res := response.Require{
+		IOSVersion: "3.0.0",
 	}
 	return c.JSON(http.StatusOK, res)
 }

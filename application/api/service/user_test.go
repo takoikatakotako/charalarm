@@ -1,15 +1,15 @@
-package service2
+package service
 
 import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
-	"github.com/takoikatakotako/charalarm-api/repository2"
+	"github.com/takoikatakotako/charalarm-api/repository"
 	"testing"
 )
 
 func TestInfoUser(t *testing.T) {
 	// AWS Repository
-	awsRepository := repository2.AWS{Profile: "local"}
+	awsRepository := repository.AWS{Profile: "local"}
 
 	// Service
 	userService := User{AWS: awsRepository}
@@ -36,7 +36,7 @@ func TestInfoUser(t *testing.T) {
 
 func TestSignup(t *testing.T) {
 	// AWS Repository
-	awsRepository := repository2.AWS{Profile: "local"}
+	awsRepository := repository.AWS{Profile: "local"}
 
 	// Service
 	userService := User{AWS: awsRepository}
@@ -64,7 +64,7 @@ func TestSignup(t *testing.T) {
 
 func TestUserService_Withdraw(t *testing.T) {
 	// AWS Repository
-	awsRepository := repository2.AWS{Profile: "local"}
+	awsRepository := repository.AWS{Profile: "local"}
 
 	// Service
 	userService := User{AWS: awsRepository}
@@ -108,7 +108,7 @@ func TestUserService_WithdrawAndCreateSamePushToken(t *testing.T) {
 	// 退会後に別のユーザーが同じ PushTokenでエンドポイントを作れる
 
 	// AWS Repository
-	awsRepository := repository2.AWS{Profile: "local"}
+	awsRepository := repository.AWS{Profile: "local"}
 
 	// Service
 	userService := User{AWS: awsRepository}
@@ -156,7 +156,7 @@ func TestUserService_WithdrawAndCreateSamePushToken(t *testing.T) {
 
 func TestUserService_UpdatePremiumPlan(t *testing.T) {
 	// AWS Repository
-	awsRepository := repository2.AWS{Profile: "local"}
+	awsRepository := repository.AWS{Profile: "local"}
 
 	// Service
 	userService := User{AWS: awsRepository}

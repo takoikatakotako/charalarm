@@ -1,16 +1,16 @@
-package service2
+package service
 
 import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/takoikatakotako/charalarm-api/entity/request"
-	"github.com/takoikatakotako/charalarm-api/repository2"
+	"github.com/takoikatakotako/charalarm-api/repository"
 	"testing"
 )
 
 func TestAlarmService_AddAlarm(t *testing.T) {
 	// AWS Repository
-	repository := repository2.AWS{Profile: "local"}
+	repository := repository.AWS{Profile: "local"}
 
 	// Service
 	userService := User{AWS: repository}

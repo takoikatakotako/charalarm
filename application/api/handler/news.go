@@ -1,4 +1,4 @@
-package handler2
+package handler
 
 import (
 	"github.com/labstack/echo/v4"
@@ -6,11 +6,12 @@ import (
 	"net/http"
 )
 
-type Require struct{}
+type News struct {
+}
 
-func (r *Require) RequireGet(c echo.Context) error {
-	res := response.Require{
-		IOSVersion: "3.0.0",
+func (n *News) NewsListGet(c echo.Context) error {
+	res := response.Message{
+		Message: Healthy,
 	}
 	return c.JSON(http.StatusOK, res)
 }

@@ -1,14 +1,14 @@
-package handler2
+package handler
 
 import (
 	"github.com/labstack/echo/v4"
 	"github.com/takoikatakotako/charalarm-api/entity/response"
-	"github.com/takoikatakotako/charalarm-api/service2"
+	"github.com/takoikatakotako/charalarm-api/service"
 	"net/http"
 )
 
 type Chara struct {
-	Service service2.Chara
+	Service service.Chara
 }
 
 func (chara *Chara) CharaListGet(c echo.Context) error {
