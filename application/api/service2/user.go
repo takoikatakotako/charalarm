@@ -31,21 +31,21 @@ func (u *User) GetUser(userID string, authToken string) (response.UserInfoRespon
 	return response.UserInfoResponse{}, errors.New(message.AuthenticationFailure)
 }
 
-func (u *User) Signup(userID string, authToken string, platform string, ipAddress string) (response.MessageResponse, error) {
+func (u *User) Signup(userID string, authToken string, platform string, ipAddress string) (response.Message, error) {
 	// バリデーション
 	if !validator.IsValidUUID(userID) || !validator.IsValidUUID(authToken) {
-		return response.MessageResponse{}, errors.New(message.ErrorInvalidValue)
+		return response.Message{}, errors.New(message.ErrorInvalidValue)
 	}
 
 	// Check User Is Exist
 	isExist, err := u.AWS.IsExistUser(userID)
 	if err != nil {
-		return response.MessageResponse{}, err
+		return response.Message{}, err
 	}
 
 	// ユーザーが既に作成されていた場合
 	if isExist {
-		return response.MessageResponse{Message: message.UserSignupSuccess}, nil
+		return response.Message{Message: message.UserSignupSuccess}, nil
 	}
 
 	// ユーザー作成
@@ -61,10 +61,10 @@ func (u *User) Signup(userID string, authToken string, platform string, ipAddres
 	}
 	err = u.AWS.InsertUser(user)
 	if err != nil {
-		return response.MessageResponse{}, err
+		return response.Message{}, err
 	}
 
-	return response.MessageResponse{Message: message.UserSignupSuccess}, nil
+	return response.Message{Message: message.UserSignupSuccess}, nil
 }
 
 func (u *User) UpdatePremiumPlan(userID string, authToken string, enablePremiumPlan bool) error {
