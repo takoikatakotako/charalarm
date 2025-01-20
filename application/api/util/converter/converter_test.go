@@ -3,8 +3,8 @@ package converter
 import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
-	"github.com/takoikatakotako/charalarm-backend/entity/database"
-	"github.com/takoikatakotako/charalarm-backend/entity/request"
+	"github.com/takoikatakotako/charalarm-api/entity/database"
+	"github.com/takoikatakotako/charalarm-api/entity/request"
 	"testing"
 )
 
