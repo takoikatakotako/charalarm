@@ -4,17 +4,11 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/takoikatakotako/charalarm-api/entity/request"
-	//"github.com/takoikatakotako/charalarm-api/repository/dynamodb"
-	//"github.com/takoikatakotako/charalarm-api/repository/sns"
 	"github.com/takoikatakotako/charalarm-api/repository2"
 	"testing"
 )
 
 func TestAlarmService_AddAlarm(t *testing.T) {
-	// DynamoDBRepository
-	//dynamoDBRepository := &dynamodb.DynamoDBRepository{IsLocal: true}
-	//snsRepository := &sns.SNSRepository{IsLocal: true}
-
 	// AWS Repository
 	repository := repository2.AWS{Profile: "local"}
 
