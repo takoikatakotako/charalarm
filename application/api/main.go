@@ -48,6 +48,7 @@ func main() {
 	// handler
 	healthcheckHandler := handler2.Healthcheck{}
 	maintenanceHandler := handler2.Maintenance{}
+	requireHandler := handler2.Require{}
 	userHandler := handler2.User{
 		Service: userService,
 	}
@@ -68,11 +69,13 @@ func main() {
 	// healthcheck
 	e.GET("/healthcheck/", healthcheckHandler.HealthcheckGet)
 	e.GET("/maintenance/", maintenanceHandler.MaintenanceGet)
-
+	e.GET("/require/", requireHandler.RequireGet)
+	
 	// user
-	e.POST("/user/signup/", userHandler.UserSignupPost)
-	e.POST("/user/withdraw/", userHandler.UserWithdrawPost)
 	e.GET("/user/info/", userHandler.UserInfoGet)
+	e.POST("/user/signup/", userHandler.UserSignupPost)
+	e.POST("/user/update-premium/", userHandler.UserUpdatePremiumPost)
+	e.POST("/user/withdraw/", userHandler.UserWithdrawPost)
 
 	// alarm
 	e.GET("/alarm/list/", alarmHandler.AlarmListGet)

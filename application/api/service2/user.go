@@ -67,6 +67,25 @@ func (u *User) Signup(userID string, authToken string, platform string, ipAddres
 	return response.MessageResponse{Message: message.UserSignupSuccess}, nil
 }
 
+func (u *User) UpdatePremiumPlan(userID string, authToken string, enablePremiumPlan bool) error {
+	// バリデーション
+	if !validator.IsValidUUID(userID) || !validator.IsValidUUID(authToken) {
+		return errors.New(message.ErrorInvalidValue)
+	}
+
+	// Check User Is Exist
+	isExist, err := u.AWS.IsExistUser(userID)
+	if err != nil {
+		return err
+	}
+	if !isExist {
+		return errors.New(message.ErrorInvalidValue)
+	}
+
+	// プレミアムプランを更新
+	return u.AWS.UpdateUserPremiumPlan(userID, enablePremiumPlan)
+}
+
 func (u *User) Withdraw(userID string, authToken string) error {
 	// バリデーション
 	if !validator.IsValidUUID(userID) || !validator.IsValidUUID(authToken) {
@@ -102,23 +121,4 @@ func (u *User) Withdraw(userID string, authToken string) error {
 	}
 
 	return u.AWS.DeleteUser(userID)
-}
-
-func (u *User) UpdatePremiumPlan(userID string, authToken string, enablePremiumPlan bool) error {
-	// バリデーション
-	if !validator.IsValidUUID(userID) || !validator.IsValidUUID(authToken) {
-		return errors.New(message.ErrorInvalidValue)
-	}
-
-	// Check User Is Exist
-	isExist, err := u.AWS.IsExistUser(userID)
-	if err != nil {
-		return err
-	}
-	if !isExist {
-		return errors.New(message.ErrorInvalidValue)
-	}
-
-	// プレミアムプランを更新
-	return u.AWS.UpdateUserPremiumPlan(userID, enablePremiumPlan)
 }
