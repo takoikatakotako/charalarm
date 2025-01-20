@@ -1,0 +1,66 @@
+package handler2
+
+import (
+	"github.com/labstack/echo/v4"
+	"github.com/takoikatakotako/charalarm-api/entity/request"
+	"github.com/takoikatakotako/charalarm-api/entity2/response2"
+	"github.com/takoikatakotako/charalarm-api/service2"
+	"github.com/takoikatakotako/charalarm-api/util/auth"
+	"net/http"
+)
+
+type PushToken struct {
+	Service service2.PushToken
+}
+
+func (p *PushToken) PushTokenPushAdd(c echo.Context) error {
+	authorizationHeader := c.Request().Header.Get("Authorization")
+	userID, authToken, err := auth.Basic(authorizationHeader)
+	if err != nil {
+		res := response2.Message{Message: "Error!"}
+		return c.JSON(http.StatusInternalServerError, res)
+	}
+
+	req := new(request.AddPushTokenRequest)
+	if err := c.Bind(&req); err != nil {
+		res := response2.Message{Message: "Error!"}
+		return c.JSON(http.StatusInternalServerError, res)
+	}
+
+	err = p.Service.AddIOSPushToken(userID, authToken, req.PushToken)
+	if err != nil {
+		res := response2.Message{Message: "Error!"}
+		return c.JSON(http.StatusInternalServerError, res)
+	}
+
+	res := response2.Message{
+		Message: "Hello!",
+	}
+	return c.JSON(http.StatusOK, res)
+}
+
+func (p *PushToken) PushTokenVoIPPushAdd(c echo.Context) error {
+	authorizationHeader := c.Request().Header.Get("Authorization")
+	userID, authToken, err := auth.Basic(authorizationHeader)
+	if err != nil {
+		res := response2.Message{Message: "Error!"}
+		return c.JSON(http.StatusInternalServerError, res)
+	}
+
+	req := new(request.AddPushTokenRequest)
+	if err := c.Bind(&req); err != nil {
+		res := response2.Message{Message: "Error!"}
+		return c.JSON(http.StatusInternalServerError, res)
+	}
+
+	err = p.Service.AddIOSVoipPushToken(userID, authToken, req.PushToken)
+	if err != nil {
+		res := response2.Message{Message: "Error!"}
+		return c.JSON(http.StatusInternalServerError, res)
+	}
+
+	res := response2.Message{
+		Message: "Hello!",
+	}
+	return c.JSON(http.StatusOK, res)
+}
