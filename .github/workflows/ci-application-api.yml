@@ -11,24 +11,33 @@ on:
 
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
 
     steps:
     # チェックアウト
-    - uses: actions/checkout@v4
+    - name: Checkout
+      uses: actions/checkout@v4
 
-    # # mintのインストール
-    # - name: Install Mint
-    #   working-directory: ios
-    #   run: brew install mint
+    # Go言語のセットアップ
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: 1.21
 
-    # # パッケージのインストール
-    # - name: Mint Bootstrap
-    #   working-directory: ios
-    #   run: mint bootstrap
+    # Mock環境のセットアップ
+    - name: Setup Mock
+      working-directory: application/mock
+      run: make setup
 
-    # # swiftlintの実行
-    # - name: Run SwiftLint
-    #   working-directory: ios
-    #   run: mint run swiftlint --strict
+    # Local Stack の起動完了まで待つ
+    - name: Wait SetUp Localstack
+      run: sleep 30s
+
+    # Application API の実行
+    - name: Run Test
+      env:
+          AWS_ACCESS_KEY_ID: "dummy"
+          AWS_SECRET_ACCESS_KEY: "dummy"
+      working-directory: application/api
+      run: make test
