@@ -68,7 +68,11 @@ func main() {
 
 	// healthcheck
 	e.GET("/healthcheck/", healthcheckHandler.HealthcheckGet)
+
+	// maintenance
 	e.GET("/maintenance/", maintenanceHandler.MaintenanceGet)
+
+	// require
 	e.GET("/require/", requireHandler.RequireGet)
 
 	// user
