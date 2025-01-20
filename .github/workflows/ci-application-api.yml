@@ -11,10 +11,22 @@ on:
 
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
 
     steps:
     # チェックアウト
-    - uses: actions/checkout@v4
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    # Mock環境のセットアップ
+    - name: Setup Mock
+      working-directory: application/mock
+      run: make setup
+
+    # Application API の実行
+    - name: Run Test
+      working-directory: application/api
+      run: make test
+
 
