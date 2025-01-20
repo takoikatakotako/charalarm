@@ -47,6 +47,7 @@ func main() {
 
 	// handler
 	healthcheckHandler := handler2.Healthcheck{}
+	maintenanceHandler := handler2.Maintenance{}
 	userHandler := handler2.User{
 		Service: userService,
 	}
@@ -66,6 +67,7 @@ func main() {
 
 	// healthcheck
 	e.GET("/healthcheck/", healthcheckHandler.HealthcheckGet)
+	e.GET("/maintenance/", maintenanceHandler.MaintenanceGet)
 
 	// user
 	e.POST("/user/signup/", userHandler.UserSignupPost)
