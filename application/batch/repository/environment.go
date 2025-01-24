@@ -2,7 +2,7 @@ package repository
 
 import (
 	"errors"
-	"github.com/takoikatakotako/charalarm-api/util/message"
+	"github.com/takoikatakotako/charalarm-batch/message"
 	"os"
 )
 

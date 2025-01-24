@@ -7,11 +7,9 @@ import (
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
-	"github.com/takoikatakotako/charalarm-api/entity/database"
-	"github.com/takoikatakotako/charalarm-api/util/logger"
-	"github.com/takoikatakotako/charalarm-api/util/message"
+	"github.com/takoikatakotako/charalarm-batch/database"
+	"github.com/takoikatakotako/charalarm-batch/message"
 	"math/rand"
-	"runtime"
 	"time"
 )
 
@@ -49,40 +47,6 @@ func (a *AWS) GetChara(charaID string) (database.Chara, error) {
 	}
 
 	return chara, nil
-}
-
-// GetCharaList キャラ一覧を取得
-func (a *AWS) GetCharaList() ([]database.Chara, error) {
-	// クライアント作成
-	client, err := a.createDynamoDBClient()
-	if err != nil {
-		return []database.Chara{}, err
-	}
-
-	// クエリ実行
-	input := &dynamodb.ScanInput{
-		TableName: aws.String("chara-table"),
-	}
-	output, err := client.Scan(context.Background(), input)
-	if err != nil {
-		return []database.Chara{}, err
-	}
-
-	// 取得結果を struct の配列に変換
-	charaList := make([]database.Chara, 0)
-	for _, item := range output.Items {
-		chara := database.Chara{}
-		err := attributevalue.UnmarshalMap(item, &chara)
-		if err != nil {
-			// Error
-			pc, fileName, line, _ := runtime.Caller(1)
-			funcName := runtime.FuncForPC(pc).Name()
-			logger.Error(err.Error(), fileName, funcName, line)
-			continue
-		}
-		charaList = append(charaList, chara)
-	}
-	return charaList, nil
 }
 
 // GetRandomChara
