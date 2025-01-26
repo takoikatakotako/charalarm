@@ -1,12 +1,9 @@
 package main
 
 import (
-	"encoding/json"
-	"github.com/aws/aws-lambda-go/events"
-	"github.com/takoikatakotako/charalarm-batch/message"
+	"fmt"
 	"github.com/takoikatakotako/charalarm-batch/repository"
 	"github.com/takoikatakotako/charalarm-batch/service"
-	"net/http"
 	"time"
 )
 
@@ -25,12 +22,8 @@ func main() {
 
 	err := batchService.QueryDynamoDBAndSendMessage(hour, minute, weekday)
 	if err != nil {
-		res := response.MessageResponse{Message: message.FailedToGetUserInfo}
-		jsonBytes, _ := json.Marshal(res)
-		return events.APIGatewayProxyResponse{
-			Body:       string(jsonBytes),
-			StatusCode: http.StatusInternalServerError,
-		}, nil
+		fmt.Println(err)
+	} else {
+		fmt.Println("Finish!!")
 	}
-
 }

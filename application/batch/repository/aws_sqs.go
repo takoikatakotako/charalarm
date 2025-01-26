@@ -7,16 +7,8 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/sqs"
 	"github.com/aws/aws-sdk-go-v2/service/sqs/types"
 	"github.com/google/uuid"
+	"github.com/takoikatakotako/charalarm-batch/entity"
 )
-
-type IOSVoIPPushAlarmInfoSQSMessage struct {
-	AlarmID        string `json:"alarmID"`
-	UserID         string `json:"userID"`
-	SNSEndpointArn string `json:"snsEndpointArn"`
-	CharaID        string `json:"charaID"`
-	CharaName      string `json:"charaName"`
-	VoiceFileURL   string `json:"voiceFileURL"`
-}
 
 const (
 	VoIPPushQueueName           = "voip-push-queue.fifo"
@@ -52,7 +44,7 @@ func (a *AWS) GetQueueURL(queueName string) (string, error) {
 }
 
 // SendAlarmInfoToVoIPPushQueue SQS
-func (a *AWS) SendAlarmInfoToVoIPPushQueue(alarmInfo IOSVoIPPushAlarmInfoSQSMessage) error {
+func (a *AWS) SendAlarmInfoToVoIPPushQueue(alarmInfo entity.IOSVoIPPushAlarmInfoSQSMessage) error {
 	queueURL, err := a.GetQueueURL(VoIPPushQueueName)
 	if err != nil {
 		return err
@@ -60,18 +52,18 @@ func (a *AWS) SendAlarmInfoToVoIPPushQueue(alarmInfo IOSVoIPPushAlarmInfoSQSMess
 	messageGroupId := uuid.New().String()
 
 	// メッセージ送信
-	return s.sendAlarmInfoMessage(queueURL, messageGroupId, alarmInfo)
+	return a.sendAlarmInfoMessage(queueURL, messageGroupId, alarmInfo)
 }
 
 func (a *AWS) SendMessageToVoIPPushDeadLetterQueue(messageBody string) error {
-	queueURL, err := s.GetQueueURL(VoIPPushDeadLetterQueueName)
+	queueURL, err := a.GetQueueURL(VoIPPushDeadLetterQueueName)
 	if err != nil {
 		return err
 	}
 	messageGroupId := uuid.New().String()
 
 	// メッセージ送信
-	return s.sendMessage(queueURL, messageGroupId, messageBody)
+	return a.sendMessage(queueURL, messageGroupId, messageBody)
 }
 
 func (a *AWS) ReceiveAlarmInfoMessage() ([]types.Message, error) {
@@ -86,7 +78,7 @@ func (a *AWS) PurgeQueue() error {
 	queueURL := "http://localhost:4566/000000000000/voip-push-queue.fifo"
 
 	// SQSClient作成
-	client, err := s.createSQSClient()
+	client, err := a.createSQSClient()
 	if err != nil {
 		return err
 	}
@@ -102,7 +94,7 @@ func (a *AWS) PurgeQueue() error {
 // //////////////////////////////////
 // Private Methods
 // //////////////////////////////////
-func (a *AWS) sendAlarmInfoMessage(queueURL string, messageGroupId string, alarmInfo sqs_entity.IOSVoIPPushAlarmInfoSQSMessage) error {
+func (a *AWS) sendAlarmInfoMessage(queueURL string, messageGroupId string, alarmInfo entity.IOSVoIPPushAlarmInfoSQSMessage) error {
 	// decode
 	jsonBytes, err := json.Marshal(alarmInfo)
 	if err != nil {
@@ -110,12 +102,12 @@ func (a *AWS) sendAlarmInfoMessage(queueURL string, messageGroupId string, alarm
 	}
 	messageBody := string(jsonBytes)
 
-	return s.sendMessage(queueURL, messageGroupId, messageBody)
+	return a.sendMessage(queueURL, messageGroupId, messageBody)
 }
 
 func (a *AWS) sendMessage(queueURL string, messageGroupId string, messageBody string) error {
 	// SQSClient作成
-	client, err := s.createSQSClient()
+	client, err := a.createSQSClient()
 	if err != nil {
 		return err
 	}
@@ -133,7 +125,7 @@ func (a *AWS) sendMessage(queueURL string, messageGroupId string, messageBody st
 
 func (a *AWS) receiveMessage(queueURL string) ([]types.Message, error) {
 	// SQSClient作成
-	client, err := s.createSQSClient()
+	client, err := a.createSQSClient()
 	if err != nil {
 		return []types.Message{}, nil
 	}

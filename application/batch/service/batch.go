@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/takoikatakotako/charalarm-batch/database"
+	"github.com/takoikatakotako/charalarm-batch/entity"
 	"github.com/takoikatakotako/charalarm-batch/logger"
 
 	//"github.com/takoikatakotako/charalarm-batch/sqs"
@@ -13,15 +14,6 @@ import (
 	"runtime"
 	"time"
 )
-
-type IOSVoIPPushAlarmInfoSQSMessage struct {
-	AlarmID        string `json:"alarmID"`
-	UserID         string `json:"userID"`
-	SNSEndpointArn string `json:"snsEndpointArn"`
-	CharaID        string `json:"charaID"`
-	CharaName      string `json:"charaName"`
-	VoiceFileURL   string `json:"voiceFileURL"`
-}
 
 type Batch struct {
 	AWS repository.AWS
@@ -101,7 +93,7 @@ func (b *Batch) createVoiceFileURL(resourceBaseURL string, charaID string, voice
 
 func (b *Batch) forIOSVoIPPushNotification(resourceBaseURL string, alarm database.Alarm) error {
 	// AlarmInfoに変換
-	alarmInfo := IOSVoIPPushAlarmInfoSQSMessage{}
+	alarmInfo := entity.IOSVoIPPushAlarmInfoSQSMessage{}
 	alarmInfo.AlarmID = alarm.AlarmID
 	alarmInfo.UserID = alarm.UserID
 	alarmInfo.SNSEndpointArn = alarm.Target
@@ -149,5 +141,5 @@ func (b *Batch) forIOSVoIPPushNotification(resourceBaseURL string, alarm databas
 	}
 
 	// SQSに送信
-	return b.SQSRepository.SendAlarmInfoToVoIPPushQueue(alarmInfo)
+	return b.AWS.SendAlarmInfoToVoIPPushQueue(alarmInfo)
 }
