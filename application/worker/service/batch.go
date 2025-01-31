@@ -3,13 +3,13 @@ package service
 import (
 	"errors"
 	"fmt"
-	"github.com/takoikatakotako/charalarm-batch/database"
-	"github.com/takoikatakotako/charalarm-batch/entity"
-	"github.com/takoikatakotako/charalarm-batch/logger"
+	"github.com/takoikatakotako/charalarm-worker/database"
+	"github.com/takoikatakotako/charalarm-worker/entity"
+	"github.com/takoikatakotako/charalarm-worker/logger"
 
 	//"github.com/takoikatakotako/charalarm-batch/sqs"
 	//"github.com/takoikatakotako/charalarm-batch/logger"
-	"github.com/takoikatakotako/charalarm-batch/repository"
+	"github.com/takoikatakotako/charalarm-worker/repository"
 	"math/rand"
 	"runtime"
 	"time"

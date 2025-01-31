@@ -7,8 +7,8 @@ import (
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
-	"github.com/takoikatakotako/charalarm-batch/database"
-	"github.com/takoikatakotako/charalarm-batch/message"
+	"github.com/takoikatakotako/charalarm-worker/database"
+	"github.com/takoikatakotako/charalarm-worker/message"
 	"math/rand"
 	"time"
 )
