@@ -1,6 +1,6 @@
-## 新アーキテクチャ
+# システム
 
-Charalarmのインフラのアーキテクチャです。
+Charalarmのシステムは以下のサービスにより構成されています。
 
 ![Architecture](image/infra-architecture.png)
 

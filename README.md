@@ -1,8 +1,5 @@
-# Charalarm
+<img src="documents/logo.png" alt="logo" width="600"/>
 
 目覚ましアプリ、Charalarmのリポジトリです。
 
-
-## Documentation
-
-[Documentation](documents/index.md)
+# [Documentation](documents/index.md)
