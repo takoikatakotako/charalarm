@@ -20,6 +20,20 @@ provider "aws" {
 }
 
 
+module "api_repository" {
+  source = "../../modules/repository"
+  name = "charalarm-api"
+}
+
+module "batch_repository" {
+  source = "../../modules/repository"
+  name = "charalarm-batch"
+}
+
+module "worker_repository" {
+  source = "../../modules/repository"
+  name = "charalarm-worker"
+}
 
 # module "github" {
 #   source = "../../modules/github"
