@@ -1,53 +1,53 @@
 resource "aws_ecr_repository" "repository" {
-  name                 = var.name
+  name = var.name
 }
 
 resource "aws_ecr_repository_policy" "repository_policy" {
   repository = aws_ecr_repository.repository.name
-  policy = data.aws_iam_policy_document.policy_document.json
+  policy     = data.aws_iam_policy_document.policy_document.json
 }
 
 data "aws_iam_policy_document" "policy_document" {
-    statement {
-      sid = "allow-pull-statement"
-      effect = "Allow"
+  statement {
+    sid    = "allow-pull-statement"
+    effect = "Allow"
 
-      principals {
-        type = "AWS"
-        identifiers = [
-            for account_id in var.allow_pull_account_ids :
-            "arn:aws:iam::${account_id}:root"
-        ]
-      }
-
-      actions = [
-                "ecr:GetDownloadUrlForLayer",
-                "ecr:BatchGetImage",
-                "ecr:BatchCheckLayerAvailability",
-                "ecr:PutImage",
-                "ecr:InitiateLayerUpload",
-                "ecr:UploadLayerPart",
-                "ecr:CompleteLayerUpload",
-                "ecr:SetRepositoryPolicy",
-                "ecr:GetRepositoryPolicy",
-                "ecr:DeleteRepositoryPolicy"
+    principals {
+      type = "AWS"
+      identifiers = [
+        for account_id in var.allow_pull_account_ids :
+        "arn:aws:iam::${account_id}:root"
       ]
     }
 
-    statement {
-      sid = "LambdaECRImageCrossAccountRetrievalPolicy"
-      effect = "Allow"
+    actions = [
+      "ecr:GetDownloadUrlForLayer",
+      "ecr:BatchGetImage",
+      "ecr:BatchCheckLayerAvailability",
+      "ecr:PutImage",
+      "ecr:InitiateLayerUpload",
+      "ecr:UploadLayerPart",
+      "ecr:CompleteLayerUpload",
+      "ecr:SetRepositoryPolicy",
+      "ecr:GetRepositoryPolicy",
+      "ecr:DeleteRepositoryPolicy"
+    ]
+  }
 
-      principals {
+  statement {
+    sid    = "LambdaECRImageCrossAccountRetrievalPolicy"
+    effect = "Allow"
+
+    principals {
       type        = "Service"
       identifiers = ["lambda.amazonaws.com"]
-      }
-
-      actions = [
-                "ecr:GetDownloadUrlForLayer",
-                "ecr:BatchGetImage",
-      ]
     }
+
+    actions = [
+      "ecr:GetDownloadUrlForLayer",
+      "ecr:BatchGetImage",
+    ]
+  }
 }
 
 
