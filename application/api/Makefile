@@ -1,3 +1,6 @@
+REPOSITORY_URI = "448049807848.dkr.ecr.ap-northeast-1.amazonaws.com/charalarm-api"
+GITHUB_SHA ?= "local"
+
 .PHONY: test
 test:
 		go test ./...
@@ -5,4 +8,9 @@ test:
 
 .PHONY: build-image
 build-image:
-	docker build -t charalarm-api:latest
+	aws ecr get-login-password --region ap-northeast-1 --profile charalarm-management | docker login --username AWS --password-stdin 448049807848.dkr.ecr.ap-northeast-1.amazonaws.com
+	docker build -t charalarm-api .
+	docker tag charalarm-api:latest ${REPOSITORY_URI}:latest
+	docker push ${REPOSITORY_URI}:latest
+	docker tag charalarm-api:latest ${REPOSITORY_URI}:${GITHUB_SHA}
+	docker push ${REPOSITORY_URI}:${GITHUB_SHA}
