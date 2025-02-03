@@ -1,7 +1,6 @@
 
 resource "aws_iam_role" "api_lambda_function_role" {
-  name               = "charalarm-api-role-3j8iori2"
-  path               = "/service-role/"
+  name               = "charalarm-api-role"
   assume_role_policy = data.aws_iam_policy_document.api_lambda_function_role_assume_policy_document.json
 }
 
@@ -17,9 +16,8 @@ data "aws_iam_policy_document" "api_lambda_function_role_assume_policy_document"
 }
 
 resource "aws_iam_policy" "api_lambda_function_role_policy" {
-  name   = "AWSLambdaBasicExecutionRole-f9771750-cdd4-4969-93e6-4c3bd08680a0"
+  name   = "charalarm-api-role-policy"
   policy = data.aws_iam_policy_document.api_lambda_function_role_policy_document.json
-   path             = "/service-role/"
 }
 
 data "aws_iam_policy_document" "api_lambda_function_role_policy_document" {
@@ -28,7 +26,7 @@ data "aws_iam_policy_document" "api_lambda_function_role_policy_document" {
     actions = [
       "logs:CreateLogGroup",
     ]
-    resources = ["arn:aws:logs:ap-northeast-1:039612872248:*"]
+    resources = ["arn:aws:logs:ap-northeast-1:${local.account_id}:*"]
   }
 
   statement {
@@ -38,10 +36,9 @@ data "aws_iam_policy_document" "api_lambda_function_role_policy_document" {
       "logs:CreateLogStream",
     ]
     resources = [
-      "arn:aws:logs:ap-northeast-1:039612872248:log-group:/aws/lambda/charalarm-api:*"
+      "arn:aws:logs:ap-northeast-1:${local.account_id}:log-group:/aws/lambda/${aws_lambda_function.api_lambda_function.function_name}:*"
     ]
   }
-
 
   statement {
     sid    = "LambdaECRImageRetrievalPolicy"
@@ -54,9 +51,7 @@ data "aws_iam_policy_document" "api_lambda_function_role_policy_document" {
       "*"
     ]
   }
-
 }
-
 
 resource "aws_iam_role_policy_attachment" "api_lambda_function_role_policy_attachment" {
   role       = aws_iam_role.api_lambda_function_role.name
