@@ -9,7 +9,15 @@ resource "aws_lambda_function" "api_lambda_function" {
 
 resource "aws_lambda_function_url" "api_lambda_function_url" {
   function_name      = aws_lambda_function.api_lambda_function.function_name
-  authorization_type = "NONE"
+  authorization_type = "AWS_IAM"
+}
+
+resource "aws_lambda_permission" "api_lambda_permission" {
+  statement_id  = "AllowCloudFrontServicePrincipal"
+  function_url_auth_type = "AWS_IAM"
+  action        = "lambda:InvokeFunctionUrl"
+  function_name = aws_lambda_function.api_lambda_function.function_name
+  principal     = "cloudfront.amazonaws.com"
 }
 
 # CloudFront Distribution
