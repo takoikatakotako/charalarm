@@ -9,6 +9,9 @@ FROM --platform=linux/arm64 golang:1.23.2-alpine3.19
 
 WORKDIR /app
 COPY --from=builder /app/main .
+
+COPY --from=public.ecr.aws/awsguru/aws-lambda-adapter:0.9.0 /lambda-adapter /opt/extensions/lambda-adapter
+
 EXPOSE 8080
 
 CMD ["/app/main"]
