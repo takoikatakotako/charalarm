@@ -19,6 +19,38 @@ provider "aws" {
   region  = "ap-northeast-1"
 }
 
+provider "aws" {
+  alias = "virginia"
+  profile = "charalarm-development"
+  region  = "us-east-1"
+}
+
+
+
+//////////////////////////////////////////
+// Common
+//////////////////////////////////////////
+
+
+
+
+//////////////////////////////////////////
+// API
+//////////////////////////////////////////
+module "api_domain" {
+  source = "../../modules/domain"
+  name = "api2-development.charalarm.com"
+}
+
+module "cloudfront_api_certificate" {
+  source = "../../modules/cloudfront_certificate"
+  providers = {
+    aws = aws.virginia
+  }
+  zone_id = module.api_domain.zone_id
+  domain_name = "api2-development.charalarm.com"
+}
+
 
 
 # module "dynamodb" {
@@ -81,6 +113,9 @@ module "api" {
   # resource_domain           = local.resource_domain
   # datadog_log_forwarder_arn = local.datadog_log_forwarder_arn
 }
+
+
+
 
 
 # module "batch" {
