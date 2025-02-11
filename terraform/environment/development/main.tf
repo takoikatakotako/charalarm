@@ -19,6 +19,44 @@ provider "aws" {
   region  = "ap-northeast-1"
 }
 
+provider "aws" {
+  alias   = "virginia"
+  profile = "charalarm-development"
+  region  = "us-east-1"
+}
+
+
+
+//////////////////////////////////////////
+// Common
+//////////////////////////////////////////
+module "root_domain" {
+  source = "../../modules/domain"
+  name   = "charalarm-development.swiswiswift.com"
+}
+
+
+
+//////////////////////////////////////////
+// API
+//////////////////////////////////////////
+module "cloudfront_api_certificate" {
+  source = "../../modules/cloudfront_certificate"
+  providers = {
+    aws = aws.virginia
+  }
+  zone_id     = module.root_domain.zone_id
+  domain_name = "api.charalarm-development.swiswiswift.com"
+}
+
+module "api" {
+  source                        = "../../modules/api"
+  api_lambda_function_image_uri = "448049807848.dkr.ecr.ap-northeast-1.amazonaws.com/charalarm-api:latest"
+  api_domain_name               = "api.charalarm-development.swiswiswift.com"
+  api_cloudfront_certificate    = module.cloudfront_api_certificate.certificate_arn
+  root_domain_zone_id           = module.root_domain.zone_id
+}
+
 
 
 # module "dynamodb" {
@@ -71,16 +109,9 @@ provider "aws" {
 #   datadog_log_forwarder_arn = local.datadog_log_forwarder_arn
 # }
 
-module "api" {
-  source = "../../modules/api"
-  # domain                    = local.api_domain
-  # route53_zone_id           = local.route53_zone_id
-  # acm_certificate_arn       = local.api_acm_certificate_arn
-  # application_version       = local.application_version
-  # application_bucket_name   = local.application_bucket_name
-  # resource_domain           = local.resource_domain
-  # datadog_log_forwarder_arn = local.datadog_log_forwarder_arn
-}
+
+
+
 
 
 # module "batch" {
