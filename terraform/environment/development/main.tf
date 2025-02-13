@@ -36,6 +36,17 @@ module "root_domain" {
 }
 
 
+//////////////////////////////////////////
+// Resource
+//////////////////////////////////////////
+module "resource" {
+  source              = "../../modules/resource"
+  bucket_name         = local.resource_bucket_name
+  acm_certificate_arn = local.resource_acm_certificate_arn
+  domain              = local.resource_domain
+  zone_id             = local.route53_zone_id
+}
+
 
 //////////////////////////////////////////
 // API
@@ -58,6 +69,13 @@ module "api" {
 }
 
 
+//////////////////////////////////////////
+// Batch
+//////////////////////////////////////////
+# module "batch" {
+#   source          = "../../modules/batch"
+#   resource_domain = local.resource_domain
+# }
 
 # module "dynamodb" {
 #   source = "../../modules/dynamodb"
@@ -71,13 +89,7 @@ module "api" {
 #   zone_id             = local.route53_zone_id
 # }
 
-# module "resource" {
-#   source              = "../../modules/resource"
-#   bucket_name         = local.resource_bucket_name
-#   acm_certificate_arn = local.resource_acm_certificate_arn
-#   domain              = local.resource_domain
-#   zone_id             = local.route53_zone_id
-# }
+
 
 # module "sqs" {
 #   source                     = "../../modules/sqs"
@@ -114,10 +126,6 @@ module "api" {
 
 
 
-# module "batch" {
-#   source          = "../../modules/batch"
-#   resource_domain = local.resource_domain
-# }
 
 # module "worker" {
 #   source                    = "../../modules/worker"
