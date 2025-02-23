@@ -75,6 +75,14 @@ module "api" {
   api_domain_name               = "api.charalarm-development.swiswiswift.com"
   api_cloudfront_certificate    = module.cloudfront_api_certificate.certificate_arn
   root_domain_zone_id           = module.root_domain.zone_id
+  api_lambda_edge_function_arn  = module.api_lambda_edge.qualified_arn
+}
+
+module "api_lambda_edge" {
+  providers = {
+    aws = aws.virginia
+  }
+  source = "../../modules/api_lambda_edge"
 }
 
 
@@ -87,10 +95,10 @@ module "worker" {
   worker_function_image_tag = "latest"
 }
 
-# module "sqs" {
-#   source                     = "../../modules/sqs"
-#   worker_lambda_function_arn = module.worker.worker_lambda_function_arn
-# }
+module "sqs" {
+  source                     = "../../modules/sqs"
+  worker_lambda_function_arn = module.worker.worker_lambda_function_arn
+}
 
 
 module "platform_application" {
