@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/takoikatakotako/charalarm-api/handler"
@@ -11,16 +12,18 @@ import (
 
 func getEnvironment(key string, defaultValue string) string {
 	// 環境変数の値を取得
-	value := os.Getenv(key)
-	if value == "" {
+	val, exists := os.LookupEnv(key)
+	if !exists {
 		return defaultValue
 	}
-	return value
+	return val
 }
 
 func main() {
 	// environment
 	profile := getEnvironment("CHARALARM_AWS_PROFILE", "local")
+
+	fmt.Printf("profile is %s\n", profile)
 
 	// repository
 	awsRepository := repository.AWS{

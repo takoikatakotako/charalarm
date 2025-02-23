@@ -51,6 +51,22 @@ data "aws_iam_policy_document" "api_lambda_function_role_policy_document" {
       "*"
     ]
   }
+
+  statement {
+    effect = "Allow"
+    actions = [
+      "dynamodb:*",
+    ]
+    resources = ["*"]
+  }
+
+  statement {
+    effect = "Allow"
+    actions = [
+      "sns:*",
+    ]
+    resources = ["*"]
+  }
 }
 
 resource "aws_iam_role_policy_attachment" "api_lambda_function_role_policy_attachment" {
