@@ -1,32 +1,32 @@
 package main
 
-import (
-	"github.com/labstack/echo/v4"
-	"github.com/takoikatakotako/charalarm-backend/entity/response"
-	"github.com/takoikatakotako/charalarm-backend/service"
-	"net/http"
-)
-
-type Batch struct {
-	Service service.Batch
-}
-
-func (b *Batch) AlarmListGet(c echo.Context) error {
-	authorizationHeader := c.Request().Header.Get("Authorization")
-	userID, authToken, err := auth.Basic(authorizationHeader)
-	if err != nil {
-		res := response.Message{Message: "Error!"}
-		return c.JSON(http.StatusInternalServerError, res)
-	}
-
-	res, err := a.Service.GetAlarmList(userID, authToken)
-	if err != nil {
-		res := response.Message{Message: "Error!"}
-		return c.JSON(http.StatusInternalServerError, res)
-	}
-
-	return c.JSON(http.StatusOK, res)
-}
+//import (
+//	"github.com/labstack/echo/v4"
+//	"github.com/takoikatakotako/charalarm-backend/entity/response"
+//	"github.com/takoikatakotako/charalarm-backend/service"
+//	"net/http"
+//)
+//
+//type Batch struct {
+//	Service service.Batch
+//}
+//
+//func (b *Batch) AlarmListGet(c echo.Context) error {
+//	authorizationHeader := c.Request().Header.Get("Authorization")
+//	userID, authToken, err := auth.Basic(authorizationHeader)
+//	if err != nil {
+//		res := response.Message{Message: "Error!"}
+//		return c.JSON(http.StatusInternalServerError, res)
+//	}
+//
+//	res, err := a.Service.GetAlarmList(userID, authToken)
+//	if err != nil {
+//		res := response.Message{Message: "Error!"}
+//		return c.JSON(http.StatusInternalServerError, res)
+//	}
+//
+//	return c.JSON(http.StatusOK, res)
+//}
 
 //
 //func Handler(ctx context.Context, event events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
