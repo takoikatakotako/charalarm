@@ -46,7 +46,6 @@ resource "aws_cloudfront_distribution" "api_cloudfront_distribution" {
     }
   }
 
-
   default_cache_behavior {
     cache_policy_id          = local.cache_policy_id
     compress                 = true
@@ -59,6 +58,12 @@ resource "aws_cloudfront_distribution" "api_cloudfront_distribution" {
     min_ttl                = 0
     default_ttl            = 0
     max_ttl                = 0
+
+    lambda_function_association {
+      event_type   = "origin-request"
+      include_body = true
+      lambda_arn   = var.api_lambda_edge_function_arn
+    }
   }
 
   restrictions {
