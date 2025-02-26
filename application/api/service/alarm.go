@@ -135,6 +135,7 @@ func (a *Alarm) GetAlarmList(userID string, authToken string) ([]response.Alarm,
 	// ユーザーを取得
 	user, err := a.AWS.GetUser(userID)
 	if err != nil {
+		fmt.Println("GetUser failer")
 		return []response.Alarm{}, err
 	}
 
@@ -142,6 +143,7 @@ func (a *Alarm) GetAlarmList(userID string, authToken string) ([]response.Alarm,
 	if user.UserID == userID && user.AuthToken == authToken {
 		databaseAlarmList, err := a.AWS.GetAlarmList(userID)
 		if err != nil {
+			fmt.Println("GetAlarmList failer")
 			return []response.Alarm{}, err
 		}
 

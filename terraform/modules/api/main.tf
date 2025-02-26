@@ -6,6 +6,12 @@ resource "aws_lambda_function" "api_lambda_function" {
   image_uri     = var.api_lambda_function_image_uri
   package_type  = "Image"
   architectures = ["arm64"]
+
+        environment {
+          variables = {
+              "CHARALARM_AWS_PROFILE" = ""
+            }
+        }
 }
 
 resource "aws_lambda_function_url" "api_lambda_function_url" {
@@ -55,7 +61,7 @@ resource "aws_cloudfront_distribution" "api_cloudfront_distribution" {
     target_origin_id         = "${aws_lambda_function_url.api_lambda_function_url.url_id}.lambda-url.ap-northeast-1.on.aws"
     origin_request_policy_id = local.origin_request_policy_id
 
-    viewer_protocol_policy = "allow-all"
+    viewer_protocol_policy   = "redirect-to-https"
     min_ttl                = 0
     default_ttl            = 0
     max_ttl                = 0
@@ -85,7 +91,7 @@ resource "aws_cloudfront_distribution" "api_cloudfront_distribution" {
 resource "aws_cloudfront_origin_access_control" "cloudfront_origin_access_control" {
   name                              = "charalarm-api"
   origin_access_control_origin_type = "lambda"
-  signing_behavior                  = "always"
+  signing_behavior                  = "no-override"
   signing_protocol                  = "sigv4"
 }
 

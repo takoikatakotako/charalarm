@@ -116,7 +116,7 @@ extension APIRepository {
         let url = URL(string: EnvironmentVariableConfig.apiEndpoint + path)!
         let requestHeader = APIHeader.createAuthorizationRequestHeader(userID: userID, authToken: authToken)
         let requestBody: Request? = nil
-        return try await APIClient().request(url: url, httpMethod: .post, requestHeader: requestHeader, requestBody: requestBody)
+        return try await APIClient().request(url: url, httpMethod: .get, requestHeader: requestHeader, requestBody: requestBody)
     }
 
     func addAlarm(userID: String, authToken: String, requestBody: AlarmAddRequest) async throws {

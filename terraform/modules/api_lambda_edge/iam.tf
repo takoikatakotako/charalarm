@@ -29,7 +29,7 @@ data "aws_iam_policy_document" "api_lambda_function_edge_role_policy_document" {
     actions = [
       "logs:CreateLogGroup",
     ]
-    resources = ["arn:aws:logs:us-east-1:${local.account_id}:*"]
+    resources = ["*"]
   }
 
   statement {
@@ -38,7 +38,7 @@ data "aws_iam_policy_document" "api_lambda_function_edge_role_policy_document" {
       "logs:CreateLogStream",
       "logs:PutLogEvents",
     ]
-    resources = ["arn:aws:logs:us-east-1:${local.account_id}:log-group:/aws/lambda/*:*"]
+    resources = ["*"]
   }
 }
 

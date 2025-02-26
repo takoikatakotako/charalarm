@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"github.com/labstack/echo/v4"
 	"github.com/takoikatakotako/charalarm-api/entity/request"
 	"github.com/takoikatakotako/charalarm-api/entity/response"
@@ -14,15 +15,24 @@ type Alarm struct {
 }
 
 func (a *Alarm) AlarmListGet(c echo.Context) error {
+	fmt.Println(c.Request())
 	authorizationHeader := c.Request().Header.Get("Authorization")
+	fmt.Println("-------")
+	fmt.Println(c.Request().Header)
+	fmt.Println("-------")
+
 	userID, authToken, err := auth.Basic(authorizationHeader)
 	if err != nil {
+		fmt.Println("auth error")
+		fmt.Println(err)
 		res := response.Message{Message: "Error!"}
 		return c.JSON(http.StatusInternalServerError, res)
 	}
 
 	res, err := a.Service.GetAlarmList(userID, authToken)
 	if err != nil {
+		fmt.Println("get alarm list failer")
+		fmt.Println(err)
 		res := response.Message{Message: "Error!"}
 		return c.JSON(http.StatusInternalServerError, res)
 	}
