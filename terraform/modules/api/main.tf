@@ -16,12 +16,12 @@ resource "aws_lambda_function" "api_lambda_function" {
 
 resource "aws_lambda_function_url" "api_lambda_function_url" {
   function_name      = aws_lambda_function.api_lambda_function.function_name
-  authorization_type = "AWS_IAM"
+  authorization_type = "NONE"
 }
 
 resource "aws_lambda_permission" "api_lambda_permission" {
   statement_id           = "AllowCloudFrontServicePrincipal"
-  function_url_auth_type = "AWS_IAM"
+  function_url_auth_type = "NONE"
   action                 = "lambda:InvokeFunctionUrl"
   function_name          = aws_lambda_function.api_lambda_function.function_name
   principal              = "cloudfront.amazonaws.com"
@@ -39,7 +39,6 @@ resource "aws_cloudfront_distribution" "api_cloudfront_distribution" {
   origin {
     domain_name              = "${aws_lambda_function_url.api_lambda_function_url.url_id}.lambda-url.ap-northeast-1.on.aws"
     origin_id                = "${aws_lambda_function_url.api_lambda_function_url.url_id}.lambda-url.ap-northeast-1.on.aws"
-    origin_access_control_id = aws_cloudfront_origin_access_control.cloudfront_origin_access_control.id
 
     custom_origin_config {
       http_port                = 80
@@ -66,11 +65,11 @@ resource "aws_cloudfront_distribution" "api_cloudfront_distribution" {
     default_ttl            = 0
     max_ttl                = 0
 
-    lambda_function_association {
-      event_type   = "origin-request"
-      include_body = true
-      lambda_arn   = var.api_lambda_edge_function_arn
-    }
+    # lambda_function_association {
+    #   event_type   = "origin-request"
+    #   include_body = true
+    #   lambda_arn   = var.api_lambda_edge_function_arn
+    # }
   }
 
   restrictions {
@@ -88,12 +87,12 @@ resource "aws_cloudfront_distribution" "api_cloudfront_distribution" {
   }
 }
 
-resource "aws_cloudfront_origin_access_control" "cloudfront_origin_access_control" {
-  name                              = "charalarm-api"
-  origin_access_control_origin_type = "lambda"
-  signing_behavior                  = "no-override"
-  signing_protocol                  = "sigv4"
-}
+# resource "aws_cloudfront_origin_access_control" "cloudfront_origin_access_control" {
+#   name                              = "charalarm-api"
+#   origin_access_control_origin_type = "lambda"
+#   signing_behavior                  = "no-override"
+#   signing_protocol                  = "sigv4"
+# }
 
 
 # Record
