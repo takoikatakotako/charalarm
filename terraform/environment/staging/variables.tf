@@ -13,8 +13,6 @@ locals {
       resource_domain                    = "resource.charalarm.swiswiswift.com"
       resource_bucket_name               = "resource.charalarm.swiswiswift.com"
       resource_acm_certificate_arn       = "arn:aws:acm:us-east-1:334832660826:certificate/cbd20721-8637-4079-9843-37169da6daa9"
-      ios_voip_push_certificate_filename = "staging-voip-expiration-20250314-certificate.pem"
-      ios_voip_push_private_filename     = "staging-voip-expiration-20250314-privatekey.pem"
       datadog_log_forwarder_arn          = "arn:aws:lambda:ap-northeast-1:334832660826:function:datadog-forwarder"
     }
   }
@@ -31,7 +29,7 @@ locals {
   resource_domain                    = local.config["staging"].resource_domain
   resource_bucket_name               = local.config["staging"].resource_bucket_name
   resource_acm_certificate_arn       = local.config["staging"].resource_acm_certificate_arn
-  ios_voip_push_certificate_filename = local.config["staging"].ios_voip_push_certificate_filename
-  ios_voip_push_private_filename     = local.config["staging"].ios_voip_push_private_filename
+  ios_voip_push_certificate_filename = "staging-voip-expiration-20260408-certificate.pem"
+  ios_voip_push_private_filename     = "staging-voip-expiration-20260408-privatekey.pem"
   datadog_log_forwarder_arn          = local.config["staging"].datadog_log_forwarder_arn
 }
