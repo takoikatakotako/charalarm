@@ -70,12 +70,15 @@ func main() {
 	e.Use(middleware.Logger())
 
 	// healthcheck
+	e.GET("/healthcheck", healthcheckHandler.HealthcheckGet)
 	e.GET("/healthcheck/", healthcheckHandler.HealthcheckGet)
 
 	// maintenance
+	e.GET("/maintenance", maintenanceHandler.MaintenanceGet)
 	e.GET("/maintenance/", maintenanceHandler.MaintenanceGet)
 
 	// require
+	e.GET("/require", requireHandler.RequireGet)
 	e.GET("/require/", requireHandler.RequireGet)
 
 	// user

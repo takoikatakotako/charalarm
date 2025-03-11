@@ -2,9 +2,10 @@ locals {
 
 
 
+  api_domain_name              = "api.charalarm-development.swiswiswift.com"
 
 
-  
+
   aws_profile     =  "sandbox"
   route53_zone_id = "Z06272247TSQ89OL8QZN"
   root_domain = "charalarm-development.swiswiswift.com"
@@ -14,7 +15,6 @@ locals {
   resource_acm_certificate_arn = "arn:aws:acm:us-east-1:397693451628:certificate/6f024ec6-82c4-4412-b43e-e7095dc4195e"
 
 
-  api_domain              = "api.charalarm.sandbox.swiswiswift.com"
   api_acm_certificate_arn = "arn:aws:acm:ap-northeast-1:397693451628:certificate/766e3ddf-1e97-406f-a3e8-32aedb8c5ce6"
   application_version     = "0.0.1"
   application_bucket_name = "application.charalarm.sandbox.swiswiswift.com"
