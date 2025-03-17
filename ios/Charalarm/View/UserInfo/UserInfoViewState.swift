@@ -58,7 +58,7 @@ class UserInfoViewState: ObservableObject {
             }
 
             do {
-                userInfo = try await apiRepository.postUserInfo(userID: userID, authToken: authToken)
+                userInfo = try await apiRepository.getUserInfo(userID: userID, authToken: authToken)
             } catch {
                 alert = UserInfoAlertItem(message: "ユーザー情報の取得に失敗しました")
             }

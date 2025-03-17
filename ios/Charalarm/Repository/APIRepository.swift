@@ -23,12 +23,12 @@ extension APIRepository {
 }
 
 extension APIRepository {
-    func postUserInfo(userID: String, authToken: String) async throws -> UserInfo {
+    func getUserInfo(userID: String, authToken: String) async throws -> UserInfo {
         let path = "/user/info"
         let url = URL(string: EnvironmentVariableConfig.apiEndpoint + path)!
         let requestHeader = APIHeader.createAuthorizationRequestHeader(userID: userID, authToken: authToken)
         let requestBody: Encodable? = nil
-        let userInfoResponse: UserInfoResponse = try await APIClient().request(url: url, httpMethod: .post, requestHeader: requestHeader, requestBody: requestBody)
+        let userInfoResponse: UserInfoResponse = try await APIClient().request(url: url, httpMethod: .get, requestHeader: requestHeader, requestBody: requestBody)
 
         // 変換
         let iOSPlatformInfo = UserInfoIOSPlatformInfo(
@@ -54,7 +54,7 @@ extension APIRepository {
     }
 
     func postUserSignup(request: UserSignUpRequest) async throws {
-        let path = "/user/signup/"
+        let path = "/user/signup"
         let url = URL(string: EnvironmentVariableConfig.apiEndpoint + path)!
         let requestHeader: [String: String] = APIHeader.defaultHeader
         let requestBody: Encodable? = request
@@ -62,7 +62,7 @@ extension APIRepository {
     }
 
     func postUserWithdraw(userID: String, authToken: String) async throws {
-        let path = "/user/withdraw/"
+        let path = "/user/withdraw"
         let url = URL(string: EnvironmentVariableConfig.apiEndpoint + path)!
         let requestHeader: [String: String] = APIHeader.createAuthorizationRequestHeader(userID: userID, authToken: authToken)
         let requestBody: Encodable? = nil
@@ -72,7 +72,7 @@ extension APIRepository {
 
 extension APIRepository {
     func getCharaList() async throws -> [Chara] {
-        let path = "/chara/list/"
+        let path = "/chara/list"
         let url = URL(string: EnvironmentVariableConfig.apiEndpoint + path)!
         let requestHeader: [String: String] = APIHeader.defaultHeader
         let requestBody: Encodable? = nil
@@ -81,7 +81,7 @@ extension APIRepository {
     }
 
     func fetchCharacter(charaID: String) async throws -> Chara {
-        let path = "/chara/id/\(charaID)/"
+        let path = "/chara/id/\(charaID)"
         let url = URL(string: EnvironmentVariableConfig.apiEndpoint + path)!
         let requestHeader: [String: String] = APIHeader.defaultHeader
         let requestBody: Encodable? = nil
@@ -92,7 +92,7 @@ extension APIRepository {
 
 extension APIRepository {
     func fetchMaintenance() async throws -> Bool {
-        let path = "/maintenance/"
+        let path = "/maintenance"
         let url = URL(string: EnvironmentVariableConfig.apiEndpoint + path)!
         let requestHeader = APIHeader.defaultHeader
         let requestBody: Request? = nil
@@ -101,7 +101,7 @@ extension APIRepository {
     }
 
     func fetchRequireVersion() async throws -> String {
-        let path = "/require/"
+        let path = "/require"
         let url = URL(string: EnvironmentVariableConfig.apiEndpoint + path)!
         let requestHeader = APIHeader.defaultHeader
         let requestBody: Request? = nil
@@ -112,7 +112,7 @@ extension APIRepository {
 
 extension APIRepository {
     func fetchAlarms(userID: String, authToken: String) async throws -> [AlarmResponse] {
-        let path = "/alarm/list/"
+        let path = "/alarm/list"
         let url = URL(string: EnvironmentVariableConfig.apiEndpoint + path)!
         let requestHeader = APIHeader.createAuthorizationRequestHeader(userID: userID, authToken: authToken)
         let requestBody: Request? = nil
@@ -120,7 +120,7 @@ extension APIRepository {
     }
 
     func addAlarm(userID: String, authToken: String, requestBody: AlarmAddRequest) async throws {
-        let path = "/alarm/add/"
+        let path = "/alarm/add"
         let url = URL(string: EnvironmentVariableConfig.apiEndpoint + path)!
         let requestHeader = APIHeader.createAuthorizationRequestHeader(userID: userID, authToken: authToken)
         let requestBody: Request? = requestBody
@@ -128,7 +128,7 @@ extension APIRepository {
     }
 
     func editAlarm(userID: String, authToken: String, requestBody: AlarmEditRequest) async throws {
-        let path = "/alarm/edit/"
+        let path = "/alarm/edit"
         let url = URL(string: EnvironmentVariableConfig.apiEndpoint + path)!
         let requestHeader = APIHeader.createAuthorizationRequestHeader(userID: userID, authToken: authToken)
         let requestBody: Request? = requestBody
@@ -136,7 +136,7 @@ extension APIRepository {
     }
 
     func deleteAlarm(userID: String, authToken: String, requestBody: AlarmDeleteRequest) async throws {
-        let path = "/alarm/delete/"
+        let path = "/alarm/delete"
         let url = URL(string: EnvironmentVariableConfig.apiEndpoint + path)!
         let requestHeader = APIHeader.createAuthorizationRequestHeader(userID: userID, authToken: authToken)
         let requestBody: Request? = requestBody
