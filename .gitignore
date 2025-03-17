@@ -118,3 +118,7 @@ vendor/bundle
 *.xcworkspace
 *.xcodeproj
 
+# Storage
+Storage/resources
+
+
