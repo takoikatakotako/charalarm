@@ -21,7 +21,7 @@ func (chara *Chara) CharaListGet(c echo.Context) error {
 }
 
 func (chara *Chara) CharaIDGet(c echo.Context) error {
-	charaID := c.Param("id")
+	charaID := c.Param("charaID")
 	res, err := chara.Service.GetChara(charaID)
 	if err != nil {
 		res := response.Message{Message: "Error!"}
