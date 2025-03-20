@@ -22,7 +22,7 @@ func getEnvironment(key string, defaultValue string) string {
 func main() {
 	// environment
 	profile := getEnvironment("CHARALARM_AWS_PROFILE", "local")
-
+	resourceBaseURL := getEnvironment("RESOURCE_BASE_URL", "http://localhost:4566")
 	fmt.Printf("profile is %s\n", profile)
 
 	// repository
@@ -33,6 +33,10 @@ func main() {
 		IsLocal: true,
 	}
 
+	environmentRepository2 := repository.Environment2{
+		ResourceBaseURL: resourceBaseURL,
+	}
+
 	// service
 	userService := service.User{
 		AWS: awsRepository,
@@ -41,8 +45,9 @@ func main() {
 		AWS: awsRepository,
 	}
 	charaService := service.Chara{
-		AWS:         awsRepository,
-		Environment: environmentRepository,
+		AWS:          awsRepository,
+		Environment:  environmentRepository,
+		Environment2: environmentRepository2,
 	}
 	pushTokenService := service.PushToken{
 		AWS: awsRepository,

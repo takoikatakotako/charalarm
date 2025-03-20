@@ -14,3 +14,6 @@ build-image:
 	docker push ${REPOSITORY_URI}:latest
 	docker tag charalarm-api:latest ${REPOSITORY_URI}:${GITHUB_SHA}
 	docker push ${REPOSITORY_URI}:${GITHUB_SHA}
+
+
+

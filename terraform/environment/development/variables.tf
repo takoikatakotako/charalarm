@@ -2,13 +2,13 @@ locals {
 
 
 
-  api_domain_name              = "api.charalarm-development.swiswiswift.com"
+  api_domain_name = "api.charalarm-development.swiswiswift.com"
 
 
 
-  aws_profile     =  "sandbox"
+  aws_profile     = "sandbox"
   route53_zone_id = "Z06272247TSQ89OL8QZN"
-  root_domain = "charalarm-development.swiswiswift.com"
+  root_domain     = "charalarm-development.swiswiswift.com"
 
   resource_domain              = "resource.charalarm-development.swiswiswift.com"
   resource_bucket_name         = "resource.charalarm-development.swiswiswift.com"
@@ -25,6 +25,6 @@ locals {
 
 
   ios_voip_push_certificate_filename = "development-voip-expiration-20250314-certificate.pem"
-  ios_voip_push_private_filename     =  "development-voip-expiration-20250314-privatekey.pem"
+  ios_voip_push_private_filename     = "development-voip-expiration-20250314-privatekey.pem"
   datadog_log_forwarder_arn          = "arn:aws:lambda:ap-northeast-1:397693451628:function:datadog-forwarder"
 }
