@@ -9,8 +9,7 @@ import (
 
 type Chara struct {
 	AWS          repository.AWS
-	Environment  repository.Environment
-	Environment2 repository.Environment2
+	Environment2 repository.Environment
 }
 
 // GetChara キャラクターを取得

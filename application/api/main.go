@@ -29,11 +29,7 @@ func main() {
 	awsRepository := repository.AWS{
 		Profile: profile,
 	}
-	environmentRepository := repository.Environment{
-		IsLocal: true,
-	}
-
-	environmentRepository2 := repository.Environment2{
+	environmentRepository2 := repository.Environment{
 		ResourceBaseURL: resourceBaseURL,
 	}
 
@@ -46,7 +42,6 @@ func main() {
 	}
 	charaService := service.Chara{
 		AWS:          awsRepository,
-		Environment:  environmentRepository,
 		Environment2: environmentRepository2,
 	}
 	pushTokenService := service.PushToken{
