@@ -8,8 +8,8 @@ import (
 )
 
 type Chara struct {
-	AWS          repository.AWS
-	Environment2 repository.Environment
+	AWS         repository.AWS
+	Environment repository.Environment
 }
 
 // GetChara キャラクターを取得
@@ -20,7 +20,7 @@ func (c *Chara) GetChara(charaID string) (response.Chara, error) {
 	}
 
 	// BaseURLを取得
-	baseURL := c.Environment2.ResourceBaseURL
+	baseURL := c.Environment.ResourceBaseURL
 	return converter.DatabaseCharaToResponseChara(chara, baseURL), nil
 }
 
@@ -32,7 +32,7 @@ func (c *Chara) GetCharaList() ([]response.Chara, error) {
 	}
 
 	// BaseURLを取得
-	baseURL := c.Environment2.ResourceBaseURL
+	baseURL := c.Environment.ResourceBaseURL
 
 	// enable のものを抽出
 	filteredCharaList := make([]database.Chara, 0)

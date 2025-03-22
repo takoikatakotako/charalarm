@@ -1,8 +1,6 @@
 import Foundation
 
-struct APIRepository {
-
-}
+struct APIRepository {}
 
 extension APIRepository {
     func postPushTokenAddPushToken(userID: String, authToken: String, pushToken: PushTokenRequest) async throws {

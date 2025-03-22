@@ -6,6 +6,8 @@ import (
 	"github.com/aws/aws-sdk-go-v2/config"
 )
 
+const LocalstackEndpoint = "http://localhost:4566"
+
 type AWS struct {
 	Profile string
 }
