@@ -10,12 +10,12 @@ import (
 
 func TestAlarmService_AddAlarm(t *testing.T) {
 	// AWS Repository
-	repository := repository.AWS{Profile: "local"}
+	repo := repository.AWS{Profile: "local"}
 
 	// Service
-	userService := User{AWS: repository}
-	alarmService := Alarm{AWS: repository}
-	pushTokenService := PushToken{AWS: repository}
+	userService := User{AWS: repo}
+	alarmService := Alarm{AWS: repo}
+	pushTokenService := PushToken{AWS: repo}
 
 	// ユーザー作成
 	userID := uuid.New().String()

@@ -19,6 +19,6 @@ func (a *AWS) createDynamoDBClient() (*dynamodb.Client, error) {
 		}), nil
 	}
 
-	// それ以外
+	// Local 以外の場合
 	return dynamodb.NewFromConfig(cfg), nil
 }
