@@ -16,9 +16,7 @@ import (
 )
 
 type Batch struct {
-	AWS repository.AWS
-	//DynamoDBRepository             dynamodb.DynamoDBRepositoryInterface
-	//SQSRepository                  sqsRepo.SQSRepositoryInterface
+	AWS                            repository.AWS
 	Environment                    repository.Environment
 	randomCharaNameAndVoiceFileURL map[string]CharaNameAndVoiceFilePath
 }
@@ -37,7 +35,7 @@ func (b *Batch) QueryDynamoDBAndSendMessage(hour int, minute int, weekday time.W
 	}
 
 	// BaseURLを取得
-	resourceBaseURL, err := b.Environment.GetResourceBaseURL()
+	resourceBaseURL := b.Environment.ResourceBaseURL
 	if err != nil {
 		return err
 	}
