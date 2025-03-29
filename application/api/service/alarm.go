@@ -28,17 +28,29 @@ func (a *Alarm) AddAlarm(userID string, authToken string, requestAlarm request.A
 		return err
 	}
 
+	fmt.Println("@@@@@user@@@@@")
+	fmt.Println(user.UserID)
+	fmt.Println("@@@@@user@@@@@")
+
 	// UserID, AuthToken, Alarm.UserID が一致する
 	if user.UserID == userID && user.AuthToken == authToken && requestAlarm.UserID == userID {
 	} else {
 		return errors.New(message.ErrorAuthenticationFailure)
 	}
 
+	fmt.Println("@@@@@user.UserID@@@@@")
+	fmt.Println(user.UserID)
+	fmt.Println("@@@@@user.UserID@@@@@")
+
 	// 既に登録されたアラームの件数を取得
 	list, err := a.AWS.GetAlarmList(userID)
 	if err != nil {
 		return err
 	}
+
+	fmt.Println("@@@@@list@@@@@")
+	fmt.Println(list)
+	fmt.Println("@@@@@list@@@@@")
 
 	// 件数が多い場合はエラーを吐く
 	if len(list) > MaxUsersAlarm {
@@ -59,6 +71,9 @@ func (a *Alarm) AddAlarm(userID string, authToken string, requestAlarm request.A
 		return errors.New(message.ErrorAlarmAlreadyExists)
 	}
 
+	fmt.Println("@@@@@requestAlarm.Type @@@@@")
+	fmt.Println(requestAlarm.Type)
+	fmt.Println("@@@@@requestAlarm.Type @@@@@")
 	// DatabaseAlarmに変換
 	var target string
 	if requestAlarm.Type == "IOS_PUSH_NOTIFICATION" {
@@ -107,6 +122,11 @@ func (a *Alarm) EditAlarm(userID string, authToken string, requestAlarm request.
 		logger.Warn(msg, fileName, funcName, line)
 		return errors.New(message.ErrorInvalidValue)
 	}
+
+	fmt.Println("@@@@@target@@@@@")
+	fmt.Println(target)
+	fmt.Println("@@@@@target@@@@@")
+
 	databaseAlarm := converter.RequestAlarmToDatabaseAlarm(requestAlarm, target)
 
 	// アラームを更新する

@@ -44,19 +44,25 @@ func (a *Alarm) AlarmAddPost(c echo.Context) error {
 	authorizationHeader := c.Request().Header.Get("Authorization")
 	userID, authToken, err := auth.Basic(authorizationHeader)
 	if err != nil {
-		res := response.Message{Message: "Error!"}
+		fmt.Println(err)
+		res := response.Message{Message: "Error!1"}
 		return c.JSON(http.StatusInternalServerError, res)
 	}
 
 	req := new(request.AddAlarmRequest)
 	if err := c.Bind(&req); err != nil {
-		res := response.Message{Message: "Error!"}
+		res := response.Message{Message: "Error!2"}
 		return c.JSON(http.StatusInternalServerError, res)
 	}
 
+	fmt.Println("@@@@@@@@@@")
+	fmt.Println(req)
+	fmt.Println("@@@@@@@@@@")
+
 	err = a.Service.AddAlarm(userID, authToken, req.Alarm)
 	if err != nil {
-		res := response.Message{Message: "Error!"}
+		fmt.Println(err)
+		res := response.Message{Message: "Error!3"}
 		return c.JSON(http.StatusInternalServerError, res)
 	}
 	res := response.Message{

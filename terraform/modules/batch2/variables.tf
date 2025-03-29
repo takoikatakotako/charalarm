@@ -12,7 +12,7 @@ variable "batch_function_image_tag" {
 }
 
 locals {
-  environment_variables = {
-    # "RESOURCE_BASE_URL" = "https://${var.resource_domain}"
-  }
+  # environment_variables = {
+  #   # "RESOURCE_BASE_URL" = "https://${var.resource_domain}"
+  # }
 }

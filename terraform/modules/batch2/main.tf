@@ -8,9 +8,18 @@ resource "aws_lambda_function" "batch_lambda_function" {
   image_uri     = "${var.batch_function_image_uri}:${var.batch_function_image_tag}"
   package_type  = "Image"
   architectures = ["arm64"]
+  # environment {
+  #   variables = local.environment_variables
+  # }
+
+
   environment {
-    variables = local.environment_variables
+    variables = {
+      "CHARALARM_AWS_PROFILE" = "",
+      "RESOURCE_BASE_URL"     = "https://resource.charalarm-development.swiswiswift.com"
+    }
   }
+
 }
 
 
