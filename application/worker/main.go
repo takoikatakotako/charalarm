@@ -7,7 +7,6 @@ import (
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/takoikatakotako/charalarm-worker/entity"
-	"github.com/takoikatakotako/charalarm-worker/message"
 	"github.com/takoikatakotako/charalarm-worker/repository"
 	"github.com/takoikatakotako/charalarm-worker/service"
 	"net/http"
@@ -65,7 +64,7 @@ func Handler(ctx context.Context, event events.SQSEvent) (events.APIGatewayProxy
 	}
 
 	return events.APIGatewayProxyResponse{
-		Body:       message.Success,
+		Body:       "Success",
 		StatusCode: http.StatusOK,
 	}, nil
 }

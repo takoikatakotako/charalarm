@@ -112,7 +112,7 @@ func (a *AWS) sendMessage(queueURL string, messageGroupId string, messageBody st
 		return err
 	}
 
-	// sent message
+	// sent error
 	sMInput := &sqs.SendMessageInput{
 		MessageAttributes: map[string]types.MessageAttributeValue{},
 		MessageGroupId:    aws.String(messageGroupId),
@@ -130,7 +130,7 @@ func (a *AWS) receiveMessage(queueURL string) ([]types.Message, error) {
 		return []types.Message{}, nil
 	}
 
-	// receive message
+	// receive error
 	timeout := 5
 	gMInput := &sqs.ReceiveMessageInput{
 		QueueUrl:            aws.String(queueURL),

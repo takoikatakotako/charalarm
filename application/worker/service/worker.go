@@ -1,7 +1,6 @@
 package service
 
 import (
-	"fmt"
 	"github.com/takoikatakotako/charalarm-worker/entity"
 	"github.com/takoikatakotako/charalarm-worker/repository"
 )
@@ -11,18 +10,9 @@ type CallWorkerService struct {
 }
 
 func (s *CallWorkerService) PublishPlatformApplication(alarmInfo entity.IOSVoIPPushAlarmInfoSQSMessage) error {
-	fmt.Println("@@@@@@@@@@@")
-	fmt.Println("Endpoint is")
-	fmt.Println(alarmInfo.SNSEndpointArn)
-	fmt.Println("@@@@@@@@@@@")
-
 	// エンドポイントが有効か確認
 	err := s.AWS.CheckPlatformEndpointEnabled(alarmInfo.SNSEndpointArn)
 	if err != nil {
-		fmt.Println("@@@@@@@@@@@")
-		fmt.Println("CheckPlatformEndpointEnabled Failed")
-		fmt.Println(err)
-		fmt.Println("@@@@@@@@@@@")
 		return err
 	}
 
