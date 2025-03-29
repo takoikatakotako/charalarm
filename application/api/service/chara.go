@@ -20,11 +20,7 @@ func (c *Chara) GetChara(charaID string) (response.Chara, error) {
 	}
 
 	// BaseURLを取得
-	baseURL, err := c.Environment.GetResourceBaseURL()
-	if err != nil {
-		return response.Chara{}, err
-	}
-
+	baseURL := c.Environment.ResourceBaseURL
 	return converter.DatabaseCharaToResponseChara(chara, baseURL), nil
 }
 
@@ -36,10 +32,7 @@ func (c *Chara) GetCharaList() ([]response.Chara, error) {
 	}
 
 	// BaseURLを取得
-	baseURL, err := c.Environment.GetResourceBaseURL()
-	if err != nil {
-		return []response.Chara{}, err
-	}
+	baseURL := c.Environment.ResourceBaseURL
 
 	// enable のものを抽出
 	filteredCharaList := make([]database.Chara, 0)

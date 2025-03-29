@@ -20,10 +20,19 @@ func (a *AWS) createSNSClient() (*sns.Client, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	// Localの場合
+	if a.Profile == "local" {
+		return sns.NewFromConfig(cfg, func(o *sns.Options) {
+			o.BaseEndpoint = aws.String(LocalstackEndpoint)
+		}), nil
+	}
+
+	// Local 以外の場合
 	return sns.NewFromConfig(cfg), nil
 }
 
-// DeletePlatformApplicationEndpoint エンドポイントを削除するコードを追加
+// SNSDeletePlatformApplicationEndpoint エンドポイントを削除するコードを追加
 func (a *AWS) SNSDeletePlatformApplicationEndpoint(endpointArn string) error {
 	client, err := a.createSNSClient()
 	if err != nil {

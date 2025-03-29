@@ -9,7 +9,7 @@ import (
 func TestCharalarmList(t *testing.T) {
 	// AWS Repository
 	awsRepository := repository.AWS{Profile: "local"}
-	environmentRepository := repository.Environment{IsLocal: true}
+	environmentRepository := repository.Environment{}
 
 	service := Chara{
 		AWS:         awsRepository,

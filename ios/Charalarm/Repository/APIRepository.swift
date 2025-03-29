@@ -1,8 +1,6 @@
 import Foundation
 
-struct APIRepository {
-
-}
+struct APIRepository {}
 
 extension APIRepository {
     func postPushTokenAddPushToken(userID: String, authToken: String, pushToken: PushTokenRequest) async throws {
@@ -23,12 +21,12 @@ extension APIRepository {
 }
 
 extension APIRepository {
-    func postUserInfo(userID: String, authToken: String) async throws -> UserInfo {
+    func getUserInfo(userID: String, authToken: String) async throws -> UserInfo {
         let path = "/user/info"
         let url = URL(string: EnvironmentVariableConfig.apiEndpoint + path)!
         let requestHeader = APIHeader.createAuthorizationRequestHeader(userID: userID, authToken: authToken)
         let requestBody: Encodable? = nil
-        let userInfoResponse: UserInfoResponse = try await APIClient().request(url: url, httpMethod: .post, requestHeader: requestHeader, requestBody: requestBody)
+        let userInfoResponse: UserInfoResponse = try await APIClient().request(url: url, httpMethod: .get, requestHeader: requestHeader, requestBody: requestBody)
 
         // 変換
         let iOSPlatformInfo = UserInfoIOSPlatformInfo(
@@ -116,7 +114,7 @@ extension APIRepository {
         let url = URL(string: EnvironmentVariableConfig.apiEndpoint + path)!
         let requestHeader = APIHeader.createAuthorizationRequestHeader(userID: userID, authToken: authToken)
         let requestBody: Request? = nil
-        return try await APIClient().request(url: url, httpMethod: .post, requestHeader: requestHeader, requestBody: requestBody)
+        return try await APIClient().request(url: url, httpMethod: .get, requestHeader: requestHeader, requestBody: requestBody)
     }
 
     func addAlarm(userID: String, authToken: String, requestBody: AlarmAddRequest) async throws {

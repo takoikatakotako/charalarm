@@ -16,8 +16,12 @@ def lambda_handler(event: Dict[str, Any], _context: Any) -> Dict[str, Any]:
     
     body = request["body"]["data"]
     decoded_body = base64.b64decode(body).decode("utf-8")
-    
-    request.setdefault("headers", {})["x-amz-content-sha256"] = [
+
+    # ヘッダーを追加
+    if "headers" not in request:
+        request["headers"] = {}
+
+    request["headers"]["x-amz-content-sha256"] = [
         {"key": "x-amz-content-sha256", "value": hash_payload(decoded_body)}
     ]
     

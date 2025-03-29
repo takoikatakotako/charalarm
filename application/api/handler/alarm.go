@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"github.com/labstack/echo/v4"
 	"github.com/takoikatakotako/charalarm-api/entity/request"
 	"github.com/takoikatakotako/charalarm-api/entity/response"
@@ -14,15 +15,24 @@ type Alarm struct {
 }
 
 func (a *Alarm) AlarmListGet(c echo.Context) error {
+	fmt.Println(c.Request())
 	authorizationHeader := c.Request().Header.Get("Authorization")
+	fmt.Println("-------")
+	fmt.Println(c.Request().Header)
+	fmt.Println("-------")
+
 	userID, authToken, err := auth.Basic(authorizationHeader)
 	if err != nil {
+		fmt.Println("auth error")
+		fmt.Println(err)
 		res := response.Message{Message: "Error!"}
 		return c.JSON(http.StatusInternalServerError, res)
 	}
 
 	res, err := a.Service.GetAlarmList(userID, authToken)
 	if err != nil {
+		fmt.Println("get alarm list failed")
+		fmt.Println(err)
 		res := response.Message{Message: "Error!"}
 		return c.JSON(http.StatusInternalServerError, res)
 	}
@@ -34,19 +44,25 @@ func (a *Alarm) AlarmAddPost(c echo.Context) error {
 	authorizationHeader := c.Request().Header.Get("Authorization")
 	userID, authToken, err := auth.Basic(authorizationHeader)
 	if err != nil {
-		res := response.Message{Message: "Error!"}
+		fmt.Println(err)
+		res := response.Message{Message: "Error!1"}
 		return c.JSON(http.StatusInternalServerError, res)
 	}
 
 	req := new(request.AddAlarmRequest)
 	if err := c.Bind(&req); err != nil {
-		res := response.Message{Message: "Error!"}
+		res := response.Message{Message: "Error!2"}
 		return c.JSON(http.StatusInternalServerError, res)
 	}
 
+	fmt.Println("@@@@@@@@@@")
+	fmt.Println(req)
+	fmt.Println("@@@@@@@@@@")
+
 	err = a.Service.AddAlarm(userID, authToken, req.Alarm)
 	if err != nil {
-		res := response.Message{Message: "Error!"}
+		fmt.Println(err)
+		res := response.Message{Message: "Error!3"}
 		return c.JSON(http.StatusInternalServerError, res)
 	}
 	res := response.Message{

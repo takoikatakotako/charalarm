@@ -27,7 +27,3 @@ variable "root_domain_zone_id" {
 variable "api_cloudfront_certificate" {
   type = string
 }
-
-variable "api_lambda_edge_function_arn" {
-  type = string
-}

@@ -82,8 +82,8 @@ targets:
       configs:
         Debug:
           CODE_SIGN_ENTITLEMENTS: Charalarm/CharalarmDebug.entitlements
-          API_ENDPOINT: https://api.charalarm.sandbox.swiswiswift.com
-          RESOURCE_ENDPOINT: https://resource.charalarm.sandbox.swiswiswift.com
+          API_ENDPOINT: https://api.charalarm-development.swiswiswift.com
+          RESOURCE_ENDPOINT: https://resource.charalarm-development.swiswiswift.com
           GAD_APPLICATION_IDENTIFER: ca-app-pub-3940256099942544~1458002511
           ADMOB_ALARM_LIST: ca-app-pub-3940256099942544/2934735716
           ADMOB_CONFIG: ca-app-pub-3940256099942544/2934735716
@@ -93,8 +93,8 @@ targets:
           DATADOG_LOG_SERVICE: charalarm-development
         Release:
           CODE_SIGN_ENTITLEMENTS: Charalarm/CharalarmRelease.entitlements
-          API_ENDPOINT: https://api.charalarm.sandbox.swiswiswift.com
-          RESOURCE_ENDPOINT: https://resource.charalarm.sandbox.swiswiswift.com
+          API_ENDPOINT: https://api.charalarm-development.swiswiswift.com
+          RESOURCE_ENDPOINT: https://resource.charalarm-development.swiswiswift.com
           GAD_APPLICATION_IDENTIFER: ca-app-pub-3940256099942544~1458002511
           ADMOB_ALARM_LIST: ca-app-pub-3940256099942544/2934735716
           ADMOB_CONFIG: ca-app-pub-3940256099942544/2934735716

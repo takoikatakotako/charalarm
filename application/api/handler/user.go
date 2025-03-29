@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"github.com/labstack/echo/v4"
 	"github.com/takoikatakotako/charalarm-api/entity/request"
 	"github.com/takoikatakotako/charalarm-api/entity/response"
@@ -32,6 +33,7 @@ func (u *User) UserInfoGet(c echo.Context) error {
 func (u *User) UserSignupPost(c echo.Context) error {
 	req := new(request.UserSignUp)
 	if err := c.Bind(&req); err != nil {
+		fmt.Println(err)
 		res := response.Message{Message: "Error!"}
 		return c.JSON(http.StatusInternalServerError, res)
 	}
@@ -39,6 +41,7 @@ func (u *User) UserSignupPost(c echo.Context) error {
 
 	res, err := u.Service.Signup(req.UserID, req.AuthToken, req.Platform, ipAddress)
 	if err != nil {
+		fmt.Println(err)
 		res := response.Message{Message: "Error!"}
 		return c.JSON(http.StatusInternalServerError, res)
 	}

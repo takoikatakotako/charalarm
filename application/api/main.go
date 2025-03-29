@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/takoikatakotako/charalarm-api/handler"
@@ -11,23 +12,25 @@ import (
 
 func getEnvironment(key string, defaultValue string) string {
 	// 環境変数の値を取得
-	value := os.Getenv(key)
-	if value == "" {
+	val, exists := os.LookupEnv(key)
+	if !exists {
 		return defaultValue
 	}
-	return value
+	return val
 }
 
 func main() {
 	// environment
 	profile := getEnvironment("CHARALARM_AWS_PROFILE", "local")
+	resourceBaseURL := getEnvironment("RESOURCE_BASE_URL", "http://localhost:4566")
+	fmt.Printf("profile is %s\n", profile)
 
 	// repository
 	awsRepository := repository.AWS{
 		Profile: profile,
 	}
 	environmentRepository := repository.Environment{
-		IsLocal: true,
+		ResourceBaseURL: resourceBaseURL,
 	}
 
 	// service
@@ -67,36 +70,36 @@ func main() {
 	e.Use(middleware.Logger())
 
 	// healthcheck
-	e.GET("/healthcheck/", healthcheckHandler.HealthcheckGet)
+	e.GET("/healthcheck", healthcheckHandler.HealthcheckGet)
 
 	// maintenance
-	e.GET("/maintenance/", maintenanceHandler.MaintenanceGet)
+	e.GET("/maintenance", maintenanceHandler.MaintenanceGet)
 
 	// require
-	e.GET("/require/", requireHandler.RequireGet)
+	e.GET("/require", requireHandler.RequireGet)
 
 	// user
-	e.GET("/user/info/", userHandler.UserInfoGet)
-	e.POST("/user/signup/", userHandler.UserSignupPost)
-	e.POST("/user/update-premium/", userHandler.UserUpdatePremiumPost)
-	e.POST("/user/withdraw/", userHandler.UserWithdrawPost)
+	e.GET("/user/info", userHandler.UserInfoGet)
+	e.POST("/user/signup", userHandler.UserSignupPost)
+	e.POST("/user/update-premium", userHandler.UserUpdatePremiumPost)
+	e.POST("/user/withdraw", userHandler.UserWithdrawPost)
 
 	// alarm
-	e.GET("/alarm/list/", alarmHandler.AlarmListGet)
-	e.POST("/alarm/add/", alarmHandler.AlarmAddPost)
-	e.POST("/alarm/edit/", alarmHandler.AlarmEditPost)
-	e.POST("/alarm/delete/", alarmHandler.AlarmDeletePost)
+	e.GET("/alarm/list", alarmHandler.AlarmListGet)
+	e.POST("/alarm/add", alarmHandler.AlarmAddPost)
+	e.POST("/alarm/edit", alarmHandler.AlarmEditPost)
+	e.POST("/alarm/delete", alarmHandler.AlarmDeletePost)
 
 	// chara
-	e.GET("/chara/list/", charaHandler.CharaListGet)
-	e.GET("/chara/id/:id/", charaHandler.CharaIDGet)
+	e.GET("/chara/list", charaHandler.CharaListGet)
+	e.GET("/chara/id/:charaID", charaHandler.CharaIDGet)
 
 	// push-token
-	e.POST("/push-token/ios/push/add/", pushTokenHandler.PushTokenPushAdd)
-	e.POST("/push-token/ios/voip-push/add/", pushTokenHandler.PushTokenVoIPPushAdd)
+	e.POST("/push-token/ios/push/add", pushTokenHandler.PushTokenPushAdd)
+	e.POST("/push-token/ios/voip-push/add", pushTokenHandler.PushTokenVoIPPushAdd)
 
 	// news
-	e.GET("/news/list/", newsHandler.NewsListGet)
+	e.GET("/news/list", newsHandler.NewsListGet)
 
 	e.Logger.Fatal(e.Start(":8080"))
 }
