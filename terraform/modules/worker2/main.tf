@@ -7,6 +7,7 @@ resource "aws_lambda_function" "worker_lambda_function" {
   image_uri     = "${var.worker_function_image_uri}:${var.worker_function_image_tag}"
   package_type  = "Image"
   architectures = ["arm64"]
+  timeout                        = 30
 
   environment {
     variables = {
