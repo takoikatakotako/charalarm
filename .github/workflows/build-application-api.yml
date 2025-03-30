@@ -14,10 +14,8 @@ jobs:
       id-token: write
       contents: read
     steps:
-    # チェックアウト
     - name: Checkout
       uses: actions/checkout@v4
-
 
     - name: configure aws credentials
       uses: aws-actions/configure-aws-credentials@v4
@@ -31,44 +29,14 @@ jobs:
         mkdir ~/.aws
         cp .github/workflows/aws_config/config ~/.aws/config
 
-    - name: Set up QEMU
-      uses: docker/setup-qemu-action@v3
-      with:
-        platforms: linux/arm64
+    # - name: set up QEMU
+    #   uses: docker/setup-qemu-action@v3
+    #   with:
+    #     platforms: linux/arm64
 
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
+    # - name: set up Docker Buildx
+    #   uses: docker/setup-buildx-action@v3
 
-    # - name: Build ARM64 Docker image
-    #   working-directory: application/api
-    #   run: |
-    #     docker buildx create --use --platform linux/arm64
-    #     docker buildx build --platform linux/arm64 -t charalarm-api .
-    - name: build api image
+    - name: build API image
       working-directory: application/api
       run: make build-image
-
-
-
-    # # Go言語のセットアップ
-    # - name: Set up Go
-    #   uses: actions/setup-go@v5
-    #   with:
-    #     go-version: 1.21
-
-    # # Mock環境のセットアップ
-    # - name: Setup Mock
-    #   working-directory: application/mock
-    #   run: make setup
-
-    # # Local Stack の起動完了まで待つ
-    # - name: Wait SetUp Localstack
-    #   run: sleep 30s
-
-    # # Application API の実行
-    # - name: Run Test
-    #   env:
-    #       AWS_ACCESS_KEY_ID: "dummy"
-    #       AWS_SECRET_ACCESS_KEY: "dummy"
-    #   working-directory: application/api
-    #   run: make test
