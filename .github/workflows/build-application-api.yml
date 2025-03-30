@@ -39,14 +39,14 @@ jobs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
 
-    - name: Build ARM64 Docker image
-      working-directory: application/api
-      run: |
-        docker buildx create --use --platform linux/arm64
-        docker buildx build --platform linux/arm64 -t charalarm-api .
-    # - name: build api image
+    # - name: Build ARM64 Docker image
     #   working-directory: application/api
-    #   run: make build-image
+    #   run: |
+    #     docker buildx create --use --platform linux/arm64
+    #     docker buildx build --platform linux/arm64 -t charalarm-api .
+    - name: build api image
+      working-directory: application/api
+      run: make build-image
 
 
 
