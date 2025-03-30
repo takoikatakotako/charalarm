@@ -1,4 +1,4 @@
-name: CI
+name: Test for iOS
 
 on:
   workflow_dispatch:
@@ -13,7 +13,7 @@ env:
   DEVELOPER_DIR: /Applications/Xcode_15.0.1.app
 
 jobs:
-  build:
+  test_ios:
     runs-on: macos-13
 
     steps:
