@@ -31,9 +31,21 @@ jobs:
         mkdir ~/.aws
         cp .github/workflows/aws_config/config ~/.aws/config
 
-    - name: build api image
-      working-directory: application/api
-      run: make build-image
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v3
+      with:
+        platforms: linux/arm64
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Build ARM64 Docker image
+      run: |
+        docker buildx create --use --platform linux/arm64
+        docker buildx build --platform linux/arm64 -t charalarm-api .
+    # - name: build api image
+    #   working-directory: application/api
+    #   run: make build-image
 
 
 
