@@ -42,6 +42,6 @@ module "worker_repository" {
   allow_pull_account_ids = ["039612872248"]
 }
 
-# module "github" {
-#   source = "../../modules/github"
-# }
+module "github" {
+  source = "../../modules/github"
+}

@@ -1,4 +1,4 @@
-FROM golang:1.23.2-alpine3.19 AS builder
+FROM --platform=linux/arm64 golang:1.23.2-alpine3.19 AS builder
 WORKDIR /app
 COPY . .
 RUN go mod tidy
