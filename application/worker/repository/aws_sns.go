@@ -9,11 +9,24 @@ import (
 	"github.com/takoikatakotako/charalarm-worker/entity"
 )
 
+const (
+	LocalstackEndpoint             = "http://localhost:4566"
+	iOSPushPlatformApplication     = "ios-push-platform-application"
+	iOSVoIPPushPlatformApplication = "ios-voip-push-platform-application"
+)
+
 // Private Methods
 func (a *AWS) createSNSClient() (*sns.Client, error) {
 	cfg, err := a.createAWSConfig()
 	if err != nil {
 		return nil, err
+	}
+
+	// Localの場合
+	if a.Profile == "local" {
+		return sns.NewFromConfig(cfg, func(o *sns.Options) {
+			o.BaseEndpoint = aws.String(LocalstackEndpoint)
+		}), nil
 	}
 	return sns.NewFromConfig(cfg), nil
 }
