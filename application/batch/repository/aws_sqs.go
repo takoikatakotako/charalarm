@@ -21,6 +21,14 @@ func (a *AWS) createSQSClient() (*sqs.Client, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	// Localの場合
+	if a.Profile == "local" {
+		return sqs.NewFromConfig(cfg, func(o *sqs.Options) {
+			o.BaseEndpoint = aws.String(LocalstackEndpoint)
+		}), nil
+	}
+
 	return sqs.NewFromConfig(cfg), nil
 }
 
