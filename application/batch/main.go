@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
-	"github.com/takoikatakotako/charalarm-batch/repository"
-	"github.com/takoikatakotako/charalarm-batch/service"
+	"github.com/takoikatakotako/charalarm/batch/repository"
+	"github.com/takoikatakotako/charalarm/batch/service"
 	"os"
 	"time"
 )

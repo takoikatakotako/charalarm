@@ -9,7 +9,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
-	"github.com/takoikatakotako/charalarm-batch/database"
+	"github.com/takoikatakotako/charalarm/batch/database"
 	"testing"
 	"time"
 )

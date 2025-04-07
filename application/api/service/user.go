@@ -2,12 +2,12 @@ package service
 
 import (
 	"errors"
-	"github.com/takoikatakotako/charalarm-api/entity/database"
-	"github.com/takoikatakotako/charalarm-api/entity/response"
-	"github.com/takoikatakotako/charalarm-api/repository"
-	"github.com/takoikatakotako/charalarm-api/util/converter"
-	"github.com/takoikatakotako/charalarm-api/util/message"
-	"github.com/takoikatakotako/charalarm-api/util/validator"
+	"github.com/takoikatakotako/charalarm/api/entity/database"
+	"github.com/takoikatakotako/charalarm/api/entity/response"
+	"github.com/takoikatakotako/charalarm/api/repository"
+	"github.com/takoikatakotako/charalarm/api/util/converter"
+	"github.com/takoikatakotako/charalarm/api/util/message"
+	"github.com/takoikatakotako/charalarm/api/util/validator"
 	"time"
 )
 

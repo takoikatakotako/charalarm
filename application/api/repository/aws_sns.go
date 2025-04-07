@@ -6,7 +6,7 @@ import (
 	"errors"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/sns"
-	sns2 "github.com/takoikatakotako/charalarm-api/entity/sns"
+	sns2 "github.com/takoikatakotako/charalarm/api/entity/sns"
 	"strings"
 )
 

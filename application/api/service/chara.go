@@ -1,10 +1,10 @@
 package service
 
 import (
-	"github.com/takoikatakotako/charalarm-api/entity/database"
-	"github.com/takoikatakotako/charalarm-api/entity/response"
-	"github.com/takoikatakotako/charalarm-api/repository"
-	"github.com/takoikatakotako/charalarm-api/util/converter"
+	"github.com/takoikatakotako/charalarm/api/entity/database"
+	"github.com/takoikatakotako/charalarm/api/entity/response"
+	"github.com/takoikatakotako/charalarm/api/repository"
+	"github.com/takoikatakotako/charalarm/api/util/converter"
 )
 
 type Chara struct {

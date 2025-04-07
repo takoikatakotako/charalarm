@@ -7,7 +7,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/sns"
 	"github.com/google/uuid"
-	"github.com/takoikatakotako/charalarm-worker/entity"
+	"github.com/takoikatakotako/charalarm/worker/entity"
 	"strings"
 	"testing"
 )
