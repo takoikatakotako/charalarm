@@ -26,7 +26,7 @@ jobs:
 
     # Mock環境のセットアップ
     - name: Setup Mock
-      working-directory: application/mock
+      working-directory: local
       run: make setup
 
     # Local Stack の起動完了まで待つ
