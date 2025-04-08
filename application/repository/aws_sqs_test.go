@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
-	"github.com/takoikatakotako/charalarm/batch/entity"
+	"github.com/takoikatakotako/charalarm/repository/entity"
 	"os"
 	"testing"
 )

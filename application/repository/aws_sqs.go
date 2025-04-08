@@ -7,7 +7,8 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/sqs"
 	"github.com/aws/aws-sdk-go-v2/service/sqs/types"
 	"github.com/google/uuid"
-	"github.com/takoikatakotako/charalarm/worker/entity"
+	"github.com/takoikatakotako/charalarm/repository/entity"
+	//"github.com/takoikatakotako/charalarm/worker/entity"
 )
 
 const (
@@ -20,6 +21,13 @@ func (a *AWS) createSQSClient() (*sqs.Client, error) {
 	cfg, err := a.createAWSConfig()
 	if err != nil {
 		return nil, err
+	}
+
+	// Localの場合
+	if a.Profile == "local" {
+		return sqs.NewFromConfig(cfg, func(o *sqs.Options) {
+			o.BaseEndpoint = aws.String(LocalstackEndpoint)
+		}), nil
 	}
 	return sqs.NewFromConfig(cfg), nil
 }

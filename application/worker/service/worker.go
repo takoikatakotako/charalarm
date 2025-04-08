@@ -2,7 +2,7 @@ package service
 
 import (
 	"github.com/takoikatakotako/charalarm/repository"
-	"github.com/takoikatakotako/charalarm/worker/entity"
+	"github.com/takoikatakotako/charalarm/repository/entity"
 )
 
 type CallWorkerService struct {
