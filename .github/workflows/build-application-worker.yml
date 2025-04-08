@@ -38,5 +38,5 @@ jobs:
       uses: docker/setup-buildx-action@v3
 
     - name: build API image
-      working-directory: application/api
-      run: make build-image
+      working-directory: application
+      run: make build-worker-image
