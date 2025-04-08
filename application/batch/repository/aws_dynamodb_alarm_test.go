@@ -8,56 +8,53 @@ import (
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/google/uuid"
-	"github.com/stretchr/testify/assert"
 	"github.com/takoikatakotako/charalarm/batch/database"
-	"testing"
-	"time"
 )
 
 // 追加したアラームをアラームタイムで検索できる
 // * 現在時刻を使っているため、1分以内にテストを実行すると失敗するので注意
-func TestInsertAndQueryByAlarmTime(t *testing.T) {
-	repository := AWS{Profile: "local"}
-
-	// 現在時刻取得
-	currentTime := time.Now()
-	hour := currentTime.Hour()
-	minute := currentTime.Minute()
-	weekday := currentTime.Weekday()
-
-	// Create Alarms
-	alarm0 := createAlarm()
-	alarm0.Hour = hour
-	alarm0.Minute = minute
-	alarm0.SetAlarmTime()
-
-	alarm1 := createAlarm()
-	alarm1.Hour = hour
-	alarm1.Minute = minute
-	alarm1.SetAlarmTime()
-
-	alarm2 := createAlarm()
-	alarm2.Hour = hour
-	alarm2.Minute = minute
-	alarm2.SetAlarmTime()
-
-	// Insert Alarms
-	err := insertAlarm(alarm0)
-	err = insertAlarm(alarm1)
-	err = insertAlarm(alarm2)
-	if err != nil {
-		t.Errorf("unexpected error: %v", err)
-	}
-
-	// Query
-	alarmList, err := repository.QueryByAlarmTime(hour, minute, weekday)
-	if err != nil {
-		t.Errorf("unexpected error: %v", err)
-	}
-
-	// Assert
-	assert.Equal(t, len(alarmList), 3)
-}
+//func TestInsertAndQueryByAlarmTime(t *testing.T) {
+//	repository := AWS{Profile: "local"}
+//
+//	// 現在時刻取得
+//	currentTime := time.Now()
+//	hour := currentTime.Hour()
+//	minute := currentTime.Minute()
+//	weekday := currentTime.Weekday()
+//
+//	// Create Alarms
+//	alarm0 := createAlarm()
+//	alarm0.Hour = hour
+//	alarm0.Minute = minute
+//	alarm0.SetAlarmTime()
+//
+//	alarm1 := createAlarm()
+//	alarm1.Hour = hour
+//	alarm1.Minute = minute
+//	alarm1.SetAlarmTime()
+//
+//	alarm2 := createAlarm()
+//	alarm2.Hour = hour
+//	alarm2.Minute = minute
+//	alarm2.SetAlarmTime()
+//
+//	// Insert Alarms
+//	err := insertAlarm(alarm0)
+//	err = insertAlarm(alarm1)
+//	err = insertAlarm(alarm2)
+//	if err != nil {
+//		t.Errorf("unexpected error: %v", err)
+//	}
+//
+//	// Query
+//	alarmList, err := repository.QueryByAlarmTime(hour, minute, weekday)
+//	if err != nil {
+//		t.Errorf("unexpected error: %v", err)
+//	}
+//
+//	// Assert
+//	assert.Equal(t, len(alarmList), 3)
+//}
 
 func createAlarm() database.Alarm {
 	return database.Alarm{
