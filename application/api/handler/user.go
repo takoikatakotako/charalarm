@@ -3,10 +3,10 @@ package handler
 import (
 	"fmt"
 	"github.com/labstack/echo/v4"
-	"github.com/takoikatakotako/charalarm-api/entity/request"
-	"github.com/takoikatakotako/charalarm-api/entity/response"
-	"github.com/takoikatakotako/charalarm-api/service"
-	"github.com/takoikatakotako/charalarm-api/util/auth"
+	"github.com/takoikatakotako/charalarm/api/entity/request"
+	"github.com/takoikatakotako/charalarm/api/entity/response"
+	"github.com/takoikatakotako/charalarm/api/service"
+	"github.com/takoikatakotako/charalarm/api/util/auth"
 	"net/http"
 )
 

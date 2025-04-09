@@ -2,8 +2,8 @@ package handler
 
 import (
 	"github.com/labstack/echo/v4"
-	"github.com/takoikatakotako/charalarm-api/entity/response"
-	"github.com/takoikatakotako/charalarm-api/service"
+	"github.com/takoikatakotako/charalarm/api/entity/response"
+	"github.com/takoikatakotako/charalarm/api/service"
 	"net/http"
 )
 

@@ -1,10 +1,10 @@
 package service
 
 import (
-	"github.com/takoikatakotako/charalarm-api/entity/database"
-	"github.com/takoikatakotako/charalarm-api/entity/response"
-	"github.com/takoikatakotako/charalarm-api/repository"
-	"github.com/takoikatakotako/charalarm-api/util/converter"
+	"github.com/takoikatakotako/charalarm/api/entity/response"
+	"github.com/takoikatakotako/charalarm/api/util/converter"
+	"github.com/takoikatakotako/charalarm/entity"
+	"github.com/takoikatakotako/charalarm/repository"
 )
 
 type Chara struct {
@@ -35,7 +35,7 @@ func (c *Chara) GetCharaList() ([]response.Chara, error) {
 	baseURL := c.Environment.ResourceBaseURL
 
 	// enable のものを抽出
-	filteredCharaList := make([]database.Chara, 0)
+	filteredCharaList := make([]entity.Chara, 0)
 	for _, chara := range charaList {
 		if chara.Enable {
 			filteredCharaList = append(filteredCharaList, chara)

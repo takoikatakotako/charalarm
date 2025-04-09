@@ -2,12 +2,12 @@ package service
 
 import (
 	"errors"
-	"github.com/takoikatakotako/charalarm-api/entity/database"
-	"github.com/takoikatakotako/charalarm-api/entity/response"
-	"github.com/takoikatakotako/charalarm-api/repository"
-	"github.com/takoikatakotako/charalarm-api/util/converter"
-	"github.com/takoikatakotako/charalarm-api/util/message"
-	"github.com/takoikatakotako/charalarm-api/util/validator"
+	"github.com/takoikatakotako/charalarm/api/entity/response"
+	"github.com/takoikatakotako/charalarm/api/util/converter"
+	"github.com/takoikatakotako/charalarm/api/util/message"
+	"github.com/takoikatakotako/charalarm/api/util/validator"
+	"github.com/takoikatakotako/charalarm/entity"
+	"github.com/takoikatakotako/charalarm/repository"
 	"time"
 )
 
@@ -50,7 +50,7 @@ func (u *User) Signup(userID string, authToken string, platform string, ipAddres
 
 	// ユーザー作成
 	currentTime := time.Now()
-	user := database.User{
+	user := entity.User{
 		UserID:              userID,
 		AuthToken:           authToken,
 		Platform:            platform,

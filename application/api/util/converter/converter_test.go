@@ -3,8 +3,8 @@ package converter
 import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
-	"github.com/takoikatakotako/charalarm-api/entity/database"
-	"github.com/takoikatakotako/charalarm-api/entity/request"
+	"github.com/takoikatakotako/charalarm/api/entity/request"
+	"github.com/takoikatakotako/charalarm/entity"
 	"testing"
 )
 
@@ -18,25 +18,25 @@ func TestMaskAuthToken(t *testing.T) {
 func TestDatabaseCharaToResponseChara(t *testing.T) {
 	baseURL := "https://swiswiswift.com"
 
-	databaseChara := database.Chara{
+	databaseChara := entity.Chara{
 		CharaID:     "com.example.chara",
 		Enable:      false,
 		Name:        "Snorlax",
 		Description: "Snorlax",
-		Profiles: []database.CharaProfile{
+		Profiles: []entity.CharaProfile{
 			{
 				Title: "プログラマ",
 				Name:  "かびごん小野",
 				URL:   "https://twitter.com/takoikatakotako",
 			},
 		},
-		Expressions: map[string]database.CharaExpression{
+		Expressions: map[string]entity.CharaExpression{
 			"normal": {
 				ImageFileNames: []string{"normal1.png", "normal2.png"},
 				VoiceFileNames: []string{"voice1.mp3", "voice2.mp3"},
 			},
 		},
-		Calls: []database.CharaCall{
+		Calls: []entity.CharaCall{
 			{
 				Message:       "カビゴン語でおはよう",
 				VoiceFileName: "hello.caf",

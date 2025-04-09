@@ -4,7 +4,7 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
-	"github.com/takoikatakotako/charalarm-api/util/validator"
+	"github.com/takoikatakotako/charalarm/api/util/validator"
 	"strings"
 )
 
