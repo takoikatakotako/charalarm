@@ -1,4 +1,4 @@
-package database
+package entity
 
 type UserIOSPlatformInfo struct {
 	PushToken                string `dynamodbav:"pushToken"`

@@ -3,7 +3,6 @@ package service
 import (
 	"errors"
 	"fmt"
-	"github.com/takoikatakotako/charalarm/batch/database"
 	"github.com/takoikatakotako/charalarm/batch/logger"
 	"github.com/takoikatakotako/charalarm/repository"
 	"github.com/takoikatakotako/charalarm/repository/entity"
@@ -86,7 +85,7 @@ func (b *Batch) createVoiceFileURL(resourceBaseURL string, charaID string, voice
 	return fmt.Sprintf("%s/%s/%s", resourceBaseURL, charaID, voiceFileName)
 }
 
-func (b *Batch) forIOSVoIPPushNotification(resourceBaseURL string, alarm database.Alarm) error {
+func (b *Batch) forIOSVoIPPushNotification(resourceBaseURL string, alarm entity.Alarm) error {
 	// AlarmInfoに変換
 	alarmInfo := entity.IOSVoIPPushAlarmInfoSQSMessage{}
 	alarmInfo.AlarmID = alarm.AlarmID

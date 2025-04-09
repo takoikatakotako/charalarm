@@ -3,11 +3,11 @@ package validator
 import (
 	"errors"
 	"fmt"
-	"github.com/takoikatakotako/charalarm/api/entity/database"
 	"github.com/takoikatakotako/charalarm/api/util/message"
+	"github.com/takoikatakotako/charalarm/repository/entity"
 )
 
-func ValidateAlarm(alarm database.Alarm) error {
+func ValidateAlarm(alarm entity.Alarm) error {
 	// AlarmID
 	if !IsValidUUID(alarm.AlarmID) {
 		return errors.New(message.ErrorInvalidValue + ": AlarmID")

@@ -2,8 +2,8 @@ package service
 
 import (
 	"errors"
-	"github.com/takoikatakotako/charalarm/api/repository"
 	"github.com/takoikatakotako/charalarm/api/util/message"
+	"github.com/takoikatakotako/charalarm/repository"
 )
 
 type PushToken struct {

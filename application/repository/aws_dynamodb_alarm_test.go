@@ -8,7 +8,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/google/uuid"
-	"github.com/takoikatakotako/charalarm/batch/database"
+	"github.com/takoikatakotako/charalarm/repository/entity"
 )
 
 // 追加したアラームをアラームタイムで検索できる
@@ -56,8 +56,8 @@ import (
 //	assert.Equal(t, len(alarmList), 3)
 //}
 
-func createAlarm() database.Alarm {
-	return database.Alarm{
+func createAlarm() entity.Alarm {
+	return entity.Alarm{
 		AlarmID: uuid.New().String(),
 		UserID:  uuid.New().String(),
 		Type:    "IOS_VOIP_PUSH_NOTIFICATION",
@@ -80,7 +80,7 @@ func createAlarm() database.Alarm {
 	}
 }
 
-func insertAlarm(alarm database.Alarm) error {
+func insertAlarm(alarm entity.Alarm) error {
 	cfg, err := config.LoadDefaultConfig(context.Background(), config.WithRegion("ap-northeast-1"))
 	if err != nil {
 		return err
@@ -96,7 +96,7 @@ func insertAlarm(alarm database.Alarm) error {
 		return err
 	}
 	_, err = client.PutItem(context.Background(), &dynamodb.PutItemInput{
-		TableName: aws.String(database.AlarmTableName),
+		TableName: aws.String(entity.AlarmTableName),
 		Item:      av,
 	})
 	if err != nil {

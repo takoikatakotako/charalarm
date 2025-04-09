@@ -3,7 +3,7 @@ package repository
 import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
-	"github.com/takoikatakotako/charalarm/api/entity/database"
+	"github.com/takoikatakotako/charalarm/repository/entity"
 	"testing"
 	"time"
 )
@@ -145,12 +145,12 @@ func TestDynamoDBRepository_UpdateUserPremiumPlan(t *testing.T) {
 }
 
 // private methods
-func createUser(userID string, authToken string) database.User {
+func createUser(userID string, authToken string) entity.User {
 	platform := "iOS"
 	currentTime := time.Now()
 	ipAddress := "127.0.0.1"
 
-	user := database.User{
+	user := entity.User{
 		UserID:              userID,
 		AuthToken:           authToken,
 		Platform:            platform,

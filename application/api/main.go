@@ -5,8 +5,8 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/takoikatakotako/charalarm/api/handler"
-	"github.com/takoikatakotako/charalarm/api/repository"
 	"github.com/takoikatakotako/charalarm/api/service"
+	"github.com/takoikatakotako/charalarm/repository"
 	"os"
 )
 
