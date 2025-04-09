@@ -7,7 +7,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/sqs"
 	"github.com/aws/aws-sdk-go-v2/service/sqs/types"
 	"github.com/google/uuid"
-	"github.com/takoikatakotako/charalarm/repository/entity"
+	"github.com/takoikatakotako/charalarm/entity"
 	//"github.com/takoikatakotako/charalarm/worker/entity"
 )
 

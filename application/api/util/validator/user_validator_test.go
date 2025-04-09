@@ -1,7 +1,7 @@
 package validator
 
 import (
-	"github.com/takoikatakotako/charalarm/repository/entity"
+	"github.com/takoikatakotako/charalarm/entity"
 	"testing"
 )
 

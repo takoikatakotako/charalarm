@@ -6,8 +6,8 @@ import (
 	"github.com/takoikatakotako/charalarm/api/util/converter"
 	"github.com/takoikatakotako/charalarm/api/util/message"
 	"github.com/takoikatakotako/charalarm/api/util/validator"
+	"github.com/takoikatakotako/charalarm/entity"
 	"github.com/takoikatakotako/charalarm/repository"
-	"github.com/takoikatakotako/charalarm/repository/entity"
 	"time"
 )
 

@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/takoikatakotako/charalarm/api/util/message"
-	"github.com/takoikatakotako/charalarm/repository/entity"
+	"github.com/takoikatakotako/charalarm/entity"
 )
 
 func ValidateAlarm(alarm entity.Alarm) error {

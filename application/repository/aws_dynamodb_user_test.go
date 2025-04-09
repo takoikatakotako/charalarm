@@ -3,7 +3,7 @@ package repository
 import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
-	"github.com/takoikatakotako/charalarm/repository/entity"
+	"github.com/takoikatakotako/charalarm/entity"
 	"testing"
 	"time"
 )

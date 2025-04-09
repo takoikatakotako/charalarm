@@ -8,7 +8,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/google/uuid"
-	"github.com/takoikatakotako/charalarm/repository/entity"
+	"github.com/takoikatakotako/charalarm/entity"
 )
 
 // 追加したアラームをアラームタイムで検索できる

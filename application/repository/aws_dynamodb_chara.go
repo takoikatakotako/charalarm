@@ -9,7 +9,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/takoikatakotako/charalarm/api/util/logger"
 	"github.com/takoikatakotako/charalarm/batch/message"
-	"github.com/takoikatakotako/charalarm/repository/entity"
+	"github.com/takoikatakotako/charalarm/entity"
 	"math/rand"
 	"runtime"
 	"time"

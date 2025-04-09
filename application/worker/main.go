@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
+	"github.com/takoikatakotako/charalarm/entity"
 	"github.com/takoikatakotako/charalarm/repository"
-	"github.com/takoikatakotako/charalarm/repository/entity"
 	"github.com/takoikatakotako/charalarm/worker/service"
 	"net/http"
 )

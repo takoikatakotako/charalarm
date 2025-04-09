@@ -11,7 +11,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/takoikatakotako/charalarm/api/util/message"
 	"github.com/takoikatakotako/charalarm/api/util/validator"
-	"github.com/takoikatakotako/charalarm/repository/entity"
+	"github.com/takoikatakotako/charalarm/entity"
 )
 
 // GetUser Userを取得する
