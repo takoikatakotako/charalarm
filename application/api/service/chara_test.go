@@ -2,7 +2,7 @@ package service
 
 import (
 	"github.com/stretchr/testify/assert"
-	"github.com/takoikatakotako/charalarm/api/repository"
+	"github.com/takoikatakotako/charalarm/repository"
 	"testing"
 )
 
