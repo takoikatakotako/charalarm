@@ -7,10 +7,23 @@ import (
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/sns"
 	"github.com/google/uuid"
+	"github.com/stretchr/testify/assert"
 	"github.com/takoikatakotako/charalarm/entity"
 	"strings"
 	"testing"
 )
+
+func TestCreateVoipPlatformEndpoint(t *testing.T) {
+	repository := AWS{Profile: "local"}
+
+	token := uuid.New().String()
+	endpointArn, err := repository.CreateIOSVoipPushPlatformEndpoint(token)
+	if err != nil {
+		t.Errorf("unexpected error: %v", err)
+	}
+
+	assert.NotEqual(t, len(endpointArn), 0)
+}
 
 // エンドポイントを作成してPublishにする
 func TestPublishPlatformApplication(t *testing.T) {
