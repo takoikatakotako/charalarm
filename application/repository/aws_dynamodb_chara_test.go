@@ -49,17 +49,17 @@ func TestGetCharaNotFound(t *testing.T) {
 	assert.Error(t, fmt.Errorf("item not found"), err)
 }
 
-//func TestGetCharaList(t *testing.T) {
-//	repository := AWS{Profile: "local"}
-//
-//	charaList, err := repository.GetCharaList()
-//	if err != nil {
-//		t.Errorf("unexpected error: %v", err)
-//	}
-//
-//	// Assert
-//	assert.Equal(t, len(charaList), 2)
-//}
+func TestGetCharaList(t *testing.T) {
+	repository := AWS{Profile: "local"}
+
+	charaList, err := repository.GetCharaList()
+	if err != nil {
+		t.Errorf("unexpected error: %v", err)
+	}
+
+	// Assert
+	assert.Equal(t, len(charaList), 2)
+}
 
 func TestGetRandomChara(t *testing.T) {
 	repository := AWS{Profile: "local"}
