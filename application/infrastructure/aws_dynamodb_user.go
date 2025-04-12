@@ -9,8 +9,8 @@ import (
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/expression"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
-	"github.com/takoikatakotako/charalarm/api/util/message"
 	"github.com/takoikatakotako/charalarm/api/util/validator"
+	"github.com/takoikatakotako/charalarm/common"
 	"github.com/takoikatakotako/charalarm/infrastructure/database"
 )
 
@@ -41,7 +41,7 @@ func (a *AWS) GetUser(userID string) (database.User, error) {
 	getUser := database.User{}
 
 	if len(output.Item) == 0 {
-		return database.User{}, errors.New(message.InvalidValue)
+		return database.User{}, errors.New(common.InvalidValue)
 	}
 
 	err = attributevalue.UnmarshalMap(output.Item, &getUser)

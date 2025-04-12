@@ -1,4 +1,4 @@
-package message
+package common
 
 const (
 	WithdrawSuccess                    = "Withdraw Success!"

@@ -4,8 +4,8 @@ import (
 	"errors"
 	response2 "github.com/takoikatakotako/charalarm/api/handler/response"
 	"github.com/takoikatakotako/charalarm/api/util/converter"
-	"github.com/takoikatakotako/charalarm/api/util/message"
 	"github.com/takoikatakotako/charalarm/api/util/validator"
+	"github.com/takoikatakotako/charalarm/common"
 	"github.com/takoikatakotako/charalarm/infrastructure"
 	"github.com/takoikatakotako/charalarm/infrastructure/database"
 	"time"
@@ -28,13 +28,13 @@ func (u *User) GetUser(userID string, authToken string) (response2.UserInfoRespo
 	}
 
 	// 一致しない場合
-	return response2.UserInfoResponse{}, errors.New(message.AuthenticationFailure)
+	return response2.UserInfoResponse{}, errors.New(common.AuthenticationFailure)
 }
 
 func (u *User) Signup(userID string, authToken string, platform string, ipAddress string) (response2.Message, error) {
 	// バリデーション
 	if !validator.IsValidUUID(userID) || !validator.IsValidUUID(authToken) {
-		return response2.Message{}, errors.New(message.ErrorInvalidValue)
+		return response2.Message{}, errors.New(common.ErrorInvalidValue)
 	}
 
 	// Check User Is Exist
@@ -45,7 +45,7 @@ func (u *User) Signup(userID string, authToken string, platform string, ipAddres
 
 	// ユーザーが既に作成されていた場合
 	if isExist {
-		return response2.Message{Message: message.UserSignupSuccess}, nil
+		return response2.Message{Message: common.UserSignupSuccess}, nil
 	}
 
 	// ユーザー作成
@@ -64,13 +64,13 @@ func (u *User) Signup(userID string, authToken string, platform string, ipAddres
 		return response2.Message{}, err
 	}
 
-	return response2.Message{Message: message.UserSignupSuccess}, nil
+	return response2.Message{Message: common.UserSignupSuccess}, nil
 }
 
 func (u *User) UpdatePremiumPlan(userID string, authToken string, enablePremiumPlan bool) error {
 	// バリデーション
 	if !validator.IsValidUUID(userID) || !validator.IsValidUUID(authToken) {
-		return errors.New(message.ErrorInvalidValue)
+		return errors.New(common.ErrorInvalidValue)
 	}
 
 	// Check User Is Exist
@@ -79,7 +79,7 @@ func (u *User) UpdatePremiumPlan(userID string, authToken string, enablePremiumP
 		return err
 	}
 	if !isExist {
-		return errors.New(message.ErrorInvalidValue)
+		return errors.New(common.ErrorInvalidValue)
 	}
 
 	// プレミアムプランを更新
@@ -89,7 +89,7 @@ func (u *User) UpdatePremiumPlan(userID string, authToken string, enablePremiumP
 func (u *User) Withdraw(userID string, authToken string) error {
 	// バリデーション
 	if !validator.IsValidUUID(userID) || !validator.IsValidUUID(authToken) {
-		return errors.New(message.InvalidValue)
+		return errors.New(common.InvalidValue)
 	}
 
 	// ユーザーを取得
@@ -102,7 +102,7 @@ func (u *User) Withdraw(userID string, authToken string) error {
 	if user.UserID == userID && user.AuthToken == authToken {
 	} else {
 		// 認証失敗
-		return errors.New(message.ErrorAuthenticationFailure)
+		return errors.New(common.ErrorAuthenticationFailure)
 	}
 
 	// PlatformEndpointを削除する

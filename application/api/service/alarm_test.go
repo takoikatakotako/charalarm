@@ -90,10 +90,11 @@ func TestAlarmService_AddAlarm(t *testing.T) {
 	}
 
 	// アラームを取得
-	getAlarmList, err := alarmService.GetAlarmList(userID, authToken)
+	getAlarmsOutput, err := alarmService.GetAlarms(userID, authToken)
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
+	getAlarmList := getAlarmsOutput.Alarms
 
 	// Assert
 	assert.Equal(t, 1, len(getAlarmList))
@@ -133,10 +134,11 @@ func TestAlarmService_AddAlarm(t *testing.T) {
 	}
 
 	// アラームを取得
-	updatedAlarmList, err := alarmService.GetAlarmList(userID, authToken)
+	getAlarmsOutput, err = alarmService.GetAlarms(userID, authToken)
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
+	updatedAlarmList := getAlarmsOutput.Alarms
 
 	// Assert
 	assert.Equal(t, 1, len(updatedAlarmList))
@@ -167,13 +169,13 @@ func TestAlarmService_AddAlarm(t *testing.T) {
 	}
 
 	// アラームを取得
-	getAlarmList, err = alarmService.GetAlarmList(userID, authToken)
+	getAlarmsOutput, err = alarmService.GetAlarms(userID, authToken)
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
 
 	// Assert
-	assert.Equal(t, 0, len(getAlarmList))
+	assert.Equal(t, 0, len(getAlarmsOutput.Alarms))
 }
 
 func TestAlarmService_AddAlarmAndGetAlarm(t *testing.T) {

@@ -30,7 +30,7 @@ func (a *Alarm) AlarmListGet(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, res)
 	}
 
-	res, err := a.Service.GetAlarmList(userID, authToken)
+	res, err := a.Service.GetAlarms(userID, authToken)
 	if err != nil {
 		fmt.Println("get alarm list failed")
 		fmt.Println(err)

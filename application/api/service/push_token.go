@@ -2,7 +2,7 @@ package service
 
 import (
 	"errors"
-	"github.com/takoikatakotako/charalarm/api/util/message"
+	"github.com/takoikatakotako/charalarm/common"
 	"github.com/takoikatakotako/charalarm/infrastructure"
 )
 
@@ -21,7 +21,7 @@ func (p *PushToken) AddIOSPushToken(userID string, authToken string, pushToken s
 	if user.UserID == userID && user.AuthToken == authToken {
 		// Nothing
 	} else {
-		return errors.New(message.ErrorAuthenticationFailure)
+		return errors.New(common.ErrorAuthenticationFailure)
 	}
 
 	// 既に作成されてるか確認
@@ -52,7 +52,7 @@ func (p *PushToken) AddIOSVoipPushToken(userID string, authToken string, voIPPus
 	if user.UserID == userID && user.AuthToken == authToken {
 		// Nothing
 	} else {
-		return errors.New(message.ErrorAuthenticationFailure)
+		return errors.New(common.ErrorAuthenticationFailure)
 	}
 
 	// 既に作成されてるか確認

@@ -3,19 +3,19 @@ package validator
 import (
 	"errors"
 	"fmt"
-	"github.com/takoikatakotako/charalarm/api/util/message"
+	"github.com/takoikatakotako/charalarm/common"
 	"github.com/takoikatakotako/charalarm/infrastructure/database"
 )
 
 func ValidateAlarm(alarm database.Alarm) error {
 	// AlarmID
 	if !IsValidUUID(alarm.AlarmID) {
-		return errors.New(message.ErrorInvalidValue + ": AlarmID")
+		return errors.New(common.ErrorInvalidValue + ": AlarmID")
 	}
 
 	// UserID
 	if !IsValidUUID(alarm.UserID) {
-		return errors.New(message.ErrorInvalidValue + ": UserID")
+		return errors.New(common.ErrorInvalidValue + ": UserID")
 	}
 
 	// Type
@@ -23,47 +23,47 @@ func ValidateAlarm(alarm database.Alarm) error {
 	if alarm.Type == "IOS_PUSH_NOTIFICATION" || alarm.Type == "IOS_VOIP_PUSH_NOTIFICATION" {
 		// Nothing
 	} else {
-		return errors.New(message.ErrorInvalidValue + ": Type")
+		return errors.New(common.ErrorInvalidValue + ": Type")
 	}
 
 	// Target
 	if alarm.Target == "" {
-		return errors.New(message.ErrorInvalidValue + ": Target")
+		return errors.New(common.ErrorInvalidValue + ": Target")
 	}
 
 	// Enable
 
 	// Name
 	if alarm.Name == "" {
-		return errors.New(message.ErrorInvalidValue + ": Name")
+		return errors.New(common.ErrorInvalidValue + ": Name")
 	}
 
 	// Hour
 	if 0 <= alarm.Hour && alarm.Hour <= 23 {
 		// Nothing
 	} else {
-		return errors.New(message.ErrorInvalidValue + ": Hour")
+		return errors.New(common.ErrorInvalidValue + ": Hour")
 	}
 
 	// Minute
 	if 0 <= alarm.Minute && alarm.Minute <= 59 {
 		// Nothing
 	} else {
-		return errors.New(message.ErrorInvalidValue + ": Minute")
+		return errors.New(common.ErrorInvalidValue + ": Minute")
 	}
 
 	// Time
 	if alarm.Time == fmt.Sprintf("%02d-%02d", alarm.Hour, alarm.Minute) {
 		// Nothing
 	} else {
-		return errors.New(message.ErrorInvalidValue + ": Time")
+		return errors.New(common.ErrorInvalidValue + ": Time")
 	}
 
 	// TimeDifference
 	if -24 < alarm.TimeDifference && alarm.TimeDifference < 24 {
 		// Nothing
 	} else {
-		return errors.New(message.ErrorInvalidValue + ": TimeDifference")
+		return errors.New(common.ErrorInvalidValue + ": TimeDifference")
 	}
 
 	// CharaID
