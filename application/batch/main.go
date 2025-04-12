@@ -6,7 +6,7 @@ import (
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/takoikatakotako/charalarm/batch/service"
-	"github.com/takoikatakotako/charalarm/repository"
+	"github.com/takoikatakotako/charalarm/infrastructure"
 	"os"
 	"time"
 )
@@ -26,11 +26,11 @@ func handler(ctx context.Context, event events.APIGatewayProxyRequest) (events.A
 	resourceBaseURL := getEnvironment("RESOURCE_BASE_URL", "http://localhost:4566")
 
 	// Repository
-	awsRepository := repository.AWS{
+	awsRepository := infrastructure.AWS{
 		Profile: profile,
 	}
 
-	environmentRepository := repository.Environment{
+	environmentRepository := infrastructure.Environment{
 		ResourceBaseURL: resourceBaseURL,
 	}
 

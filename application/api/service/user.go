@@ -7,12 +7,12 @@ import (
 	"github.com/takoikatakotako/charalarm/api/util/message"
 	"github.com/takoikatakotako/charalarm/api/util/validator"
 	"github.com/takoikatakotako/charalarm/entity"
-	"github.com/takoikatakotako/charalarm/repository"
+	"github.com/takoikatakotako/charalarm/infrastructure"
 	"time"
 )
 
 type User struct {
-	AWS repository.AWS
+	AWS infrastructure.AWS
 }
 
 func (u *User) GetUser(userID string, authToken string) (response.UserInfoResponse, error) {

@@ -2,14 +2,14 @@ package service
 
 import (
 	"github.com/stretchr/testify/assert"
-	"github.com/takoikatakotako/charalarm/repository"
+	"github.com/takoikatakotako/charalarm/infrastructure"
 	"testing"
 )
 
 func TestCharalarmList(t *testing.T) {
 	// AWS Repository
-	awsRepository := repository.AWS{Profile: "local"}
-	environmentRepository := repository.Environment{}
+	awsRepository := infrastructure.AWS{Profile: "local"}
+	environmentRepository := infrastructure.Environment{}
 
 	service := Chara{
 		AWS:         awsRepository,

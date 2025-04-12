@@ -1,4 +1,4 @@
-package repository
+package infrastructure
 
 import (
 	"encoding/json"
@@ -11,10 +11,10 @@ import (
 )
 
 // func TestCreateVoipPlatformEndpoint(t *testing.T) {
-// 	repository := SNSRepository{IsLocal: true}
+// 	infrastructure := SNSRepository{IsLocal: true}
 
 // 	token := uuid.New().String()
-// 	response, err := repository.CreateIOSVoipPushPlatformEndpoint(token)
+// 	response, err := infrastructure.CreateIOSVoipPushPlatformEndpoint(token)
 // 	if err != nil {
 // 		t.Errorf("unexpected error: %v", err)
 // 	}

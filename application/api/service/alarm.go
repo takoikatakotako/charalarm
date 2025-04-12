@@ -8,7 +8,7 @@ import (
 	"github.com/takoikatakotako/charalarm/api/util/converter"
 	"github.com/takoikatakotako/charalarm/api/util/logger"
 	"github.com/takoikatakotako/charalarm/api/util/message"
-	"github.com/takoikatakotako/charalarm/repository"
+	"github.com/takoikatakotako/charalarm/infrastructure"
 	"runtime"
 )
 
@@ -17,7 +17,7 @@ const (
 )
 
 type Alarm struct {
-	AWS repository.AWS
+	AWS infrastructure.AWS
 }
 
 // AddAlarm アラームを追加

@@ -1,4 +1,4 @@
-package repository
+package infrastructure
 
 //const (
 //	LocalstackEndpoint = "http://localhost:4566"

@@ -4,12 +4,12 @@ import (
 	"github.com/takoikatakotako/charalarm/api/entity/response"
 	"github.com/takoikatakotako/charalarm/api/util/converter"
 	"github.com/takoikatakotako/charalarm/entity"
-	"github.com/takoikatakotako/charalarm/repository"
+	"github.com/takoikatakotako/charalarm/infrastructure"
 )
 
 type Chara struct {
-	AWS         repository.AWS
-	Environment repository.Environment
+	AWS         infrastructure.AWS
+	Environment infrastructure.Environment
 }
 
 // GetChara キャラクターを取得

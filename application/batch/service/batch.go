@@ -5,15 +5,15 @@ import (
 	"fmt"
 	"github.com/takoikatakotako/charalarm/batch/logger"
 	entity2 "github.com/takoikatakotako/charalarm/entity"
-	"github.com/takoikatakotako/charalarm/repository"
+	"github.com/takoikatakotako/charalarm/infrastructure"
 	"math/rand"
 	"runtime"
 	"time"
 )
 
 type Batch struct {
-	AWS                            repository.AWS
-	Environment                    repository.Environment
+	AWS                            infrastructure.AWS
+	Environment                    infrastructure.Environment
 	randomCharaNameAndVoiceFileURL map[string]CharaNameAndVoiceFilePath
 }
 

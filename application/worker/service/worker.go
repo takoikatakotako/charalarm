@@ -2,11 +2,11 @@ package service
 
 import (
 	entity2 "github.com/takoikatakotako/charalarm/entity"
-	"github.com/takoikatakotako/charalarm/repository"
+	"github.com/takoikatakotako/charalarm/infrastructure"
 )
 
 type CallWorkerService struct {
-	AWS repository.AWS
+	AWS infrastructure.AWS
 }
 
 func (s *CallWorkerService) PublishPlatformApplication(alarmInfo entity2.IOSVoIPPushAlarmInfoSQSMessage) error {

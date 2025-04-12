@@ -3,11 +3,11 @@ package service
 import (
 	"errors"
 	"github.com/takoikatakotako/charalarm/api/util/message"
-	"github.com/takoikatakotako/charalarm/repository"
+	"github.com/takoikatakotako/charalarm/infrastructure"
 )
 
 type PushToken struct {
-	AWS repository.AWS
+	AWS infrastructure.AWS
 }
 
 func (p *PushToken) AddIOSPushToken(userID string, authToken string, pushToken string) error {

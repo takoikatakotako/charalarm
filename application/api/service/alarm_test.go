@@ -4,13 +4,13 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/takoikatakotako/charalarm/api/entity/request"
-	"github.com/takoikatakotako/charalarm/repository"
+	"github.com/takoikatakotako/charalarm/infrastructure"
 	"testing"
 )
 
 func TestAlarmService_AddAlarm(t *testing.T) {
 	// AWS Repository
-	repo := repository.AWS{Profile: "local"}
+	repo := infrastructure.AWS{Profile: "local"}
 
 	// Service
 	userService := User{AWS: repo}

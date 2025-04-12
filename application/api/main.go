@@ -6,7 +6,7 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/takoikatakotako/charalarm/api/handler"
 	"github.com/takoikatakotako/charalarm/api/service"
-	"github.com/takoikatakotako/charalarm/repository"
+	"github.com/takoikatakotako/charalarm/infrastructure"
 	"os"
 )
 
@@ -25,11 +25,11 @@ func main() {
 	resourceBaseURL := getEnvironment("RESOURCE_BASE_URL", "http://localhost:4566")
 	fmt.Printf("profile is %s\n", profile)
 
-	// repository
-	awsRepository := repository.AWS{
+	// infrastructure
+	awsRepository := infrastructure.AWS{
 		Profile: profile,
 	}
-	environmentRepository := repository.Environment{
+	environmentRepository := infrastructure.Environment{
 		ResourceBaseURL: resourceBaseURL,
 	}
 

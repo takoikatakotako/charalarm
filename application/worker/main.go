@@ -7,14 +7,14 @@ import (
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/takoikatakotako/charalarm/entity"
-	"github.com/takoikatakotako/charalarm/repository"
+	"github.com/takoikatakotako/charalarm/infrastructure"
 	"github.com/takoikatakotako/charalarm/worker/service"
 	"net/http"
 )
 
 func Handler(ctx context.Context, event events.SQSEvent) (events.APIGatewayProxyResponse, error) {
 	// Repository
-	awsRepository := repository.AWS{}
+	awsRepository := infrastructure.AWS{}
 
 	s := service.CallWorkerService{
 		AWS: awsRepository,

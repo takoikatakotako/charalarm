@@ -8,14 +8,14 @@ import (
 	"github.com/takoikatakotako/charalarm/api/entity/request"
 	"github.com/takoikatakotako/charalarm/api/util/converter"
 	"github.com/takoikatakotako/charalarm/entity"
-	"github.com/takoikatakotako/charalarm/repository"
+	"github.com/takoikatakotako/charalarm/infrastructure"
 
 	//"github.com/takoikatakotako/charalarm-backend/entity/request"
 	//"github.com/takoikatakotako/charalarm-backend/entity/sqs"
-	//"github.com/takoikatakotako/charalarm-backend/repository/dynamodb"
-	//"github.com/takoikatakotako/charalarm-backend/repository/environment_variable"
-	//"github.com/takoikatakotako/charalarm-backend/repository/sns"
-	//sqs2 "github.com/takoikatakotako/charalarm-backend/repository/sqs"
+	//"github.com/takoikatakotako/charalarm-backend/infrastructure/dynamodb"
+	//"github.com/takoikatakotako/charalarm-backend/infrastructure/environment_variable"
+	//"github.com/takoikatakotako/charalarm-backend/infrastructure/sns"
+	//sqs2 "github.com/takoikatakotako/charalarm-backend/infrastructure/sqs"
 	"math/rand"
 	"os"
 	"testing"
@@ -24,7 +24,7 @@ import (
 
 func TestMain(m *testing.M) {
 	// Before Tests
-	repo := repository.AWS{Profile: "local"}
+	repo := infrastructure.AWS{Profile: "local"}
 	_ = repo.PurgeQueue()
 
 	exitVal := m.Run()
@@ -37,7 +37,7 @@ func TestBatchService_QueryDynamoDBAndSendMessage_RandomCharaAndRandomVoice(t *t
 	// キャラが決まっていない && ボイスファイル名も決まっていない
 
 	// DynamoDBRepository
-	repo := repository.AWS{Profile: "local"}
+	repo := infrastructure.AWS{Profile: "local"}
 	//environmentVariableRepository := environment_variable.EnvironmentVariableRepository{IsLocal: true}
 	//sqsRepository := &sqs2.SQSRepository{IsLocal: true}
 	//snsRepository := &sns.SNSRepository{IsLocal: true}
@@ -126,7 +126,7 @@ func TestBatchService_QueryDynamoDBAndSendMessage_DecidedCharaAndRandomVoice(t *
 	// キャラが決まっている && ボイスファイル名は決まっていない
 
 	// DynamoDBRepository
-	repo := repository.AWS{Profile: "local"}
+	repo := infrastructure.AWS{Profile: "local"}
 	//
 	//dynamoDBRepository := &dynamodb.DynamoDBRepository{IsLocal: true}
 	//environmentVariableRepository := environment_variable.EnvironmentVariableRepository{IsLocal: true}
@@ -217,12 +217,12 @@ func TestBatchService_QueryDynamoDBAndSendMessage_DecidedCharaAndDecidedVoice(t 
 	// キャラが決まっている && ボイスファイル名は決まっている
 
 	// DynamoDBRepository
-	repo := repository.AWS{Profile: "local"}
+	repo := infrastructure.AWS{Profile: "local"}
 
 	// Service
 	batchService := Batch{
 		AWS:         repo,
-		Environment: repository.Environment{ResourceBaseURL: "http://localhost:4566"},
+		Environment: infrastructure.Environment{ResourceBaseURL: "http://localhost:4566"},
 	}
 
 	// ユーザー作成
@@ -298,7 +298,7 @@ func TestBatchService_QueryDynamoDBAndSendMessage_DecidedCharaAndDecidedVoice(t 
 
 func createUser(userID string, authToken string, platform string, ipAddress string) error {
 	// ユーザー作成
-	repo := repository.AWS{Profile: "local"}
+	repo := infrastructure.AWS{Profile: "local"}
 	currentTime := time.Now()
 	user := entity.User{
 		UserID:              userID,
@@ -313,7 +313,7 @@ func createUser(userID string, authToken string, platform string, ipAddress stri
 }
 
 func createPlatformEndpoint(userID string, pushToken string) error {
-	repo := repository.AWS{Profile: "local"}
+	repo := infrastructure.AWS{Profile: "local"}
 
 	// ユーザーを取得
 	user, err := repo.GetUser(userID)
@@ -334,7 +334,7 @@ func createPlatformEndpoint(userID string, pushToken string) error {
 }
 
 func createAlarm(requestAlarm request.Alarm) error {
-	repo := repository.AWS{Profile: "local"}
+	repo := infrastructure.AWS{Profile: "local"}
 
 	databaseAlarm := converter.RequestAlarmToDatabaseAlarm(requestAlarm, requestAlarm.Type)
 
@@ -343,6 +343,6 @@ func createAlarm(requestAlarm request.Alarm) error {
 }
 
 func receiveMessage() ([]types.Message, error) {
-	repo := repository.AWS{Profile: "local"}
+	repo := infrastructure.AWS{Profile: "local"}
 	return repo.ReceiveAlarmInfoMessage()
 }

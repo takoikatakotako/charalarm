@@ -1,4 +1,4 @@
-package repository
+package infrastructure
 
 import (
 	"github.com/google/uuid"
