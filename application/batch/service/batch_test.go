@@ -5,7 +5,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/sqs/types"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
-	"github.com/takoikatakotako/charalarm/api/entity/request"
+	"github.com/takoikatakotako/charalarm/api/handler/request"
 	"github.com/takoikatakotako/charalarm/api/util/converter"
 	"github.com/takoikatakotako/charalarm/entity"
 	"github.com/takoikatakotako/charalarm/infrastructure"

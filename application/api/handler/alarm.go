@@ -3,8 +3,8 @@ package handler
 import (
 	"fmt"
 	"github.com/labstack/echo/v4"
-	"github.com/takoikatakotako/charalarm/api/entity/request"
-	"github.com/takoikatakotako/charalarm/api/entity/response"
+	request2 "github.com/takoikatakotako/charalarm/api/handler/request"
+	"github.com/takoikatakotako/charalarm/api/handler/response"
 	"github.com/takoikatakotako/charalarm/api/service"
 	"github.com/takoikatakotako/charalarm/api/util/auth"
 	"net/http"
@@ -49,7 +49,7 @@ func (a *Alarm) AlarmAddPost(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, res)
 	}
 
-	req := new(request.AddAlarmRequest)
+	req := new(request2.AddAlarmRequest)
 	if err := c.Bind(&req); err != nil {
 		res := response.Message{Message: "Error!2"}
 		return c.JSON(http.StatusInternalServerError, res)
@@ -79,7 +79,7 @@ func (a *Alarm) AlarmEditPost(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, res)
 	}
 
-	req := new(request.AddAlarmRequest)
+	req := new(request2.AddAlarmRequest)
 	if err := c.Bind(&req); err != nil {
 		res := response.Message{Message: "Error!"}
 		return c.JSON(http.StatusInternalServerError, res)
@@ -104,7 +104,7 @@ func (a *Alarm) AlarmDeletePost(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, res)
 	}
 
-	req := new(request.DeleteAlarmRequest)
+	req := new(request2.DeleteAlarmRequest)
 	if err := c.Bind(&req); err != nil {
 		res := response.Message{Message: "Error!"}
 		return c.JSON(http.StatusInternalServerError, res)

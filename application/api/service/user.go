@@ -2,7 +2,7 @@ package service
 
 import (
 	"errors"
-	"github.com/takoikatakotako/charalarm/api/entity/response"
+	response2 "github.com/takoikatakotako/charalarm/api/handler/response"
 	"github.com/takoikatakotako/charalarm/api/util/converter"
 	"github.com/takoikatakotako/charalarm/api/util/message"
 	"github.com/takoikatakotako/charalarm/api/util/validator"
@@ -15,11 +15,11 @@ type User struct {
 	AWS infrastructure.AWS
 }
 
-func (u *User) GetUser(userID string, authToken string) (response.UserInfoResponse, error) {
+func (u *User) GetUser(userID string, authToken string) (response2.UserInfoResponse, error) {
 	// ユーザーを取得
 	user, err := u.AWS.GetUser(userID)
 	if err != nil {
-		return response.UserInfoResponse{}, err
+		return response2.UserInfoResponse{}, err
 	}
 
 	// UserID, authTokenが一致するか確認する
@@ -28,24 +28,24 @@ func (u *User) GetUser(userID string, authToken string) (response.UserInfoRespon
 	}
 
 	// 一致しない場合
-	return response.UserInfoResponse{}, errors.New(message.AuthenticationFailure)
+	return response2.UserInfoResponse{}, errors.New(message.AuthenticationFailure)
 }
 
-func (u *User) Signup(userID string, authToken string, platform string, ipAddress string) (response.Message, error) {
+func (u *User) Signup(userID string, authToken string, platform string, ipAddress string) (response2.Message, error) {
 	// バリデーション
 	if !validator.IsValidUUID(userID) || !validator.IsValidUUID(authToken) {
-		return response.Message{}, errors.New(message.ErrorInvalidValue)
+		return response2.Message{}, errors.New(message.ErrorInvalidValue)
 	}
 
 	// Check User Is Exist
 	isExist, err := u.AWS.IsExistUser(userID)
 	if err != nil {
-		return response.Message{}, err
+		return response2.Message{}, err
 	}
 
 	// ユーザーが既に作成されていた場合
 	if isExist {
-		return response.Message{Message: message.UserSignupSuccess}, nil
+		return response2.Message{Message: message.UserSignupSuccess}, nil
 	}
 
 	// ユーザー作成
@@ -61,10 +61,10 @@ func (u *User) Signup(userID string, authToken string, platform string, ipAddres
 	}
 	err = u.AWS.InsertUser(user)
 	if err != nil {
-		return response.Message{}, err
+		return response2.Message{}, err
 	}
 
-	return response.Message{Message: message.UserSignupSuccess}, nil
+	return response2.Message{Message: message.UserSignupSuccess}, nil
 }
 
 func (u *User) UpdatePremiumPlan(userID string, authToken string, enablePremiumPlan bool) error {

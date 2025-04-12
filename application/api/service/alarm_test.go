@@ -3,7 +3,7 @@ package service
 import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
-	"github.com/takoikatakotako/charalarm/api/entity/request"
+	"github.com/takoikatakotako/charalarm/api/handler/request"
 	"github.com/takoikatakotako/charalarm/infrastructure"
 	"testing"
 )

@@ -1,13 +1,13 @@
 package converter
 
 import (
-	"github.com/takoikatakotako/charalarm/api/entity/request"
-	"github.com/takoikatakotako/charalarm/api/entity/response"
+	"github.com/takoikatakotako/charalarm/api/handler/request"
+	response2 "github.com/takoikatakotako/charalarm/api/handler/response"
 	entity2 "github.com/takoikatakotako/charalarm/entity"
 )
 
-func DatabaseUserToResponseUserInfo(user entity2.User) response.UserInfoResponse {
-	return response.UserInfoResponse{
+func DatabaseUserToResponseUserInfo(user entity2.User) response2.UserInfoResponse {
+	return response2.UserInfoResponse{
 		UserID:          user.UserID,
 		AuthToken:       maskAuthToken(user.AuthToken),
 		Platform:        user.Platform,
@@ -16,8 +16,8 @@ func DatabaseUserToResponseUserInfo(user entity2.User) response.UserInfoResponse
 	}
 }
 
-func DatabaseIOSPlatformInfoToResponseIOSPlatformInfoResponse(iOSPlatformInfo entity2.UserIOSPlatformInfo) response.IOSPlatformInfoResponse {
-	return response.IOSPlatformInfoResponse{
+func DatabaseIOSPlatformInfoToResponseIOSPlatformInfoResponse(iOSPlatformInfo entity2.UserIOSPlatformInfo) response2.IOSPlatformInfoResponse {
+	return response2.IOSPlatformInfoResponse{
 		PushToken:                iOSPlatformInfo.PushToken,
 		PushTokenSNSEndpoint:     iOSPlatformInfo.PushTokenSNSEndpoint,
 		VoIPPushToken:            iOSPlatformInfo.VoIPPushToken,
@@ -101,8 +101,8 @@ func RequestAlarmToDatabaseAlarm(alarm request.Alarm, target string) entity2.Ala
 	return databaseAlarm
 }
 
-func DatabaseCharaListToResponseCharaList(charaList []entity2.Chara, baseURL string) []response.Chara {
-	responseCharaList := make([]response.Chara, 0)
+func DatabaseCharaListToResponseCharaList(charaList []entity2.Chara, baseURL string) []response2.Chara {
+	responseCharaList := make([]response2.Chara, 0)
 	for i := 0; i < len(charaList); i++ {
 		responseChara := DatabaseCharaToResponseChara(charaList[i], baseURL)
 		responseCharaList = append(responseCharaList, responseChara)
@@ -110,8 +110,8 @@ func DatabaseCharaListToResponseCharaList(charaList []entity2.Chara, baseURL str
 	return responseCharaList
 }
 
-func DatabaseCharaToResponseChara(databaseChara entity2.Chara, baseURL string) response.Chara {
-	return response.Chara{
+func DatabaseCharaToResponseChara(databaseChara entity2.Chara, baseURL string) response2.Chara {
+	return response2.Chara{
 		CharaID:     databaseChara.CharaID,
 		Enable:      databaseChara.Enable,
 		Name:        databaseChara.Name,
@@ -125,8 +125,8 @@ func DatabaseCharaToResponseChara(databaseChara entity2.Chara, baseURL string) r
 	}
 }
 
-func databaseCharaProfileListToResponseCharaProfileList(databaseCharaProfileList []entity2.CharaProfile) []response.CharaProfile {
-	responseCharaProfileList := make([]response.CharaProfile, 0)
+func databaseCharaProfileListToResponseCharaProfileList(databaseCharaProfileList []entity2.CharaProfile) []response2.CharaProfile {
+	responseCharaProfileList := make([]response2.CharaProfile, 0)
 	for i := 0; i < len(databaseCharaProfileList); i++ {
 		responseCharaProfile := databaseCharaProfileToResponseCharaProfile(databaseCharaProfileList[i])
 		responseCharaProfileList = append(responseCharaProfileList, responseCharaProfile)
@@ -134,28 +134,28 @@ func databaseCharaProfileListToResponseCharaProfileList(databaseCharaProfileList
 	return responseCharaProfileList
 }
 
-func databaseCharaProfileToResponseCharaProfile(databaseCharaProfile entity2.CharaProfile) response.CharaProfile {
-	return response.CharaProfile{
+func databaseCharaProfileToResponseCharaProfile(databaseCharaProfile entity2.CharaProfile) response2.CharaProfile {
+	return response2.CharaProfile{
 		Title: databaseCharaProfile.Title,
 		Name:  databaseCharaProfile.Name,
 		URL:   databaseCharaProfile.URL,
 	}
 }
 
-func databaseCharaToResponseCharaResourceList(databaseChara entity2.Chara, resourceBaseURL string) []response.CharaResource {
+func databaseCharaToResponseCharaResourceList(databaseChara entity2.Chara, resourceBaseURL string) []response2.CharaResource {
 	// response2.CharaResourcesを作成
-	responseCharaResources := make([]response.CharaResource, 0)
+	responseCharaResources := make([]response2.CharaResource, 0)
 
 	// expressionsのリソースを生成
 	for _, databaseCharaExpression := range databaseChara.Expressions {
 		for _, imageFileName := range databaseCharaExpression.ImageFileNames {
-			responseCharaResources = append(responseCharaResources, response.CharaResource{
+			responseCharaResources = append(responseCharaResources, response2.CharaResource{
 				FileURL: createFileURL(resourceBaseURL, databaseChara.CharaID, imageFileName),
 			})
 		}
 
 		for _, voiceFileName := range databaseCharaExpression.VoiceFileNames {
-			responseCharaResources = append(responseCharaResources, response.CharaResource{
+			responseCharaResources = append(responseCharaResources, response2.CharaResource{
 				FileURL: createFileURL(resourceBaseURL, databaseChara.CharaID, voiceFileName),
 			})
 		}
@@ -163,7 +163,7 @@ func databaseCharaToResponseCharaResourceList(databaseChara entity2.Chara, resou
 
 	// callsのリソースを生成
 	for _, databaseCharaCall := range databaseChara.Calls {
-		responseCharaResources = append(responseCharaResources, response.CharaResource{
+		responseCharaResources = append(responseCharaResources, response2.CharaResource{
 			FileURL: createFileURL(resourceBaseURL, databaseChara.CharaID, databaseCharaCall.VoiceFileName),
 		})
 	}
@@ -172,8 +172,8 @@ func databaseCharaToResponseCharaResourceList(databaseChara entity2.Chara, resou
 	return responseCharaResources
 }
 
-func databaseCharaExpressionMapToResponseCharaExpressionMap(databaseCharaExpressionMap map[string]entity2.CharaExpression, baseURL string, charaID string) map[string]response.CharaExpression {
-	responseCharaExpressionMap := map[string]response.CharaExpression{}
+func databaseCharaExpressionMapToResponseCharaExpressionMap(databaseCharaExpressionMap map[string]entity2.CharaExpression, baseURL string, charaID string) map[string]response2.CharaExpression {
+	responseCharaExpressionMap := map[string]response2.CharaExpression{}
 	for key, databaseCharaExpression := range databaseCharaExpressionMap {
 		// 画像とボイスにBase URLを追加する
 		responseImages := make([]string, 0)
@@ -185,7 +185,7 @@ func databaseCharaExpressionMapToResponseCharaExpressionMap(databaseCharaExpress
 			responseVoices = append(responseVoices, createFileURL(baseURL, charaID, voiceFileName))
 		}
 
-		responseCharaExpression := response.CharaExpression{
+		responseCharaExpression := response2.CharaExpression{
 			ImageFileURLs: responseImages,
 			VoiceFileURLs: responseVoices,
 		}
@@ -194,8 +194,8 @@ func databaseCharaExpressionMapToResponseCharaExpressionMap(databaseCharaExpress
 	return responseCharaExpressionMap
 }
 
-func databaseCharaCallListToResponseCharaCallList(databaseCharaCallList []entity2.CharaCall, baseURL string, charaID string) []response.CharaCall {
-	responseCharaCallList := make([]response.CharaCall, 0)
+func databaseCharaCallListToResponseCharaCallList(databaseCharaCallList []entity2.CharaCall, baseURL string, charaID string) []response2.CharaCall {
+	responseCharaCallList := make([]response2.CharaCall, 0)
 	for i := 0; i < len(databaseCharaCallList); i++ {
 		responseCharaCall := databaseCharaCallToResponseCharaCall(databaseCharaCallList[i], baseURL, charaID)
 		responseCharaCallList = append(responseCharaCallList, responseCharaCall)
@@ -203,15 +203,15 @@ func databaseCharaCallListToResponseCharaCallList(databaseCharaCallList []entity
 	return responseCharaCallList
 }
 
-func databaseCharaCallToResponseCharaCall(databaseCharaCall entity2.CharaCall, baseURL string, charaID string) response.CharaCall {
-	return response.CharaCall{
+func databaseCharaCallToResponseCharaCall(databaseCharaCall entity2.CharaCall, baseURL string, charaID string) response2.CharaCall {
+	return response2.CharaCall{
 		Message:       databaseCharaCall.Message,
 		VoiceFileName: databaseCharaCall.VoiceFileName,
 		VoiceFileURL:  createFileURL(baseURL, charaID, databaseCharaCall.VoiceFileName),
 	}
 }
 
-func DatabaseAlarmToResponseAlarm(alarm entity2.Alarm) response.Alarm {
+func DatabaseAlarmToResponseAlarm(alarm entity2.Alarm) response2.Alarm {
 	// UTCのdatabase.Alarmを時差のあるresponse.Alarmに変換する
 	var alarmHour int
 	var alarmMinute int
@@ -262,7 +262,7 @@ func DatabaseAlarmToResponseAlarm(alarm entity2.Alarm) response.Alarm {
 		alarmSunday = alarm.Saturday
 	}
 
-	return response.Alarm{
+	return response2.Alarm{
 		AlarmID:        alarm.AlarmID,
 		UserID:         alarm.UserID,
 		Type:           alarm.Type,

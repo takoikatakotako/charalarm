@@ -1,7 +1,7 @@
 package service
 
 import (
-	"github.com/takoikatakotako/charalarm/api/entity/response"
+	"github.com/takoikatakotako/charalarm/api/handler/response"
 	"github.com/takoikatakotako/charalarm/api/util/converter"
 	"github.com/takoikatakotako/charalarm/entity"
 	"github.com/takoikatakotako/charalarm/infrastructure"
