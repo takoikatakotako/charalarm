@@ -4,10 +4,10 @@ import (
 	"errors"
 	"fmt"
 	"github.com/takoikatakotako/charalarm/api/util/message"
-	"github.com/takoikatakotako/charalarm/entity"
+	"github.com/takoikatakotako/charalarm/infrastructure/database"
 )
 
-func ValidateAlarm(alarm entity.Alarm) error {
+func ValidateAlarm(alarm database.Alarm) error {
 	// AlarmID
 	if !IsValidUUID(alarm.AlarmID) {
 		return errors.New(message.ErrorInvalidValue + ": AlarmID")

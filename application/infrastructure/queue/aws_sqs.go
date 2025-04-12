@@ -1,4 +1,4 @@
-package entity
+package queue
 
 type IOSVoIPPushAlarmInfoSQSMessage struct {
 	AlarmID        string `json:"alarmID"`

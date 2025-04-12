@@ -1,4 +1,4 @@
-package entity
+package database
 
 const (
 	CharaTableName    = "chara-table"

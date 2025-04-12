@@ -7,7 +7,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/sqs"
 	"github.com/aws/aws-sdk-go-v2/service/sqs/types"
 	"github.com/google/uuid"
-	"github.com/takoikatakotako/charalarm/entity"
+	"github.com/takoikatakotako/charalarm/infrastructure/queue"
 	//"github.com/takoikatakotako/charalarm/worker/entity"
 )
 
@@ -52,7 +52,7 @@ func (a *AWS) GetQueueURL(queueName string) (string, error) {
 }
 
 // SendAlarmInfoToVoIPPushQueue SQS
-func (a *AWS) SendAlarmInfoToVoIPPushQueue(alarmInfo entity.IOSVoIPPushAlarmInfoSQSMessage) error {
+func (a *AWS) SendAlarmInfoToVoIPPushQueue(alarmInfo queue.IOSVoIPPushAlarmInfoSQSMessage) error {
 	queueURL, err := a.GetQueueURL(VoIPPushQueueName)
 	if err != nil {
 		return err
@@ -102,7 +102,7 @@ func (a *AWS) PurgeQueue() error {
 // //////////////////////////////////
 // Private Methods
 // //////////////////////////////////
-func (a *AWS) sendAlarmInfoMessage(queueURL string, messageGroupId string, alarmInfo entity.IOSVoIPPushAlarmInfoSQSMessage) error {
+func (a *AWS) sendAlarmInfoMessage(queueURL string, messageGroupId string, alarmInfo queue.IOSVoIPPushAlarmInfoSQSMessage) error {
 	// decode
 	jsonBytes, err := json.Marshal(alarmInfo)
 	if err != nil {

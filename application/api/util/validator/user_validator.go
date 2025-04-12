@@ -3,11 +3,11 @@ package validator
 import (
 	"errors"
 	"github.com/takoikatakotako/charalarm/api/util/message"
-	entity2 "github.com/takoikatakotako/charalarm/entity"
+	"github.com/takoikatakotako/charalarm/infrastructure/database"
 	"time"
 )
 
-func ValidateUser(user entity2.User) error {
+func ValidateUser(user database.User) error {
 	// UserID
 	if !IsValidUUID(user.UserID) {
 		return errors.New(message.ErrorInvalidValue + ": UserID")
@@ -50,7 +50,7 @@ func ValidateUser(user entity2.User) error {
 	return ValidateUserIOSPlatformInfo(user.IOSPlatformInfo)
 }
 
-func ValidateUserIOSPlatformInfo(userIOSPlatformInfo entity2.UserIOSPlatformInfo) error {
+func ValidateUserIOSPlatformInfo(userIOSPlatformInfo database.UserIOSPlatformInfo) error {
 	// PushTokenが空文字の場合はPushTokenSNSEndpointも空文字
 	if userIOSPlatformInfo.PushToken == "" && userIOSPlatformInfo.PushTokenSNSEndpoint != "" {
 		return errors.New(message.ErrorInvalidValue + ": PushToken or PushTokenSNSEndpoint")

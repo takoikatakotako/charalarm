@@ -8,7 +8,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/sns"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
-	"github.com/takoikatakotako/charalarm/entity"
+	"github.com/takoikatakotako/charalarm/infrastructure/notification"
 	"strings"
 	"testing"
 )
@@ -37,7 +37,7 @@ func TestPublishPlatformApplication(t *testing.T) {
 	}
 
 	// 詰め替える
-	iOSVoIPPushSNSMessage := entity.IOSVoIPPushSNSMessage{}
+	iOSVoIPPushSNSMessage := notification.IOSVoIPPushSNSMessage{}
 	iOSVoIPPushSNSMessage.CharaName = "キャラ名"
 	iOSVoIPPushSNSMessage.VoiceFileURL = "ファイルPath"
 

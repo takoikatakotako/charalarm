@@ -7,8 +7,9 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/takoikatakotako/charalarm/api/handler/request"
 	"github.com/takoikatakotako/charalarm/api/util/converter"
-	"github.com/takoikatakotako/charalarm/entity"
 	"github.com/takoikatakotako/charalarm/infrastructure"
+	"github.com/takoikatakotako/charalarm/infrastructure/database"
+	"github.com/takoikatakotako/charalarm/infrastructure/queue"
 
 	//"github.com/takoikatakotako/charalarm-backend/entity/request"
 	//"github.com/takoikatakotako/charalarm-backend/entity/sqs"
@@ -111,7 +112,7 @@ func TestBatchService_QueryDynamoDBAndSendMessage_RandomCharaAndRandomVoice(t *t
 	}
 
 	assert.Equal(t, 1, len(messages))
-	getAlarmInfo := entity.IOSVoIPPushAlarmInfoSQSMessage{}
+	getAlarmInfo := queue.IOSVoIPPushAlarmInfoSQSMessage{}
 	body := *messages[0].Body
 	err = json.Unmarshal([]byte(body), &getAlarmInfo)
 	if err != nil {
@@ -202,7 +203,7 @@ func TestBatchService_QueryDynamoDBAndSendMessage_DecidedCharaAndRandomVoice(t *
 	}
 
 	assert.Equal(t, 1, len(messages))
-	getAlarmInfo := entity.IOSVoIPPushAlarmInfoSQSMessage{}
+	getAlarmInfo := queue.IOSVoIPPushAlarmInfoSQSMessage{}
 	body := *messages[0].Body
 	err = json.Unmarshal([]byte(body), &getAlarmInfo)
 	if err != nil {
@@ -285,7 +286,7 @@ func TestBatchService_QueryDynamoDBAndSendMessage_DecidedCharaAndDecidedVoice(t 
 	}
 
 	assert.Equal(t, 1, len(messages))
-	getAlarmInfo := entity.IOSVoIPPushAlarmInfoSQSMessage{}
+	getAlarmInfo := queue.IOSVoIPPushAlarmInfoSQSMessage{}
 	body := *messages[0].Body
 	err = json.Unmarshal([]byte(body), &getAlarmInfo)
 	if err != nil {
@@ -300,7 +301,7 @@ func createUser(userID string, authToken string, platform string, ipAddress stri
 	// ユーザー作成
 	repo := infrastructure.AWS{Profile: "local"}
 	currentTime := time.Now()
-	user := entity.User{
+	user := database.User{
 		UserID:              userID,
 		AuthToken:           authToken,
 		Platform:            platform,

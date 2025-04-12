@@ -9,7 +9,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
-	"github.com/takoikatakotako/charalarm/entity"
+	"github.com/takoikatakotako/charalarm/infrastructure/database"
 	"testing"
 	"time"
 )
@@ -210,8 +210,8 @@ func TestInsertAndDeleteAlarmList(t *testing.T) {
 	assert.Equal(t, len(alarmList), 0)
 }
 
-func createAlarm() entity.Alarm {
-	return entity.Alarm{
+func createAlarm() database.Alarm {
+	return database.Alarm{
 		AlarmID: uuid.New().String(),
 		UserID:  uuid.New().String(),
 		Type:    "IOS_VOIP_PUSH_NOTIFICATION",
@@ -234,7 +234,7 @@ func createAlarm() entity.Alarm {
 	}
 }
 
-func insertAlarm(alarm entity.Alarm) error {
+func insertAlarm(alarm database.Alarm) error {
 	cfg, err := config.LoadDefaultConfig(context.Background(), config.WithRegion("ap-northeast-1"))
 	if err != nil {
 		return err
@@ -250,7 +250,7 @@ func insertAlarm(alarm entity.Alarm) error {
 		return err
 	}
 	_, err = client.PutItem(context.Background(), &dynamodb.PutItemInput{
-		TableName: aws.String(entity.AlarmTableName),
+		TableName: aws.String(database.AlarmTableName),
 		Item:      av,
 	})
 	if err != nil {

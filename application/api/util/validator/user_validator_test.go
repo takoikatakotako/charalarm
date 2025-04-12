@@ -1,7 +1,7 @@
 package validator
 
 import (
-	"github.com/takoikatakotako/charalarm/entity"
+	"github.com/takoikatakotako/charalarm/infrastructure/database"
 	"testing"
 )
 
@@ -10,7 +10,7 @@ func TestValidateUser(t *testing.T) {
 }
 
 func TestValidateUserIOSPlatformInfo(t *testing.T) {
-	iOSPlatformInfo := entity.UserIOSPlatformInfo{
+	iOSPlatformInfo := database.UserIOSPlatformInfo{
 		PushToken:                "",
 		PushTokenSNSEndpoint:     "",
 		VoIPPushToken:            "",

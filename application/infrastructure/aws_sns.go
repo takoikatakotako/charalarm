@@ -6,7 +6,7 @@ import (
 	"errors"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/sns"
-	"github.com/takoikatakotako/charalarm/entity"
+	"github.com/takoikatakotako/charalarm/infrastructure/notification"
 	"strings"
 )
 
@@ -33,7 +33,7 @@ func (a *AWS) createSNSClient() (*sns.Client, error) {
 }
 
 // PublishPlatformApplication VoIPのプッシュ通知をする
-func (a *AWS) PublishPlatformApplication(targetArn string, message entity.IOSVoIPPushSNSMessage) error {
+func (a *AWS) PublishPlatformApplication(targetArn string, message notification.IOSVoIPPushSNSMessage) error {
 	client, err := a.createSNSClient()
 	if err != nil {
 		return err

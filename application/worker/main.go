@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
-	"github.com/takoikatakotako/charalarm/entity"
 	"github.com/takoikatakotako/charalarm/infrastructure"
+	"github.com/takoikatakotako/charalarm/infrastructure/queue"
 	"github.com/takoikatakotako/charalarm/worker/service"
 	"net/http"
 )
@@ -22,7 +22,7 @@ func Handler(ctx context.Context, event events.SQSEvent) (events.APIGatewayProxy
 
 	for _, sqsMessage := range event.Records {
 		// Decode
-		req := entity.IOSVoIPPushAlarmInfoSQSMessage{}
+		req := queue.IOSVoIPPushAlarmInfoSQSMessage{}
 		err := json.Unmarshal([]byte(sqsMessage.Body), &req)
 		if err != nil {
 			fmt.Println("@@@@@@@@@@@")

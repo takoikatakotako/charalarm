@@ -11,23 +11,23 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/takoikatakotako/charalarm/api/util/message"
 	"github.com/takoikatakotako/charalarm/api/util/validator"
-	"github.com/takoikatakotako/charalarm/entity"
+	"github.com/takoikatakotako/charalarm/infrastructure/database"
 )
 
 // GetUser Userを取得する
-func (a *AWS) GetUser(userID string) (entity.User, error) {
+func (a *AWS) GetUser(userID string) (database.User, error) {
 	ctx := context.Background()
 
 	client, err := a.createDynamoDBClient()
 	if err != nil {
-		return entity.User{}, err
+		return database.User{}, err
 	}
 
 	// 既存レコードの取得
 	getInput := &dynamodb.GetItemInput{
-		TableName: aws.String(entity.UserTableName),
+		TableName: aws.String(database.UserTableName),
 		Key: map[string]types.AttributeValue{
-			entity.UserTableUserId: &types.AttributeValueMemberS{
+			database.UserTableUserId: &types.AttributeValueMemberS{
 				Value: userID,
 			},
 		},
@@ -36,17 +36,17 @@ func (a *AWS) GetUser(userID string) (entity.User, error) {
 	// 取得
 	output, err := client.GetItem(ctx, getInput)
 	if err != nil {
-		return entity.User{}, err
+		return database.User{}, err
 	}
-	getUser := entity.User{}
+	getUser := database.User{}
 
 	if len(output.Item) == 0 {
-		return entity.User{}, errors.New(message.InvalidValue)
+		return database.User{}, errors.New(message.InvalidValue)
 	}
 
 	err = attributevalue.UnmarshalMap(output.Item, &getUser)
 	if err != nil {
-		return entity.User{}, err
+		return database.User{}, err
 	}
 
 	return getUser, nil
@@ -61,9 +61,9 @@ func (a *AWS) IsExistUser(userID string) (bool, error) {
 
 	// 既存レコードの取得
 	getInput := &dynamodb.GetItemInput{
-		TableName: aws.String(entity.UserTableName),
+		TableName: aws.String(database.UserTableName),
 		Key: map[string]types.AttributeValue{
-			entity.UserTableUserId: &types.AttributeValueMemberS{
+			database.UserTableUserId: &types.AttributeValueMemberS{
 				Value: userID,
 			},
 		},
@@ -81,7 +81,7 @@ func (a *AWS) IsExistUser(userID string) (bool, error) {
 	}
 }
 
-func (a *AWS) InsertUser(user entity.User) error {
+func (a *AWS) InsertUser(user database.User) error {
 	// Validate User
 	err := validator.ValidateUser(user)
 	if err != nil {
@@ -101,7 +101,7 @@ func (a *AWS) InsertUser(user entity.User) error {
 		return err
 	}
 	_, err = client.PutItem(ctx, &dynamodb.PutItemInput{
-		TableName: aws.String(entity.UserTableName),
+		TableName: aws.String(database.UserTableName),
 		Item:      av,
 	})
 	if err != nil {
@@ -118,16 +118,16 @@ func (a *AWS) UpdateUserPremiumPlan(userID string, enablePremiumPlan bool) error
 		return err
 	}
 
-	update := expression.UpdateBuilder{}.Set(expression.Name(entity.UserTablePremiumPlan), expression.Value(enablePremiumPlan))
+	update := expression.UpdateBuilder{}.Set(expression.Name(database.UserTablePremiumPlan), expression.Value(enablePremiumPlan))
 	expr, err := expression.NewBuilder().WithUpdate(update).Build()
 	if err != nil {
 		fmt.Printf("build update expression: %s\n", err.Error())
 		return nil
 	}
 	updateInput := &dynamodb.UpdateItemInput{
-		TableName: aws.String(entity.UserTableName),
+		TableName: aws.String(database.UserTableName),
 		Key: map[string]types.AttributeValue{
-			entity.UserTableUserId: &types.AttributeValueMemberS{
+			database.UserTableUserId: &types.AttributeValueMemberS{
 				Value: userID,
 			},
 		},
@@ -153,9 +153,9 @@ func (a *AWS) DeleteUser(userID string) error {
 	}
 
 	deleteInput := &dynamodb.DeleteItemInput{
-		TableName: aws.String(entity.UserTableName),
+		TableName: aws.String(database.UserTableName),
 		Key: map[string]types.AttributeValue{
-			entity.UserTableUserId: &types.AttributeValueMemberS{
+			database.UserTableUserId: &types.AttributeValueMemberS{
 				Value: userID,
 			},
 		},

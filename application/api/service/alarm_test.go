@@ -3,7 +3,7 @@ package service
 import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
-	"github.com/takoikatakotako/charalarm/api/handler/request"
+	"github.com/takoikatakotako/charalarm/api/service/input"
 	"github.com/takoikatakotako/charalarm/infrastructure"
 	"testing"
 )
@@ -53,7 +53,7 @@ func TestAlarmService_AddAlarm(t *testing.T) {
 	const friday = true
 	const saturday = false
 
-	alarm := request.Alarm{
+	alarm := input.Alarm{
 		AlarmID:        alarmID,
 		UserID:         userID,
 		Type:           alarmType,
@@ -77,7 +77,14 @@ func TestAlarmService_AddAlarm(t *testing.T) {
 		Friday:    friday,
 		Saturday:  saturday,
 	}
-	err = alarmService.AddAlarm(userID, authToken, alarm)
+
+	addAlarmInput := input.AddAlarm{
+		UserID:    userID,
+		AuthToken: authToken,
+		Alarm:     alarm,
+	}
+
+	err = alarmService.AddAlarm(addAlarmInput)
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
@@ -113,7 +120,14 @@ func TestAlarmService_AddAlarm(t *testing.T) {
 	// アラーム編集
 	alarmName = "New Alarm Name"
 	alarm.Name = alarmName
-	err = alarmService.EditAlarm(userID, authToken, alarm)
+
+	editAlarmInput := input.EditAlarm{
+		UserID:    userID,
+		AuthToken: authToken,
+		Alarm:     alarm,
+	}
+
+	err = alarmService.EditAlarm(editAlarmInput)
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}

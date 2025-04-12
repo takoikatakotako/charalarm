@@ -1,4 +1,4 @@
-package entity
+package database
 
 const (
 	UserTableName            = "user-table"

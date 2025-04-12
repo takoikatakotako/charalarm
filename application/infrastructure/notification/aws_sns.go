@@ -1,4 +1,4 @@
-package entity
+package notification
 
 type IOSVoIPPushSNSMessage struct {
 	CharaID      string `json:"charaID"`

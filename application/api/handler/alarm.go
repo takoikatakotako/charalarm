@@ -3,10 +3,11 @@ package handler
 import (
 	"fmt"
 	"github.com/labstack/echo/v4"
+	"github.com/takoikatakotako/charalarm/api/handler/auth"
 	request2 "github.com/takoikatakotako/charalarm/api/handler/request"
 	"github.com/takoikatakotako/charalarm/api/handler/response"
 	"github.com/takoikatakotako/charalarm/api/service"
-	"github.com/takoikatakotako/charalarm/api/util/auth"
+	"github.com/takoikatakotako/charalarm/api/service/input"
 	"net/http"
 )
 
@@ -59,7 +60,13 @@ func (a *Alarm) AlarmAddPost(c echo.Context) error {
 	fmt.Println(req)
 	fmt.Println("@@@@@@@@@@")
 
-	err = a.Service.AddAlarm(userID, authToken, req.Alarm)
+	addAlarmInput := input.AddAlarm{
+		UserID:    userID,
+		AuthToken: authToken,
+		Alarm:     convertToAlarmInput(req.Alarm),
+	}
+
+	err = a.Service.AddAlarm(addAlarmInput)
 	if err != nil {
 		fmt.Println(err)
 		res := response.Message{Message: "Error!3"}
@@ -85,7 +92,13 @@ func (a *Alarm) AlarmEditPost(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, res)
 	}
 
-	err = a.Service.EditAlarm(userID, authToken, req.Alarm)
+	editAlarmInput := input.EditAlarm{
+		UserID:    userID,
+		AuthToken: authToken,
+		Alarm:     convertToAlarmInput(req.Alarm),
+	}
+
+	err = a.Service.EditAlarm(editAlarmInput)
 	if err != nil {
 		res := response.Message{Message: "Error!"}
 		return c.JSON(http.StatusInternalServerError, res)

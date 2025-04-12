@@ -3,8 +3,8 @@ package service
 import (
 	"errors"
 	"fmt"
-	"github.com/takoikatakotako/charalarm/api/handler/request"
 	"github.com/takoikatakotako/charalarm/api/handler/response"
+	"github.com/takoikatakotako/charalarm/api/service/input"
 	"github.com/takoikatakotako/charalarm/api/util/converter"
 	"github.com/takoikatakotako/charalarm/api/util/logger"
 	"github.com/takoikatakotako/charalarm/api/util/message"
@@ -21,9 +21,9 @@ type Alarm struct {
 }
 
 // AddAlarm アラームを追加
-func (a *Alarm) AddAlarm(userID string, authToken string, requestAlarm request.Alarm) error {
+func (a *Alarm) AddAlarm(input input.AddAlarm) error {
 	// ユーザーを取得
-	user, err := a.AWS.GetUser(userID)
+	user, err := a.AWS.GetUser(input.UserID)
 	if err != nil {
 		return err
 	}
@@ -33,7 +33,7 @@ func (a *Alarm) AddAlarm(userID string, authToken string, requestAlarm request.A
 	fmt.Println("@@@@@user@@@@@")
 
 	// UserID, AuthToken, Alarm.UserID が一致する
-	if user.UserID == userID && user.AuthToken == authToken && requestAlarm.UserID == userID {
+	if user.UserID == input.UserID && user.AuthToken == input.AuthToken && input.Alarm.UserID == input.UserID {
 	} else {
 		return errors.New(message.ErrorAuthenticationFailure)
 	}
@@ -43,7 +43,7 @@ func (a *Alarm) AddAlarm(userID string, authToken string, requestAlarm request.A
 	fmt.Println("@@@@@user.UserID@@@@@")
 
 	// 既に登録されたアラームの件数を取得
-	list, err := a.AWS.GetAlarmList(userID)
+	list, err := a.AWS.GetAlarmList(user.UserID)
 	if err != nil {
 		return err
 	}
@@ -58,7 +58,7 @@ func (a *Alarm) AddAlarm(userID string, authToken string, requestAlarm request.A
 	}
 
 	// すでに登録されていないか調べる
-	isExist, err := a.AWS.IsExistAlarm(requestAlarm.AlarmID)
+	isExist, err := a.AWS.IsExistAlarm(input.Alarm.AlarmID)
 	if err != nil {
 		// すでに登録されているのが贈られてくのは不審
 		pc, fileName, line, _ := runtime.Caller(1)
@@ -71,14 +71,11 @@ func (a *Alarm) AddAlarm(userID string, authToken string, requestAlarm request.A
 		return errors.New(message.ErrorAlarmAlreadyExists)
 	}
 
-	fmt.Println("@@@@@requestAlarm.Type @@@@@")
-	fmt.Println(requestAlarm.Type)
-	fmt.Println("@@@@@requestAlarm.Type @@@@@")
 	// DatabaseAlarmに変換
 	var target string
-	if requestAlarm.Type == "IOS_PUSH_NOTIFICATION" {
+	if input.Alarm.Type == "IOS_PUSH_NOTIFICATION" {
 		target = user.IOSPlatformInfo.PushTokenSNSEndpoint
-	} else if requestAlarm.Type == "IOS_VOIP_PUSH_NOTIFICATION" {
+	} else if input.Alarm.Type == "IOS_VOIP_PUSH_NOTIFICATION" {
 		target = user.IOSPlatformInfo.VoIPPushTokenSNSEndpoint
 	} else {
 		// 不明なターゲット
@@ -88,31 +85,31 @@ func (a *Alarm) AddAlarm(userID string, authToken string, requestAlarm request.A
 		logger.Warn(msg, fileName, funcName, line)
 		return errors.New(message.ErrorInvalidValue)
 	}
-	databaseAlarm := converter.RequestAlarmToDatabaseAlarm(requestAlarm, target)
+	databaseAlarm := convertToDatabaseAlarm(input.Alarm, target)
 
 	// アラームを追加する
 	return a.AWS.InsertAlarm(databaseAlarm)
 }
 
 // EditAlarm アラームを更新
-func (a *Alarm) EditAlarm(userID string, authToken string, requestAlarm request.Alarm) error {
+func (a *Alarm) EditAlarm(input input.EditAlarm) error {
 	// ユーザーを取得
-	user, err := a.AWS.GetUser(userID)
+	user, err := a.AWS.GetUser(input.UserID)
 	if err != nil {
 		return err
 	}
 
 	// UserID, AuthToken, Alarm.UserID が一致する
-	if user.UserID == userID && user.AuthToken == authToken && requestAlarm.UserID == userID {
+	if user.UserID == input.UserID && user.AuthToken == input.AuthToken && input.Alarm.UserID == input.UserID {
 	} else {
 		return errors.New(message.ErrorAuthenticationFailure)
 	}
 
 	// DatabaseAlarmに変換
 	var target string
-	if requestAlarm.Type == "IOS_PUSH_NOTIFICATION" {
+	if input.Alarm.Type == "IOS_PUSH_NOTIFICATION" {
 		target = user.IOSPlatformInfo.PushTokenSNSEndpoint
-	} else if requestAlarm.Type == "IOS_VOIP_PUSH_NOTIFICATION" {
+	} else if input.Alarm.Type == "IOS_VOIP_PUSH_NOTIFICATION" {
 		target = user.IOSPlatformInfo.VoIPPushTokenSNSEndpoint
 	} else {
 		// 不明なターゲット
@@ -127,7 +124,7 @@ func (a *Alarm) EditAlarm(userID string, authToken string, requestAlarm request.
 	fmt.Println(target)
 	fmt.Println("@@@@@target@@@@@")
 
-	databaseAlarm := converter.RequestAlarmToDatabaseAlarm(requestAlarm, target)
+	databaseAlarm := convertToDatabaseAlarm(input.Alarm, target)
 
 	// アラームを更新する
 	return a.AWS.UpdateAlarm(databaseAlarm)

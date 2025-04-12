@@ -3,10 +3,10 @@ package converter
 import (
 	"github.com/takoikatakotako/charalarm/api/handler/request"
 	response2 "github.com/takoikatakotako/charalarm/api/handler/response"
-	entity2 "github.com/takoikatakotako/charalarm/entity"
+	"github.com/takoikatakotako/charalarm/infrastructure/database"
 )
 
-func DatabaseUserToResponseUserInfo(user entity2.User) response2.UserInfoResponse {
+func DatabaseUserToResponseUserInfo(user database.User) response2.UserInfoResponse {
 	return response2.UserInfoResponse{
 		UserID:          user.UserID,
 		AuthToken:       maskAuthToken(user.AuthToken),
@@ -16,7 +16,7 @@ func DatabaseUserToResponseUserInfo(user entity2.User) response2.UserInfoRespons
 	}
 }
 
-func DatabaseIOSPlatformInfoToResponseIOSPlatformInfoResponse(iOSPlatformInfo entity2.UserIOSPlatformInfo) response2.IOSPlatformInfoResponse {
+func DatabaseIOSPlatformInfoToResponseIOSPlatformInfoResponse(iOSPlatformInfo database.UserIOSPlatformInfo) response2.IOSPlatformInfoResponse {
 	return response2.IOSPlatformInfoResponse{
 		PushToken:                iOSPlatformInfo.PushToken,
 		PushTokenSNSEndpoint:     iOSPlatformInfo.PushTokenSNSEndpoint,
@@ -25,7 +25,7 @@ func DatabaseIOSPlatformInfoToResponseIOSPlatformInfoResponse(iOSPlatformInfo en
 	}
 }
 
-func RequestAlarmToDatabaseAlarm(alarm request.Alarm, target string) entity2.Alarm {
+func RequestAlarmToDatabaseAlarm(alarm request.Alarm, target string) database.Alarm {
 	// request.Alarmは時差があるため、UTCのdatabase.Alarmに変換する
 	var alarmHour int
 	var alarmMinute int
@@ -76,7 +76,7 @@ func RequestAlarmToDatabaseAlarm(alarm request.Alarm, target string) entity2.Ala
 		alarmSaturday = alarm.Friday
 	}
 
-	databaseAlarm := entity2.Alarm{
+	databaseAlarm := database.Alarm{
 		AlarmID:        alarm.AlarmID,
 		UserID:         alarm.UserID,
 		Type:           alarm.Type,
@@ -101,7 +101,7 @@ func RequestAlarmToDatabaseAlarm(alarm request.Alarm, target string) entity2.Ala
 	return databaseAlarm
 }
 
-func DatabaseCharaListToResponseCharaList(charaList []entity2.Chara, baseURL string) []response2.Chara {
+func DatabaseCharaListToResponseCharaList(charaList []database.Chara, baseURL string) []response2.Chara {
 	responseCharaList := make([]response2.Chara, 0)
 	for i := 0; i < len(charaList); i++ {
 		responseChara := DatabaseCharaToResponseChara(charaList[i], baseURL)
@@ -110,7 +110,7 @@ func DatabaseCharaListToResponseCharaList(charaList []entity2.Chara, baseURL str
 	return responseCharaList
 }
 
-func DatabaseCharaToResponseChara(databaseChara entity2.Chara, baseURL string) response2.Chara {
+func DatabaseCharaToResponseChara(databaseChara database.Chara, baseURL string) response2.Chara {
 	return response2.Chara{
 		CharaID:     databaseChara.CharaID,
 		Enable:      databaseChara.Enable,
@@ -125,7 +125,7 @@ func DatabaseCharaToResponseChara(databaseChara entity2.Chara, baseURL string) r
 	}
 }
 
-func databaseCharaProfileListToResponseCharaProfileList(databaseCharaProfileList []entity2.CharaProfile) []response2.CharaProfile {
+func databaseCharaProfileListToResponseCharaProfileList(databaseCharaProfileList []database.CharaProfile) []response2.CharaProfile {
 	responseCharaProfileList := make([]response2.CharaProfile, 0)
 	for i := 0; i < len(databaseCharaProfileList); i++ {
 		responseCharaProfile := databaseCharaProfileToResponseCharaProfile(databaseCharaProfileList[i])
@@ -134,7 +134,7 @@ func databaseCharaProfileListToResponseCharaProfileList(databaseCharaProfileList
 	return responseCharaProfileList
 }
 
-func databaseCharaProfileToResponseCharaProfile(databaseCharaProfile entity2.CharaProfile) response2.CharaProfile {
+func databaseCharaProfileToResponseCharaProfile(databaseCharaProfile database.CharaProfile) response2.CharaProfile {
 	return response2.CharaProfile{
 		Title: databaseCharaProfile.Title,
 		Name:  databaseCharaProfile.Name,
@@ -142,7 +142,7 @@ func databaseCharaProfileToResponseCharaProfile(databaseCharaProfile entity2.Cha
 	}
 }
 
-func databaseCharaToResponseCharaResourceList(databaseChara entity2.Chara, resourceBaseURL string) []response2.CharaResource {
+func databaseCharaToResponseCharaResourceList(databaseChara database.Chara, resourceBaseURL string) []response2.CharaResource {
 	// response2.CharaResourcesを作成
 	responseCharaResources := make([]response2.CharaResource, 0)
 
@@ -172,7 +172,7 @@ func databaseCharaToResponseCharaResourceList(databaseChara entity2.Chara, resou
 	return responseCharaResources
 }
 
-func databaseCharaExpressionMapToResponseCharaExpressionMap(databaseCharaExpressionMap map[string]entity2.CharaExpression, baseURL string, charaID string) map[string]response2.CharaExpression {
+func databaseCharaExpressionMapToResponseCharaExpressionMap(databaseCharaExpressionMap map[string]database.CharaExpression, baseURL string, charaID string) map[string]response2.CharaExpression {
 	responseCharaExpressionMap := map[string]response2.CharaExpression{}
 	for key, databaseCharaExpression := range databaseCharaExpressionMap {
 		// 画像とボイスにBase URLを追加する
@@ -194,7 +194,7 @@ func databaseCharaExpressionMapToResponseCharaExpressionMap(databaseCharaExpress
 	return responseCharaExpressionMap
 }
 
-func databaseCharaCallListToResponseCharaCallList(databaseCharaCallList []entity2.CharaCall, baseURL string, charaID string) []response2.CharaCall {
+func databaseCharaCallListToResponseCharaCallList(databaseCharaCallList []database.CharaCall, baseURL string, charaID string) []response2.CharaCall {
 	responseCharaCallList := make([]response2.CharaCall, 0)
 	for i := 0; i < len(databaseCharaCallList); i++ {
 		responseCharaCall := databaseCharaCallToResponseCharaCall(databaseCharaCallList[i], baseURL, charaID)
@@ -203,7 +203,7 @@ func databaseCharaCallListToResponseCharaCallList(databaseCharaCallList []entity
 	return responseCharaCallList
 }
 
-func databaseCharaCallToResponseCharaCall(databaseCharaCall entity2.CharaCall, baseURL string, charaID string) response2.CharaCall {
+func databaseCharaCallToResponseCharaCall(databaseCharaCall database.CharaCall, baseURL string, charaID string) response2.CharaCall {
 	return response2.CharaCall{
 		Message:       databaseCharaCall.Message,
 		VoiceFileName: databaseCharaCall.VoiceFileName,
@@ -211,7 +211,7 @@ func databaseCharaCallToResponseCharaCall(databaseCharaCall entity2.CharaCall, b
 	}
 }
 
-func DatabaseAlarmToResponseAlarm(alarm entity2.Alarm) response2.Alarm {
+func DatabaseAlarmToResponseAlarm(alarm database.Alarm) response2.Alarm {
 	// UTCのdatabase.Alarmを時差のあるresponse.Alarmに変換する
 	var alarmHour int
 	var alarmMinute int

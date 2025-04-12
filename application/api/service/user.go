@@ -6,8 +6,8 @@ import (
 	"github.com/takoikatakotako/charalarm/api/util/converter"
 	"github.com/takoikatakotako/charalarm/api/util/message"
 	"github.com/takoikatakotako/charalarm/api/util/validator"
-	"github.com/takoikatakotako/charalarm/entity"
 	"github.com/takoikatakotako/charalarm/infrastructure"
+	"github.com/takoikatakotako/charalarm/infrastructure/database"
 	"time"
 )
 
@@ -50,7 +50,7 @@ func (u *User) Signup(userID string, authToken string, platform string, ipAddres
 
 	// ユーザー作成
 	currentTime := time.Now()
-	user := entity.User{
+	user := database.User{
 		UserID:              userID,
 		AuthToken:           authToken,
 		Platform:            platform,

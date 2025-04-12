@@ -9,40 +9,40 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/takoikatakotako/charalarm/api/util/logger"
 	"github.com/takoikatakotako/charalarm/batch/message"
-	"github.com/takoikatakotako/charalarm/entity"
+	"github.com/takoikatakotako/charalarm/infrastructure/database"
 	"math/rand"
 	"runtime"
 	"time"
 )
 
 // GetChara キャラを取得する
-func (a *AWS) GetChara(charaID string) (entity.Chara, error) {
+func (a *AWS) GetChara(charaID string) (database.Chara, error) {
 	// クライアント作成
 	client, err := a.createDynamoDBClient()
 	if err != nil {
-		return entity.Chara{}, err
+		return database.Chara{}, err
 	}
 
 	// クエリ実行
 	input := &dynamodb.GetItemInput{
-		TableName: aws.String(entity.CharaTableName),
+		TableName: aws.String(database.CharaTableName),
 		Key: map[string]types.AttributeValue{
-			entity.CharaTableCharaID: &types.AttributeValueMemberS{
+			database.CharaTableCharaID: &types.AttributeValueMemberS{
 				Value: charaID,
 			},
 		},
 	}
 	resp, err := client.GetItem(context.Background(), input)
 	if err != nil {
-		return entity.Chara{}, err
+		return database.Chara{}, err
 	}
 
 	if len(resp.Item) == 0 {
-		return entity.Chara{}, fmt.Errorf(message.ItemNotFound)
+		return database.Chara{}, fmt.Errorf(message.ItemNotFound)
 	}
 
 	// 取得結果をcharaに変換
-	chara := entity.Chara{}
+	chara := database.Chara{}
 	err = attributevalue.UnmarshalMap(resp.Item, &chara)
 	if err != nil {
 		return chara, err
@@ -52,11 +52,11 @@ func (a *AWS) GetChara(charaID string) (entity.Chara, error) {
 }
 
 // GetCharaList キャラ一覧を取得
-func (a *AWS) GetCharaList() ([]entity.Chara, error) {
+func (a *AWS) GetCharaList() ([]database.Chara, error) {
 	// クライアント作成
 	client, err := a.createDynamoDBClient()
 	if err != nil {
-		return []entity.Chara{}, err
+		return []database.Chara{}, err
 	}
 
 	// クエリ実行
@@ -65,13 +65,13 @@ func (a *AWS) GetCharaList() ([]entity.Chara, error) {
 	}
 	output, err := client.Scan(context.Background(), input)
 	if err != nil {
-		return []entity.Chara{}, err
+		return []database.Chara{}, err
 	}
 
 	// 取得結果を struct の配列に変換
-	charaList := make([]entity.Chara, 0)
+	charaList := make([]database.Chara, 0)
 	for _, item := range output.Items {
-		chara := entity.Chara{}
+		chara := database.Chara{}
 		err := attributevalue.UnmarshalMap(item, &chara)
 		if err != nil {
 			// Error
@@ -87,11 +87,11 @@ func (a *AWS) GetCharaList() ([]entity.Chara, error) {
 
 // GetRandomChara
 // ランダムにキャラを1つ取得する, キャラ数が増えてきた場合は改良する
-func (a *AWS) GetRandomChara() (entity.Chara, error) {
+func (a *AWS) GetRandomChara() (database.Chara, error) {
 	// クライアント作成
 	client, err := a.createDynamoDBClient()
 	if err != nil {
-		return entity.Chara{}, err
+		return database.Chara{}, err
 	}
 
 	// クエリ実行
@@ -101,7 +101,7 @@ func (a *AWS) GetRandomChara() (entity.Chara, error) {
 	}
 	output, err := client.Scan(context.Background(), input)
 	if err != nil {
-		return entity.Chara{}, err
+		return database.Chara{}, err
 	}
 
 	// ランダムに1件取得
@@ -110,7 +110,7 @@ func (a *AWS) GetRandomChara() (entity.Chara, error) {
 	item := output.Items[index]
 
 	// 取得結果をcharaに変換
-	chara := entity.Chara{}
+	chara := database.Chara{}
 	err = attributevalue.UnmarshalMap(item, &chara)
 	if err != nil {
 		return chara, err
