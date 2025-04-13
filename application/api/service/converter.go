@@ -155,6 +155,15 @@ func convertToAlarmOutput(alarm database.Alarm) output.Alarm {
 	}
 }
 
+func convertToCharaOutputs(databaseCharas []database.Chara, baseURL string) []output.Chara {
+	charaOutputs := make([]output.Chara, 0)
+	for i := 0; i < len(databaseCharas); i++ {
+		charaOutput := convertToCharaOutput(databaseCharas[i], baseURL)
+		charaOutputs = append(charaOutputs, charaOutput)
+	}
+	return charaOutputs
+}
+
 func convertToCharaOutput(databaseChara database.Chara, baseURL string) output.Chara {
 	return output.Chara{
 		CharaID:     databaseChara.CharaID,
