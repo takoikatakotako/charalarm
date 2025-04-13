@@ -154,3 +154,108 @@ func convertToAlarmOutput(alarm database.Alarm) output.Alarm {
 		Saturday:       alarmSaturday,
 	}
 }
+
+func convertToCharaOutput(databaseChara database.Chara, baseURL string) output.Chara {
+	return output.Chara{
+		CharaID:     databaseChara.CharaID,
+		Enable:      databaseChara.Enable,
+		Name:        databaseChara.Name,
+		CreatedAt:   databaseChara.CreatedAt,
+		UpdatedAt:   databaseChara.UpdatedAd,
+		Description: databaseChara.Description,
+		Profiles:    databaseCharaProfileListToResponseCharaProfileList(databaseChara.Profiles),
+		Resources:   databaseCharaToResponseCharaResourceList(databaseChara, baseURL),
+		Expression:  databaseCharaExpressionMapToResponseCharaExpressionMap(databaseChara.Expressions, baseURL, databaseChara.CharaID),
+		Calls:       databaseCharaCallListToResponseCharaCallList(databaseChara.Calls, baseURL, databaseChara.CharaID),
+	}
+}
+
+func databaseCharaProfileListToResponseCharaProfileList(databaseCharaProfiles []database.CharaProfile) []output.CharaProfile {
+	responseCharaProfileList := make([]output.CharaProfile, 0)
+	for i := 0; i < len(databaseCharaProfiles); i++ {
+		responseCharaProfile := databaseCharaProfileToResponseCharaProfile(databaseCharaProfiles[i])
+		responseCharaProfileList = append(responseCharaProfileList, responseCharaProfile)
+	}
+	return responseCharaProfileList
+}
+
+func databaseCharaProfileToResponseCharaProfile(databaseCharaProfile database.CharaProfile) output.CharaProfile {
+	return output.CharaProfile{
+		Title: databaseCharaProfile.Title,
+		Name:  databaseCharaProfile.Name,
+		URL:   databaseCharaProfile.URL,
+	}
+}
+
+func databaseCharaToResponseCharaResourceList(databaseChara database.Chara, resourceBaseURL string) []output.CharaResource {
+	// response2.CharaResourcesを作成
+	responseCharaResources := make([]output.CharaResource, 0)
+
+	// expressionsのリソースを生成
+	for _, databaseCharaExpression := range databaseChara.Expressions {
+		for _, imageFileName := range databaseCharaExpression.ImageFileNames {
+			responseCharaResources = append(responseCharaResources, output.CharaResource{
+				FileURL: createFileURL(resourceBaseURL, databaseChara.CharaID, imageFileName),
+			})
+		}
+
+		for _, voiceFileName := range databaseCharaExpression.VoiceFileNames {
+			responseCharaResources = append(responseCharaResources, output.CharaResource{
+				FileURL: createFileURL(resourceBaseURL, databaseChara.CharaID, voiceFileName),
+			})
+		}
+	}
+
+	// callsのリソースを生成
+	for _, databaseCharaCall := range databaseChara.Calls {
+		responseCharaResources = append(responseCharaResources, output.CharaResource{
+			FileURL: createFileURL(resourceBaseURL, databaseChara.CharaID, databaseCharaCall.VoiceFileName),
+		})
+	}
+
+	// TODO: responseCharaResources の中から重複要素を削除
+	return responseCharaResources
+}
+
+func databaseCharaExpressionMapToResponseCharaExpressionMap(databaseCharaExpressionMap map[string]database.CharaExpression, baseURL string, charaID string) map[string]output.CharaExpression {
+	responseCharaExpressionMap := map[string]output.CharaExpression{}
+	for key, databaseCharaExpression := range databaseCharaExpressionMap {
+		// 画像とボイスにBase URLを追加する
+		responseImages := make([]string, 0)
+		for _, imageFileName := range databaseCharaExpression.ImageFileNames {
+			responseImages = append(responseImages, createFileURL(baseURL, charaID, imageFileName))
+		}
+		responseVoices := make([]string, 0)
+		for _, voiceFileName := range databaseCharaExpression.VoiceFileNames {
+			responseVoices = append(responseVoices, createFileURL(baseURL, charaID, voiceFileName))
+		}
+
+		responseCharaExpression := output.CharaExpression{
+			ImageFileURLs: responseImages,
+			VoiceFileURLs: responseVoices,
+		}
+		responseCharaExpressionMap[key] = responseCharaExpression
+	}
+	return responseCharaExpressionMap
+}
+
+func databaseCharaCallListToResponseCharaCallList(databaseCharaCallList []database.CharaCall, baseURL string, charaID string) []output.CharaCall {
+	responseCharaCallList := make([]output.CharaCall, 0)
+	for i := 0; i < len(databaseCharaCallList); i++ {
+		responseCharaCall := databaseCharaCallToResponseCharaCall(databaseCharaCallList[i], baseURL, charaID)
+		responseCharaCallList = append(responseCharaCallList, responseCharaCall)
+	}
+	return responseCharaCallList
+}
+
+func databaseCharaCallToResponseCharaCall(databaseCharaCall database.CharaCall, baseURL string, charaID string) output.CharaCall {
+	return output.CharaCall{
+		Message:       databaseCharaCall.Message,
+		VoiceFileName: databaseCharaCall.VoiceFileName,
+		VoiceFileURL:  createFileURL(baseURL, charaID, databaseCharaCall.VoiceFileName),
+	}
+}
+
+func createFileURL(resourceBaseURL string, charaID string, fileName string) string {
+	return resourceBaseURL + "/" + charaID + "/" + fileName
+}

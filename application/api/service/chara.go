@@ -2,6 +2,7 @@ package service
 
 import (
 	"github.com/takoikatakotako/charalarm/api/handler/response"
+	"github.com/takoikatakotako/charalarm/api/service/output"
 	"github.com/takoikatakotako/charalarm/api/util/converter"
 	"github.com/takoikatakotako/charalarm/infrastructure"
 	"github.com/takoikatakotako/charalarm/infrastructure/database"
@@ -13,15 +14,15 @@ type Chara struct {
 }
 
 // GetChara キャラクターを取得
-func (c *Chara) GetChara(charaID string) (response.Chara, error) {
+func (c *Chara) GetChara(charaID string) (output.Chara, error) {
 	chara, err := c.AWS.GetChara(charaID)
 	if err != nil {
-		return response.Chara{}, err
+		return output.Chara{}, err
 	}
 
 	// BaseURLを取得
 	baseURL := c.Environment.ResourceBaseURL
-	return converter.DatabaseCharaToResponseChara(chara, baseURL), nil
+	return convertToCharaOutput(chara, baseURL), nil
 }
 
 // GetCharaList キャラクター一覧を取得
