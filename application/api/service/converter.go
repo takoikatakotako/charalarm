@@ -6,6 +6,25 @@ import (
 	"github.com/takoikatakotako/charalarm/infrastructure/database"
 )
 
+func convertTooUserInfoOutput(user database.User) output.UserInfoResponse {
+	return output.UserInfoResponse{
+		UserID:          user.UserID,
+		AuthToken:       maskAuthToken(user.AuthToken),
+		Platform:        user.Platform,
+		PremiumPlan:     user.PremiumPlan,
+		IOSPlatformInfo: convertToIOSPlatformInfoOutput(user.IOSPlatformInfo),
+	}
+}
+
+func convertToIOSPlatformInfoOutput(iOSPlatformInfo database.UserIOSPlatformInfo) output.IOSPlatformInfoResponse {
+	return output.IOSPlatformInfoResponse{
+		PushToken:                iOSPlatformInfo.PushToken,
+		PushTokenSNSEndpoint:     iOSPlatformInfo.PushTokenSNSEndpoint,
+		VoIPPushToken:            iOSPlatformInfo.VoIPPushToken,
+		VoIPPushTokenSNSEndpoint: iOSPlatformInfo.VoIPPushTokenSNSEndpoint,
+	}
+}
+
 func convertToDatabaseAlarm(alarm input.Alarm, target string) database.Alarm {
 	// request.Alarmは時差があるため、UTCのdatabase.Alarmに変換する
 	var alarmHour int
@@ -267,4 +286,20 @@ func databaseCharaCallToResponseCharaCall(databaseCharaCall database.CharaCall, 
 
 func createFileURL(resourceBaseURL string, charaID string, fileName string) string {
 	return resourceBaseURL + "/" + charaID + "/" + fileName
+}
+
+// 2文字目移行の文字を*に変換
+func maskAuthToken(authToken string) string {
+	length := len(authToken)
+	var r = ""
+	for i := 0; i < length; i++ {
+		if i == 0 {
+			r += authToken[0:1]
+		} else if i == 1 {
+			r += authToken[1:2]
+		} else {
+			r += "*"
+		}
+	}
+	return r
 }

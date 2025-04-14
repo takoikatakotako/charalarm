@@ -2,8 +2,7 @@ package service
 
 import (
 	"errors"
-	response2 "github.com/takoikatakotako/charalarm/api/handler/response"
-	"github.com/takoikatakotako/charalarm/api/util/converter"
+	"github.com/takoikatakotako/charalarm/api/service/output"
 	"github.com/takoikatakotako/charalarm/api/util/validator"
 	"github.com/takoikatakotako/charalarm/common"
 	"github.com/takoikatakotako/charalarm/infrastructure"
@@ -15,37 +14,37 @@ type User struct {
 	AWS infrastructure.AWS
 }
 
-func (u *User) GetUser(userID string, authToken string) (response2.UserInfoResponse, error) {
+func (u *User) GetUser(userID string, authToken string) (output.UserInfoResponse, error) {
 	// ユーザーを取得
 	user, err := u.AWS.GetUser(userID)
 	if err != nil {
-		return response2.UserInfoResponse{}, err
+		return output.UserInfoResponse{}, err
 	}
 
 	// UserID, authTokenが一致するか確認する
 	if user.UserID == userID && user.AuthToken == authToken {
-		return converter.DatabaseUserToResponseUserInfo(user), nil
+		return convertTooUserInfoOutput(user), nil
 	}
 
 	// 一致しない場合
-	return response2.UserInfoResponse{}, errors.New(common.AuthenticationFailure)
+	return output.UserInfoResponse{}, errors.New(common.AuthenticationFailure)
 }
 
-func (u *User) Signup(userID string, authToken string, platform string, ipAddress string) (response2.Message, error) {
+func (u *User) Signup(userID string, authToken string, platform string, ipAddress string) (output.Message, error) {
 	// バリデーション
 	if !validator.IsValidUUID(userID) || !validator.IsValidUUID(authToken) {
-		return response2.Message{}, errors.New(common.ErrorInvalidValue)
+		return output.Message{}, errors.New(common.ErrorInvalidValue)
 	}
 
 	// Check User Is Exist
 	isExist, err := u.AWS.IsExistUser(userID)
 	if err != nil {
-		return response2.Message{}, err
+		return output.Message{}, err
 	}
 
 	// ユーザーが既に作成されていた場合
 	if isExist {
-		return response2.Message{Message: common.UserSignupSuccess}, nil
+		return output.Message{Message: common.UserSignupSuccess}, nil
 	}
 
 	// ユーザー作成
@@ -61,10 +60,10 @@ func (u *User) Signup(userID string, authToken string, platform string, ipAddres
 	}
 	err = u.AWS.InsertUser(user)
 	if err != nil {
-		return response2.Message{}, err
+		return output.Message{}, err
 	}
 
-	return response2.Message{Message: common.UserSignupSuccess}, nil
+	return output.Message{Message: common.UserSignupSuccess}, nil
 }
 
 func (u *User) UpdatePremiumPlan(userID string, authToken string, enablePremiumPlan bool) error {
