@@ -9,7 +9,6 @@ import (
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/expression"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
-	"github.com/takoikatakotako/charalarm/api/util/validator"
 	"github.com/takoikatakotako/charalarm/common"
 	"github.com/takoikatakotako/charalarm/infrastructure/database"
 )
@@ -83,7 +82,7 @@ func (a *AWS) IsExistUser(userID string) (bool, error) {
 
 func (a *AWS) InsertUser(user database.User) error {
 	// Validate User
-	err := validator.ValidateUser(user)
+	err := database.ValidateUser(user)
 	if err != nil {
 		return err
 	}

@@ -3,7 +3,6 @@ package service
 import (
 	"errors"
 	"github.com/takoikatakotako/charalarm/api/service/output"
-	"github.com/takoikatakotako/charalarm/api/util/validator"
 	"github.com/takoikatakotako/charalarm/common"
 	"github.com/takoikatakotako/charalarm/infrastructure"
 	"github.com/takoikatakotako/charalarm/infrastructure/database"
@@ -32,7 +31,7 @@ func (u *User) GetUser(userID string, authToken string) (output.UserInfoResponse
 
 func (u *User) Signup(userID string, authToken string, platform string, ipAddress string) (output.Message, error) {
 	// バリデーション
-	if !validator.IsValidUUID(userID) || !validator.IsValidUUID(authToken) {
+	if !database.IsValidUUID(userID) || !database.IsValidUUID(authToken) {
 		return output.Message{}, errors.New(common.ErrorInvalidValue)
 	}
 
@@ -68,7 +67,7 @@ func (u *User) Signup(userID string, authToken string, platform string, ipAddres
 
 func (u *User) UpdatePremiumPlan(userID string, authToken string, enablePremiumPlan bool) error {
 	// バリデーション
-	if !validator.IsValidUUID(userID) || !validator.IsValidUUID(authToken) {
+	if !database.IsValidUUID(userID) || !database.IsValidUUID(authToken) {
 		return errors.New(common.ErrorInvalidValue)
 	}
 
@@ -87,7 +86,7 @@ func (u *User) UpdatePremiumPlan(userID string, authToken string, enablePremiumP
 
 func (u *User) Withdraw(userID string, authToken string) error {
 	// バリデーション
-	if !validator.IsValidUUID(userID) || !validator.IsValidUUID(authToken) {
+	if !database.IsValidUUID(userID) || !database.IsValidUUID(authToken) {
 		return errors.New(common.InvalidValue)
 	}
 

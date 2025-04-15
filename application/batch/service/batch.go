@@ -6,7 +6,7 @@ import (
 	"github.com/takoikatakotako/charalarm/batch/logger"
 	"github.com/takoikatakotako/charalarm/infrastructure"
 	"github.com/takoikatakotako/charalarm/infrastructure/database"
-	entity2 "github.com/takoikatakotako/charalarm/infrastructure/queue"
+	"github.com/takoikatakotako/charalarm/infrastructure/queue"
 	"math/rand"
 	"runtime"
 	"time"
@@ -88,7 +88,7 @@ func (b *Batch) createVoiceFileURL(resourceBaseURL string, charaID string, voice
 
 func (b *Batch) forIOSVoIPPushNotification(resourceBaseURL string, alarm database.Alarm) error {
 	// AlarmInfoに変換
-	alarmInfo := entity2.IOSVoIPPushAlarmInfoSQSMessage{}
+	alarmInfo := queue.IOSVoIPPushAlarmInfoSQSMessage{}
 	alarmInfo.AlarmID = alarm.AlarmID
 	alarmInfo.UserID = alarm.UserID
 	alarmInfo.SNSEndpointArn = alarm.Target

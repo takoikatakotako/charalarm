@@ -1,7 +1,6 @@
-package validator
+package database
 
 import (
-	"github.com/takoikatakotako/charalarm/infrastructure/database"
 	"testing"
 )
 
@@ -10,13 +9,13 @@ func TestValidateUser(t *testing.T) {
 }
 
 func TestValidateUserIOSPlatformInfo(t *testing.T) {
-	iOSPlatformInfo := database.UserIOSPlatformInfo{
+	iOSPlatformInfo := UserIOSPlatformInfo{
 		PushToken:                "",
 		PushTokenSNSEndpoint:     "",
 		VoIPPushToken:            "",
 		VoIPPushTokenSNSEndpoint: "",
 	}
-	err := ValidateUserIOSPlatformInfo(iOSPlatformInfo)
+	err := iOSPlatformInfo.Validate()
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}

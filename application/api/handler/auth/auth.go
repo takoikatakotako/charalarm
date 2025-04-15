@@ -4,7 +4,7 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
-	"github.com/takoikatakotako/charalarm/api/util/validator"
+	"github.com/takoikatakotako/charalarm/infrastructure/database"
 	"strings"
 )
 
@@ -34,7 +34,7 @@ func Basic(authorizationHeader string) (string, string, error) {
 	userID := tokens[0]
 	authToken := tokens[1]
 
-	if validator.IsValidUUID(userID) && validator.IsValidUUID(authToken) {
+	if database.IsValidUUID(userID) && database.IsValidUUID(authToken) {
 		return userID, authToken, nil
 	}
 

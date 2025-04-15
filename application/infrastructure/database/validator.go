@@ -1,4 +1,4 @@
-package validator
+package database
 
 import (
 	"github.com/google/uuid"

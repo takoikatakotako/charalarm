@@ -1,13 +1,39 @@
-package validator
+package database
 
 import (
 	"errors"
 	"github.com/takoikatakotako/charalarm/common"
-	"github.com/takoikatakotako/charalarm/infrastructure/database"
 	"time"
 )
 
-func ValidateUser(user database.User) error {
+const (
+	UserTableName            = "user-table"
+	UserTableUserId          = "userID"
+	UserTableUserIdIndexName = "user-id-index"
+	UserTablePremiumPlan     = "premiumPlan"
+)
+
+type User struct {
+	UserID      string `dynamodbav:"userID"`
+	AuthToken   string `dynamodbav:"authToken"`
+	Platform    string `dynamodbav:"platform"`
+	PremiumPlan bool   `dynamodbav:"premiumPlan"`
+
+	CreatedAt           string `dynamodbav:"createdAt"`
+	UpdatedAt           string `dynamodbav:"updatedAt"`
+	RegisteredIPAddress string `dynamodbav:"registeredIPAddress"`
+
+	IOSPlatformInfo UserIOSPlatformInfo `dynamodbav:"iosPlatformInfo"`
+}
+
+type UserIOSPlatformInfo struct {
+	PushToken                string `dynamodbav:"pushToken"`
+	PushTokenSNSEndpoint     string `dynamodbav:"pushTokenSNSEndpoint"`
+	VoIPPushToken            string `dynamodbav:"voIPPushToken"`
+	VoIPPushTokenSNSEndpoint string `dynamodbav:"voIPPushTokenSNSEndpoint"`
+}
+
+func ValidateUser(user User) error {
 	// UserID
 	if !IsValidUUID(user.UserID) {
 		return errors.New(common.ErrorInvalidValue + ": UserID")
@@ -47,27 +73,27 @@ func ValidateUser(user database.User) error {
 	}
 
 	// IOSPlatformInfo
-	return ValidateUserIOSPlatformInfo(user.IOSPlatformInfo)
+	return user.IOSPlatformInfo.Validate()
 }
 
-func ValidateUserIOSPlatformInfo(userIOSPlatformInfo database.UserIOSPlatformInfo) error {
+func (u *UserIOSPlatformInfo) Validate() error {
 	// PushTokenが空文字の場合はPushTokenSNSEndpointも空文字
-	if userIOSPlatformInfo.PushToken == "" && userIOSPlatformInfo.PushTokenSNSEndpoint != "" {
+	if u.PushToken == "" && u.PushTokenSNSEndpoint != "" {
 		return errors.New(common.ErrorInvalidValue + ": PushToken or PushTokenSNSEndpoint")
 	}
 
 	// PushTokenSNSEndpointが空文字の場合はPushTokenも空文字
-	if userIOSPlatformInfo.PushTokenSNSEndpoint == "" && userIOSPlatformInfo.PushToken != "" {
+	if u.PushTokenSNSEndpoint == "" && u.PushToken != "" {
 		return errors.New(common.ErrorInvalidValue + ": PushToken or PushTokenSNSEndpoint")
 	}
 
 	// VoIPPushTokenが空文字の場合はVoIPPushTokenSNSEndpointも空文字
-	if userIOSPlatformInfo.VoIPPushToken == "" && userIOSPlatformInfo.VoIPPushTokenSNSEndpoint != "" {
+	if u.VoIPPushToken == "" && u.VoIPPushTokenSNSEndpoint != "" {
 		return errors.New(common.ErrorInvalidValue + ": VoIPPushToken or VoIPPushTokenSNSEndpoint")
 	}
 
 	// VoIPPushTokenSNSEndpointが空文字の場合はVoIPPushTokenも空文字
-	if userIOSPlatformInfo.VoIPPushTokenSNSEndpoint == "" && userIOSPlatformInfo.VoIPPushToken != "" {
+	if u.VoIPPushTokenSNSEndpoint == "" && u.VoIPPushToken != "" {
 		return errors.New(common.ErrorInvalidValue + ": VoIPPushToken or VoIPPushTokenSNSEndpoint")
 	}
 

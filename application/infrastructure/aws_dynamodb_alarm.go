@@ -8,7 +8,6 @@ import (
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/expression"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
-	"github.com/takoikatakotako/charalarm/api/util/validator"
 	"github.com/takoikatakotako/charalarm/infrastructure/database"
 	"time"
 )
@@ -157,7 +156,7 @@ func (a *AWS) QueryByAlarmTime(hour int, minute int, weekday time.Weekday) ([]da
 
 func (a *AWS) InsertAlarm(alarm database.Alarm) error {
 	// Alarm のバリデーション
-	err := validator.ValidateAlarm(alarm)
+	err := alarm.Validate()
 	if err != nil {
 		return err
 	}
@@ -189,7 +188,7 @@ func (a *AWS) InsertAlarm(alarm database.Alarm) error {
 // TODO: 少し危険な方法で更新しているので、更新対象の数だけメソッドを作成する
 func (a *AWS) UpdateAlarm(alarm database.Alarm) error {
 	// Alarm のバリデーション
-	err := validator.ValidateAlarm(alarm)
+	err := alarm.Validate()
 	if err != nil {
 		fmt.Printf("err, %v", err)
 		return err
