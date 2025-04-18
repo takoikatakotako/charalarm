@@ -7,9 +7,9 @@ import (
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
-	"github.com/takoikatakotako/charalarm/api/util/logger"
-	"github.com/takoikatakotako/charalarm/batch/message"
+	"github.com/takoikatakotako/charalarm/common"
 	"github.com/takoikatakotako/charalarm/infrastructure/database"
+	"log/slog"
 	"math/rand"
 	"runtime"
 	"time"
@@ -38,7 +38,7 @@ func (a *AWS) GetChara(charaID string) (database.Chara, error) {
 	}
 
 	if len(resp.Item) == 0 {
-		return database.Chara{}, fmt.Errorf(message.ItemNotFound)
+		return database.Chara{}, fmt.Errorf(common.ItemNotFound)
 	}
 
 	// 取得結果をcharaに変換
@@ -75,9 +75,9 @@ func (a *AWS) GetCharaList() ([]database.Chara, error) {
 		err := attributevalue.UnmarshalMap(item, &chara)
 		if err != nil {
 			// Error
-			pc, fileName, line, _ := runtime.Caller(1)
+			pc, fileName, _, _ := runtime.Caller(1)
 			funcName := runtime.FuncForPC(pc).Name()
-			logger.Error(err.Error(), fileName, funcName, line)
+			slog.Error(err.Error(), slog.String("file", fileName), slog.String("func", funcName))
 			continue
 		}
 		charaList = append(charaList, chara)

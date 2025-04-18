@@ -3,10 +3,10 @@ package service
 import (
 	"errors"
 	"fmt"
-	"github.com/takoikatakotako/charalarm/batch/logger"
 	"github.com/takoikatakotako/charalarm/infrastructure"
 	"github.com/takoikatakotako/charalarm/infrastructure/database"
 	"github.com/takoikatakotako/charalarm/infrastructure/queue"
+	"log/slog"
 	"math/rand"
 	"runtime"
 	"time"
@@ -47,9 +47,10 @@ func (b *Batch) QueryDynamoDBAndSendMessage(hour int, minute int, weekday time.W
 	randomCharaCallVoicesCount := len(randomChara.Calls)
 	if randomCharaCallVoicesCount == 0 {
 		// ボイスが見つからない
-		pc, fileName, line, _ := runtime.Caller(1)
+		pc, fileName, _, _ := runtime.Caller(1)
 		funcName := runtime.FuncForPC(pc).Name()
-		logger.Error(err.Error(), fileName, funcName, line)
+		slog.Error(err.Error(), slog.String("file", fileName), slog.String("func", funcName))
+
 		return errors.New("ボイスがないぞ")
 	}
 	randomCharaVoiceIndex := rand.Intn(randomCharaCallVoicesCount)
@@ -72,9 +73,9 @@ func (b *Batch) QueryDynamoDBAndSendMessage(hour int, minute int, weekday time.W
 			err := b.forIOSVoIPPushNotification(resourceBaseURL, alarm)
 			if err != nil {
 				// 不明なターゲット
-				pc, fileName, line, _ := runtime.Caller(1)
+				pc, fileName, _, _ := runtime.Caller(1)
 				funcName := runtime.FuncForPC(pc).Name()
-				logger.Error(err.Error(), fileName, funcName, line)
+				slog.Error(err.Error(), slog.String("file", fileName), slog.String("func", funcName))
 				continue
 			}
 		}

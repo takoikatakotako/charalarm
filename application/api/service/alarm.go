@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"github.com/takoikatakotako/charalarm/api/service/input"
 	"github.com/takoikatakotako/charalarm/api/service/output"
-	"github.com/takoikatakotako/charalarm/api/util/logger"
 	"github.com/takoikatakotako/charalarm/common"
 	"github.com/takoikatakotako/charalarm/infrastructure"
+	"log/slog"
 	"runtime"
 )
 
@@ -60,10 +60,9 @@ func (a *Alarm) AddAlarm(input input.AddAlarm) error {
 	isExist, err := a.AWS.IsExistAlarm(input.Alarm.AlarmID)
 	if err != nil {
 		// すでに登録されているのが贈られてくのは不審
-		pc, fileName, line, _ := runtime.Caller(1)
+		pc, fileName, _, _ := runtime.Caller(1)
 		funcName := runtime.FuncForPC(pc).Name()
-		msg := "すでに登録されたアラーム"
-		logger.Warn(msg, fileName, funcName, line)
+		slog.Error(err.Error(), slog.String("file", fileName), slog.String("func", funcName))
 		return err
 	}
 	if isExist {
@@ -78,10 +77,9 @@ func (a *Alarm) AddAlarm(input input.AddAlarm) error {
 		target = user.IOSPlatformInfo.VoIPPushTokenSNSEndpoint
 	} else {
 		// 不明なターゲット
-		pc, fileName, line, _ := runtime.Caller(1)
+		pc, fileName, _, _ := runtime.Caller(1)
 		funcName := runtime.FuncForPC(pc).Name()
-		msg := "不明なターゲット"
-		logger.Warn(msg, fileName, funcName, line)
+		slog.Error(err.Error(), slog.String("file", fileName), slog.String("func", funcName))
 		return errors.New(common.ErrorInvalidValue)
 	}
 	databaseAlarm := convertToDatabaseAlarm(input.Alarm, target)
@@ -112,10 +110,9 @@ func (a *Alarm) EditAlarm(input input.EditAlarm) error {
 		target = user.IOSPlatformInfo.VoIPPushTokenSNSEndpoint
 	} else {
 		// 不明なターゲット
-		pc, fileName, line, _ := runtime.Caller(1)
+		pc, fileName, _, _ := runtime.Caller(1)
 		funcName := runtime.FuncForPC(pc).Name()
-		msg := "不明ターゲット"
-		logger.Warn(msg, fileName, funcName, line)
+		slog.Error(err.Error(), slog.String("file", fileName), slog.String("func", funcName))
 		return errors.New(common.ErrorInvalidValue)
 	}
 
@@ -175,10 +172,10 @@ func (a *Alarm) GetAlarms(userID string, authToken string) (output.GetAlarms, er
 			Alarms: alarms,
 		}, nil
 	} else {
-		pc, fileName, line, _ := runtime.Caller(1)
+		pc, fileName, _, _ := runtime.Caller(1)
 		funcName := runtime.FuncForPC(pc).Name()
 		msg := fmt.Sprintf("Authentication Failure, UserID: %s, AuthToken: %s", user.UserID, user.AuthToken)
-		logger.Warn(msg, fileName, funcName, line)
+		slog.Error(msg, slog.String("file", fileName), slog.String("func", funcName))
 		return output.GetAlarms{}, errors.New(common.ErrorAuthenticationFailure)
 	}
 }
