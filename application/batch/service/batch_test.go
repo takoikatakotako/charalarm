@@ -6,6 +6,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/sqs/types"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
+	"github.com/takoikatakotako/charalarm/environment"
 	"github.com/takoikatakotako/charalarm/infrastructure"
 	"github.com/takoikatakotako/charalarm/infrastructure/database"
 	"github.com/takoikatakotako/charalarm/infrastructure/queue"
@@ -180,7 +181,7 @@ func TestBatchService_QueryDynamoDBAndSendMessage_DecidedCharaAndRandomVoice(t *
 		t.Errorf("unexpected error: %v", err)
 	}
 
-	// SQSに設定
+	// SQSに送信
 	err = batchService.QueryDynamoDBAndSendMessage(hour, minute, time.Sunday)
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
@@ -191,6 +192,8 @@ func TestBatchService_QueryDynamoDBAndSendMessage_DecidedCharaAndRandomVoice(t *
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
+
+	// Memo たまにエラーになる、他のテストの関係で複数のテストが絡んでいるのかも？
 
 	assert.Equal(t, 1, len(messages))
 	getAlarmInfo := queue.IOSVoIPPushAlarmInfoSQSMessage{}
@@ -213,7 +216,7 @@ func TestBatchService_QueryDynamoDBAndSendMessage_DecidedCharaAndDecidedVoice(t 
 	// Service
 	batchService := Batch{
 		AWS:         repo,
-		Environment: infrastructure.Environment{ResourceBaseURL: "http://localhost:4566"},
+		Environment: environment.Environment{ResourceBaseURL: "http://localhost:4566"},
 	}
 
 	// ユーザー作成

@@ -3,6 +3,7 @@ package service
 import (
 	"errors"
 	"fmt"
+	"github.com/takoikatakotako/charalarm/environment"
 	"github.com/takoikatakotako/charalarm/infrastructure"
 	"github.com/takoikatakotako/charalarm/infrastructure/database"
 	"github.com/takoikatakotako/charalarm/infrastructure/queue"
@@ -14,7 +15,7 @@ import (
 
 type Batch struct {
 	AWS                            infrastructure.AWS
-	Environment                    infrastructure.Environment
+	Environment                    environment.Environment
 	randomCharaNameAndVoiceFileURL map[string]CharaNameAndVoiceFilePath
 }
 

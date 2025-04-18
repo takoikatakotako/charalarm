@@ -6,6 +6,7 @@ import (
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/takoikatakotako/charalarm/batch/service"
+	"github.com/takoikatakotako/charalarm/environment"
 	"github.com/takoikatakotako/charalarm/infrastructure"
 	"os"
 	"time"
@@ -30,7 +31,7 @@ func handler(ctx context.Context, event events.APIGatewayProxyRequest) (events.A
 		Profile: profile,
 	}
 
-	environmentRepository := infrastructure.Environment{
+	environmentRepository := environment.Environment{
 		ResourceBaseURL: resourceBaseURL,
 	}
 

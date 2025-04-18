@@ -2,13 +2,14 @@ package service
 
 import (
 	"github.com/takoikatakotako/charalarm/api/service/output"
+	"github.com/takoikatakotako/charalarm/environment"
 	"github.com/takoikatakotako/charalarm/infrastructure"
 	"github.com/takoikatakotako/charalarm/infrastructure/database"
 )
 
 type Chara struct {
 	AWS         infrastructure.AWS
-	Environment infrastructure.Environment
+	Environment environment.Environment
 }
 
 // GetChara キャラクターを取得
