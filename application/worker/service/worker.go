@@ -1,15 +1,16 @@
 package service
 
 import (
-	entity2 "github.com/takoikatakotako/charalarm/entity"
-	"github.com/takoikatakotako/charalarm/repository"
+	"github.com/takoikatakotako/charalarm/infrastructure"
+	entity2 "github.com/takoikatakotako/charalarm/infrastructure/notification"
+	"github.com/takoikatakotako/charalarm/infrastructure/queue"
 )
 
 type CallWorkerService struct {
-	AWS repository.AWS
+	AWS infrastructure.AWS
 }
 
-func (s *CallWorkerService) PublishPlatformApplication(alarmInfo entity2.IOSVoIPPushAlarmInfoSQSMessage) error {
+func (s *CallWorkerService) PublishPlatformApplication(alarmInfo queue.IOSVoIPPushAlarmInfoSQSMessage) error {
 	// エンドポイントが有効か確認
 	err := s.AWS.CheckPlatformEndpointEnabled(alarmInfo.SNSEndpointArn)
 	if err != nil {

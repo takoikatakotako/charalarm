@@ -2,55 +2,53 @@ package service
 
 import (
 	"errors"
-	"github.com/takoikatakotako/charalarm/api/entity/response"
-	"github.com/takoikatakotako/charalarm/api/util/converter"
-	"github.com/takoikatakotako/charalarm/api/util/message"
-	"github.com/takoikatakotako/charalarm/api/util/validator"
-	"github.com/takoikatakotako/charalarm/entity"
-	"github.com/takoikatakotako/charalarm/repository"
+	"github.com/takoikatakotako/charalarm/api/service/output"
+	"github.com/takoikatakotako/charalarm/common"
+	"github.com/takoikatakotako/charalarm/infrastructure"
+	"github.com/takoikatakotako/charalarm/infrastructure/database"
 	"time"
 )
 
 type User struct {
-	AWS repository.AWS
+	AWS infrastructure.AWS
 }
 
-func (u *User) GetUser(userID string, authToken string) (response.UserInfoResponse, error) {
+func (u *User) GetUser(userID string, authToken string) (output.UserInfoResponse, error) {
 	// ユーザーを取得
 	user, err := u.AWS.GetUser(userID)
 	if err != nil {
-		return response.UserInfoResponse{}, err
+		return output.UserInfoResponse{}, err
 	}
 
 	// UserID, authTokenが一致するか確認する
 	if user.UserID == userID && user.AuthToken == authToken {
-		return converter.DatabaseUserToResponseUserInfo(user), nil
+		return convertTooUserInfoOutput(user), nil
 	}
 
 	// 一致しない場合
-	return response.UserInfoResponse{}, errors.New(message.AuthenticationFailure)
+	return output.UserInfoResponse{}, errors.New(common.AuthenticationFailure)
 }
 
-func (u *User) Signup(userID string, authToken string, platform string, ipAddress string) (response.Message, error) {
+func (u *User) Signup(userID string, authToken string, platform string, ipAddress string) (output.Message, error) {
 	// バリデーション
-	if !validator.IsValidUUID(userID) || !validator.IsValidUUID(authToken) {
-		return response.Message{}, errors.New(message.ErrorInvalidValue)
+	if !database.IsValidUUID(userID) || !database.IsValidUUID(authToken) {
+		return output.Message{}, errors.New(common.ErrorInvalidValue)
 	}
 
 	// Check User Is Exist
 	isExist, err := u.AWS.IsExistUser(userID)
 	if err != nil {
-		return response.Message{}, err
+		return output.Message{}, err
 	}
 
 	// ユーザーが既に作成されていた場合
 	if isExist {
-		return response.Message{Message: message.UserSignupSuccess}, nil
+		return output.Message{Message: common.UserSignupSuccess}, nil
 	}
 
 	// ユーザー作成
 	currentTime := time.Now()
-	user := entity.User{
+	user := database.User{
 		UserID:              userID,
 		AuthToken:           authToken,
 		Platform:            platform,
@@ -61,16 +59,16 @@ func (u *User) Signup(userID string, authToken string, platform string, ipAddres
 	}
 	err = u.AWS.InsertUser(user)
 	if err != nil {
-		return response.Message{}, err
+		return output.Message{}, err
 	}
 
-	return response.Message{Message: message.UserSignupSuccess}, nil
+	return output.Message{Message: common.UserSignupSuccess}, nil
 }
 
 func (u *User) UpdatePremiumPlan(userID string, authToken string, enablePremiumPlan bool) error {
 	// バリデーション
-	if !validator.IsValidUUID(userID) || !validator.IsValidUUID(authToken) {
-		return errors.New(message.ErrorInvalidValue)
+	if !database.IsValidUUID(userID) || !database.IsValidUUID(authToken) {
+		return errors.New(common.ErrorInvalidValue)
 	}
 
 	// Check User Is Exist
@@ -79,7 +77,7 @@ func (u *User) UpdatePremiumPlan(userID string, authToken string, enablePremiumP
 		return err
 	}
 	if !isExist {
-		return errors.New(message.ErrorInvalidValue)
+		return errors.New(common.ErrorInvalidValue)
 	}
 
 	// プレミアムプランを更新
@@ -88,8 +86,8 @@ func (u *User) UpdatePremiumPlan(userID string, authToken string, enablePremiumP
 
 func (u *User) Withdraw(userID string, authToken string) error {
 	// バリデーション
-	if !validator.IsValidUUID(userID) || !validator.IsValidUUID(authToken) {
-		return errors.New(message.InvalidValue)
+	if !database.IsValidUUID(userID) || !database.IsValidUUID(authToken) {
+		return errors.New(common.InvalidValue)
 	}
 
 	// ユーザーを取得
@@ -102,7 +100,7 @@ func (u *User) Withdraw(userID string, authToken string) error {
 	if user.UserID == userID && user.AuthToken == authToken {
 	} else {
 		// 認証失敗
-		return errors.New(message.ErrorAuthenticationFailure)
+		return errors.New(common.ErrorAuthenticationFailure)
 	}
 
 	// PlatformEndpointを削除する

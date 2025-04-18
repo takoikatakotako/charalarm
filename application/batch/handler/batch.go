@@ -20,7 +20,7 @@ package main
 //		return c.JSON(http.StatusInternalServerError, res)
 //	}
 //
-//	res, err := a.Service.GetAlarmList(userID, authToken)
+//	res, err := a.Service.GetAlarms(userID, authToken)
 //	if err != nil {
 //		res := response.Message{Message: "Error!"}
 //		return c.JSON(http.StatusInternalServerError, res)

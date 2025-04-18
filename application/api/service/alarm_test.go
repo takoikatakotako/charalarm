@@ -3,14 +3,14 @@ package service
 import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
-	"github.com/takoikatakotako/charalarm/api/entity/request"
-	"github.com/takoikatakotako/charalarm/repository"
+	"github.com/takoikatakotako/charalarm/api/service/input"
+	"github.com/takoikatakotako/charalarm/infrastructure"
 	"testing"
 )
 
 func TestAlarmService_AddAlarm(t *testing.T) {
 	// AWS Repository
-	repo := repository.AWS{Profile: "local"}
+	repo := infrastructure.AWS{Profile: "local"}
 
 	// Service
 	userService := User{AWS: repo}
@@ -53,7 +53,7 @@ func TestAlarmService_AddAlarm(t *testing.T) {
 	const friday = true
 	const saturday = false
 
-	alarm := request.Alarm{
+	alarm := input.Alarm{
 		AlarmID:        alarmID,
 		UserID:         userID,
 		Type:           alarmType,
@@ -77,16 +77,24 @@ func TestAlarmService_AddAlarm(t *testing.T) {
 		Friday:    friday,
 		Saturday:  saturday,
 	}
-	err = alarmService.AddAlarm(userID, authToken, alarm)
+
+	addAlarmInput := input.AddAlarm{
+		UserID:    userID,
+		AuthToken: authToken,
+		Alarm:     alarm,
+	}
+
+	err = alarmService.AddAlarm(addAlarmInput)
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
 
 	// アラームを取得
-	getAlarmList, err := alarmService.GetAlarmList(userID, authToken)
+	getAlarmsOutput, err := alarmService.GetAlarms(userID, authToken)
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
+	getAlarmList := getAlarmsOutput.Alarms
 
 	// Assert
 	assert.Equal(t, 1, len(getAlarmList))
@@ -113,16 +121,24 @@ func TestAlarmService_AddAlarm(t *testing.T) {
 	// アラーム編集
 	alarmName = "New Alarm Name"
 	alarm.Name = alarmName
-	err = alarmService.EditAlarm(userID, authToken, alarm)
+
+	editAlarmInput := input.EditAlarm{
+		UserID:    userID,
+		AuthToken: authToken,
+		Alarm:     alarm,
+	}
+
+	err = alarmService.EditAlarm(editAlarmInput)
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
 
 	// アラームを取得
-	updatedAlarmList, err := alarmService.GetAlarmList(userID, authToken)
+	getAlarmsOutput, err = alarmService.GetAlarms(userID, authToken)
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
+	updatedAlarmList := getAlarmsOutput.Alarms
 
 	// Assert
 	assert.Equal(t, 1, len(updatedAlarmList))
@@ -153,13 +169,13 @@ func TestAlarmService_AddAlarm(t *testing.T) {
 	}
 
 	// アラームを取得
-	getAlarmList, err = alarmService.GetAlarmList(userID, authToken)
+	getAlarmsOutput, err = alarmService.GetAlarms(userID, authToken)
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
 
 	// Assert
-	assert.Equal(t, 0, len(getAlarmList))
+	assert.Equal(t, 0, len(getAlarmsOutput.Alarms))
 }
 
 func TestAlarmService_AddAlarmAndGetAlarm(t *testing.T) {

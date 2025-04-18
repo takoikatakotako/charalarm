@@ -3,17 +3,19 @@ package service
 import (
 	"errors"
 	"fmt"
-	"github.com/takoikatakotako/charalarm/batch/logger"
-	entity2 "github.com/takoikatakotako/charalarm/entity"
-	"github.com/takoikatakotako/charalarm/repository"
+	"github.com/takoikatakotako/charalarm/environment"
+	"github.com/takoikatakotako/charalarm/infrastructure"
+	"github.com/takoikatakotako/charalarm/infrastructure/database"
+	"github.com/takoikatakotako/charalarm/infrastructure/queue"
+	"log/slog"
 	"math/rand"
 	"runtime"
 	"time"
 )
 
 type Batch struct {
-	AWS                            repository.AWS
-	Environment                    repository.Environment
+	AWS                            infrastructure.AWS
+	Environment                    environment.Environment
 	randomCharaNameAndVoiceFileURL map[string]CharaNameAndVoiceFilePath
 }
 
@@ -46,9 +48,10 @@ func (b *Batch) QueryDynamoDBAndSendMessage(hour int, minute int, weekday time.W
 	randomCharaCallVoicesCount := len(randomChara.Calls)
 	if randomCharaCallVoicesCount == 0 {
 		// ボイスが見つからない
-		pc, fileName, line, _ := runtime.Caller(1)
+		pc, fileName, _, _ := runtime.Caller(1)
 		funcName := runtime.FuncForPC(pc).Name()
-		logger.Error(err.Error(), fileName, funcName, line)
+		slog.Error(err.Error(), slog.String("file", fileName), slog.String("func", funcName))
+
 		return errors.New("ボイスがないぞ")
 	}
 	randomCharaVoiceIndex := rand.Intn(randomCharaCallVoicesCount)
@@ -71,9 +74,9 @@ func (b *Batch) QueryDynamoDBAndSendMessage(hour int, minute int, weekday time.W
 			err := b.forIOSVoIPPushNotification(resourceBaseURL, alarm)
 			if err != nil {
 				// 不明なターゲット
-				pc, fileName, line, _ := runtime.Caller(1)
+				pc, fileName, _, _ := runtime.Caller(1)
 				funcName := runtime.FuncForPC(pc).Name()
-				logger.Error(err.Error(), fileName, funcName, line)
+				slog.Error(err.Error(), slog.String("file", fileName), slog.String("func", funcName))
 				continue
 			}
 		}
@@ -85,9 +88,9 @@ func (b *Batch) createVoiceFileURL(resourceBaseURL string, charaID string, voice
 	return fmt.Sprintf("%s/%s/%s", resourceBaseURL, charaID, voiceFileName)
 }
 
-func (b *Batch) forIOSVoIPPushNotification(resourceBaseURL string, alarm entity2.Alarm) error {
+func (b *Batch) forIOSVoIPPushNotification(resourceBaseURL string, alarm database.Alarm) error {
 	// AlarmInfoに変換
-	alarmInfo := entity2.IOSVoIPPushAlarmInfoSQSMessage{}
+	alarmInfo := queue.IOSVoIPPushAlarmInfoSQSMessage{}
 	alarmInfo.AlarmID = alarm.AlarmID
 	alarmInfo.UserID = alarm.UserID
 	alarmInfo.SNSEndpointArn = alarm.Target

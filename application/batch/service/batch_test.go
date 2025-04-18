@@ -2,20 +2,14 @@ package service
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/aws/aws-sdk-go-v2/service/sqs/types"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
-	"github.com/takoikatakotako/charalarm/api/entity/request"
-	"github.com/takoikatakotako/charalarm/api/util/converter"
-	"github.com/takoikatakotako/charalarm/entity"
-	"github.com/takoikatakotako/charalarm/repository"
-
-	//"github.com/takoikatakotako/charalarm-backend/entity/request"
-	//"github.com/takoikatakotako/charalarm-backend/entity/sqs"
-	//"github.com/takoikatakotako/charalarm-backend/repository/dynamodb"
-	//"github.com/takoikatakotako/charalarm-backend/repository/environment_variable"
-	//"github.com/takoikatakotako/charalarm-backend/repository/sns"
-	//sqs2 "github.com/takoikatakotako/charalarm-backend/repository/sqs"
+	"github.com/takoikatakotako/charalarm/environment"
+	"github.com/takoikatakotako/charalarm/infrastructure"
+	"github.com/takoikatakotako/charalarm/infrastructure/database"
+	"github.com/takoikatakotako/charalarm/infrastructure/queue"
 	"math/rand"
 	"os"
 	"testing"
@@ -24,7 +18,7 @@ import (
 
 func TestMain(m *testing.M) {
 	// Before Tests
-	repo := repository.AWS{Profile: "local"}
+	repo := infrastructure.AWS{Profile: "local"}
 	_ = repo.PurgeQueue()
 
 	exitVal := m.Run()
@@ -37,18 +31,10 @@ func TestBatchService_QueryDynamoDBAndSendMessage_RandomCharaAndRandomVoice(t *t
 	// キャラが決まっていない && ボイスファイル名も決まっていない
 
 	// DynamoDBRepository
-	repo := repository.AWS{Profile: "local"}
-	//environmentVariableRepository := environment_variable.EnvironmentVariableRepository{IsLocal: true}
-	//sqsRepository := &sqs2.SQSRepository{IsLocal: true}
-	//snsRepository := &sns.SNSRepository{IsLocal: true}
-
-	// Service
-	//userService := UserService{DynamoDBRepository: dynamoDBRepository}
-	//alarmService := AlarmService{DynamoDBRepository: dynamoDBRepository}
+	repo := infrastructure.AWS{Profile: "local"}
 	batchService := Batch{
 		AWS: repo,
 	}
-	//pushTokenService := PushTokenService{DynamoDBRepository: dynamoDBRepository, SNSRepository: snsRepository}
 
 	// ユーザー作成
 	userID := uuid.New().String()
@@ -67,18 +53,26 @@ func TestBatchService_QueryDynamoDBAndSendMessage_RandomCharaAndRandomVoice(t *t
 		t.Errorf("unexpected error: %v", err)
 	}
 
+	// ユーザーを取得
+	user, err := getUser(userID)
+	if err != nil {
+		t.Errorf("unexpected error: %v", err)
+	}
+
 	// アラーム追加
 	alarmID := uuid.New().String()
 	hour := rand.Intn(12)
 	minute := rand.Intn(60)
-	requestAlarm := request.Alarm{
+	alarm := database.Alarm{
 		AlarmID:        alarmID,
 		UserID:         userID,
 		Type:           "IOS_VOIP_PUSH_NOTIFICATION",
+		Target:         user.IOSPlatformInfo.VoIPPushTokenSNSEndpoint,
 		Enable:         true,
 		Name:           "Alarm Name",
 		Hour:           hour,
 		Minute:         minute,
+		Time:           fmt.Sprintf("%02d-%02d", hour, minute),
 		TimeDifference: 0,
 		CharaID:        "",
 		CharaName:      "",
@@ -92,26 +86,25 @@ func TestBatchService_QueryDynamoDBAndSendMessage_RandomCharaAndRandomVoice(t *t
 		Saturday:       true,
 	}
 
-	err = createAlarm(requestAlarm)
+	err = createAlarm(alarm)
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
 
-	// SQSに設定
+	// SQSに送信
 	err = batchService.QueryDynamoDBAndSendMessage(hour, minute, time.Sunday)
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
-	//
-	//// SQSに入ったことを確認
 
+	// SQSに入ったことを確認
 	messages, err := receiveMessage()
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
 
 	assert.Equal(t, 1, len(messages))
-	getAlarmInfo := entity.IOSVoIPPushAlarmInfoSQSMessage{}
+	getAlarmInfo := queue.IOSVoIPPushAlarmInfoSQSMessage{}
 	body := *messages[0].Body
 	err = json.Unmarshal([]byte(body), &getAlarmInfo)
 	if err != nil {
@@ -126,18 +119,9 @@ func TestBatchService_QueryDynamoDBAndSendMessage_DecidedCharaAndRandomVoice(t *
 	// キャラが決まっている && ボイスファイル名は決まっていない
 
 	// DynamoDBRepository
-	repo := repository.AWS{Profile: "local"}
-	//
-	//dynamoDBRepository := &dynamodb.DynamoDBRepository{IsLocal: true}
-	//environmentVariableRepository := environment_variable.EnvironmentVariableRepository{IsLocal: true}
-	//sqsRepository := &sqs2.SQSRepository{IsLocal: true}
-	//snsRepository := &sns.SNSRepository{IsLocal: true}
+	repo := infrastructure.AWS{Profile: "local"}
 
 	// Service
-	//userService := UserService{DynamoDBRepository: dynamoDBRepository}
-	//alarmService := AlarmService{DynamoDBRepository: dynamoDBRepository}
-	//batchService := CallBatchService{EnvironmentVariableRepository: environmentVariableRepository, DynamoDBRepository: dynamoDBRepository, SQSRepository: sqsRepository}
-	//pushTokenService := PushTokenService{DynamoDBRepository: dynamoDBRepository, SNSRepository: snsRepository}
 	batchService := Batch{
 		AWS: repo,
 	}
@@ -159,18 +143,26 @@ func TestBatchService_QueryDynamoDBAndSendMessage_DecidedCharaAndRandomVoice(t *
 		t.Errorf("unexpected error: %v", err)
 	}
 
+	// ユーザーを取得
+	user, err := getUser(userID)
+	if err != nil {
+		t.Errorf("unexpected error: %v", err)
+	}
+
 	// アラーム追加
 	alarmID := uuid.New().String()
 	hour := rand.Intn(12)
 	minute := rand.Intn(60)
-	requestAlarm := request.Alarm{
+	alarm := database.Alarm{
 		AlarmID:        alarmID,
 		UserID:         userID,
 		Type:           "IOS_VOIP_PUSH_NOTIFICATION",
+		Target:         user.IOSPlatformInfo.VoIPPushTokenSNSEndpoint,
 		Enable:         true,
 		Name:           "Alarm Name",
 		Hour:           hour,
 		Minute:         minute,
+		Time:           fmt.Sprintf("%02d-%02d", hour, minute),
 		TimeDifference: 0,
 		CharaID:        "com.charalarm.yui",
 		CharaName:      "井上結衣",
@@ -184,12 +176,12 @@ func TestBatchService_QueryDynamoDBAndSendMessage_DecidedCharaAndRandomVoice(t *
 		Saturday:       true,
 	}
 
-	err = createAlarm(requestAlarm)
+	err = createAlarm(alarm)
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
 
-	// SQSに設定
+	// SQSに送信
 	err = batchService.QueryDynamoDBAndSendMessage(hour, minute, time.Sunday)
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
@@ -201,8 +193,10 @@ func TestBatchService_QueryDynamoDBAndSendMessage_DecidedCharaAndRandomVoice(t *
 		t.Errorf("unexpected error: %v", err)
 	}
 
+	// Memo たまにエラーになる、他のテストの関係で複数のテストが絡んでいるのかも？
+
 	assert.Equal(t, 1, len(messages))
-	getAlarmInfo := entity.IOSVoIPPushAlarmInfoSQSMessage{}
+	getAlarmInfo := queue.IOSVoIPPushAlarmInfoSQSMessage{}
 	body := *messages[0].Body
 	err = json.Unmarshal([]byte(body), &getAlarmInfo)
 	if err != nil {
@@ -217,12 +211,12 @@ func TestBatchService_QueryDynamoDBAndSendMessage_DecidedCharaAndDecidedVoice(t 
 	// キャラが決まっている && ボイスファイル名は決まっている
 
 	// DynamoDBRepository
-	repo := repository.AWS{Profile: "local"}
+	repo := infrastructure.AWS{Profile: "local"}
 
 	// Service
 	batchService := Batch{
 		AWS:         repo,
-		Environment: repository.Environment{ResourceBaseURL: "http://localhost:4566"},
+		Environment: environment.Environment{ResourceBaseURL: "http://localhost:4566"},
 	}
 
 	// ユーザー作成
@@ -242,18 +236,26 @@ func TestBatchService_QueryDynamoDBAndSendMessage_DecidedCharaAndDecidedVoice(t 
 		t.Errorf("unexpected error: %v", err)
 	}
 
+	// ユーザーを取得
+	user, err := getUser(userID)
+	if err != nil {
+		t.Errorf("unexpected error: %v", err)
+	}
+
 	// アラーム追加
 	alarmID := uuid.New().String()
 	hour := rand.Intn(12)
 	minute := rand.Intn(60)
-	requestAlarm := request.Alarm{
+	alarm := database.Alarm{
 		AlarmID:        alarmID,
 		UserID:         userID,
 		Type:           "IOS_VOIP_PUSH_NOTIFICATION",
+		Target:         user.IOSPlatformInfo.VoIPPushTokenSNSEndpoint,
 		Enable:         true,
 		Name:           "Alarm Name",
 		Hour:           hour,
 		Minute:         minute,
+		Time:           fmt.Sprintf("%02d-%02d", hour, minute),
 		TimeDifference: 0,
 		CharaID:        "com.charalarm.yui",
 		CharaName:      "井上結衣",
@@ -267,7 +269,7 @@ func TestBatchService_QueryDynamoDBAndSendMessage_DecidedCharaAndDecidedVoice(t 
 		Saturday:       true,
 	}
 
-	err = createAlarm(requestAlarm)
+	err = createAlarm(alarm)
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
@@ -285,7 +287,7 @@ func TestBatchService_QueryDynamoDBAndSendMessage_DecidedCharaAndDecidedVoice(t 
 	}
 
 	assert.Equal(t, 1, len(messages))
-	getAlarmInfo := entity.IOSVoIPPushAlarmInfoSQSMessage{}
+	getAlarmInfo := queue.IOSVoIPPushAlarmInfoSQSMessage{}
 	body := *messages[0].Body
 	err = json.Unmarshal([]byte(body), &getAlarmInfo)
 	if err != nil {
@@ -296,11 +298,17 @@ func TestBatchService_QueryDynamoDBAndSendMessage_DecidedCharaAndDecidedVoice(t 
 	assert.Equal(t, "http://localhost:4566/com.charalarm.yui/com-charalarm-yui-15.caf", getAlarmInfo.VoiceFileURL)
 }
 
+func getUser(userID string) (database.User, error) {
+	// ユーザーを取得
+	repo := infrastructure.AWS{Profile: "local"}
+	return repo.GetUser(userID)
+}
+
 func createUser(userID string, authToken string, platform string, ipAddress string) error {
 	// ユーザー作成
-	repo := repository.AWS{Profile: "local"}
+	repo := infrastructure.AWS{Profile: "local"}
 	currentTime := time.Now()
-	user := entity.User{
+	user := database.User{
 		UserID:              userID,
 		AuthToken:           authToken,
 		Platform:            platform,
@@ -313,7 +321,7 @@ func createUser(userID string, authToken string, platform string, ipAddress stri
 }
 
 func createPlatformEndpoint(userID string, pushToken string) error {
-	repo := repository.AWS{Profile: "local"}
+	repo := infrastructure.AWS{Profile: "local"}
 
 	// ユーザーを取得
 	user, err := repo.GetUser(userID)
@@ -333,16 +341,13 @@ func createPlatformEndpoint(userID string, pushToken string) error {
 	return repo.InsertUser(user)
 }
 
-func createAlarm(requestAlarm request.Alarm) error {
-	repo := repository.AWS{Profile: "local"}
-
-	databaseAlarm := converter.RequestAlarmToDatabaseAlarm(requestAlarm, requestAlarm.Type)
-
+func createAlarm(databaseAlarm database.Alarm) error {
 	// アラームを追加する
+	repo := infrastructure.AWS{Profile: "local"}
 	return repo.InsertAlarm(databaseAlarm)
 }
 
 func receiveMessage() ([]types.Message, error) {
-	repo := repository.AWS{Profile: "local"}
+	repo := infrastructure.AWS{Profile: "local"}
 	return repo.ReceiveAlarmInfoMessage()
 }

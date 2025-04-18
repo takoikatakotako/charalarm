@@ -1,12 +1,12 @@
 package main
 
 import (
-	"fmt"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/takoikatakotako/charalarm/api/handler"
 	"github.com/takoikatakotako/charalarm/api/service"
-	"github.com/takoikatakotako/charalarm/repository"
+	"github.com/takoikatakotako/charalarm/environment"
+	"github.com/takoikatakotako/charalarm/infrastructure"
 	"os"
 )
 
@@ -21,16 +21,13 @@ func getEnvironment(key string, defaultValue string) string {
 
 func main() {
 	// environment
-	profile := getEnvironment("CHARALARM_AWS_PROFILE", "local")
-	resourceBaseURL := getEnvironment("RESOURCE_BASE_URL", "http://localhost:4566")
-	fmt.Printf("profile is %s\n", profile)
+	env := environment.Environment{}
+	env.SetCharalarmAWSProfile("local")
+	env.SetResourceBaseURL("http://localhost:4566")
 
-	// repository
-	awsRepository := repository.AWS{
-		Profile: profile,
-	}
-	environmentRepository := repository.Environment{
-		ResourceBaseURL: resourceBaseURL,
+	// infrastructure
+	awsRepository := infrastructure.AWS{
+		Profile: env.Profile,
 	}
 
 	// service
@@ -42,7 +39,7 @@ func main() {
 	}
 	charaService := service.Chara{
 		AWS:         awsRepository,
-		Environment: environmentRepository,
+		Environment: env,
 	}
 	pushTokenService := service.PushToken{
 		AWS: awsRepository,
