@@ -160,8 +160,3 @@ module "datadog" {
   source     = "../../modules/datadog"
   dd_api_key = local.dd_api_key
 }
-
-
-module "github" {
-  source = "../../modules/github"
-}
