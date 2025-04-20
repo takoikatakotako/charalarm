@@ -27,19 +27,19 @@ provider "aws" {
 module "api_repository" {
   source                 = "../../modules/repository"
   name                   = "charalarm-api"
-  allow_pull_account_ids = ["039612872248"]
+  allow_pull_account_ids = ["039612872248", "334832660826"]
 }
 
 module "batch_repository" {
   source                 = "../../modules/repository"
   name                   = "charalarm-batch"
-  allow_pull_account_ids = ["039612872248"]
+  allow_pull_account_ids = ["039612872248", "334832660826"]
 }
 
 module "worker_repository" {
   source                 = "../../modules/repository"
   name                   = "charalarm-worker"
-  allow_pull_account_ids = ["039612872248"]
+  allow_pull_account_ids = ["039612872248", "334832660826"]
 }
 
 module "github" {

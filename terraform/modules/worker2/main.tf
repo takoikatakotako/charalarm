@@ -2,12 +2,12 @@
 # Lambda
 ##################################################
 resource "aws_lambda_function" "worker_lambda_function" {
-  function_name = "worker-function"
+  function_name = "worker-function2"
   role          = aws_iam_role.worker_lambda_role.arn
   image_uri     = "${var.worker_function_image_uri}:${var.worker_function_image_tag}"
   package_type  = "Image"
   architectures = ["arm64"]
-  timeout                        = 30
+  timeout       = 30
 
   environment {
     variables = {

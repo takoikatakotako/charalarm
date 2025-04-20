@@ -2,7 +2,7 @@
 # Lambdaにアタッチするためのロール
 ##################################################
 resource "aws_iam_role" "batch_lambda_role" {
-  name               = "batch-lambda-role"
+  name               = "batch-lambda-role2"
   assume_role_policy = data.aws_iam_policy_document.batch_lambda_role_assume_policy_document.json
 }
 
@@ -18,7 +18,7 @@ data "aws_iam_policy_document" "batch_lambda_role_assume_policy_document" {
 }
 
 resource "aws_iam_policy" "batch_lambda_role_policy" {
-  name   = "batch-lambda-role-policy"
+  name   = "batch-lambda-role-policy2"
   policy = data.aws_iam_policy_document.batch_lambda_role_iam_policy_document.json
 }
 
