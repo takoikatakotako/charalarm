@@ -2,7 +2,7 @@
 # Lambda
 ##################################################
 resource "aws_lambda_function" "batch_lambda_function" {
-  function_name = "batch-function"
+  function_name = "batch-function2"
   timeout       = 900
   role          = aws_iam_role.batch_lambda_role.arn
   image_uri     = "${var.batch_function_image_uri}:${var.batch_function_image_tag}"

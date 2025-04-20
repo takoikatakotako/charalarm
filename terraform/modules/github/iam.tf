@@ -52,7 +52,7 @@ resource "aws_iam_role_policy_attachment" "charalarm_github_action_role_policy_a
 
 # Management Role
 resource "aws_iam_role" "management_ci_role" {
-  name = "management-ci-role"
+  name               = "management-ci-role"
   assume_role_policy = data.aws_iam_policy_document.management_ci_role_assume_policy_document.json
 }
 

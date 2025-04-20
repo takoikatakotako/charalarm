@@ -2,7 +2,7 @@
 # Lambdaにアタッチするためのロール
 ##################################################
 resource "aws_iam_role" "worker_lambda_role" {
-  name               = "worker-lambda-role"
+  name               = "worker-lambda-role2"
   assume_role_policy = data.aws_iam_policy_document.worker_lambda_role_assume_policy_document.json
 }
 
@@ -18,7 +18,7 @@ data "aws_iam_policy_document" "worker_lambda_role_assume_policy_document" {
 }
 
 resource "aws_iam_policy" "worker_lambda_role_policy" {
-  name   = "worker-lambda-role-policy"
+  name   = "worker-lambda-role-policy2"
   policy = data.aws_iam_policy_document.worker_lambda_role_iam_policy_document.json
 }
 

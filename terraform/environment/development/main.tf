@@ -26,7 +26,6 @@ provider "aws" {
 }
 
 
-
 ##############################################################
 # Common
 ##############################################################
@@ -71,13 +70,11 @@ module "cloudfront_api_certificate" {
 
 module "api" {
   source                        = "../../modules/api"
-  api_lambda_function_image_uri = "448049807848.dkr.ecr.ap-northeast-1.amazonaws.com/charalarm-api:latest"
+  api_lambda_function_image_uri = "448049807848.dkr.ecr.ap-northeast-1.amazonaws.com/charalarm-api:56bf552455630117d7d5178a9600a0a77e315031"
   api_domain_name               = local.api_domain_name
   api_cloudfront_certificate    = module.cloudfront_api_certificate.certificate_arn
   root_domain_zone_id           = module.root_domain.zone_id
 }
-
-
 
 
 ##############################################################
@@ -93,7 +90,6 @@ module "sqs" {
   source                     = "../../modules/sqs"
   worker_lambda_function_arn = module.worker.worker_lambda_function_arn
 }
-
 
 module "platform_application" {
   source                         = "../../modules/platform_application"
@@ -114,7 +110,6 @@ module "batch" {
   batch_function_image_uri = "448049807848.dkr.ecr.ap-northeast-1.amazonaws.com/charalarm-batch"
   batch_function_image_tag = "latest"
 }
-
 
 
 ##############################################################
