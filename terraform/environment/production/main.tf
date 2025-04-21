@@ -19,6 +19,20 @@ provider "aws" {
   region  = "ap-northeast-1"
 }
 
+provider "aws" {
+  alias   = "virginia"
+  profile = "charalarm-production"
+  region  = "us-east-1"
+}
+
+
+##############################################################
+# Common
+##############################################################
+# module "root_domain" {
+#   source = "../../modules/domain"
+#   name   = local.root_domain2
+# }
 
 
 
@@ -84,6 +98,6 @@ module "datadog" {
   dd_api_key = local.dd_api_key
 }
 
-module "github" {
-  source = "../../modules/github"
-}
+# module "github" {
+#   source = "../../modules/github"
+# }
