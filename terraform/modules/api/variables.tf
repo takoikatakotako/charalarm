@@ -16,7 +16,11 @@ variable "api_lambda_function_image_uri" {
   type = string
 }
 
-variable "api_domain_name" {
+variable "root_domain_name" {
+  type = string
+}
+
+variable "api_record_name" {
   type = string
 }
 

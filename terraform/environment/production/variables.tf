@@ -1,7 +1,15 @@
 locals {
 
-  root_domain2 = "charalarm-staging.swiswiswift.com"
+  root_domain = "charalarm.com"
 
+  resource_domain2      = "resource2.charalarm.com"
+  resource_bucket_name2 = "resource2.charalarm.com"
+
+  // API
+  api_record_name2 = "api2.charalarm.com"
+
+
+  // deprecated
   aws_profile                        = "charalarm-production"
   route53_zone_id                    = "Z00844703N1I59JY0GXTS"
   api_domain                         = "api2.charalarm.com"

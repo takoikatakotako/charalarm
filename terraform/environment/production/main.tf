@@ -29,10 +29,55 @@ provider "aws" {
 ##############################################################
 # Common
 ##############################################################
-# module "root_domain" {
-#   source = "../../modules/domain"
-#   name   = local.root_domain2
+module "root_domain" {
+  source = "../../modules/domain"
+  name   = local.root_domain
+}
+
+
+##############################################################
+# Resource
+##############################################################
+module "cloudfront_resource_certificate" {
+  source = "../../modules/cloudfront_certificate"
+  providers = {
+    aws = aws.virginia
+  }
+  zone_id     = module.root_domain.zone_id
+  domain_name = local.resource_domain2
+}
+
+module "resource2" {
+  source              = "../../modules/resource"
+  bucket_name         = local.resource_bucket_name2
+  acm_certificate_arn = module.cloudfront_resource_certificate.certificate_arn
+  domain              = local.resource_domain2
+  zone_id             = module.root_domain.zone_id
+}
+
+
+
+##############################################################
+# API
+##############################################################
+module "cloudfront_api_certificate" {
+  source = "../../modules/cloudfront_certificate"
+  providers = {
+    aws = aws.virginia
+  }
+  zone_id     = module.root_domain.zone_id
+  domain_name = "${local.api_record_name2}.${local.root_domain}"
+}
+
+# module "api" {
+#   source                        = "../../modules/api"
+#   api_lambda_function_image_uri = "448049807848.dkr.ecr.ap-northeast-1.amazonaws.com/charalarm-api:latest"
+#   root_domain_name               = local.root_domain
+#   api_record_name = local.api_record_name2
+#   api_cloudfront_certificate    = module.cloudfront_api_certificate.certificate_arn
+#   root_domain_zone_id           = module.root_domain.zone_id
 # }
+
 
 
 
