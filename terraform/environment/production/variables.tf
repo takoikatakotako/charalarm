@@ -6,7 +6,7 @@ locals {
   resource_bucket_name2 = "resource2.charalarm.com"
 
   // API
-  api_record_name2 = "api2.charalarm.com"
+  api_record_name2 = "api3"
 
 
   // deprecated

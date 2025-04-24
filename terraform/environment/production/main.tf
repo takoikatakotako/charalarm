@@ -69,17 +69,36 @@ module "cloudfront_api_certificate" {
   domain_name = "${local.api_record_name2}.${local.root_domain}"
 }
 
-# module "api" {
-#   source                        = "../../modules/api"
-#   api_lambda_function_image_uri = "448049807848.dkr.ecr.ap-northeast-1.amazonaws.com/charalarm-api:latest"
-#   root_domain_name               = local.root_domain
-#   api_record_name = local.api_record_name2
-#   api_cloudfront_certificate    = module.cloudfront_api_certificate.certificate_arn
-#   root_domain_zone_id           = module.root_domain.zone_id
-# }
+module "api" {
+  source                        = "../../modules/api"
+  api_lambda_function_image_uri = "448049807848.dkr.ecr.ap-northeast-1.amazonaws.com/charalarm-api:latest"
+  root_domain_name               = local.root_domain
+  api_record_name = local.api_record_name2
+  api_cloudfront_certificate    = module.cloudfront_api_certificate.certificate_arn
+  root_domain_zone_id           = module.root_domain.zone_id
+}
+
+
+##############################################################
+# Worker
+##############################################################
+module "worker2" {
+  source                    = "../../modules/worker2"
+  worker_function_image_uri = "448049807848.dkr.ecr.ap-northeast-1.amazonaws.com/charalarm-worker"
+  worker_function_image_tag = "latest"
+}
 
 
 
+
+
+
+
+
+
+##############################################################
+# Deprecated
+##############################################################
 
 module "dynamodb" {
   source = "../../modules/dynamodb"
