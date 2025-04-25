@@ -88,38 +88,6 @@ module "worker2" {
   worker_function_image_tag = "latest"
 }
 
-
-
-
-
-
-
-
-
-##############################################################
-# Deprecated
-##############################################################
-
-module "dynamodb" {
-  source = "../../modules/dynamodb"
-}
-
-module "lp" {
-  source              = "../../modules/lp"
-  bucket_name         = local.lp_bucket_name
-  acm_certificate_arn = local.lp_acm_certificate_arn
-  domain              = local.lp_domain
-  zone_id             = local.route53_zone_id
-}
-
-module "resource" {
-  source              = "../../modules/resource"
-  bucket_name         = local.resource_bucket_name
-  acm_certificate_arn = local.resource_acm_certificate_arn
-  domain              = local.resource_domain
-  zone_id             = local.route53_zone_id
-}
-
 module "sqs" {
   source                     = "../../modules/sqs"
   worker_lambda_function_arn = module.worker.worker_lambda_function_arn
@@ -133,6 +101,49 @@ module "platform_application" {
   ios_push_platform_principal    = "NL6K5FR5S8"
   ios_voip_push_certificate_file = local.ios_voip_push_certificate_filename
   ios_voip_push_private_file     = local.ios_voip_push_private_filename
+}
+
+
+##############################################################
+# Batch
+##############################################################
+# module "batch2" {
+#   source                   = "../../modules/batch2"
+#   batch_function_image_uri = "448049807848.dkr.ecr.ap-northeast-1.amazonaws.com/charalarm-batch"
+#   batch_function_image_tag = "latest"
+# }
+
+
+##############################################################
+# Database
+##############################################################
+module "dynamodb" {
+  source = "../../modules/dynamodb"
+}
+
+
+##############################################################
+# Other
+##############################################################
+module "lp" {
+  source              = "../../modules/lp"
+  bucket_name         = local.lp_bucket_name
+  acm_certificate_arn = local.lp_acm_certificate_arn
+  domain              = local.lp_domain
+  zone_id             = local.route53_zone_id
+}
+
+
+
+##############################################################
+# Deprecated
+##############################################################
+module "resource" {
+  source              = "../../modules/resource"
+  bucket_name         = local.resource_bucket_name
+  acm_certificate_arn = local.resource_acm_certificate_arn
+  domain              = local.resource_domain
+  zone_id             = local.route53_zone_id
 }
 
 module "web_api" {
