@@ -34,7 +34,7 @@ resource "aws_cloudfront_distribution" "api_cloudfront_distribution" {
   is_ipv6_enabled = true
 
   aliases = [
-    var.api_domain_name,
+    "${var.api_record_name}.${var.root_domain_name}",
   ]
 
   origin {
@@ -65,12 +65,6 @@ resource "aws_cloudfront_distribution" "api_cloudfront_distribution" {
     min_ttl                = 0
     default_ttl            = 0
     max_ttl                = 0
-
-    # lambda_function_association {
-    #   event_type   = "origin-request"
-    #   include_body = true
-    #   lambda_arn   = var.api_lambda_edge_function_arn
-    # }
   }
 
   restrictions {
@@ -88,18 +82,10 @@ resource "aws_cloudfront_distribution" "api_cloudfront_distribution" {
   }
 }
 
-# resource "aws_cloudfront_origin_access_control" "cloudfront_origin_access_control" {
-#   name                              = "charalarm-api"
-#   origin_access_control_origin_type = "lambda"
-#   signing_behavior                  = "no-override"
-#   signing_protocol                  = "sigv4"
-# }
-
-
 # Record
 resource "aws_route53_record" "api_record" {
   zone_id = var.root_domain_zone_id
-  name    = "api"
+  name    = var.api_record_name
   type    = "A"
 
   alias {

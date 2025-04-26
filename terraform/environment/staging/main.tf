@@ -65,13 +65,14 @@ module "cloudfront_api_certificate" {
     aws = aws.virginia
   }
   zone_id     = module.root_domain.zone_id
-  domain_name = local.api_domain_name2
+  domain_name = "${local.api_record_name2}.${local.root_domain2}"
 }
 
 module "api" {
   source                        = "../../modules/api"
   api_lambda_function_image_uri = "448049807848.dkr.ecr.ap-northeast-1.amazonaws.com/charalarm-api:latest"
-  api_domain_name               = local.api_domain_name2
+  root_domain_name              = local.root_domain2
+  api_record_name               = local.api_record_name2
   api_cloudfront_certificate    = module.cloudfront_api_certificate.certificate_arn
   root_domain_zone_id           = module.root_domain.zone_id
 }
