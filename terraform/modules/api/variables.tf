@@ -31,3 +31,7 @@ variable "root_domain_zone_id" {
 variable "api_cloudfront_certificate" {
   type = string
 }
+
+variable "resource_base_url" {
+  type = string
+}

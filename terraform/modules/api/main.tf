@@ -10,7 +10,7 @@ resource "aws_lambda_function" "api_lambda_function" {
   environment {
     variables = {
       "CHARALARM_AWS_PROFILE" = "",
-      "RESOURCE_BASE_URL"     = "https://resource.charalarm-development.swiswiswift.com"
+      "RESOURCE_BASE_URL"     = var.resource_base_url
     }
   }
 }
