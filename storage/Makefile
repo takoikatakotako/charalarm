@@ -1,4 +1,12 @@
 # Local
+.PHONY: sync-development-to-local-dryrun
+sync-development-to-local-dryrun:
+	aws s3 sync s3://resource.charalarm-development.swiswiswift.com resources --dryrun --profile charalarm-development
+
+.PHONY: sync-development-to-local
+sync-development-to-local-dryrun:
+	aws s3 sync s3://resource.charalarm-development.swiswiswift.com resources --profile charalarm-development
+
 
 
 # Development

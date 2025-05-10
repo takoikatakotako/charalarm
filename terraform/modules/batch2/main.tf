@@ -16,7 +16,7 @@ resource "aws_lambda_function" "batch_lambda_function" {
   environment {
     variables = {
       "CHARALARM_AWS_PROFILE" = "",
-      "RESOURCE_BASE_URL"     = "https://resource.charalarm-development.swiswiswift.com"
+      "RESOURCE_BASE_URL"     = var.resource_base_url
     }
   }
 
@@ -31,14 +31,6 @@ resource "aws_cloudwatch_log_group" "batch_log_group" {
   name              = "/aws/lambda/${aws_lambda_function.batch_lambda_function.function_name}"
   retention_in_days = 90
 }
-
-# resource "aws_cloudwatch_log_subscription_filter" "datadog_log_subscription_filter" {
-#   name            = "datadog_log_subscription_filter"
-#   log_group_name  = <CLOUDWATCH_LOG_GROUP_NAME> # for example, /aws/lambda/my_lambda_name
-#   destination_arn = <DATADOG_FORWARDER_ARN> # for example,  arn:aws:lambda:us-east-1:123:function:datadog-forwarder
-#   filter_pattern  = ""
-# }
-
 
 
 ##################################################

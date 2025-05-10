@@ -80,6 +80,17 @@ module "api" {
 
 
 ##############################################################
+# Batch
+##############################################################
+module "batch" {
+  source                   = "../../modules/batch2"
+  batch_function_image_uri = "448049807848.dkr.ecr.ap-northeast-1.amazonaws.com/charalarm-batch"
+  batch_function_image_tag = "latest"
+  resource_base_url             = "https://${local.resource_domain}"
+}
+
+
+##############################################################
 # Worker
 ##############################################################
 module "worker" {
@@ -101,16 +112,6 @@ module "platform_application" {
   ios_push_platform_principal    = "NL6K5FR5S8"
   ios_voip_push_certificate_file = local.ios_voip_push_certificate_filename
   ios_voip_push_private_file     = local.ios_voip_push_private_filename
-}
-
-
-##############################################################
-# Batch
-##############################################################
-module "batch" {
-  source                   = "../../modules/batch2"
-  batch_function_image_uri = "448049807848.dkr.ecr.ap-northeast-1.amazonaws.com/charalarm-batch"
-  batch_function_image_tag = "latest"
 }
 
 
