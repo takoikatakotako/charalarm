@@ -8,10 +8,6 @@ resource "aws_lambda_function" "batch_lambda_function" {
   image_uri     = "${var.batch_function_image_uri}:${var.batch_function_image_tag}"
   package_type  = "Image"
   architectures = ["arm64"]
-  # environment {
-  #   variables = local.environment_variables
-  # }
-
 
   environment {
     variables = {
@@ -19,9 +15,7 @@ resource "aws_lambda_function" "batch_lambda_function" {
       "RESOURCE_BASE_URL"     = var.resource_base_url
     }
   }
-
 }
-
 
 
 ##################################################
@@ -57,21 +51,3 @@ resource "aws_lambda_permission" "batch_lambda_permission" {
 }
 
 
-
-
-
-
-
-
-# ##################################################
-# # Permission
-# ##################################################
-# resource "aws_lambda_permission" "lambda_permission" {
-#   statement_id  = "api-gateway-${var.function_name}-statement-id"
-#   action        = "lambda:InvokeFunction"
-#   function_name = aws_lambda_function.lambda_function.arn
-#   principal     = "apigateway.amazonaws.com"
-
-#   # The /*/*/* part allows invocation from any stage, method and resource path
-#   source_arn = "${var.execution_arn}/*/${var.method}${var.path}"
-# }
