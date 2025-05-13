@@ -261,7 +261,7 @@ targets:
       configs:
         Debug:
           CODE_SIGN_ENTITLEMENTS: Charalarm/CharalarmDebug.entitlements
-          API_ENDPOINT: https://api.charalarm.com
+          API_ENDPOINT: https://api3.charalarm.com
           RESOURCE_ENDPOINT: https://resource.charalarm.com
           GAD_APPLICATION_IDENTIFER: ca-app-pub-5587141252700968~9053558907
           ADMOB_ALARM_LIST: ca-app-pub-5587141252700968/8220227024
@@ -272,7 +272,7 @@ targets:
           DATADOG_LOG_SERVICE: charalarm-production
         Release:
           CODE_SIGN_ENTITLEMENTS: Charalarm/CharalarmRelease.entitlements
-          API_ENDPOINT: https://api.charalarm.com
+          API_ENDPOINT: https://api3.charalarm.com
           RESOURCE_ENDPOINT: https://resource.charalarm.com
           GAD_APPLICATION_IDENTIFER: ca-app-pub-5587141252700968~9053558907
           ADMOB_ALARM_LIST: ca-app-pub-5587141252700968/8220227024
