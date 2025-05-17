@@ -56,7 +56,6 @@ module "resource2" {
 }
 
 
-
 ##############################################################
 # API
 ##############################################################
@@ -76,8 +75,19 @@ module "api" {
   api_record_name               = local.api_record_name2
   api_cloudfront_certificate    = module.cloudfront_api_certificate.certificate_arn
   root_domain_zone_id           = module.root_domain.zone_id
-  resource_base_url             = "https://${local.resource_domain}"
+  resource_base_url             = "https://${local.resource_domain2}"
 }
+
+
+##############################################################
+# Batch
+##############################################################
+# module "batch2" {
+#   source                   = "../../modules/batch2"
+#   batch_function_image_uri = "448049807848.dkr.ecr.ap-northeast-1.amazonaws.com/charalarm-batch"
+#   batch_function_image_tag = "latest"
+#   resource_base_url             = "https://${local.resource_domain}"
+# }
 
 
 ##############################################################
@@ -106,16 +116,6 @@ module "platform_application" {
 
 
 ##############################################################
-# Batch
-##############################################################
-# module "batch2" {
-#   source                   = "../../modules/batch2"
-#   batch_function_image_uri = "448049807848.dkr.ecr.ap-northeast-1.amazonaws.com/charalarm-batch"
-#   batch_function_image_tag = "latest"
-# }
-
-
-##############################################################
 # Database
 ##############################################################
 module "dynamodb" {
@@ -124,7 +124,7 @@ module "dynamodb" {
 
 
 ##############################################################
-# Other
+# LP
 ##############################################################
 module "lp" {
   source              = "../../modules/lp"
