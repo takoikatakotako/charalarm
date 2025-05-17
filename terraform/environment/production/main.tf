@@ -82,12 +82,12 @@ module "api" {
 ##############################################################
 # Batch
 ##############################################################
-# module "batch2" {
-#   source                   = "../../modules/batch2"
-#   batch_function_image_uri = "448049807848.dkr.ecr.ap-northeast-1.amazonaws.com/charalarm-batch"
-#   batch_function_image_tag = "latest"
-#   resource_base_url             = "https://${local.resource_domain}"
-# }
+module "batch2" {
+  source                   = "../../modules/batch2"
+  batch_function_image_uri = "448049807848.dkr.ecr.ap-northeast-1.amazonaws.com/charalarm-batch"
+  batch_function_image_tag = "latest"
+  resource_base_url             = "https://${local.resource_domain2}"
+}
 
 
 ##############################################################
@@ -101,7 +101,7 @@ module "worker2" {
 
 module "sqs" {
   source                     = "../../modules/sqs"
-  worker_lambda_function_arn = module.worker.worker_lambda_function_arn
+  worker_lambda_function_arn = module.worker2.worker_lambda_function_arn
 }
 
 module "platform_application" {
@@ -159,20 +159,20 @@ module "web_api" {
 }
 
 
-module "batch" {
-  source          = "../../modules/batch"
-  resource_domain = local.resource_domain
-}
+# module "batch" {
+#   source          = "../../modules/batch"
+#   resource_domain = local.resource_domain
+# }
 
-module "worker" {
-  source                    = "../../modules/worker"
-  datadog_log_forwarder_arn = local.datadog_log_forwarder_arn
-}
+# module "worker" {
+#   source                    = "../../modules/worker"
+#   datadog_log_forwarder_arn = local.datadog_log_forwarder_arn
+# }
 
-module "datadog" {
-  source     = "../../modules/datadog"
-  dd_api_key = local.dd_api_key
-}
+# module "datadog" {
+#   source     = "../../modules/datadog"
+#   dd_api_key = local.dd_api_key
+# }
 
 # module "github" {
 #   source = "../../modules/github"
