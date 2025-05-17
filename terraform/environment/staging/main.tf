@@ -86,7 +86,7 @@ module "batch2" {
   source                   = "../../modules/batch2"
   batch_function_image_uri = "448049807848.dkr.ecr.ap-northeast-1.amazonaws.com/charalarm-batch"
   batch_function_image_tag = "latest"
-    resource_base_url             = "https://${local.resource_domain}"
+  resource_base_url        = "https://${local.resource_domain2}"
 }
 
 

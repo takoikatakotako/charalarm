@@ -24,6 +24,7 @@ local-to-staging-dryrun:
 local-to-staging:
 	aws s3 sync resources s3://resource.charalarm-staging.swiswiswift.com --profile charalarm-staging
 
+
 # Production
 .PHONY: local-to-production
 local-to-production:
