@@ -1,0 +1,42 @@
+name: List Imagess
+
+on:
+  workflow_dispatch:
+
+env:
+  AWS_ROLE_ARN: arn:aws:iam::448049807848:role/charalarm-github-action-role
+
+jobs:
+  list_images:
+    name: List Images
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: configure aws credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        role-to-assume: ${{ env.AWS_ROLE_ARN }}
+        role-session-name: github-action-role-${{ github.run_id }}
+        aws-region: ap-northeast-1
+
+    - name: configure aws profiles
+      run: |
+        mkdir ~/.aws
+        cp .github/workflows/aws_config/config ~/.aws/config
+
+    - name: list api images
+      working-directory: application
+      run: make list-api-images
+
+    - name: list batch images
+      working-directory: application
+      run: make list-batch-images
+
+    - name: list worker images
+      working-directory: application
+      run: make list-worker-images
