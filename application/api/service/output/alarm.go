@@ -26,3 +26,7 @@ type Alarm struct {
 	Friday    bool
 	Saturday  bool
 }
+
+type GetAlarms struct {
+	Alarms []Alarm
+}

@@ -1,14 +1,14 @@
 package output
 
-type UserInfoResponse struct {
+type UserInfo struct {
 	UserID          string
 	AuthToken       string
 	Platform        string
 	PremiumPlan     bool
-	IOSPlatformInfo IOSPlatformInfoResponse
+	IOSPlatformInfo IOSPlatformInfo
 }
 
-type IOSPlatformInfoResponse struct {
+type IOSPlatformInfo struct {
 	PushToken                string
 	PushTokenSNSEndpoint     string
 	VoIPPushToken            string

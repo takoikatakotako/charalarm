@@ -22,7 +22,7 @@ build-api-image:
 	docker push ${API_REPOSITORY_URI}:${GITHUB_SHA}
 
 .PHONY: list-api-images
-list-api-imagess:
+list-api-images:
 	aws ecr list-images --repository-name charalarm-api --output table --profile charalarm-management
 
 

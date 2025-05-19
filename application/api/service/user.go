@@ -13,11 +13,11 @@ type User struct {
 	AWS infrastructure.AWS
 }
 
-func (u *User) GetUser(userID string, authToken string) (output.UserInfoResponse, error) {
+func (u *User) GetUser(userID string, authToken string) (output.UserInfo, error) {
 	// ユーザーを取得
 	user, err := u.AWS.GetUser(userID)
 	if err != nil {
-		return output.UserInfoResponse{}, err
+		return output.UserInfo{}, err
 	}
 
 	// UserID, authTokenが一致するか確認する
@@ -26,24 +26,24 @@ func (u *User) GetUser(userID string, authToken string) (output.UserInfoResponse
 	}
 
 	// 一致しない場合
-	return output.UserInfoResponse{}, errors.New(common.AuthenticationFailure)
+	return output.UserInfo{}, errors.New(common.AuthenticationFailure)
 }
 
-func (u *User) Signup(userID string, authToken string, platform string, ipAddress string) (output.Message, error) {
+func (u *User) Signup(userID string, authToken string, platform string, ipAddress string) error {
 	// バリデーション
 	if !database.IsValidUUID(userID) || !database.IsValidUUID(authToken) {
-		return output.Message{}, errors.New(common.ErrorInvalidValue)
+		return errors.New(common.ErrorInvalidValue)
 	}
 
 	// Check User Is Exist
 	isExist, err := u.AWS.IsExistUser(userID)
 	if err != nil {
-		return output.Message{}, err
+		return err
 	}
 
 	// ユーザーが既に作成されていた場合
 	if isExist {
-		return output.Message{Message: common.UserSignupSuccess}, nil
+		return nil
 	}
 
 	// ユーザー作成
@@ -59,10 +59,10 @@ func (u *User) Signup(userID string, authToken string, platform string, ipAddres
 	}
 	err = u.AWS.InsertUser(user)
 	if err != nil {
-		return output.Message{}, err
+		return err
 	}
 
-	return output.Message{Message: common.UserSignupSuccess}, nil
+	return nil
 }
 
 func (u *User) UpdatePremiumPlan(userID string, authToken string, enablePremiumPlan bool) error {

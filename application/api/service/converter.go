@@ -6,8 +6,8 @@ import (
 	"github.com/takoikatakotako/charalarm/infrastructure/database"
 )
 
-func convertTooUserInfoOutput(user database.User) output.UserInfoResponse {
-	return output.UserInfoResponse{
+func convertTooUserInfoOutput(user database.User) output.UserInfo {
+	return output.UserInfo{
 		UserID:          user.UserID,
 		AuthToken:       maskAuthToken(user.AuthToken),
 		Platform:        user.Platform,
@@ -16,8 +16,8 @@ func convertTooUserInfoOutput(user database.User) output.UserInfoResponse {
 	}
 }
 
-func convertToIOSPlatformInfoOutput(iOSPlatformInfo database.UserIOSPlatformInfo) output.IOSPlatformInfoResponse {
-	return output.IOSPlatformInfoResponse{
+func convertToIOSPlatformInfoOutput(iOSPlatformInfo database.UserIOSPlatformInfo) output.IOSPlatformInfo {
+	return output.IOSPlatformInfo{
 		PushToken:                iOSPlatformInfo.PushToken,
 		PushTokenSNSEndpoint:     iOSPlatformInfo.PushTokenSNSEndpoint,
 		VoIPPushToken:            iOSPlatformInfo.VoIPPushToken,

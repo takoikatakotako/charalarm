@@ -67,3 +67,20 @@ func convertToAlarmResponse(output output.Alarm) response.Alarm {
 		Saturday:  output.Saturday,
 	}
 }
+
+func convertToUserResponse(output output.UserInfo) response.UserInfo {
+	iOSPlatformInfo := response.IOSPlatformInfo{
+		PushToken:                output.IOSPlatformInfo.PushToken,
+		PushTokenSNSEndpoint:     output.IOSPlatformInfo.PushTokenSNSEndpoint,
+		VoIPPushToken:            output.IOSPlatformInfo.VoIPPushToken,
+		VoIPPushTokenSNSEndpoint: output.IOSPlatformInfo.VoIPPushTokenSNSEndpoint,
+	}
+
+	return response.UserInfo{
+		UserID:          output.UserID,
+		AuthToken:       output.AuthToken,
+		Platform:        output.Platform,
+		PremiumPlan:     output.PremiumPlan,
+		IOSPlatformInfo: iOSPlatformInfo,
+	}
+}
