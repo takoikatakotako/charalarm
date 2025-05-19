@@ -28,8 +28,8 @@ func main() {
 		AWS: awsRepository,
 	}
 	charaService := service.Chara{
-		AWS:         awsRepository,
-		Environment: env,
+		AWS:             awsRepository,
+		ResourceBaseURL: env.ResourceBaseURL,
 	}
 	pushTokenService := service.PushToken{
 		AWS: awsRepository,
