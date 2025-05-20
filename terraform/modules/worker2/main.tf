@@ -11,8 +11,8 @@ resource "aws_lambda_function" "worker_lambda_function" {
 
   environment {
     variables = {
-      "CHARALARM_AWS_PROFILE" = "",
-      "RESOURCE_BASE_URL"     = "https://resource.charalarm-development.swiswiswift.com"
+      "CHARALARM_AWS_PROFILE"       = "",
+      "CHARALARM_RESOURCE_BASE_URL" = "https://resource.charalarm-development.swiswiswift.com"
     }
   }
 }

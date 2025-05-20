@@ -70,7 +70,7 @@ module "cloudfront_api_certificate" {
 
 module "api" {
   source                        = "../../modules/api"
-  api_lambda_function_image_uri = "448049807848.dkr.ecr.ap-northeast-1.amazonaws.com/charalarm-api:35299e930fb8f37c8a42042395ba053d94e58dfe"
+  api_lambda_function_image_uri = "448049807848.dkr.ecr.ap-northeast-1.amazonaws.com/charalarm-api:ffe24e8fbfea805d4f0b64d28765a909edb7654c"
   root_domain_name              = local.root_domain
   api_record_name               = local.api_record_name
   api_cloudfront_certificate    = module.cloudfront_api_certificate.certificate_arn
@@ -85,7 +85,7 @@ module "api" {
 module "batch" {
   source                   = "../../modules/batch2"
   batch_function_image_uri = "448049807848.dkr.ecr.ap-northeast-1.amazonaws.com/charalarm-batch"
-  batch_function_image_tag = "fd0032c7a5c02deb9e6f21945e7e2be8d4349e56"
+  batch_function_image_tag = "ffe24e8fbfea805d4f0b64d28765a909edb7654c"
   resource_base_url        = "https://${local.resource_domain}"
 }
 
@@ -96,7 +96,8 @@ module "batch" {
 module "worker" {
   source                    = "../../modules/worker2"
   worker_function_image_uri = "448049807848.dkr.ecr.ap-northeast-1.amazonaws.com/charalarm-worker"
-  worker_function_image_tag = "fd0032c7a5c02deb9e6f21945e7e2be8d4349e56"
+  worker_function_image_tag = "ffe24e8fbfea805d4f0b64d28765a909edb7654c"
+  resource_base_url         = "https://${local.resource_domain}"
 }
 
 module "sqs" {

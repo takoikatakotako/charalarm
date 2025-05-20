@@ -97,6 +97,7 @@ module "worker2" {
   source                    = "../../modules/worker2"
   worker_function_image_uri = "448049807848.dkr.ecr.ap-northeast-1.amazonaws.com/charalarm-worker"
   worker_function_image_tag = "latest"
+  resource_base_url         = "https://${local.resource_domain2}"
 }
 
 module "sqs" {

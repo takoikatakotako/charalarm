@@ -38,7 +38,7 @@ build-batch-image:
 	docker push ${BATCH_REPOSITORY_URI}:${GITHUB_SHA}
 
 .PHONY: list-batch-images
-list-batch-imagess:
+list-batch-images:
 	aws ecr list-images --repository-name charalarm-batch --output table --profile charalarm-management
 
 
