@@ -70,12 +70,13 @@ module "cloudfront_api_certificate" {
 
 module "api" {
   source                        = "../../modules/api"
-  api_lambda_function_image_uri = "448049807848.dkr.ecr.ap-northeast-1.amazonaws.com/charalarm-api:latest"
+  api_lambda_function_image_uri = "448049807848.dkr.ecr.ap-northeast-1.amazonaws.com/charalarm-api"
+  api_lambda_function_image_tag = "ffe24e8fbfea805d4f0b64d28765a909edb7654c"
   root_domain_name              = local.root_domain2
   api_record_name               = local.api_record_name2
   api_cloudfront_certificate    = module.cloudfront_api_certificate.certificate_arn
   root_domain_zone_id           = module.root_domain.zone_id
-  resource_base_url             = "https://${local.resource_domain}"
+  resource_base_url             = "https://${local.resource_domain2}"
 }
 
 
@@ -85,9 +86,10 @@ module "api" {
 module "batch2" {
   source                   = "../../modules/batch2"
   batch_function_image_uri = "448049807848.dkr.ecr.ap-northeast-1.amazonaws.com/charalarm-batch"
-  batch_function_image_tag = "latest"
+  batch_function_image_tag = "ffe24e8fbfea805d4f0b64d28765a909edb7654c"
   resource_base_url        = "https://${local.resource_domain2}"
 }
+
 
 
 ##############################################################
@@ -96,7 +98,8 @@ module "batch2" {
 module "worker2" {
   source                    = "../../modules/worker2"
   worker_function_image_uri = "448049807848.dkr.ecr.ap-northeast-1.amazonaws.com/charalarm-worker"
-  worker_function_image_tag = "latest"
+  worker_function_image_tag = "ffe24e8fbfea805d4f0b64d28765a909edb7654c"
+  resource_base_url         = "https://${local.resource_domain2}"
 }
 
 module "sqs" {
@@ -145,18 +148,6 @@ module "resource" {
   domain              = local.resource_domain
   zone_id             = local.route53_zone_id
 }
-
-
-# module "batch" {
-#   source          = "../../modules/batch"
-#   resource_domain = local.resource_domain
-# }
-
-
-# module "worker" {
-#   source                    = "../../modules/worker"
-#   datadog_log_forwarder_arn = local.datadog_log_forwarder_arn
-# }
 
 
 module "datadog" {

@@ -3,7 +3,7 @@ resource "aws_lambda_function" "api_lambda_function" {
   function_name = "charalarm-api"
   timeout       = 30
   role          = aws_iam_role.api_lambda_function_role.arn
-  image_uri     = var.api_lambda_function_image_uri
+  image_uri     = "${var.api_lambda_function_image_uri}:${var.api_lambda_function_image_tag}"
   package_type  = "Image"
   architectures = ["arm64"]
 
