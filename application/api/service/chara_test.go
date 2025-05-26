@@ -2,7 +2,6 @@ package service
 
 import (
 	"github.com/stretchr/testify/assert"
-	"github.com/takoikatakotako/charalarm/environment"
 	"github.com/takoikatakotako/charalarm/infrastructure"
 	"testing"
 )
@@ -10,11 +9,11 @@ import (
 func TestCharalarmList(t *testing.T) {
 	// AWS Repository
 	awsRepository := infrastructure.AWS{Profile: "local"}
-	environmentRepository := environment.Environment{}
+	resourceBaseURL := "http://localhost:4566"
 
 	service := Chara{
-		AWS:         awsRepository,
-		Environment: environmentRepository,
+		AWS:             awsRepository,
+		ResourceBaseURL: resourceBaseURL,
 	}
 
 	// トークン作成
