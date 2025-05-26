@@ -19,7 +19,7 @@ func TestInfoUser(t *testing.T) {
 	authToken := uuid.New().String()
 	ipAddress := "127.0.0.1"
 	platform := "iOS"
-	_, err := userService.Signup(userID, authToken, platform, ipAddress)
+	err := userService.Signup(userID, authToken, platform, ipAddress)
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
@@ -46,7 +46,7 @@ func TestSignup(t *testing.T) {
 	authToken := uuid.New().String()
 	platform := "iOS"
 	ipAddress := "0.0.0.0"
-	_, err := userService.Signup(userID, authToken, platform, ipAddress)
+	err := userService.Signup(userID, authToken, platform, ipAddress)
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
@@ -74,7 +74,7 @@ func TestUserService_Withdraw(t *testing.T) {
 	authToken := uuid.New().String()
 	platform := "iOS"
 	ipAddress := "0.0.0.0"
-	_, err := userService.Signup(userID, authToken, platform, ipAddress)
+	err := userService.Signup(userID, authToken, platform, ipAddress)
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
@@ -119,7 +119,7 @@ func TestUserService_WithdrawAndCreateSamePushToken(t *testing.T) {
 	authToken := uuid.New().String()
 	platform := "iOS"
 	ipAddress := "0.0.0.0"
-	_, err := userService.Signup(userID, authToken, platform, ipAddress)
+	err := userService.Signup(userID, authToken, platform, ipAddress)
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
@@ -142,7 +142,7 @@ func TestUserService_WithdrawAndCreateSamePushToken(t *testing.T) {
 	newAuthToken := uuid.New().String()
 	newPlatform := "iOS"
 	newIPAddress := "0.0.0.0"
-	_, err = userService.Signup(newUserID, newAuthToken, newPlatform, newIPAddress)
+	err = userService.Signup(newUserID, newAuthToken, newPlatform, newIPAddress)
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
@@ -166,7 +166,7 @@ func TestUserService_UpdatePremiumPlan(t *testing.T) {
 	authToken := uuid.New().String()
 	platform := "iOS"
 	ipAddress := "0.0.0.0"
-	_, err := userService.Signup(userID, authToken, platform, ipAddress)
+	err := userService.Signup(userID, authToken, platform, ipAddress)
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}

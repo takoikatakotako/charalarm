@@ -7,17 +7,7 @@ import (
 	"github.com/takoikatakotako/charalarm/api/service"
 	"github.com/takoikatakotako/charalarm/environment"
 	"github.com/takoikatakotako/charalarm/infrastructure"
-	"os"
 )
-
-func getEnvironment(key string, defaultValue string) string {
-	// 環境変数の値を取得
-	val, exists := os.LookupEnv(key)
-	if !exists {
-		return defaultValue
-	}
-	return val
-}
 
 func main() {
 	// environment
@@ -38,8 +28,8 @@ func main() {
 		AWS: awsRepository,
 	}
 	charaService := service.Chara{
-		AWS:         awsRepository,
-		Environment: env,
+		AWS:             awsRepository,
+		ResourceBaseURL: env.ResourceBaseURL,
 	}
 	pushTokenService := service.PushToken{
 		AWS: awsRepository,

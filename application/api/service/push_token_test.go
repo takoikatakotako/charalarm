@@ -24,7 +24,7 @@ func TestPushTokenService_AddIOSPushToken(t *testing.T) {
 	platform := "iOS"
 	pushToken := uuid.New().String()
 
-	_, err := userService.Signup(userID, authToken, platform, ipAddress)
+	err := userService.Signup(userID, authToken, platform, ipAddress)
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
@@ -63,7 +63,7 @@ func TestPushTokenService_AddIOSPushTokenCanChange(t *testing.T) {
 	oldPushToken := uuid.New().String()
 	newPushToken := uuid.New().String()
 
-	_, err := userService.Signup(userID, authToken, platform, ipAddress)
+	err := userService.Signup(userID, authToken, platform, ipAddress)
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
@@ -121,7 +121,7 @@ func TestPushTokenService_AddIOSPushTokenMultiTimes(t *testing.T) {
 	platform := "iOS"
 	ipAddress := "127.0.0.1"
 	pushToken := uuid.New().String()
-	_, err := userService.Signup(userID, authToken, platform, ipAddress)
+	err := userService.Signup(userID, authToken, platform, ipAddress)
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
@@ -166,7 +166,7 @@ func TestPushTokenService_AddIOSVoipPushToken(t *testing.T) {
 	ipAddress := "127.0.0.1"
 	pushToken := uuid.New().String()
 
-	_, err := userService.Signup(userID, authToken, platform, ipAddress)
+	err := userService.Signup(userID, authToken, platform, ipAddress)
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
@@ -207,7 +207,7 @@ func TestPushTokenService_AddIOSVoipPushTokenCanChange(t *testing.T) {
 	oldPushToken := uuid.New().String()
 	newPushToken := uuid.New().String()
 
-	_, err := userService.Signup(userID, authToken, platform, ipAddress)
+	err := userService.Signup(userID, authToken, platform, ipAddress)
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
@@ -264,7 +264,7 @@ func TestPushTokenService_AddIOSVoipPushTokenMultiChange(t *testing.T) {
 	ipAddress := "127.0.0.1"
 	pushToken := uuid.New().String()
 
-	_, err := userService.Signup(userID, authToken, platform, ipAddress)
+	err := userService.Signup(userID, authToken, platform, ipAddress)
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}

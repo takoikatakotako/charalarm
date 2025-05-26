@@ -6,7 +6,6 @@ variable "worker_function_image_tag" {
   type = string
 }
 
-
-# variable "datadog_log_forwarder_arn" {
-#   type = string
-# }
+variable "resource_base_url" {
+  type = string
+}

@@ -22,7 +22,7 @@ func TestAlarmService_AddAlarm(t *testing.T) {
 	authToken := uuid.New().String()
 	const ipAddress = "127.0.0.1"
 	const platform = "iOS"
-	_, err := userService.Signup(userID, authToken, platform, ipAddress)
+	err := userService.Signup(userID, authToken, platform, ipAddress)
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}

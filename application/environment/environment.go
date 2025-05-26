@@ -16,7 +16,7 @@ func (e *Environment) SetCharalarmAWSProfile(defaultValue string) {
 
 func (e *Environment) SetResourceBaseURL(defaultValue string) {
 	e.ResourceBaseURL = defaultValue
-	if val, exists := os.LookupEnv("CHARALARM_AWS_PROFILE"); exists {
+	if val, exists := os.LookupEnv("CHARALARM_RESOURCE_BASE_URL"); exists {
 		e.ResourceBaseURL = val
 	}
 }
