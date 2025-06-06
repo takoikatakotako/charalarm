@@ -15,6 +15,7 @@ awslocal dynamodb create-table \
     --attribute-definitions AttributeName=alarmID,AttributeType=S \
                             AttributeName=userID,AttributeType=S \
                             AttributeName=time,AttributeType=S  \
+                            AttributeName=target,AttributeType=S  \
     --key-schema AttributeName=alarmID,KeyType=HASH \
     --provisioned-throughput ReadCapacityUnits=1,WriteCapacityUnits=1 \
     --global-secondary-indexes \
@@ -33,6 +34,17 @@ awslocal dynamodb create-table \
             {
                 \"IndexName\": \"alarm-time-index\",
                 \"KeySchema\": [{\"AttributeName\":\"time\",\"KeyType\":\"HASH\"}],
+                \"Projection\":{
+                    \"ProjectionType\":\"ALL\"
+                },
+                \"ProvisionedThroughput\": {
+                    \"ReadCapacityUnits\": 1,
+                    \"WriteCapacityUnits\": 1
+                }
+            },
+            {
+                \"IndexName\": \"target-index\",
+                \"KeySchema\": [{\"AttributeName\":\"target\",\"KeyType\":\"HASH\"}],
                 \"Projection\":{
                     \"ProjectionType\":\"ALL\"
                 },

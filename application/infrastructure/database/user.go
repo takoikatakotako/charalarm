@@ -7,10 +7,11 @@ import (
 )
 
 const (
-	UserTableName            = "user-table"
-	UserTableUserId          = "userID"
-	UserTableUserIdIndexName = "user-id-index"
-	UserTablePremiumPlan     = "premiumPlan"
+	UserTableName             = "user-table"
+	UserTableUserId           = "userID"
+	UserTableUserIdIndexName  = "user-id-index"
+	AlarmTableTargetIndexName = "target-index"
+	UserTablePremiumPlan      = "premiumPlan"
 )
 
 type User struct {

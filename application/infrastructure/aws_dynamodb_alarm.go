@@ -219,26 +219,42 @@ func (a *AWS) UpdateAlarm(alarm database.Alarm) error {
 }
 
 func (a *AWS) DeleteAlarm(alarmID string) error {
-	ctx := context.Background()
+	return a.deleteAlarm(alarmID)
+}
 
+func (a *AWS) DeleteAlarmByTarget(target string) error {
+	ctx := context.Background()
 	client, err := a.createDynamoDBClient()
 	if err != nil {
 		return err
 	}
 
-	deleteInput := &dynamodb.DeleteItemInput{
-		TableName: aws.String(database.AlarmTableName),
-		Key: map[string]types.AttributeValue{
-			database.AlarmTableColumnAlarmID: &types.AttributeValueMemberS{Value: alarmID},
+	// target から Alarm を検索
+	input := &dynamodb.QueryInput{
+		TableName:              aws.String(database.AlarmTableName),
+		IndexName:              aws.String(database.AlarmTableTargetIndexName),
+		KeyConditionExpression: aws.String("target = :target"),
+		ExpressionAttributeValues: map[string]types.AttributeValue{
+			":target": &types.AttributeValueMemberS{Value: target},
 		},
 	}
 
-	_, err = client.DeleteItem(ctx, deleteInput)
+	output, err := client.Query(ctx, input)
 	if err != nil {
 		return err
 	}
 
-	return nil
+	alarmIDs := make([]string, 0)
+	for _, item := range output.Items {
+		// alarmIDを取得
+		alarm := database.Alarm{}
+		if err := attributevalue.UnmarshalMap(item, &alarm); err != nil {
+			return err
+		}
+		alarmIDs = append(alarmIDs, alarm.AlarmID)
+	}
+
+	return a.batchDeleteAlarm(ctx, alarmIDs)
 }
 
 func (a *AWS) DeleteUserAlarm(userID string) error {
@@ -263,17 +279,48 @@ func (a *AWS) DeleteUserAlarm(userID string) error {
 		return err
 	}
 
-	// 検索結果から一括削除のためのrequestItemsを作成
-	requestItems := []types.WriteRequest{}
+	// UserID から取得した AlarmIDを取得
+	alarmIDs := make([]string, 0)
 	for _, item := range output.Items {
 		// alarmIDを取得
 		alarm := database.Alarm{}
 		if err := attributevalue.UnmarshalMap(item, &alarm); err != nil {
 			return err
 		}
-		alarmID := alarm.AlarmID
+		alarmIDs = append(alarmIDs, alarm.AlarmID)
+	}
+	return a.batchDeleteAlarm(ctx, alarmIDs)
+}
 
-		// requestItemsを作成
+func (a *AWS) deleteAlarm(alarmID string) error {
+	ctx := context.Background()
+	client, err := a.createDynamoDBClient()
+	if err != nil {
+		return err
+	}
+
+	input := &dynamodb.DeleteItemInput{
+		TableName: aws.String(database.AlarmTableName),
+		Key: map[string]types.AttributeValue{
+			database.AlarmTableColumnAlarmID: &types.AttributeValueMemberS{Value: alarmID},
+		},
+	}
+
+	_, err = client.DeleteItem(ctx, input)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (a *AWS) batchDeleteAlarm(ctx context.Context, alarmIDs []string) error {
+	client, err := a.createDynamoDBClient()
+
+	// 一括削除のためのrequestItemsを作成
+	requestItems := make([]types.WriteRequest, 0)
+
+	// requestItemsを作成
+	for _, alarmID := range alarmIDs {
 		requestItem := types.WriteRequest{
 			DeleteRequest: &types.DeleteRequest{
 				Key: map[string]types.AttributeValue{
@@ -293,6 +340,5 @@ func (a *AWS) DeleteUserAlarm(userID string) error {
 	if err != nil {
 		return err
 	}
-
 	return nil
 }

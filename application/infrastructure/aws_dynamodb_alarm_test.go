@@ -155,6 +155,65 @@ func TestInsertAndDelete(t *testing.T) {
 	assert.Equal(t, len(alarmList), 0)
 }
 
+// 複数のユーザーが作成したアラームを削除できる
+func TestAWS_DeleteAlarmByTarget(t *testing.T) {
+	repository := AWS{Profile: "local"}
+
+	firstUserID := uuid.New().String()
+	secondUserID := uuid.New().String()
+
+	firstUserAlarm := createAlarm()
+	firstUserAlarm.UserID = firstUserID
+
+	secondUserAlarm := createAlarm()
+	secondUserAlarm.UserID = secondUserID
+
+	// Insert
+	err := repository.InsertAlarm(firstUserAlarm)
+	if err != nil {
+		t.Errorf("unexpected error: %v", err)
+	}
+
+	err = repository.InsertAlarm(secondUserAlarm)
+	if err != nil {
+		t.Errorf("unexpected error: %v", err)
+	}
+
+	// Get
+	firstUserAlarmList, err := repository.GetAlarmList(firstUserID)
+	if err != nil {
+		t.Errorf("unexpected error: %v", err)
+	}
+	secondUserAlarmList, err := repository.GetAlarmList(secondUserID)
+	if err != nil {
+		t.Errorf("unexpected error: %v", err)
+	}
+
+	// Assert
+	assert.Equal(t, len(firstUserAlarmList), 1)
+	assert.Equal(t, len(secondUserAlarmList), 1)
+
+	// Delete
+	err = repository.DeleteAlarmByTarget("target")
+	if err != nil {
+		t.Errorf("unexpected error: %v", err)
+	}
+
+	// Get
+	deletedFirstUserAlarmList, err := repository.GetAlarmList(firstUserID)
+	if err != nil {
+		t.Errorf("unexpected error: %v", err)
+	}
+	deletedSecondUserAlarmList, err := repository.GetAlarmList(secondUserID)
+	if err != nil {
+		t.Errorf("unexpected error: %v", err)
+	}
+
+	// Assert
+	assert.Equal(t, len(deletedFirstUserAlarmList), 0)
+	assert.Equal(t, len(deletedSecondUserAlarmList), 0)
+}
+
 func TestInsertAndDeleteAlarmList(t *testing.T) {
 	repository := AWS{Profile: "local"}
 
