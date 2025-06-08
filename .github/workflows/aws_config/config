@@ -1,0 +1,7 @@
+[profile charalarm-management]
+credential_source = Environment
+role_arn = arn:aws:iam::448049807848:role/management-ci-role
+
+[profile charalarm-development]
+credential_source = Environment
+role_arn = arn:aws:iam::xxxxx02:role/GitHubActions-LeanerTerraform-SwitchRole

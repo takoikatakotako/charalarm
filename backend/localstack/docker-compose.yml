@@ -1,0 +1,12 @@
+version: "3.7"
+services:
+  charalarm-localstack:
+    image: localstack/localstack:1.4
+    ports:
+      - "4566:4566"
+    environment:
+      - SERVICES=s3,sqs,sns,dynamodb
+    volumes:
+      - ./createTable.sh:/docker-entrypoint-initaws.d/createTable.sh
+      - ./createQueue.sh:/docker-entrypoint-initaws.d/createQueue.sh
+      - ./createPlatformApplication.sh:/docker-entrypoint-initaws.d/createPlatformApplication.sh
