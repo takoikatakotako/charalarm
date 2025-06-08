@@ -71,7 +71,7 @@ module "cloudfront_api_certificate" {
 module "api" {
   source                        = "../../modules/api"
   api_lambda_function_image_uri = "448049807848.dkr.ecr.ap-northeast-1.amazonaws.com/charalarm-api"
-  api_lambda_function_image_tag = "ffe24e8fbfea805d4f0b64d28765a909edb7654c"
+  api_lambda_function_image_tag = "992849240ea04acbecc2d8f4f682017b6eb0418b"
   root_domain_name              = local.root_domain
   api_record_name               = local.api_record_name
   api_cloudfront_certificate    = module.cloudfront_api_certificate.certificate_arn

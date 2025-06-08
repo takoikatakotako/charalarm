@@ -111,8 +111,17 @@ func (u *User) Withdraw(userID string, authToken string) error {
 		}
 	}
 
-	if user.IOSPlatformInfo.VoIPPushTokenSNSEndpoint != "" {
-		err = u.AWS.SNSDeletePlatformApplicationEndpoint(user.IOSPlatformInfo.VoIPPushTokenSNSEndpoint)
+	// アラームと PlatformEndpoint を削除する
+	voIPPushTokenSNSEndpoint := user.IOSPlatformInfo.VoIPPushTokenSNSEndpoint
+	if voIPPushTokenSNSEndpoint != "" {
+		// アラームを削除
+		err = u.AWS.DeleteAlarmByTarget(voIPPushTokenSNSEndpoint)
+		if err != nil {
+			return err
+		}
+
+		// PlatformEndpointを削除
+		err = u.AWS.SNSDeletePlatformApplicationEndpoint(voIPPushTokenSNSEndpoint)
 		if err != nil {
 			return err
 		}

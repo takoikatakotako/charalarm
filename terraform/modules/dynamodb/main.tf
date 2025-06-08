@@ -36,6 +36,11 @@ resource "aws_dynamodb_table" "alarm_table" {
     type = "S"
   }
 
+  attribute {
+    name = "target"
+    type = "S"
+  }
+
   global_secondary_index {
     hash_key           = "userID"
     name               = "user-id-index"
@@ -48,6 +53,15 @@ resource "aws_dynamodb_table" "alarm_table" {
   global_secondary_index {
     hash_key           = "time"
     name               = "alarm-time-index"
+    non_key_attributes = []
+    projection_type    = "ALL"
+    read_capacity      = 1
+    write_capacity     = 1
+  }
+
+  global_secondary_index {
+    hash_key           = "target"
+    name               = "target-index"
     non_key_attributes = []
     projection_type    = "ALL"
     read_capacity      = 1
