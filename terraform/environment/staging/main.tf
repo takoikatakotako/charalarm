@@ -98,7 +98,7 @@ module "batch2" {
 module "worker2" {
   source                    = "../../modules/worker2"
   worker_function_image_uri = "448049807848.dkr.ecr.ap-northeast-1.amazonaws.com/charalarm-worker"
-  worker_function_image_tag = "ffe24e8fbfea805d4f0b64d28765a909edb7654c"
+  worker_function_image_tag = "251a4fadeba1a2543514fd766945cf4ef03ced7d"
   resource_base_url         = "https://${local.resource_domain2}"
 }
 
