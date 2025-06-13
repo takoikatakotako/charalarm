@@ -31,14 +31,12 @@ func Handler(ctx context.Context, event events.SQSEvent) (events.APIGatewayProxy
 
 			// Decode失敗のためデッドレターキューに送信
 			err = s.SendMessageToDeadLetter(sqsMessage.Body)
-			if err == nil {
+			if err != nil {
+				fmt.Println("@@@@@@@@@@@")
+				fmt.Println("Failed to Send Dead Letter Error")
+				fmt.Println("@@@@@@@@@@@")
 				continue
 			}
-			// デッドレターキューに送信にも失敗した場合
-			return events.APIGatewayProxyResponse{
-				Body:       "Error",
-				StatusCode: http.StatusInternalServerError,
-			}, err
 		}
 
 		fmt.Println("@@@@@@@@@@@")
@@ -48,7 +46,7 @@ func Handler(ctx context.Context, event events.SQSEvent) (events.APIGatewayProxy
 
 		// メッセージを取得して処理する
 		err = s.PublishPlatformApplication(req)
-		if err == nil {
+		if err != nil {
 			fmt.Println("@@@@@@@@@@@")
 			fmt.Println("Published Failed")
 			fmt.Println(err)
@@ -56,11 +54,11 @@ func Handler(ctx context.Context, event events.SQSEvent) (events.APIGatewayProxy
 			continue
 		}
 
-		// デッドレターキューに送信にも失敗した場合
-		return events.APIGatewayProxyResponse{
-			Body:       "Error",
-			StatusCode: http.StatusInternalServerError,
-		}, err
+		//// デッドレターキューに送信にも失敗した場合
+		//return events.APIGatewayProxyResponse{
+		//	Body:       "Error",
+		//	StatusCode: http.StatusInternalServerError,
+		//}, err
 	}
 
 	return events.APIGatewayProxyResponse{
