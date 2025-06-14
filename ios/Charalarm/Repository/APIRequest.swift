@@ -19,7 +19,7 @@ struct APIHeader {
 }
 
 struct APIRequest {
-    static func createUrlRequest(baseUrl: String = EnvironmentVariableConfig.apiEndpoint, path: String, httpMethod: HttpMethod = .get, requestHeader: [String: String] = ["X-API-VERSION": "0", "Content-Type": "application/json"]) -> URLRequest {
+    static func createUrlRequest(baseUrl: String = Variables.apiEndpoint, path: String, httpMethod: HttpMethod = .get, requestHeader: [String: String] = ["X-API-VERSION": "0", "Content-Type": "application/json"]) -> URLRequest {
         let url = URL(string: baseUrl + path)!
         var request = URLRequest(url: url)
         request.httpMethod = httpMethod.rawValue
@@ -27,8 +27,8 @@ struct APIRequest {
         return request
     }
 
-    static func createUrlRequest<RequestBody: Encodable>(baseUrl: String = EnvironmentVariableConfig.apiEndpoint, path: String, httpMethod: HttpMethod = .get, requestHeader: [String: String] = ["X-API-VERSION": "0", "Content-Type": "application/json"], requestBody: RequestBody) -> URLRequest {
-        let url = URL(string: EnvironmentVariableConfig.apiEndpoint + path)!
+    static func createUrlRequest<RequestBody: Encodable>(baseUrl: String = Variables.apiEndpoint, path: String, httpMethod: HttpMethod = .get, requestHeader: [String: String] = ["X-API-VERSION": "0", "Content-Type": "application/json"], requestBody: RequestBody) -> URLRequest {
+        let url = URL(string: Variables.apiEndpoint + path)!
         var request = URLRequest(url: url)
         request.httpMethod = httpMethod.rawValue
         request.allHTTPHeaderFields = requestHeader

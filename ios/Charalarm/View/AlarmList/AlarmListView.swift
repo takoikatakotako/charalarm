@@ -28,7 +28,7 @@ struct AlarmListView: View {
                 }
 
                 if viewState.isShowingADs {
-                    AdmobBannerView(adUnitID: EnvironmentVariableConfig.admobAlarmListUnitID)
+                    AdmobBannerView(adUnitID: Variables.admobAlarmListUnitID)
                 }
             }
             .onAppear {

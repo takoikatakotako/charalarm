@@ -13,11 +13,11 @@ struct CharaUseCase: CharaUseCaseProtcol {
     private let defaultsCharaID = "jp.zunko.zundamon"
 
     func getSelfIntroductionUrlString(charaID: String) -> String {
-        return "\(EnvironmentVariableConfig.resourceEndpoint)/\(charaID)/self-introduction.caf"
+        return "\(Variables.resourceEndpoint)/\(charaID)/self-introduction.caf"
     }
 
     func getCharaThumbnailUrlString(charaID: String) -> String {
-        return "\(EnvironmentVariableConfig.resourceEndpoint)/\(charaID)/thumbnail.png"
+        return "\(Variables.resourceEndpoint)/\(charaID)/thumbnail.png"
     }
 
     func isExistDefaultCharaResources() -> Bool {

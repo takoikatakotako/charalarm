@@ -129,7 +129,7 @@ struct ConfigView: View {
                 .scrollContentBackground(.hidden)
 
                 if viewState.isShowingADs {
-                    AdmobBannerView(adUnitID: EnvironmentVariableConfig.admobConfigUnitID)
+                    AdmobBannerView(adUnitID: Variables.admobConfigUnitID)
                 }
             }
             .toolbar(.visible, for: .navigationBar)
