@@ -62,7 +62,7 @@ class AlarmListViewState: ObservableObject {
             saturday: true
         )
     }
-    
+
     func onAppear() {
         Task { @MainActor in
             showingIndicator = true
@@ -71,8 +71,7 @@ class AlarmListViewState: ObservableObject {
                     alert = .error(UUID(), String(localized: "error-failed-to-get-authentication-information"))
                 return
             }
-            
-            
+
             // Fetch Alarm
             do {
                 let alarms = try await apiRepository.fetchAlarms(userID: userID, authToken: authToken)
@@ -81,7 +80,7 @@ class AlarmListViewState: ObservableObject {
             } catch {
                 self.alert = .error(UUID(), String(localized: "alarm-failed-to-get-the-alarm-list"))
             }
-            
+
             // Set VoIP Push
             do {
                 let pushToken = PushTokenRequest(pushToken: Variables.shared.voipPushToken)

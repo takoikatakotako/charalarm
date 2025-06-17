@@ -12,7 +12,7 @@ import DatadogLogs
 
 class AppDelegate: UIResponder, UIApplicationDelegate {
     let model = AppDelegateModel(apiRepository: APIRepository(), keychainRepository: KeychainRepository())
-    
+
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Use Firebase library to configure APIs.
         FirebaseApp.configure()

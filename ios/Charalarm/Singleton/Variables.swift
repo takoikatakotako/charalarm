@@ -4,7 +4,7 @@ class Variables {
     static let shared = Variables()
 
     private init() {}
-    
+
     // APIのエンドポイント
     static var apiEndpoint: String {
         return Bundle.main.infoDictionary?["API_ENDPOINT"] as? String ?? ""
@@ -31,7 +31,7 @@ class Variables {
     func setAdmobAlarmListUnitID(_ unitID: String) {
         self.admobAlarmListUnitID = unitID
     }
-    
+
     // AdmobのユニットID: Config
     static var admobConfigUnitID: String {
         return Bundle.main.infoDictionary?["ADMOB_CONFIG"] as? String ?? ""
@@ -49,7 +49,6 @@ class Variables {
     func setSubscriptionProductID(_ productID: String) {
         self.subscriptionProductID = productID
     }
-
 
     // Datadog Client Token
     static var datadogClientToken: String {
@@ -77,13 +76,13 @@ class Variables {
     func setDataDogLogService(_ service: String) {
         self.datadogLogService = service
     }
-    
+
     // Push Token
     private(set) var pushToken: String = ""
     func setPushToken(_ pushToken: String) {
         self.pushToken = pushToken
     }
-    
+
     // VoIP Push Token
     private(set) var voipPushToken: String = ""
     func setVoipPushToken(_ voipPushToken: String) {
