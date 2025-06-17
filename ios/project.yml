@@ -20,13 +20,13 @@ packages:
     from: 4.2.2
   Firebase:
     url: https://github.com/firebase/firebase-ios-sdk
-    from: 11.3.0
+    from: 11.14.0
   Datadog:
     url: https://github.com/Datadog/dd-sdk-ios.git
     from: 2.13.0
   Rswift:
     url: https://github.com/mac-cain13/R.swift
-    from: 7.5.0
+    from: 7.8.0
   GoogleMobileAds:
     url: https://github.com/googleads/swift-package-manager-google-mobile-ads
     from: 11.2.0
