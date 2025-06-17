@@ -12,7 +12,7 @@ import DatadogLogs
 
 class AppDelegate: UIResponder, UIApplicationDelegate {
     let model = AppDelegateModel(apiRepository: APIRepository(), keychainRepository: KeychainRepository())
-
+    
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Use Firebase library to configure APIs.
         FirebaseApp.configure()
@@ -30,7 +30,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         UIApplication.shared.registerForRemoteNotifications()
 
         // VoIP Pushを要求
-        let voipRegistry: PKPushRegistry = PKPushRegistry(queue: nil)
+        let voipRegistry = PKPushRegistry(queue: DispatchQueue.main)
         voipRegistry.delegate = self
         voipRegistry.desiredPushTypes = [PKPushType.voIP]
 

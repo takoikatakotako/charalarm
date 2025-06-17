@@ -32,7 +32,7 @@ struct AlarmListView: View {
                 }
             }
             .onAppear {
-                viewState.fetchAlarms()
+                viewState.onAppear()
             }
             .alert(item: $viewState.alert) { item in
                 switch item {

@@ -87,9 +87,7 @@ class AlarmListViewState: ObservableObject {
                 let pushToken = PushTokenRequest(pushToken: Variables.shared.voipPushToken)
                 try await apiRepository.postPushTokenAddVoIPPushToken(userID: userID, authToken: authToken, pushToken: pushToken)
             } catch {
-                //self.alert = .error(UUID(), String(localized: "alarm-failed-to-get-the-alarm-list"))
             }
-
         }
     }
 
