@@ -35,6 +35,7 @@ class AppDelegateModel {
     // Pushトークンを登録
     func registerPushToken(token: String) {
         self.pushToken = token
+        Variables.shared.setPushToken(token)
 
         guard let userID = keychainRepository.getUserID(),
               let authToken = keychainRepository.getAuthToken() else {
@@ -60,6 +61,7 @@ class AppDelegateModel {
     // VoIP Pushトークンを登録
     func registerVoipPushToken(token: String) {
         self.voipPushToken = token
+        Variables.shared.setVoipPushToken(token)
 
         guard let userID = keychainRepository.getUserID(),
               let authToken = keychainRepository.getAuthToken() else {

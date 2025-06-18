@@ -30,7 +30,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         UIApplication.shared.registerForRemoteNotifications()
 
         // VoIP Pushを要求
-        let voipRegistry: PKPushRegistry = PKPushRegistry(queue: nil)
+        let voipRegistry = PKPushRegistry(queue: DispatchQueue.main)
         voipRegistry.delegate = self
         voipRegistry.desiredPushTypes = [PKPushType.voIP]
 
@@ -45,9 +45,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Datadogのロガーを設定する
         Datadog.initialize(
             with: Datadog.Configuration(
-                clientToken: EnvironmentVariableConfig.datadogClientToken,
-                env: EnvironmentVariableConfig.datadogLogENV,
-                service: EnvironmentVariableConfig.datadogLogService
+                clientToken: Variables.datadogClientToken,
+                env: Variables.datadogLogENV,
+                service: Variables.datadogLogService
             ),
             trackingConsent: .granted
         )
