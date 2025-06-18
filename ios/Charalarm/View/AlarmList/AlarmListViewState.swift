@@ -63,6 +63,33 @@ class AlarmListViewState: ObservableObject {
         )
     }
 
+    func onAppear() {
+        Task { @MainActor in
+            showingIndicator = true
+            guard let userID = keychainRepository.getUserID(),
+                  let authToken = keychainRepository.getAuthToken() else {
+                    alert = .error(UUID(), String(localized: "error-failed-to-get-authentication-information"))
+                return
+            }
+
+            // Fetch Alarm
+            do {
+                let alarms = try await apiRepository.fetchAlarms(userID: userID, authToken: authToken)
+                self.showingIndicator = false
+                self.alarms = alarms.map { $0.toAlarm() }
+            } catch {
+                self.alert = .error(UUID(), String(localized: "alarm-failed-to-get-the-alarm-list"))
+            }
+
+            // Set VoIP Push
+            do {
+                let pushToken = PushTokenRequest(pushToken: Variables.shared.voipPushToken)
+                try await apiRepository.postPushTokenAddVoIPPushToken(userID: userID, authToken: authToken, pushToken: pushToken)
+            } catch {
+            }
+        }
+    }
+
     func fetchAlarms() {
         Task { @MainActor in
             showingIndicator = true

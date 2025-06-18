@@ -10,11 +10,11 @@ on:
       - develop
 
 env:
-  DEVELOPER_DIR: /Applications/Xcode_15.0.1.app
+  DEVELOPER_DIR: /Applications/Xcode_16.4.0.app
 
 jobs:
   test_ios:
-    runs-on: macos-13
+    runs-on: macos-15
 
     steps:
     # チェックアウト

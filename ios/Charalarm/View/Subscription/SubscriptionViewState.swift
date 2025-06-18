@@ -110,7 +110,7 @@ class SubscriptionViewState: ObservableObject {
     }
 
     private func fetchProducts() async throws -> Product? {
-        let productIdList = [EnvironmentVariableConfig.subscriptionProductID]
+        let productIdList = [Variables.subscriptionProductID]
         let products: [Product] = try await Product.products(for: productIdList)
         guard let product = products.first else {
             return nil

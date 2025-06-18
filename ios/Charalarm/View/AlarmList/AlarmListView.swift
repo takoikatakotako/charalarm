@@ -28,11 +28,11 @@ struct AlarmListView: View {
                 }
 
                 if viewState.isShowingADs {
-                    AdmobBannerView(adUnitID: EnvironmentVariableConfig.admobAlarmListUnitID)
+                    AdmobBannerView(adUnitID: Variables.admobAlarmListUnitID)
                 }
             }
             .onAppear {
-                viewState.fetchAlarms()
+                viewState.onAppear()
             }
             .alert(item: $viewState.alert) { item in
                 switch item {

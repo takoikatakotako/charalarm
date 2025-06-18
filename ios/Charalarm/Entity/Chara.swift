@@ -19,15 +19,15 @@ struct Chara: Identifiable, Hashable, Equatable {
     }
 
     var thumbnailUrlString: String {
-        return "\(EnvironmentVariableConfig.resourceEndpoint)/\(charaID)/thumbnail.png"
+        return "\(Variables.resourceEndpoint)/\(charaID)/thumbnail.png"
     }
 
     var selfIntroductionUrlString: String {
-        return "\(EnvironmentVariableConfig.resourceEndpoint)/\(charaID)/self-introduction.caf"
+        return "\(Variables.resourceEndpoint)/\(charaID)/self-introduction.caf"
     }
 
     static func charaDomainToThmbnailUrlString(charaDomain: String) -> String {
-        return "\(String(describing: EnvironmentVariableConfig.resourceEndpoint))/\(charaDomain)/thumbnail.png"
+        return "\(String(describing: Variables.resourceEndpoint))/\(charaDomain)/thumbnail.png"
     }
 
     let charaID: String
