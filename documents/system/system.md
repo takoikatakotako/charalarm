@@ -2,7 +2,7 @@
 
 Charalarmのシステムは以下のサービスにより構成されています。
 
-![Architecture](image/infra-architecture.png)
+![Architecture](infra-architecture.png)
 
 
 ### API部
