@@ -59,4 +59,5 @@ sequenceDiagram
     LLM-->>Worker: Recieve Text
     Worker->>DB: Save Text
     Worker->>App: Push Notification
+    Worker->>SQS: Delete Message
 ```
