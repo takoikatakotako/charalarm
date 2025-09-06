@@ -12,6 +12,7 @@ struct TutorialHolderView: View {
         NavigationView {
             TutorialIntroductionView()
         }
+        .navigationViewStyle(StackNavigationViewStyle())
     }
 }
 
