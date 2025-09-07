@@ -25,7 +25,7 @@ struct CallView: View {
 
                     Text(viewState.charaName)
                         .font(Font.system(size: 40))
-                        .foregroundColor(Color.black)
+                        .foregroundColor(Color.white)
                         .padding(.top, 100)
                     Spacer()
 
