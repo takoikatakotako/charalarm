@@ -2,7 +2,7 @@
 
 Charalarmのシステムは以下のサービスにより構成されています。
 
-![Architecture](image/infra-architecture.png)
+![Architecture](infra-architecture.png)
 
 
 ### API部
@@ -24,3 +24,39 @@ Batchは毎分起動します。
 
 Worker部は SQS, Lambda, SNS で構成されます。
 SQS からメッセージを取得し、プッシュ通知を送信します。
+
+
+
+## Chat部
+
+
+```mermaid
+sequenceDiagram
+    participant App
+    participant API
+    participant DB
+    participant SQS
+
+    App->>API: Send Chat API Request
+    API->>DB: Insert Data
+    API->>SQS: Send Message
+    API-->>App: Send Chat API Response
+```
+
+
+
+```mermaid
+sequenceDiagram
+    participant Worker
+    participant SQS
+    participant LLM
+    participant DB
+    participant App
+
+    Worker->>SQS: Get Message Request
+    SQS-->>Worker: Message
+    Worker->>LLM: Send Text
+    LLM-->>Worker: Recieve Text
+    Worker->>DB: Save Text
+    Worker->>App: Push Notification
+```
