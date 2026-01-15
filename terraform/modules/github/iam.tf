@@ -22,7 +22,8 @@ data "aws_iam_policy_document" "charalarm_github_action_role_assume_policy_docum
       test     = "StringLike"
       variable = "token.actions.githubusercontent.com:sub"
       values = [
-        "repo:takoikatakotako/charalarm:*"
+        "repo:takoikatakotako/charalarm:*",
+        "repo:takoikatakotako/ZunTalk:*",
       ]
     }
   }

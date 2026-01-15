@@ -1,0 +1,56 @@
+site_name: Charalarm Documentation
+site_description: キャラクターがモーニングコールしてくれるアプリ「Charalarm」のドキュメント
+site_url: https://takoikatakotako.github.io/charalarm/
+
+theme:
+  name: material
+  language: ja
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+
+nav:
+  - ホーム: index.md
+  - システム:
+      - システム構成: system/system.md
+  - 開発:
+      - 開発: development/index.md
+      - API エンドポイント: development/api-endpoint.md
+      - DynamoDB: development/dynamodb.md
+      - LocalStack: development/localstack.md
+      - iOS: development/ios.md
+      - SQS: development/sqs.md
+      - サブスクリプション: development/subscription.md
+      - キャラクター:
+          - キャラクター: development/chara.md
+          - 結衣: development/chara-yui.md
+          - 紅葉: development/chara-momiji.md
+          - ずんだもん: development/chara-zundamon.md
+      - ロードマップ: development/roadmap.md
+      - リポジトリ: development/repositories.md
+      - アプリアーキテクチャ: development/app-architecture.md
+      - アップデート: development/update.md
+      - 問い合わせ対応: development/contact.md
+  - その他:
+      - 利用規約: other/teams/index.md
+      - プライバシーポリシー: other/privacy/index.md
+  - テスト: test/index.md
+
+markdown_extensions:
+  - tables
+  - admonition
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - attr_list
+  - md_in_html
+
+docs_dir: docs
+site_dir: ../docs
