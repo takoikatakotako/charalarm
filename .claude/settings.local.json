@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:github.com)",
+      "Bash(ls:*)",
+      "Bash(mkdocs build:*)",
+      "Bash(make serve:*)"
+    ]
+  }
+}
