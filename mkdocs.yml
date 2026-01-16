@@ -53,4 +53,3 @@ markdown_extensions:
   - md_in_html
 
 docs_dir: docs
-site_dir: ../docs

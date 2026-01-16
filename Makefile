@@ -10,4 +10,4 @@ serve:
 	mkdocs serve
 
 clean:
-	rm -rf ../docs/*
+	rm -rf site/
