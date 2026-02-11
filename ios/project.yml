@@ -14,22 +14,22 @@ settings:
 packages:
   SDWebImageSwiftUI:
     url: https://github.com/SDWebImage/SDWebImageSwiftUI
-    from: 2.2.1
+    from: 3.1.4
   KeychainAccess:
     url: https://github.com/kishikawakatsumi/KeychainAccess
     from: 4.2.2
   Firebase:
     url: https://github.com/firebase/firebase-ios-sdk
-    from: 11.14.0
+    from: 12.9.0
   Datadog:
     url: https://github.com/Datadog/dd-sdk-ios.git
-    from: 2.13.0
+    from: 3.6.1
   Rswift:
     url: https://github.com/mac-cain13/R.swift
     from: 7.8.0
   GoogleMobileAds:
     url: https://github.com/googleads/swift-package-manager-google-mobile-ads
-    from: 11.2.0
+    from: 13.0.0
 
 schemes:
   Develop:
