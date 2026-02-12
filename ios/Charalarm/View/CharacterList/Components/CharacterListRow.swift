@@ -6,15 +6,13 @@ struct CharacterListRow: View {
     let chara: Chara
     var body: some View {
         HStack {
-            WebImage(url: URL(string: chara.thumbnailUrlString))
-                .resizable()
-                .placeholder {
-                    Image(R.image.characterPlaceholder.name)
-                        .resizable()
+            WebImage(url: URL(string: chara.thumbnailUrlString)) { image in
+                image.resizable()
+            } placeholder: {
+                Image(R.image.characterPlaceholder.name)
+                    .resizable()
             }
             .frame(width: 80, height: 80)
-            .animation(.easeInOut, value: 0.5)
-            .transition(.fade)
             .scaledToFill()
 
             VStack(alignment: .leading, spacing: 8) {

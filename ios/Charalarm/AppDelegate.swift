@@ -18,7 +18,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         FirebaseApp.configure()
 
         // Initialize the Google Mobile Ads SDK.
-        GADMobileAds.sharedInstance().start(completionHandler: nil)
+        MobileAds.shared.start(completionHandler: nil)
 
         // 課金周りの監視
         observeTransactionUpdates()
