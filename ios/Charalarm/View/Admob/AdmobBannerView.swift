@@ -10,14 +10,14 @@ private struct AdmobBannerViewController: UIViewControllerRepresentable {
     }
 
     func makeUIViewController(context: Context) -> UIViewController {
-        let view = GADBannerView(adSize: GADAdSizeBanner)
+        let view = BannerView(adSize: AdSizeBanner)
 
         let viewController = UIViewController()
         view.adUnitID = adUnitId
         view.rootViewController = viewController
         viewController.view.addSubview(view)
-        viewController.view.frame = CGRect(origin: .zero, size: GADAdSizeBanner.size)
-        view.load(GADRequest())
+        viewController.view.frame = CGRect(origin: .zero, size: AdSizeBanner.size)
+        view.load(nil)
         return viewController
     }
 
@@ -30,7 +30,7 @@ struct AdmobBannerView: View {
         HStack {
             Spacer()
             AdmobBannerViewController(adUnitID: adUnitID)
-                .frame(width: GADAdSizeBanner.size.width, height: GADAdSizeBanner.size.height, alignment: .center)
+                .frame(width: AdSizeBanner.size.width, height: AdSizeBanner.size.height, alignment: .center)
             Spacer()
         }
     }

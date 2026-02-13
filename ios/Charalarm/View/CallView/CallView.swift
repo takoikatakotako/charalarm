@@ -12,16 +12,14 @@ struct CallView: View {
         ZStack {
             ScrollView(.vertical, showsIndicators: false) {
                 VStack {
-                    WebImage(url: URL(string: viewState.charaThumbnailUrlString))
-                        .resizable()
-                        .placeholder {
-                            Image(R.image.characterPlaceholder.name)
-                                .resizable()
-                        }
-                        .animation(.easeInOut, value: 0.5)
-                        .transition(.fade)
-                        .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.width)
-                        .scaledToFill()
+                    WebImage(url: URL(string: viewState.charaThumbnailUrlString)) { image in
+                        image.resizable()
+                    } placeholder: {
+                        Image(R.image.characterPlaceholder.name)
+                            .resizable()
+                    }
+                    .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.width)
+                    .scaledToFill()
 
                     Text(viewState.charaName)
                         .font(Font.system(size: 40))
