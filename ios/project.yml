@@ -9,6 +9,8 @@ settings:
     DEVELOPMENT_TEAM: 5RH346BQ66
     CURRENT_PROJECT_VERSION: 1
     TARGETED_DEVICE_FAMILY: 1
+    SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD: NO
+    SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD: NO
     ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS: YES
 
 packages:
@@ -62,6 +64,7 @@ targets:
   CharalarmDevelop:
     type: application
     platform: iOS
+    destinations: [iPhone]
     sources:
       - path: Charalarm
         excludes:
@@ -134,6 +137,7 @@ targets:
   CharalarmStaging:
     type: application
     platform: iOS
+    destinations: [iPhone]
     sources:
       - path: Charalarm
         excludes:
@@ -212,6 +216,7 @@ targets:
   CharalarmProduction:
     type: application
     platform: iOS
+    destinations: [iPhone]
     sources:
       - path: Charalarm
         excludes:
