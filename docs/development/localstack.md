@@ -1,6 +1,10 @@
-# LocalStack
+# LocalStack (非推奨)
 
-LocalStackのデバッグに良く使うコマンドです。
+> **⚠️ 非推奨**: このドキュメントは古くなっています。現在は [Moto](./moto.md) を使用しています。
+>
+> LocalStack Community Editionは2026年3月23日にサポート終了となるため、Motoに移行しました。
+
+LocalStackのデバッグに良く使うコマンドです（参考用）。
 
 ## LocalStackを作り直す
 

@@ -6,7 +6,7 @@
 
 ```
 charalarm/
-├── application/     # バックエンド (Go 1.21, Lambda)
+├── application/     # バックエンド (Go 1.24, Lambda)
 │   ├── api/         # REST API (Echo)
 │   ├── batch/       # 毎分実行バッチ (EventBridge)
 │   └── worker/      # プッシュ通知送信 (SQS Consumer)
@@ -14,7 +14,7 @@ charalarm/
 ├── terraform/       # インフラ (AWS)
 │   └── environment/ # development/staging/production/management
 ├── lp/              # ランディングページ
-├── local/           # LocalStack開発環境
+├── local/           # Moto開発環境 (DynamoDB/SQS/SNS)
 ├── storage/         # キャラクターリソース
 └── documents/       # ドキュメント
 ```
@@ -22,10 +22,11 @@ charalarm/
 ## 技術スタック
 
 **iOS**: Swift, SwiftUI, Combine, Firebase, Datadog, CallKit
-**Backend**: Go 1.21, Echo v4, AWS SDK v2
+**Backend**: Go 1.24, Echo v4, AWS SDK v2
 **Infra**: Lambda, DynamoDB, SQS, SNS, S3, CloudFront, API Gateway, EventBridge
 **IaC**: Terraform
 **CI/CD**: GitHub Actions (OIDC認証)
+**Test**: Moto (AWS モック)
 
 ## アーキテクチャ概要
 
@@ -46,8 +47,9 @@ cd application && make build-api-image
 cd application && make build-batch-image
 cd application && make build-worker-image
 
-# ローカル開発
-cd local && docker-compose up
+# ローカル開発 (Moto)
+cd local && docker-compose up -d
+cd local && ./createTable.sh && ./createQueue.sh
 
 # iOS (Mint でツール管理)
 cd ios && mint bootstrap
@@ -88,8 +90,16 @@ Basic認証: `userID:authToken` (クライアント生成UUID、Base64エンコ�
 
 S3 + CloudFrontで配信。キャラIDはリバースドメイン形式 (例: `com.charalarm.yui`)
 
+## テスト環境
+
+**Moto** (AWSサービスモック):
+- DynamoDB, SQS, SNS を統合的にモック
+- ポート: 4566
+- LocalStack Community Edition 終了(2026/3/23)に伴い移行
+
 ## 注意事項
 
 - APNs証明書は1年で期限切れ (要定期更新)
 - Lambda イメージは ECR にプッシュで自動デプロイ
 - CloudFront キャッシュ削除は手動ワークフロー
+- ローカル開発には Moto を使用 (LocalStack から移行済み)
