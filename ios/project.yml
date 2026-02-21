@@ -1,7 +1,7 @@
 name: Charalarm
 options:
   deploymentTarget:
-    iOS: 16.0
+    iOS: 18.0
 settings:
   base:
     MARKETING_VERSION: 3.4.4
@@ -40,13 +40,6 @@ schemes:
         CharalarmDevelop: all
     run:
       config: Debug
-    # test:
-    #   config: Debug
-    #   gatherCoverageData: false
-    #   targets:
-    #     - name: CharalarmTests
-    #       parallelizable: true
-    #       randomExecutionOrder: true
   Staging:
     build:
       targets:
@@ -60,11 +53,50 @@ schemes:
     run:
       config: Debug
 
-targets:
-  CharalarmDevelop:
+# 共通設定をYAML anchorsで定義
+_commonDependencies: &commonDependencies
+  - sdk: AdSupport.framework
+  - sdk: AppTrackingTransparency.framework
+  - sdk: StoreKit.framework
+  - package: Datadog
+    product: DatadogCore
+  - package: Datadog
+    product: DatadogLogs
+  - package: Firebase
+    product: FirebaseAnalytics
+  - package: Firebase
+    product: FirebaseAuth
+  - package: Firebase
+    product: FirebaseCrashlytics
+  - package: Firebase
+    product: FirebaseFirestore
+  - package: Firebase
+    product: FirebaseRemoteConfig
+  - package: KeychainAccess
+    product: KeychainAccess
+  - package: SDWebImageSwiftUI
+    product: SDWebImageSwiftUI
+  - package: Rswift
+    product: RswiftLibrary
+  - package: GoogleMobileAds
+    product: GoogleMobileAds
+
+_commonPlugins: &commonPlugins
+  - plugin: RswiftGenerateInternalResources
+    package: Rswift
+
+# ターゲットテンプレート
+targetTemplates:
+  CharalarmApp:
     type: application
     platform: iOS
     destinations: [iPhone]
+    dependencies: *commonDependencies
+    buildToolPlugins: *commonPlugins
+
+targets:
+  CharalarmDevelop:
+    templates: [CharalarmApp]
     sources:
       - path: Charalarm
         excludes:
@@ -78,10 +110,6 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.swiswiswift.sandbox.charalarm
         INFOPLIST_FILE: Charalarm/Info.plist
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon-Develop
-        # OTHER_LDFLAGS:
-        #   - $(inherited)
-        #   - $(OTHER_LDFLAGS)
-        #   - -ObjC
       configs:
         Debug:
           CODE_SIGN_ENTITLEMENTS: Charalarm/CharalarmDebug.entitlements
@@ -105,39 +133,9 @@ targets:
           DATADOG_CLIENT_TOKEN: pub2bd816c3d9d7157b4e1fd5febf77951f
           DATADOG_LOG_ENV: charalarm-development
           DATADOG_LOG_SERVICE: charalarm-development
-    dependencies:
-      - sdk: AdSupport.framework
-      - sdk: AppTrackingTransparency.framework
-      - sdk: StoreKit.framework
-      - package: Datadog
-        product: DatadogCore
-      - package: Datadog
-        product: DatadogLogs
-      - package: Firebase
-        product: FirebaseAnalytics
-      - package: Firebase
-        product: FirebaseAuth
-      - package: Firebase
-        product: FirebaseCrashlytics
-      - package: Firebase
-        product: FirebaseFirestore
-      - package: Firebase
-        product: FirebaseRemoteConfig
-      - package: KeychainAccess
-        product: KeychainAccess
-      - package: SDWebImageSwiftUI
-        product: SDWebImageSwiftUI
-      - package: Rswift
-        product: RswiftLibrary
-      - package: GoogleMobileAds
-        product: GoogleMobileAds
-    buildToolPlugins:
-      - plugin: RswiftGenerateInternalResources
-        package: Rswift
+
   CharalarmStaging:
-    type: application
-    platform: iOS
-    destinations: [iPhone]
+    templates: [CharalarmApp]
     sources:
       - path: Charalarm
         excludes:
@@ -151,10 +149,6 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.charalarm.staging
         INFOPLIST_FILE: Charalarm/Info.plist
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon-Staging
-        # OTHER_LDFLAGS:
-        #   - $(inherited)
-        #   - $(OTHER_LDFLAGS)
-        #   - -ObjC
       configs:
         Debug:
           CODE_SIGN_ENTITLEMENTS: Charalarm/CharalarmDebug.entitlements
@@ -178,45 +172,9 @@ targets:
           DATADOG_CLIENT_TOKEN: pub8e7e9ddd556eb859180ccad19517dd5c
           DATADOG_LOG_ENV: charalarm-staging
           DATADOG_LOG_SERVICE: charalarm-staging
-    dependencies:
-      - sdk: AdSupport.framework
-      - sdk: AppTrackingTransparency.framework
-      - sdk: StoreKit.framework
-      - package: Datadog
-        product: DatadogCore
-      - package: Datadog
-        product: DatadogLogs
-      - package: Firebase
-        product: FirebaseAnalytics
-      - package: Firebase
-        product: FirebaseAuth
-      - package: Firebase
-        product: FirebaseCrashlytics
-      - package: Firebase
-        product: FirebaseFirestore
-      - package: Firebase
-        product: FirebaseRemoteConfig
-      - package: KeychainAccess
-        product: KeychainAccess
-      - package: SDWebImageSwiftUI
-        product: SDWebImageSwiftUI
-      - package: Rswift
-        product: RswiftLibrary
-      - package: GoogleMobileAds
-        product: GoogleMobileAds
-    buildToolPlugins:
-      - plugin: RswiftGenerateInternalResources
-        package: Rswift
-    # preBuildScripts:
-    #   - script: ./Scripts/BuildPhases/rswift.sh
-    #     name: R.swift
-    #     basedOnDependencyAnalysis: false
-    #     outputFiles:
-    #       - $SRCROOT/Charalarm/Generated/R.generated.swift
+
   CharalarmProduction:
-    type: application
-    platform: iOS
-    destinations: [iPhone]
+    templates: [CharalarmApp]
     sources:
       - path: Charalarm
         excludes:
@@ -224,45 +182,12 @@ targets:
       - path: Charalarm/Resource
         type: folder
       - path: Config/Production
-    dependencies:
-      - sdk: AdSupport.framework
-      - sdk: AppTrackingTransparency.framework
-      - sdk: StoreKit.framework
-      - package: Datadog
-        product: DatadogCore
-      - package: Datadog
-        product: DatadogLogs
-      - package: Firebase
-        product: FirebaseAnalytics
-      - package: Firebase
-        product: FirebaseAuth
-      - package: Firebase
-        product: FirebaseCrashlytics
-      - package: Firebase
-        product: FirebaseFirestore
-      - package: Firebase
-        product: FirebaseRemoteConfig
-      - package: KeychainAccess
-        product: KeychainAccess
-      - package: SDWebImageSwiftUI
-        product: SDWebImageSwiftUI
-      - package: Rswift
-        product: RswiftLibrary
-      - package: GoogleMobileAds
-        product: GoogleMobileAds
-    buildToolPlugins:
-      - plugin: RswiftGenerateInternalResources
-        package: Rswift
     settings:
       base:
         CODE_SIGN_ENTITLEMENTS: Charalarm/CharalarmRelease.entitlements
         PRODUCT_BUNDLE_IDENTIFIER: com.swiswiswift.CharacterAlarm
         INFOPLIST_FILE: Charalarm/Info.plist
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon-Production
-        # OTHER_LDFLAGS:
-        #   - $(inherited)
-        #   - $(OTHER_LDFLAGS)
-        #   - -ObjC
       configs:
         Debug:
           CODE_SIGN_ENTITLEMENTS: Charalarm/CharalarmDebug.entitlements
@@ -286,23 +211,3 @@ targets:
           DATADOG_CLIENT_TOKEN: pub746809c11c5291884508b5936605a3bf
           DATADOG_LOG_ENV: charalarm-production
           DATADOG_LOG_SERVICE: charalarm-production
-  # CharalarmTests:
-  #   type: bundle.unit-test
-  #   platform: iOS
-  #   sources:
-  #     - CharalarmTests
-  #   settings:
-  #     base:
-  #       INFOPLIST_FILE: CharalarmTests/Info.plist
-  #   dependencies:
-  #     - target: CharalarmDevelop
-  # CharalarmUITests:
-  #   type: bundle.ui-testing
-  #   platform: iOS
-  #   sources:
-  #     - CharalarmUITests
-  #   settings:
-  #     base:
-  #       INFOPLIST_FILE: CharalarmUITests/Info.plist
-  #   dependencies:
-  #     - target: CharalarmDevelop
