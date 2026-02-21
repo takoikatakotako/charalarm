@@ -5,13 +5,22 @@ on:
   pull_request:
     paths:
       - application/**
-    branches: 
+      - local/**
+      - .github/workflows/test-application.yml
+    branches:
       - main
       - develop
 
 jobs:
   test_application:
     runs-on: ubuntu-latest
+    services:
+      moto:
+        image: motoserver/moto:latest
+        ports:
+          - 4566:5000
+        env:
+          MOTO_HOST: 0.0.0.0
 
     steps:
     # チェックアウト
@@ -22,21 +31,30 @@ jobs:
     - name: Set up Go
       uses: actions/setup-go@v5
       with:
-        go-version: 1.21
+        go-version: '1.24'
 
-    # Mock環境のセットアップ
-    - name: Setup Mock
-      working-directory: local
-      run: make setup
+    # DynamoDBテーブル作成
+    - name: Create DynamoDB tables
+      run: |
+        cd local
+        bash createTable.sh
+      env:
+        AWS_ACCESS_KEY_ID: dummy
+        AWS_SECRET_ACCESS_KEY: dummy
 
-    # Local Stack の起動完了まで待つ
-    - name: Wait SetUp Localstack
-      run: sleep 30s
+    # SQS/SNSリソース作成
+    - name: Create SQS queues and SNS topics
+      run: |
+        cd local
+        bash createQueue.sh
+      env:
+        AWS_ACCESS_KEY_ID: dummy
+        AWS_SECRET_ACCESS_KEY: dummy
 
-    # Application API の実行
+    # Application API のテスト実行
     - name: Run Test
       env:
-          AWS_ACCESS_KEY_ID: "dummy"
-          AWS_SECRET_ACCESS_KEY: "dummy"
+        AWS_ACCESS_KEY_ID: dummy
+        AWS_SECRET_ACCESS_KEY: dummy
       working-directory: application
       run: make test

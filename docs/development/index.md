@@ -9,7 +9,7 @@ Charalarmの開発に関するドキュメントです。
 ## インフラ
 
 - [DynamoDB](dynamodb.md)
-- [LocalStack](localstack.md)
+- [Moto (AWS モック)](moto.md)
 - [SQS](sqs.md)
 
 ## アプリ

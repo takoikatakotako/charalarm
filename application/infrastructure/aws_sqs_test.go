@@ -43,7 +43,9 @@ func TestSQSRepository_GetQueueURL(t *testing.T) {
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
-	assert.Equal(t, "http://sqs.ap-northeast-1.localhost.localstack.cloud:4566/000000000000/voip-push-queue.fifo", queueURL)
+	// Check that queue URL is not empty (format differs between LocalStack and Moto)
+	assert.NotEmpty(t, queueURL)
+	assert.Contains(t, queueURL, "voip-push-queue.fifo")
 }
 
 func TestSendMessage(t *testing.T) {
