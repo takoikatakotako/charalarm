@@ -35,6 +35,22 @@ jobs:
         with:
           go-version: '1.24'
 
+      - name: Create DynamoDB tables
+        run: |
+          cd local
+          bash createTable.sh
+        env:
+          AWS_ACCESS_KEY_ID: dummy
+          AWS_SECRET_ACCESS_KEY: dummy
+
+      - name: Create SQS queues and SNS topics
+        run: |
+          cd local
+          bash createQueue.sh
+        env:
+          AWS_ACCESS_KEY_ID: dummy
+          AWS_SECRET_ACCESS_KEY: dummy
+
       - name: Run tests
         working-directory: application
         run: make test
