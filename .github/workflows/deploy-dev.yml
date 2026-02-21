@@ -19,6 +19,13 @@ jobs:
     permissions:
       id-token: write
       contents: read
+    services:
+      moto:
+        image: motoserver/moto:latest
+        ports:
+          - 4566:5000
+        env:
+          MOTO_HOST: 0.0.0.0
     steps:
       - name: Checkout
         uses: actions/checkout@v4
