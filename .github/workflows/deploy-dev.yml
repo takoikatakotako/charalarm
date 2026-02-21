@@ -54,6 +54,9 @@ jobs:
       - name: Run tests
         working-directory: application
         run: make test
+        env:
+          AWS_ACCESS_KEY_ID: dummy
+          AWS_SECRET_ACCESS_KEY: dummy
 
   build-and-deploy:
     name: Build & Deploy to Development
