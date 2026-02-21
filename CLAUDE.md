@@ -65,10 +65,9 @@ cd ios && mint bootstrap
 
 ## ブランチ戦略
 
-- `main`: リリース版
-- `develop`: 開発ブランチ (PRのベース)
-- `feature/*`, `issue/*`: 機能開発
-- `release/*`: リリース準備
+- `main`: メインブランチ (PRのベース、リリース版)
+- `feature/*`: 機能開発ブランチ
+- `issue/*`: Issue対応ブランチ
 
 ## API認証
 
