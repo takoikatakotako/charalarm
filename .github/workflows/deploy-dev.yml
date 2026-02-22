@@ -112,26 +112,29 @@ jobs:
         run: |
           # Update API Lambda
           aws lambda update-function-code \
-            --function-name charalarm-development-api \
+            --function-name charalarm-api \
             --image-uri 448049807848.dkr.ecr.ap-northeast-1.amazonaws.com/charalarm-api:latest \
-            --region ${{ env.AWS_REGION }}
+            --region ${{ env.AWS_REGION }} \
+            --profile charalarm-development
 
           # Update Batch Lambda
           aws lambda update-function-code \
-            --function-name charalarm-development-batch \
+            --function-name batch-function2 \
             --image-uri 448049807848.dkr.ecr.ap-northeast-1.amazonaws.com/charalarm-batch:latest \
-            --region ${{ env.AWS_REGION }}
+            --region ${{ env.AWS_REGION }} \
+            --profile charalarm-development
 
           # Update Worker Lambda
           aws lambda update-function-code \
-            --function-name charalarm-development-worker \
+            --function-name worker-function2 \
             --image-uri 448049807848.dkr.ecr.ap-northeast-1.amazonaws.com/charalarm-worker:latest \
-            --region ${{ env.AWS_REGION }}
+            --region ${{ env.AWS_REGION }} \
+            --profile charalarm-development
 
       - name: Wait for Lambda updates to complete
         run: |
           echo "Waiting for Lambda functions to be updated..."
-          aws lambda wait function-updated --function-name charalarm-development-api --region ${{ env.AWS_REGION }}
-          aws lambda wait function-updated --function-name charalarm-development-batch --region ${{ env.AWS_REGION }}
-          aws lambda wait function-updated --function-name charalarm-development-worker --region ${{ env.AWS_REGION }}
+          aws lambda wait function-updated --function-name charalarm-api --region ${{ env.AWS_REGION }} --profile charalarm-development
+          aws lambda wait function-updated --function-name batch-function2 --region ${{ env.AWS_REGION }} --profile charalarm-development
+          aws lambda wait function-updated --function-name worker-function2 --region ${{ env.AWS_REGION }} --profile charalarm-development
           echo "All Lambda functions updated successfully!"
