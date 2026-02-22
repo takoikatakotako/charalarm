@@ -12,6 +12,7 @@ on:
 env:
   AWS_ROLE_ARN: arn:aws:iam::039612872248:role/charalarm-dev-github-actions-role
   AWS_REGION: ap-northeast-1
+  ECR_REGISTRY: 448049807848.dkr.ecr.ap-northeast-1.amazonaws.com
 
 jobs:
   test:
@@ -59,8 +60,8 @@ jobs:
           AWS_ACCESS_KEY_ID: dummy
           AWS_SECRET_ACCESS_KEY: dummy
 
-  build-and-deploy:
-    name: Build & Deploy to Development
+  build-api:
+    name: Build API Image
     needs: test
     runs-on: ubuntu-latest
     permissions:
@@ -91,11 +92,63 @@ jobs:
         env:
           GITHUB_SHA: ${{ github.sha }}
 
+  build-batch:
+    name: Build Batch Image
+    needs: test
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ env.AWS_ROLE_ARN }}
+          role-session-name: github-action-role-${{ github.run_id }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: linux/arm64
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
       - name: Build and push Batch image
         working-directory: application
         run: make build-batch-image
         env:
           GITHUB_SHA: ${{ github.sha }}
+
+  build-worker:
+    name: Build Worker Image
+    needs: test
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ env.AWS_ROLE_ARN }}
+          role-session-name: github-action-role-${{ github.run_id }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: linux/arm64
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
       - name: Build and push Worker image
         working-directory: application
@@ -103,29 +156,40 @@ jobs:
         env:
           GITHUB_SHA: ${{ github.sha }}
 
+  deploy:
+    name: Deploy to Development
+    needs: [build-api, build-batch, build-worker]
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ env.AWS_ROLE_ARN }}
+          role-session-name: github-action-role-${{ github.run_id }}
+          aws-region: ${{ env.AWS_REGION }}
+
       - name: Update Lambda functions
         run: |
-          # Update API Lambda
           aws lambda update-function-code \
             --function-name charalarm-api \
-            --image-uri 448049807848.dkr.ecr.ap-northeast-1.amazonaws.com/charalarm-api:latest \
+            --image-uri ${{ env.ECR_REGISTRY }}/charalarm-api:latest \
             --region ${{ env.AWS_REGION }}
 
-          # Update Batch Lambda
           aws lambda update-function-code \
             --function-name batch-function2 \
-            --image-uri 448049807848.dkr.ecr.ap-northeast-1.amazonaws.com/charalarm-batch:latest \
+            --image-uri ${{ env.ECR_REGISTRY }}/charalarm-batch:latest \
             --region ${{ env.AWS_REGION }}
 
-          # Update Worker Lambda
           aws lambda update-function-code \
             --function-name worker-function2 \
-            --image-uri 448049807848.dkr.ecr.ap-northeast-1.amazonaws.com/charalarm-worker:latest \
+            --image-uri ${{ env.ECR_REGISTRY }}/charalarm-worker:latest \
             --region ${{ env.AWS_REGION }}
 
       - name: Wait for Lambda updates to complete
         run: |
-          echo "Waiting for Lambda functions to be updated..."
           aws lambda wait function-updated --function-name charalarm-api --region ${{ env.AWS_REGION }}
           aws lambda wait function-updated --function-name batch-function2 --region ${{ env.AWS_REGION }}
           aws lambda wait function-updated --function-name worker-function2 --region ${{ env.AWS_REGION }}
