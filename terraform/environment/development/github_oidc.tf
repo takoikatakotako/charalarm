@@ -13,13 +13,42 @@ module "github_oidc" {
 # GitHub Actions に付与する権限を定義する
 # Lambda のイメージ更新に必要な権限のみを最小限で付与する
 data "aws_iam_policy_document" "github_actions_deploy" {
+  # Lambda デプロイ
   statement {
     effect = "Allow"
     actions = [
-      "lambda:UpdateFunctionCode", # ECR イメージのデプロイ
-      "lambda:GetFunction",        # デプロイ後の状態確認
+      "lambda:UpdateFunctionCode",
+      "lambda:GetFunction",
     ]
     resources = ["*"]
+  }
+
+  # ECR ログイン (management アカウントの ECR にアクセスするために必要)
+  statement {
+    effect = "Allow"
+    actions = [
+      "ecr:GetAuthorizationToken",
+    ]
+    resources = ["*"]
+  }
+
+  # ECR イメージのプッシュ
+  statement {
+    effect = "Allow"
+    actions = [
+      "ecr:GetDownloadUrlForLayer",
+      "ecr:BatchGetImage",
+      "ecr:BatchCheckLayerAvailability",
+      "ecr:PutImage",
+      "ecr:InitiateLayerUpload",
+      "ecr:UploadLayerPart",
+      "ecr:CompleteLayerUpload",
+    ]
+    resources = [
+      "arn:aws:ecr:ap-northeast-1:448049807848:repository/charalarm-api",
+      "arn:aws:ecr:ap-northeast-1:448049807848:repository/charalarm-batch",
+      "arn:aws:ecr:ap-northeast-1:448049807848:repository/charalarm-worker",
+    ]
   }
 }
 
