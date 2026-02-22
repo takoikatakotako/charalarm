@@ -43,6 +43,19 @@ data "aws_iam_policy_document" "charalarm_github_action_role_policy_document" {
     ]
     resources = ["*"]
   }
+
+  statement {
+    effect = "Allow"
+    actions = [
+      "lambda:UpdateFunctionCode",
+      "lambda:GetFunction",
+    ]
+    resources = [
+      "arn:aws:lambda:ap-northeast-1:448049807848:function:charalarm-development-*",
+      "arn:aws:lambda:ap-northeast-1:448049807848:function:charalarm-staging-*",
+      "arn:aws:lambda:ap-northeast-1:448049807848:function:charalarm-production-*",
+    ]
+  }
 }
 
 resource "aws_iam_role_policy_attachment" "charalarm_github_action_role_policy_attachment" {
