@@ -10,7 +10,8 @@ on:
       - '.github/workflows/deploy-dev.yml'
 
 env:
-  AWS_ROLE_ARN: arn:aws:iam::448049807848:role/charalarm-github-action-role
+  AWS_MANAGEMENT_ROLE_ARN: arn:aws:iam::448049807848:role/charalarm-github-action-role
+  AWS_DEVELOPMENT_ROLE_ARN: arn:aws:iam::039612872248:role/charalarm-dev-github-actions-role
   AWS_REGION: ap-northeast-1
 
 jobs:
@@ -70,17 +71,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Configure AWS credentials
+      # ECR プッシュのため management アカウントで認証
+      - name: Configure AWS credentials (Management)
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ env.AWS_ROLE_ARN }}
+          role-to-assume: ${{ env.AWS_MANAGEMENT_ROLE_ARN }}
           role-session-name: github-action-role-${{ github.run_id }}
           aws-region: ${{ env.AWS_REGION }}
-
-      - name: Configure AWS profiles
-        run: |
-          mkdir -p ~/.aws
-          cp .github/workflows/aws_config/config ~/.aws/config
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -108,33 +105,38 @@ jobs:
         env:
           GITHUB_SHA: ${{ github.sha }}
 
+      # Lambda 更新のため development アカウントで再認証
+      - name: Configure AWS credentials (Development)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ env.AWS_DEVELOPMENT_ROLE_ARN }}
+          role-session-name: github-action-role-${{ github.run_id }}
+          aws-region: ${{ env.AWS_REGION }}
+
       - name: Update Lambda functions
         run: |
           # Update API Lambda
           aws lambda update-function-code \
             --function-name charalarm-api \
             --image-uri 448049807848.dkr.ecr.ap-northeast-1.amazonaws.com/charalarm-api:latest \
-            --region ${{ env.AWS_REGION }} \
-            --profile charalarm-development
+            --region ${{ env.AWS_REGION }}
 
           # Update Batch Lambda
           aws lambda update-function-code \
             --function-name batch-function2 \
             --image-uri 448049807848.dkr.ecr.ap-northeast-1.amazonaws.com/charalarm-batch:latest \
-            --region ${{ env.AWS_REGION }} \
-            --profile charalarm-development
+            --region ${{ env.AWS_REGION }}
 
           # Update Worker Lambda
           aws lambda update-function-code \
             --function-name worker-function2 \
             --image-uri 448049807848.dkr.ecr.ap-northeast-1.amazonaws.com/charalarm-worker:latest \
-            --region ${{ env.AWS_REGION }} \
-            --profile charalarm-development
+            --region ${{ env.AWS_REGION }}
 
       - name: Wait for Lambda updates to complete
         run: |
           echo "Waiting for Lambda functions to be updated..."
-          aws lambda wait function-updated --function-name charalarm-api --region ${{ env.AWS_REGION }} --profile charalarm-development
-          aws lambda wait function-updated --function-name batch-function2 --region ${{ env.AWS_REGION }} --profile charalarm-development
-          aws lambda wait function-updated --function-name worker-function2 --region ${{ env.AWS_REGION }} --profile charalarm-development
+          aws lambda wait function-updated --function-name charalarm-api --region ${{ env.AWS_REGION }}
+          aws lambda wait function-updated --function-name batch-function2 --region ${{ env.AWS_REGION }}
+          aws lambda wait function-updated --function-name worker-function2 --region ${{ env.AWS_REGION }}
           echo "All Lambda functions updated successfully!"
