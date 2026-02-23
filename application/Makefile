@@ -17,7 +17,7 @@ build-api-image:
 	docker buildx build --platform linux/arm64 \
 		-t ${API_REPOSITORY_URI}:latest \
 		-t ${API_REPOSITORY_URI}:${GITHUB_SHA} \
-		--push -f api/Dockerfile .
+		--provenance=false --push -f api/Dockerfile .
 
 .PHONY: list-api-images
 list-api-images:
@@ -31,7 +31,7 @@ build-batch-image:
 	docker buildx build --platform linux/arm64 \
 		-t ${BATCH_REPOSITORY_URI}:latest \
 		-t ${BATCH_REPOSITORY_URI}:${GITHUB_SHA} \
-		--push -f batch/Dockerfile .
+		--provenance=false --push -f batch/Dockerfile .
 
 .PHONY: list-batch-images
 list-batch-images:
@@ -45,7 +45,7 @@ build-worker-image:
 	docker buildx build --platform linux/arm64 \
 		-t ${WORKER_REPOSITORY_URI}:latest \
 		-t ${WORKER_REPOSITORY_URI}:${GITHUB_SHA} \
-		--push -f worker/Dockerfile .
+		--provenance=false --push -f worker/Dockerfile .
 
 .PHONY: list-worker-images
 list-worker-images:
