@@ -161,17 +161,19 @@ jobs:
           aws lambda update-function-code \
             --function-name charalarm-api \
             --image-uri ${{ env.ECR_REGISTRY }}/charalarm-api:latest \
-            --region ${{ env.AWS_REGION }}
+            --region ${{ env.AWS_REGION }} &
 
           aws lambda update-function-code \
             --function-name batch-function2 \
             --image-uri ${{ env.ECR_REGISTRY }}/charalarm-batch:latest \
-            --region ${{ env.AWS_REGION }}
+            --region ${{ env.AWS_REGION }} &
 
           aws lambda update-function-code \
             --function-name worker-function2 \
             --image-uri ${{ env.ECR_REGISTRY }}/charalarm-worker:latest \
-            --region ${{ env.AWS_REGION }}
+            --region ${{ env.AWS_REGION }} &
+
+          wait
 
       - name: Wait for Lambda updates to complete
         run: |
