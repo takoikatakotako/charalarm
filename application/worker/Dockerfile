@@ -2,10 +2,10 @@ FROM golang:1.24.0-alpine3.21 AS builder
 WORKDIR /app
 COPY . .
 RUN go mod tidy
-RUN CGE_ENABLE=0 GOOS=linux GOARCH=arm64 go build -o main worker/main.go
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -o main worker/main.go
 
 
-FROM --platform=linux/arm64 golang:1.24.0-alpine3.21
+FROM --platform=linux/arm64 alpine:3.21
 
 WORKDIR /app
 COPY --from=builder /app/main .

@@ -14,12 +14,10 @@ test:
 .PHONY: build-api-image
 build-api-image:
 	aws ecr get-login-password --region ap-northeast-1 | docker login --username AWS --password-stdin 448049807848.dkr.ecr.ap-northeast-1.amazonaws.com
-	docker buildx create --use --platform linux/arm64
-	docker buildx build --platform linux/arm64 -t charalarm/api:latest --load -f api/Dockerfile .
-	docker tag charalarm/api:latest ${API_REPOSITORY_URI}:latest
-	docker push ${API_REPOSITORY_URI}:latest
-	docker tag charalarm/api:latest ${API_REPOSITORY_URI}:${GITHUB_SHA}
-	docker push ${API_REPOSITORY_URI}:${GITHUB_SHA}
+	docker buildx build --platform linux/arm64 \
+		-t ${API_REPOSITORY_URI}:latest \
+		-t ${API_REPOSITORY_URI}:${GITHUB_SHA} \
+		--provenance=false --push -f api/Dockerfile .
 
 .PHONY: list-api-images
 list-api-images:
@@ -30,12 +28,10 @@ list-api-images:
 .PHONY: build-batch-image
 build-batch-image:
 	aws ecr get-login-password --region ap-northeast-1 | docker login --username AWS --password-stdin 448049807848.dkr.ecr.ap-northeast-1.amazonaws.com
-	docker buildx create --use --platform linux/arm64
-	docker buildx build --platform linux/arm64 -t charalarm/batch:latest --load -f batch/Dockerfile .
-	docker tag charalarm/batch:latest ${BATCH_REPOSITORY_URI}:latest
-	docker push ${BATCH_REPOSITORY_URI}:latest
-	docker tag charalarm/batch:latest ${BATCH_REPOSITORY_URI}:${GITHUB_SHA}
-	docker push ${BATCH_REPOSITORY_URI}:${GITHUB_SHA}
+	docker buildx build --platform linux/arm64 \
+		-t ${BATCH_REPOSITORY_URI}:latest \
+		-t ${BATCH_REPOSITORY_URI}:${GITHUB_SHA} \
+		--provenance=false --push -f batch/Dockerfile .
 
 .PHONY: list-batch-images
 list-batch-images:
@@ -46,12 +42,10 @@ list-batch-images:
 .PHONY: build-worker-image
 build-worker-image:
 	aws ecr get-login-password --region ap-northeast-1 | docker login --username AWS --password-stdin 448049807848.dkr.ecr.ap-northeast-1.amazonaws.com
-	docker buildx create --use --platform linux/arm64
-	docker buildx build --platform linux/arm64 -t charalarm/worker:latest --load -f worker/Dockerfile .
-	docker tag charalarm/worker:latest ${WORKER_REPOSITORY_URI}:latest
-	docker push ${WORKER_REPOSITORY_URI}:latest
-	docker tag charalarm/worker:latest ${WORKER_REPOSITORY_URI}:${GITHUB_SHA}
-	docker push ${WORKER_REPOSITORY_URI}:${GITHUB_SHA}
+	docker buildx build --platform linux/arm64 \
+		-t ${WORKER_REPOSITORY_URI}:latest \
+		-t ${WORKER_REPOSITORY_URI}:${GITHUB_SHA} \
+		--provenance=false --push -f worker/Dockerfile .
 
 .PHONY: list-worker-images
 list-worker-images:
