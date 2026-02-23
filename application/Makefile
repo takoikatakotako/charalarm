@@ -7,7 +7,7 @@ GITHUB_SHA ?= local
 .PHONY: test
 test:
 		go clean -testcache
-		go test ./...
+		go test -p 1 ./...
 
 
 # API
