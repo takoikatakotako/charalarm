@@ -175,7 +175,8 @@ jobs:
 
       - name: Wait for Lambda updates to complete
         run: |
-          aws lambda wait function-updated --function-name charalarm-api --region ${{ env.AWS_REGION }}
-          aws lambda wait function-updated --function-name batch-function2 --region ${{ env.AWS_REGION }}
-          aws lambda wait function-updated --function-name worker-function2 --region ${{ env.AWS_REGION }}
+          aws lambda wait function-updated --function-name charalarm-api --region ${{ env.AWS_REGION }} &
+          aws lambda wait function-updated --function-name batch-function2 --region ${{ env.AWS_REGION }} &
+          aws lambda wait function-updated --function-name worker-function2 --region ${{ env.AWS_REGION }} &
+          wait
           echo "All Lambda functions updated successfully!"
