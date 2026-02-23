@@ -1,0 +1,55 @@
+name: Deploy(Stg)
+
+on:
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: 'デプロイするイメージタグ (Git SHA)'
+        required: true
+
+env:
+  AWS_ROLE_ARN: arn:aws:iam::334832660826:role/charalarm-stg-github-actions-role
+  AWS_REGION: ap-northeast-1
+  ECR_REGISTRY: 448049807848.dkr.ecr.ap-northeast-1.amazonaws.com
+
+jobs:
+  deploy:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ env.AWS_ROLE_ARN }}
+          role-session-name: github-action-role-${{ github.run_id }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Update Lambda functions
+        run: |
+          aws lambda update-function-code \
+            --function-name charalarm-api \
+            --image-uri ${{ env.ECR_REGISTRY }}/charalarm-api:${{ github.event.inputs.image_tag }} \
+            --region ${{ env.AWS_REGION }} &
+
+          aws lambda update-function-code \
+            --function-name batch-function2 \
+            --image-uri ${{ env.ECR_REGISTRY }}/charalarm-batch:${{ github.event.inputs.image_tag }} \
+            --region ${{ env.AWS_REGION }} &
+
+          aws lambda update-function-code \
+            --function-name worker-function2 \
+            --image-uri ${{ env.ECR_REGISTRY }}/charalarm-worker:${{ github.event.inputs.image_tag }} \
+            --region ${{ env.AWS_REGION }} &
+
+          wait
+
+      - name: Wait for Lambda updates to complete
+        run: |
+          aws lambda wait function-updated --function-name charalarm-api --region ${{ env.AWS_REGION }} &
+          aws lambda wait function-updated --function-name batch-function2 --region ${{ env.AWS_REGION }} &
+          aws lambda wait function-updated --function-name worker-function2 --region ${{ env.AWS_REGION }} &
+          wait
+          echo "All Lambda functions updated successfully!"
