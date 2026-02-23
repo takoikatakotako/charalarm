@@ -1,29 +1,3 @@
-terraform {
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "5.83.1"
-    }
-  }
-
-  backend "s3" {
-    bucket  = "charalarm.terraform.state"
-    key     = "development/terraform.tfstate"
-    region  = "ap-northeast-1"
-    profile = "charalarm-management"
-  }
-}
-
-provider "aws" {
-  profile = "charalarm-development"
-  region  = "ap-northeast-1"
-}
-
-provider "aws" {
-  alias   = "virginia"
-  profile = "charalarm-development"
-  region  = "us-east-1"
-}
 
 
 ##############################################################
@@ -123,7 +97,6 @@ module "platform_application" {
 module "dynamodb" {
   source = "../../modules/dynamodb"
 }
-
 
 
 

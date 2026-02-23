@@ -43,6 +43,22 @@ data "aws_iam_policy_document" "charalarm_github_action_role_policy_document" {
     ]
     resources = ["*"]
   }
+
+  statement {
+    effect = "Allow"
+    actions = [
+      "lambda:UpdateFunctionCode",
+      "lambda:GetFunction",
+    ]
+    resources = [
+      "arn:aws:lambda:ap-northeast-1:039612872248:function:charalarm-api",
+      "arn:aws:lambda:ap-northeast-1:039612872248:function:batch-function2",
+      "arn:aws:lambda:ap-northeast-1:039612872248:function:worker-function2",
+      "arn:aws:lambda:ap-northeast-1:334832660826:function:charalarm-api",
+      "arn:aws:lambda:ap-northeast-1:334832660826:function:batch-function2",
+      "arn:aws:lambda:ap-northeast-1:334832660826:function:worker-function2",
+    ]
+  }
 }
 
 resource "aws_iam_role_policy_attachment" "charalarm_github_action_role_policy_attachment" {

@@ -15,6 +15,11 @@ resource "aws_lambda_function" "batch_lambda_function" {
       "CHARALARM_RESOURCE_BASE_URL" = var.resource_base_url
     }
   }
+
+  # image_uri は GitHub Actions でデプロイするため Terraform の管理外とする
+  lifecycle {
+    ignore_changes = [image_uri]
+  }
 }
 
 

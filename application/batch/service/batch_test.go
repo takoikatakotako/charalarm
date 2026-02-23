@@ -6,11 +6,11 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/sqs/types"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"github.com/takoikatakotako/charalarm/environment"
 	"github.com/takoikatakotako/charalarm/infrastructure"
 	"github.com/takoikatakotako/charalarm/infrastructure/database"
 	"github.com/takoikatakotako/charalarm/infrastructure/queue"
-	"math/rand"
 	"os"
 	"testing"
 	"time"
@@ -30,8 +30,10 @@ func TestMain(m *testing.M) {
 func TestBatchService_QueryDynamoDBAndSendMessage_RandomCharaAndRandomVoice(t *testing.T) {
 	// キャラが決まっていない && ボイスファイル名も決まっていない
 
-	// DynamoDBRepository
+	// テスト間の SQS 汚染を防ぐためにキューをパージ
 	repo := infrastructure.AWS{Profile: "local"}
+	_ = repo.PurgeQueue()
+
 	batchService := Batch{
 		AWS: repo,
 	}
@@ -59,10 +61,10 @@ func TestBatchService_QueryDynamoDBAndSendMessage_RandomCharaAndRandomVoice(t *t
 		t.Errorf("unexpected error: %v", err)
 	}
 
-	// アラーム追加
+	// アラーム追加 (テストごとに固定時間を使用することで DynamoDB の衝突を防ぐ)
 	alarmID := uuid.New().String()
-	hour := rand.Intn(12)
-	minute := rand.Intn(60)
+	const hour = 1
+	const minute = 0
 	alarm := database.Alarm{
 		AlarmID:        alarmID,
 		UserID:         userID,
@@ -103,7 +105,7 @@ func TestBatchService_QueryDynamoDBAndSendMessage_RandomCharaAndRandomVoice(t *t
 		t.Errorf("unexpected error: %v", err)
 	}
 
-	assert.Equal(t, 1, len(messages))
+	require.Equal(t, 1, len(messages))
 	getAlarmInfo := queue.IOSVoIPPushAlarmInfoSQSMessage{}
 	body := *messages[0].Body
 	err = json.Unmarshal([]byte(body), &getAlarmInfo)
@@ -118,8 +120,9 @@ func TestBatchService_QueryDynamoDBAndSendMessage_RandomCharaAndRandomVoice(t *t
 func TestBatchService_QueryDynamoDBAndSendMessage_DecidedCharaAndRandomVoice(t *testing.T) {
 	// キャラが決まっている && ボイスファイル名は決まっていない
 
-	// DynamoDBRepository
+	// テスト間の SQS 汚染を防ぐためにキューをパージ
 	repo := infrastructure.AWS{Profile: "local"}
+	_ = repo.PurgeQueue()
 
 	// Service
 	batchService := Batch{
@@ -149,10 +152,10 @@ func TestBatchService_QueryDynamoDBAndSendMessage_DecidedCharaAndRandomVoice(t *
 		t.Errorf("unexpected error: %v", err)
 	}
 
-	// アラーム追加
+	// アラーム追加 (テストごとに固定時間を使用することで DynamoDB の衝突を防ぐ)
 	alarmID := uuid.New().String()
-	hour := rand.Intn(12)
-	minute := rand.Intn(60)
+	const hour = 2
+	const minute = 0
 	alarm := database.Alarm{
 		AlarmID:        alarmID,
 		UserID:         userID,
@@ -193,9 +196,7 @@ func TestBatchService_QueryDynamoDBAndSendMessage_DecidedCharaAndRandomVoice(t *
 		t.Errorf("unexpected error: %v", err)
 	}
 
-	// Memo たまにエラーになる、他のテストの関係で複数のテストが絡んでいるのかも？
-
-	assert.Equal(t, 1, len(messages))
+	require.Equal(t, 1, len(messages))
 	getAlarmInfo := queue.IOSVoIPPushAlarmInfoSQSMessage{}
 	body := *messages[0].Body
 	err = json.Unmarshal([]byte(body), &getAlarmInfo)
@@ -210,8 +211,9 @@ func TestBatchService_QueryDynamoDBAndSendMessage_DecidedCharaAndRandomVoice(t *
 func TestBatchService_QueryDynamoDBAndSendMessage_DecidedCharaAndDecidedVoice(t *testing.T) {
 	// キャラが決まっている && ボイスファイル名は決まっている
 
-	// DynamoDBRepository
+	// テスト間の SQS 汚染を防ぐためにキューをパージ
 	repo := infrastructure.AWS{Profile: "local"}
+	_ = repo.PurgeQueue()
 
 	// Service
 	batchService := Batch{
@@ -242,10 +244,10 @@ func TestBatchService_QueryDynamoDBAndSendMessage_DecidedCharaAndDecidedVoice(t 
 		t.Errorf("unexpected error: %v", err)
 	}
 
-	// アラーム追加
+	// アラーム追加 (テストごとに固定時間を使用することで DynamoDB の衝突を防ぐ)
 	alarmID := uuid.New().String()
-	hour := rand.Intn(12)
-	minute := rand.Intn(60)
+	const hour = 3
+	const minute = 0
 	alarm := database.Alarm{
 		AlarmID:        alarmID,
 		UserID:         userID,
@@ -286,7 +288,7 @@ func TestBatchService_QueryDynamoDBAndSendMessage_DecidedCharaAndDecidedVoice(t 
 		t.Errorf("unexpected error: %v", err)
 	}
 
-	assert.Equal(t, 1, len(messages))
+	require.Equal(t, 1, len(messages))
 	getAlarmInfo := queue.IOSVoIPPushAlarmInfoSQSMessage{}
 	body := *messages[0].Body
 	err = json.Unmarshal([]byte(body), &getAlarmInfo)

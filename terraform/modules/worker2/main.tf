@@ -15,6 +15,11 @@ resource "aws_lambda_function" "worker_lambda_function" {
       "CHARALARM_RESOURCE_BASE_URL" = "https://resource.charalarm-development.swiswiswift.com"
     }
   }
+
+  # image_uri は GitHub Actions でデプロイするため Terraform の管理外とする
+  lifecycle {
+    ignore_changes = [image_uri]
+  }
 }
 
 ##################################################
