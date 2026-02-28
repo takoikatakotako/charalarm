@@ -1,30 +1,3 @@
-terraform {
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "5.83.1"
-    }
-  }
-
-  backend "s3" {
-    bucket  = "charalarm.terraform.state"
-    key     = "production/terraform.tfstate"
-    region  = "ap-northeast-1"
-    profile = "charalarm-management"
-  }
-}
-
-provider "aws" {
-  profile = "charalarm-production"
-  region  = "ap-northeast-1"
-}
-
-provider "aws" {
-  alias   = "virginia"
-  profile = "charalarm-production"
-  region  = "us-east-1"
-}
-
 
 ##############################################################
 # Common
