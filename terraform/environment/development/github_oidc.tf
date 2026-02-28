@@ -33,7 +33,7 @@ data "aws_iam_policy_document" "github_actions_deploy" {
     resources = ["*"]
   }
 
-  # ECR イメージのプッシュ
+  # ECR イメージのプッシュ・取得
   statement {
     effect = "Allow"
     actions = [
@@ -44,6 +44,7 @@ data "aws_iam_policy_document" "github_actions_deploy" {
       "ecr:InitiateLayerUpload",
       "ecr:UploadLayerPart",
       "ecr:CompleteLayerUpload",
+      "ecr:ListImages",
     ]
     resources = [
       "arn:aws:ecr:ap-northeast-1:448049807848:repository/charalarm-api",
