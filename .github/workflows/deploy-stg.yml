@@ -58,11 +58,13 @@ jobs:
         run: |
           for REPO in charalarm-api charalarm-batch charalarm-worker; do
             MANIFEST=$(aws ecr batch-get-image \
+              --registry-id 448049807848 \
               --repository-name $REPO \
               --image-ids imageTag=${{ github.event.inputs.image_tag }} \
               --query 'images[].imageManifest' \
               --output text)
             aws ecr put-image \
+              --registry-id 448049807848 \
               --repository-name $REPO \
               --image-tag stg \
               --image-manifest "$MANIFEST"
