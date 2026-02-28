@@ -21,7 +21,7 @@ build-api-image:
 
 .PHONY: list-api-images
 list-api-images:
-	aws ecr list-images --repository-name charalarm-api --output table
+	aws ecr list-images --registry-id 448049807848 --repository-name charalarm-api --output table
 
 
 # Batch
@@ -35,7 +35,7 @@ build-batch-image:
 
 .PHONY: list-batch-images
 list-batch-images:
-	aws ecr list-images --repository-name charalarm-batch --output table
+	aws ecr list-images --registry-id 448049807848 --repository-name charalarm-batch --output table
 
 
 # Worker
@@ -49,4 +49,4 @@ build-worker-image:
 
 .PHONY: list-worker-images
 list-worker-images:
-	aws ecr list-images --repository-name charalarm-worker --output table
+	aws ecr list-images --registry-id 448049807848 --repository-name charalarm-worker --output table

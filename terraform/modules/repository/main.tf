@@ -28,6 +28,7 @@ data "aws_iam_policy_document" "policy_document" {
       "ecr:InitiateLayerUpload",
       "ecr:UploadLayerPart",
       "ecr:CompleteLayerUpload",
+      "ecr:ListImages",
       "ecr:SetRepositoryPolicy",
       "ecr:GetRepositoryPolicy",
       "ecr:DeleteRepositoryPolicy"
