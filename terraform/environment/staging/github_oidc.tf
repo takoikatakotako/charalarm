@@ -11,8 +11,7 @@ module "github_oidc" {
 }
 
 # GitHub Actions に付与する権限を定義する
-# Lambda のイメージ更新に必要な権限のみを最小限で付与する
-# stg/prod はイメージビルドを行わないため ECR 権限は不要
+# Lambda のイメージ更新と ECR イメージへの環境タグ付与に必要な権限を付与する
 data "aws_iam_policy_document" "github_actions_deploy" {
   statement {
     effect = "Allow"
@@ -20,6 +19,15 @@ data "aws_iam_policy_document" "github_actions_deploy" {
       "lambda:UpdateFunctionCode",
       "lambda:GetFunction",
       "lambda:GetFunctionConfiguration",
+    ]
+    resources = ["*"]
+  }
+
+  statement {
+    effect = "Allow"
+    actions = [
+      "ecr:BatchGetImage",
+      "ecr:PutImage",
     ]
     resources = ["*"]
   }
