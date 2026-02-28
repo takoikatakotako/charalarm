@@ -53,3 +53,17 @@ jobs:
           aws lambda wait function-updated --function-name worker-function2 --region ${{ env.AWS_REGION }} &
           wait
           echo "All Lambda functions updated successfully!"
+
+      - name: Tag images as prod
+        run: |
+          for REPO in charalarm-api charalarm-batch charalarm-worker; do
+            MANIFEST=$(aws ecr batch-get-image \
+              --repository-name $REPO \
+              --image-ids imageTag=${{ github.event.inputs.image_tag }} \
+              --query 'images[].imageManifest' \
+              --output text)
+            aws ecr put-image \
+              --repository-name $REPO \
+              --image-tag prod \
+              --image-manifest "$MANIFEST"
+          done
