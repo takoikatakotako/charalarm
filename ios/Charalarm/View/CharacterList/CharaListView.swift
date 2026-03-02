@@ -7,7 +7,7 @@ struct CharaListView: View {
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             ZStack {
                 List(viewState.charaList) { chara in
                     NavigationLink(destination: CharaProfileView(viewState: CharaProfileViewState(chara: chara))) {

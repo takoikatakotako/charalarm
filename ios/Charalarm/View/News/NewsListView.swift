@@ -5,7 +5,7 @@ struct NewsListView: View {
     @ObservedObject(initialValue: NewsListViewModel()) var viewModel: NewsListViewModel
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             List(viewModel.newsList) { news in
                 Button {
                     guard let url = URL(string: news.url) else {

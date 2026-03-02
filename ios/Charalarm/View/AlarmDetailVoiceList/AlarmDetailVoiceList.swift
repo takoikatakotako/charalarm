@@ -6,7 +6,7 @@ struct AlarmDetailVoiceList: View {
     @Environment(\.presentationMode) private var presentationMode
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             List {
                 // ランダム用
                 Button {

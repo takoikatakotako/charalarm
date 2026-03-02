@@ -33,7 +33,7 @@ struct LicenceView: View {
 
 struct LicenceView_Previews: PreviewProvider {
     static var previews: some View {
-        NavigationView {
+        NavigationStack {
             LicenceView(viewState: LicenceViewState())
         }
     }

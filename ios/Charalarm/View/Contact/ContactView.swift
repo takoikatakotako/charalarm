@@ -104,7 +104,7 @@ struct ContactView: View {
 }
 
 #Preview {
-    NavigationView {
+    NavigationStack {
         ContactView(viewState: ContactViewState())
     }
 }

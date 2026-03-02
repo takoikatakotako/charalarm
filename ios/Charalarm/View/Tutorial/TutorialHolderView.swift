@@ -9,10 +9,9 @@ struct TutorialHolderView: View {
     // 6. TutorialRequireTrackingView
     // 7. TutorialFinallyView
     var body: some View {
-        NavigationView {
+        NavigationStack {
             TutorialIntroductionView()
         }
-        .navigationViewStyle(StackNavigationViewStyle())
     }
 }
 

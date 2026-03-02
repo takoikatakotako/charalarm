@@ -7,7 +7,7 @@ struct AlarmListView: View {
     @StateObject var viewState: AlarmListViewState = AlarmListViewState()
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             ZStack(alignment: .bottom) {
                 ZStack(alignment: .center) {
                     ScrollView {
