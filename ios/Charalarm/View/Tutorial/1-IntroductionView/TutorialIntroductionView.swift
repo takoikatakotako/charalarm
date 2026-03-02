@@ -31,7 +31,7 @@ struct TutorialIntroductionView: View {
         }
         .edgesIgnoringSafeArea(.bottom)
         .navigationTitle("")
-        .navigationBarHidden(true)
+        .toolbar(.hidden, for: .navigationBar)
         .background(Color.white.edgesIgnoringSafeArea(.all))
     }
 }

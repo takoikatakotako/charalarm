@@ -39,7 +39,7 @@ struct TutorialRequireTrackingView: View {
         }
         .edgesIgnoringSafeArea(.bottom)
         .navigationTitle("")
-        .navigationBarHidden(true)
+        .toolbar(.hidden, for: .navigationBar)
     }
 
     func requestTrackingAuthorization() {

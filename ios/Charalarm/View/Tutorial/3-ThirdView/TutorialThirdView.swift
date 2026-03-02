@@ -31,7 +31,7 @@ struct TutorialThirdView: View {
         }
         .edgesIgnoringSafeArea(.bottom)
         .navigationTitle("")
-        .navigationBarHidden(true)
+        .toolbar(.hidden, for: .navigationBar)
     }
 }
 

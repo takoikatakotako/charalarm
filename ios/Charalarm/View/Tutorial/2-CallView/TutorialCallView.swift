@@ -73,7 +73,7 @@ struct TutorialCallView: View {
         }
         .edgesIgnoringSafeArea(.all)
         .navigationTitle("")
-        .navigationBarHidden(true)
+        .toolbar(.hidden, for: .navigationBar)
     }
 }
 

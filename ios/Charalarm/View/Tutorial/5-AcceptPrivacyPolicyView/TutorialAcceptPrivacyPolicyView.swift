@@ -57,7 +57,7 @@ struct TutorialAcceptPrivacyPolicyView: View {
             Alert(title: Text(""), message: Text(viewModel.alertMessage), dismissButton: .default(Text("Close")))}
         .edgesIgnoringSafeArea(.bottom)
         .navigationTitle("")
-        .navigationBarHidden(true)
+        .toolbar(.hidden, for: .navigationBar)
     }
 }
 

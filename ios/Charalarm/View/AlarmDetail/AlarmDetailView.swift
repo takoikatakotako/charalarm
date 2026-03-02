@@ -95,7 +95,7 @@ struct AlarmDetailView: View {
                     AlarmDetailTimeDeffarenceSelecter(timeDeffarence: $viewState.alarm.timeDifference)
                 }
             }
-            .navigationBarHidden(false)
+            .toolbar(.visible, for: .navigationBar)
             .navigationTitle(title)
             .navigationBarTitleDisplayMode(.inline)
         }
