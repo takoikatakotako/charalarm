@@ -39,7 +39,7 @@ struct AlarmDetailVoiceList: View {
                     .buttonStyle(PlainButtonStyle())
                  }
             }
-            .navigationBarTitle("\(viewState.chara.name)のボイス")
+            .navigationTitle("\(viewState.chara.name)のボイス")
             .navigationBarTitleDisplayMode(.inline)
         }
     }

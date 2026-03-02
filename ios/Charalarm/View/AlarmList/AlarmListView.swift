@@ -54,7 +54,8 @@ struct AlarmListView: View {
                 }
             })
             .navigationBarBackButtonHidden(true)
-            .navigationBarTitle("", displayMode: .inline)
+            .navigationTitle("")
+            .navigationBarTitleDisplayMode(.inline)
             .navigationBarItems(
                 leading: CloseBarButton {
                     presentationMode.wrappedValue.dismiss()

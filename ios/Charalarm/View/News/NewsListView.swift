@@ -18,7 +18,8 @@ struct NewsListView: View {
                     NewsRow(news: news)
                 }
             }
-            .navigationBarTitle(String(localized: "news-news"), displayMode: .inline)
+            .navigationTitle(String(localized: "news-news"))
+            .navigationBarTitleDisplayMode(.inline)
             .navigationBarItems(leading:
                                     Button(action: {
                                         presentationMode.wrappedValue.dismiss()

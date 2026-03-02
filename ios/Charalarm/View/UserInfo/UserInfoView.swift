@@ -97,7 +97,8 @@ struct UserInfoView: View {
             Alert(title: Text("Error"), message: Text(item.message), dismissButton: .default(Text("Close")))
         })
         .padding()
-        .navigationBarTitle(String(localized: "user-info-user-nfo"), displayMode: .inline)
+        .navigationTitle(String(localized: "user-info-user-nfo"))
+        .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
         .navigationBarItems(
             leading:

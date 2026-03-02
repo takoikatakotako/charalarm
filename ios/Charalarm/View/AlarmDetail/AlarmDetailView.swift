@@ -95,7 +95,8 @@ struct AlarmDetailView: View {
                 }
             }
             .navigationBarHidden(false)
-            .navigationBarTitle(title, displayMode: .inline)
+            .navigationTitle(title)
+            .navigationBarTitleDisplayMode(.inline)
         }
     }
 }

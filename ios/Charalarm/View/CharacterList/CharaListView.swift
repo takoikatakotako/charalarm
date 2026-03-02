@@ -39,7 +39,8 @@ struct CharaListView: View {
                     dismissButton: .default(Text(String(localized: "common-close")))
                 )
             }
-            .navigationBarTitle(String(localized: "character-character-list"), displayMode: .inline)
+            .navigationTitle(String(localized: "character-character-list"))
+            .navigationBarTitleDisplayMode(.inline)
             .navigationBarItems(
                 leading:
                     CloseBarButton {
