@@ -20,15 +20,17 @@ struct NewsListView: View {
             }
             .navigationTitle(String(localized: "news-news"))
             .navigationBarTitleDisplayMode(.inline)
-            .navigationBarItems(leading:
-                                    Button(action: {
-                                        presentationMode.wrappedValue.dismiss()
-                                    }) {
-                                        Image(R.image.commonIconClose.name)
-                                            .renderingMode(.template)
-                                            .foregroundColor(Color(R.color.charalarmDefaultGray.name))
-                                    }
-            )
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button(action: {
+                        presentationMode.wrappedValue.dismiss()
+                    }) {
+                        Image(R.image.commonIconClose.name)
+                            .renderingMode(.template)
+                            .foregroundColor(Color(R.color.charalarmDefaultGray.name))
+                    }
+                }
+            }
         }.onAppear {
             viewModel.fetchNews()
         }.alert(isPresented: $viewModel.showingAlert) {

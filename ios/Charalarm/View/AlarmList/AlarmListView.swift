@@ -56,11 +56,13 @@ struct AlarmListView: View {
             .navigationBarBackButtonHidden(true)
             .navigationTitle("")
             .navigationBarTitleDisplayMode(.inline)
-            .navigationBarItems(
-                leading: CloseBarButton {
-                    presentationMode.wrappedValue.dismiss()
-                },
-                trailing:
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    CloseBarButton {
+                        presentationMode.wrappedValue.dismiss()
+                    }
+                }
+                ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: {
                         viewState.addAlarmButtonTapped()
                     }) {
@@ -68,7 +70,8 @@ struct AlarmListView: View {
                             .renderingMode(.template)
                             .foregroundColor(Color(R.color.charalarmDefaultGreen.name))
                     }
-            )
+                }
+            }
         }
     }
 }

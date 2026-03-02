@@ -100,12 +100,13 @@ struct UserInfoView: View {
         .navigationTitle(String(localized: "user-info-user-nfo"))
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
-        .navigationBarItems(
-            leading:
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
                 BackBarButton {
                     presentationMode.wrappedValue.dismiss()
                 }
-        )
+            }
+        }
     }
 }
 

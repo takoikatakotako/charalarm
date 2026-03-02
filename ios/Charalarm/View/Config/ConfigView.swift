@@ -137,8 +137,8 @@ struct ConfigView: View {
             .toolbarBackground(Color(.appMain), for: .navigationBar)
             .navigationBarTitleDisplayMode(.inline)
             .navigationBarBackButtonHidden()
-            .navigationBarItems(
-                leading:
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
                     Button(action: {
                         presentationMode.wrappedValue.dismiss()
                     }) {
@@ -149,8 +149,7 @@ struct ConfigView: View {
                             .padding(.bottom, 4)
                             .foregroundStyle(Color.white)
                     }
-            )
-            .toolbar {
+                }
                 ToolbarItem(placement: .principal) {
                     Text(String(localized: "config-config"))
                         .foregroundStyle(Color.white)

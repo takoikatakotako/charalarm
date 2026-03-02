@@ -41,12 +41,13 @@ struct CharaListView: View {
             }
             .navigationTitle(String(localized: "character-character-list"))
             .navigationBarTitleDisplayMode(.inline)
-            .navigationBarItems(
-                leading:
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
                     CloseBarButton {
                         presentationMode.wrappedValue.dismiss()
                     }
-            )
+                }
+            }
         }
     }
 }

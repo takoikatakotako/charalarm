@@ -57,12 +57,13 @@ struct CharaProfileView: View {
             }
         }
         .navigationBarBackButtonHidden(true)
-        .navigationBarItems(
-            leading:
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
                 BackBarButton {
                     presentationMode.wrappedValue.dismiss()
                 }
-        )
+            }
+        }
         .onAppear {
             viewState.fetchCharacter()
         }

@@ -60,32 +60,30 @@ struct ContactView: View {
         .toolbarBackground(Color(.appMain), for: .navigationBar)
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden()
-        .navigationBarItems(
-            leading:
-                HStack {
-                    Button(action: {
-                        presentationMode.wrappedValue.dismiss()
-                    }) {
-                        Image(systemName: "chevron.backward")
-                            .font(.system(size: 18, weight: .semibold))
-                            .padding(.top, 4)
-                            .padding(.trailing, 4)
-                            .padding(.bottom, 4)
-                            .foregroundStyle(Color.white)
-                    }
-                },
-            trailing:
-                HStack {
-                    Button(action: {
-                        viewState.sendMessage()
-                    }) {
-                        Text("送信")
-                            .font(.system(size: 18, weight: .semibold))
-                            .foregroundStyle(Color.white)
-                            .padding(4)
-                    }
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button(action: {
+                    presentationMode.wrappedValue.dismiss()
+                }) {
+                    Image(systemName: "chevron.backward")
+                        .font(.system(size: 18, weight: .semibold))
+                        .padding(.top, 4)
+                        .padding(.trailing, 4)
+                        .padding(.bottom, 4)
+                        .foregroundStyle(Color.white)
                 }
-        )
+            }
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button(action: {
+                    viewState.sendMessage()
+                }) {
+                    Text("送信")
+                        .font(.system(size: 18, weight: .semibold))
+                        .foregroundStyle(Color.white)
+                        .padding(4)
+                }
+            }
+        }
         .onAppear {
             viewState.onAppear()
         }

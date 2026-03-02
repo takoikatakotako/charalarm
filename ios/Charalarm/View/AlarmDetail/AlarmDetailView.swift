@@ -69,20 +69,21 @@ struct AlarmDetailView: View {
             .onDisappear {
                 viewState.onDisappear()
             }
-            .navigationBarItems(
-                leading: CloseBarButton {
-                    presentationMode.wrappedValue.dismiss()
-                },
-                trailing:
-                    HStack {
-                        Button(action: {
-                            viewState.createOrEditAlarm()
-                        }) {
-                            Text(String(localized: "common-save"))
-                                .foregroundColor(Color(R.color.charalarmDefaultGreen.name))
-                        }
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    CloseBarButton {
+                        presentationMode.wrappedValue.dismiss()
                     }
-            )
+                }
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button(action: {
+                        viewState.createOrEditAlarm()
+                    }) {
+                        Text(String(localized: "common-save"))
+                            .foregroundColor(Color(R.color.charalarmDefaultGreen.name))
+                    }
+                }
+            }
             .alert(isPresented: $viewState.showingAlert) {
                 Alert(title: Text(""), message: Text(viewState.alertMessage), dismissButton: .default(Text("閉じる")))
             }
