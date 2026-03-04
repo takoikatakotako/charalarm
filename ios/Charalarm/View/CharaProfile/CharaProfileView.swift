@@ -4,6 +4,7 @@ import SDWebImageSwiftUI
 
 struct CharaProfileView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.requestReview) private var requestReview
     @StateObject var viewState: CharaProfileViewState
 
     var body: some View {
@@ -81,9 +82,7 @@ struct CharaProfileView: View {
         .sheet(
             isPresented: $viewState.showCallView,
             onDismiss: {
-                if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
-                    SKStoreReviewController.requestReview(in: scene)
-                }
+                requestReview()
             }) {
                 CallView(viewState: CallViewState(charaDomain: viewState.chara?.charaID ?? "", charaName: viewState.chara?.name ?? ""))
             }
