@@ -2,14 +2,14 @@ import SwiftUI
 import StoreKit
 
 struct SubscriptionView: View {
-    @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
+    @Environment(\.dismiss) private var dismiss
     @StateObject var viewState: SubscriptionViewState
     var body: some View {
         ZStack {
             ScrollView {
                 HStack {
                     Button {
-                        presentationMode.wrappedValue.dismiss()
+                        dismiss()
                     } label: {
                         Image(systemName: "xmark")
                             .resizable()

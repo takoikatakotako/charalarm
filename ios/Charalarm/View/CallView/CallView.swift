@@ -4,7 +4,7 @@ import SDWebImageSwiftUI
 
 // TODO: モックであるようなことが伝わる名前にする
 struct CallView: View {
-    @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
+    @Environment(\.dismiss) private var dismiss
 
     @StateObject var viewState: CallViewState
 
@@ -29,7 +29,7 @@ struct CallView: View {
 
                     Button(action: {
                         viewState.fadeOut()
-                        presentationMode.wrappedValue.dismiss()
+                        dismiss()
                     }) {
                         Image(systemName: "phone.fill.arrow.down.left")
                             .resizable()
@@ -55,7 +55,7 @@ struct CallView: View {
                         HStack(spacing: 160) {
                             Button(action: {
                                 viewState.fadeOut()
-                                presentationMode.wrappedValue.dismiss()
+                                dismiss()
                             }) {
 
                                 Image(systemName: "phone.fill.arrow.down.left")

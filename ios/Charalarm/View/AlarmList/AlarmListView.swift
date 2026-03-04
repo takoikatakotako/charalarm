@@ -2,7 +2,7 @@ import SwiftUI
 import GoogleMobileAds
 
 struct AlarmListView: View {
-    @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
+    @Environment(\.dismiss) private var dismiss
 
     @StateObject var viewState: AlarmListViewState = AlarmListViewState()
 
@@ -59,7 +59,7 @@ struct AlarmListView: View {
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     CloseBarButton {
-                        presentationMode.wrappedValue.dismiss()
+                        dismiss()
                     }
                 }
                 ToolbarItem(placement: .navigationBarTrailing) {

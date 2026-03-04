@@ -4,7 +4,7 @@ import SDWebImageSwiftUI
 
 struct CharaListView: View {
     @StateObject var viewState: CharacterListViewState
-    @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
+    @Environment(\.dismiss) private var dismiss
 
     var body: some View {
         NavigationStack {
@@ -44,7 +44,7 @@ struct CharaListView: View {
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     CloseBarButton {
-                        presentationMode.wrappedValue.dismiss()
+                        dismiss()
                     }
                 }
             }

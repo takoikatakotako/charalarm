@@ -3,7 +3,7 @@ import SwiftUI
 struct AlarmDetailVoiceList: View {
     let delegate: AlarmDetailVoiceListDelegate
     @StateObject var viewState: AlarmDetailVoiceListState
-    @Environment(\.presentationMode) private var presentationMode
+    @Environment(\.dismiss) private var dismiss
 
     var body: some View {
         NavigationStack {
@@ -27,7 +27,7 @@ struct AlarmDetailVoiceList: View {
                     Button {
                         viewState.playVoice(charaCall: charaCall)
                         delegate.selectCharaAndCall(chara: viewState.chara, charaCall: charaCall)
-                        presentationMode.wrappedValue.dismiss()
+                        dismiss()
                     } label: {
                         HStack {
                             Image(R.image.alarmVoicePlay.name)

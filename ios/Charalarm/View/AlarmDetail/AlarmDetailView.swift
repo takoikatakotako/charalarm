@@ -2,7 +2,7 @@ import SwiftUI
 import SDWebImageSwiftUI
 
 struct AlarmDetailView: View {
-    @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
+    @Environment(\.dismiss) private var dismiss
     @StateObject var viewState: AlarmDetailViewState
 
     private var title: String {
@@ -61,7 +61,7 @@ struct AlarmDetailView: View {
 
             }
             .onReceive(viewState.dismissRequest) { _ in
-                presentationMode.wrappedValue.dismiss()
+                dismiss()
             }
             .onAppear {
                 viewState.onAppear()
@@ -72,7 +72,7 @@ struct AlarmDetailView: View {
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     CloseBarButton {
-                        presentationMode.wrappedValue.dismiss()
+                        dismiss()
                     }
                 }
                 ToolbarItem(placement: .navigationBarTrailing) {

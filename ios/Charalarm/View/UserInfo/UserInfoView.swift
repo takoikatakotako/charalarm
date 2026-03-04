@@ -2,7 +2,7 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 struct UserInfoView: View {
-    @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
+    @Environment(\.dismiss) private var dismiss
 
     @StateObject var viewState: UserInfoViewState
 
@@ -103,7 +103,7 @@ struct UserInfoView: View {
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
                 BackBarButton {
-                    presentationMode.wrappedValue.dismiss()
+                    dismiss()
                 }
             }
         }

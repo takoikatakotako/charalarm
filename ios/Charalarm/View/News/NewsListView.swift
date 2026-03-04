@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct NewsListView: View {
-    @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
+    @Environment(\.dismiss) private var dismiss
     @ObservedObject(initialValue: NewsListViewModel()) var viewModel: NewsListViewModel
 
     var body: some View {
@@ -23,7 +23,7 @@ struct NewsListView: View {
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button(action: {
-                        presentationMode.wrappedValue.dismiss()
+                        dismiss()
                     }) {
                         Image(R.image.commonIconClose.name)
                             .renderingMode(.template)

@@ -3,7 +3,7 @@ import SDWebImageSwiftUI
 
 struct ConfigView: View {
     @StateObject var viewState: ConfigViewState
-    @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
+    @Environment(\.dismiss) private var dismiss
 
     var body: some View {
         NavigationStack {
@@ -140,7 +140,7 @@ struct ConfigView: View {
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button(action: {
-                        presentationMode.wrappedValue.dismiss()
+                        dismiss()
                     }) {
                         Image(systemName: "xmark")
                             .font(.system(size: 18, weight: .semibold))

@@ -2,7 +2,7 @@ import SwiftUI
 
 struct ContactView: View {
     @StateObject var viewState: ContactViewState
-    @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
+    @Environment(\.dismiss) private var dismiss
 
     var body: some View {
         ZStack {
@@ -63,7 +63,7 @@ struct ContactView: View {
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
                 Button(action: {
-                    presentationMode.wrappedValue.dismiss()
+                    dismiss()
                 }) {
                     Image(systemName: "chevron.backward")
                         .font(.system(size: 18, weight: .semibold))
