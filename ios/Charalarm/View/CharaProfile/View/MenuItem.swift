@@ -8,7 +8,7 @@ struct MenuItem: View {
             Image(imageName)
                 .resizable()
                 .frame(width: 40, height: 40)
-        }.accentColor(.white)
+        }.tint(.white)
             .frame(width: 60, height: 60)
             .background(Color.black)
             .cornerRadius(30)

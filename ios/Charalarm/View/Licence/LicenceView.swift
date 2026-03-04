@@ -27,7 +27,7 @@ struct LicenceView: View {
                 Text(String(localized: "license-other-description"))
             }
         }
-        .listStyle(GroupedListStyle())
+        .listStyle(.grouped)
     }
 }
 

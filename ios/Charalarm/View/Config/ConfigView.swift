@@ -108,15 +108,13 @@ struct ConfigView: View {
                             Text(String(localized: "config-reset"))
                                 .foregroundColor(Color(R.color.textColor.name))
                         }
-                        .alert(isPresented: $viewState.showingResetAlert) {
-                            Alert(
-                                title: Text(String(localized: "config-reset")),
-                                message: Text(String(localized: "config-are-you-sure-you-want-to-reset-the-app")),
-                                primaryButton: .default(Text(String(localized: "common-cancel"))) {
-                                    // ResetCancel
-                                }, secondaryButton: .destructive(Text(String(localized: "common-reset"))) {
-                                    viewState.withdraw()
-                                })
+                        .alert(String(localized: "config-reset"), isPresented: $viewState.showingResetAlert) {
+                            Button(String(localized: "common-cancel"), role: .cancel) {}
+                            Button(String(localized: "common-reset"), role: .destructive) {
+                                viewState.withdraw()
+                            }
+                        } message: {
+                            Text(String(localized: "config-are-you-sure-you-want-to-reset-the-app"))
                         }
                     }
 
@@ -124,7 +122,7 @@ struct ConfigView: View {
                     // もっと良い方法があれば修正したい
                     Section("") {}
                 }
-                .listStyle(GroupedListStyle())
+                .listStyle(.grouped)
                 .background(Color(.appBackground))
                 .scrollContentBackground(.hidden)
 
@@ -160,8 +158,10 @@ struct ConfigView: View {
         .fullScreenCover(isPresented: $viewState.showingSubscriptionSheet, content: {
             SubscriptionView(viewState: SubscriptionViewState())
         })
-        .alert(isPresented: $viewState.showingAlert) {
-            Alert(title: Text(""), message: Text(viewState.alertMessage), dismissButton: .default(Text(String(localized: "common-close"))))
+        .alert("", isPresented: $viewState.showingAlert) {
+            Button(String(localized: "common-close")) {}
+        } message: {
+            Text(viewState.alertMessage)
         }
     }
 }

@@ -32,12 +32,10 @@ struct CharaListView: View {
             .onAppear {
                 viewState.fetchCharacters()
             }
-            .alert(isPresented: $viewState.showingAlert) {
-                Alert(
-                    title: Text(""),
-                    message: Text(viewState.alertMessage),
-                    dismissButton: .default(Text(String(localized: "common-close")))
-                )
+            .alert("", isPresented: $viewState.showingAlert) {
+                Button(String(localized: "common-close")) {}
+            } message: {
+                Text(viewState.alertMessage)
             }
             .navigationTitle(String(localized: "character-character-list"))
             .navigationBarTitleDisplayMode(.inline)

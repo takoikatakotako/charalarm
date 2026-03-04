@@ -84,8 +84,10 @@ struct AlarmDetailView: View {
                     }
                 }
             }
-            .alert(isPresented: $viewState.showingAlert) {
-                Alert(title: Text(""), message: Text(viewState.alertMessage), dismissButton: .default(Text("閉じる")))
+            .alert("", isPresented: $viewState.showingAlert) {
+                Button("閉じる") {}
+            } message: {
+                Text(viewState.alertMessage)
             }
             .sheet(item: $viewState.sheet) { item in
                 switch item {

@@ -2,7 +2,7 @@ import SwiftUI
 
 struct NewsListView: View {
     @Environment(\.dismiss) private var dismiss
-    @ObservedObject(initialValue: NewsListViewModel()) var viewModel: NewsListViewModel
+    @StateObject private var viewModel = NewsListViewModel()
 
     var body: some View {
         NavigationStack {
@@ -33,8 +33,10 @@ struct NewsListView: View {
             }
         }.onAppear {
             viewModel.fetchNews()
-        }.alert(isPresented: $viewModel.showingAlert) {
-            Alert(title: Text(""), message: Text(viewModel.alertMessage), dismissButton: .default(Text(String(localized: "common-close"))))
+        }.alert("", isPresented: $viewModel.showingAlert) {
+            Button(String(localized: "common-close")) {}
+        } message: {
+            Text(viewModel.alertMessage)
         }
     }
 }

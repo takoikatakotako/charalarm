@@ -67,14 +67,13 @@ struct CharaProfileView: View {
         .onAppear {
             viewState.fetchCharacter()
         }
-        .alert(isPresented: $viewState.showSelectAlert) {
-            Alert(
-                title: Text(String(localized: "profile-character-selection")),
-                message: Text(String(localized: "profile-want-to-call-this-character")),
-                primaryButton: .default(Text(String(localized: "common-close"))) {
-                }, secondaryButton: .default(Text(String(localized: "profile-yes"))) {
-                    viewState.selectCharacter()
-                })
+        .alert(String(localized: "profile-character-selection"), isPresented: $viewState.showSelectAlert) {
+            Button(String(localized: "common-close"), role: .cancel) {}
+            Button(String(localized: "profile-yes")) {
+                viewState.selectCharacter()
+            }
+        } message: {
+            Text(String(localized: "profile-want-to-call-this-character"))
         }
         .sheet(isPresented: $viewState.showCallView) {
             CallView(viewState: CallViewState(charaDomain: viewState.chara?.charaID ?? "", charaName: viewState.chara?.name ?? ""))
