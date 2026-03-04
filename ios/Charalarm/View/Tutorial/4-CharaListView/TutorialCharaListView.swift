@@ -32,7 +32,7 @@ struct TutorialCharaListView: View {
                 })
                 .padding(.bottom, 28)
         }
-        .edgesIgnoringSafeArea(.bottom)
+        .ignoresSafeArea(.container, edges: .bottom)
         .navigationTitle("")
         .toolbar(.hidden, for: .navigationBar)
     }

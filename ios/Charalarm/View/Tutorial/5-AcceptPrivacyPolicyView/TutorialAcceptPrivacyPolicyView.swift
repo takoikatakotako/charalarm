@@ -55,7 +55,7 @@ struct TutorialAcceptPrivacyPolicyView: View {
         }
         .alert(isPresented: $viewModel.showingAlert) {
             Alert(title: Text(""), message: Text(viewModel.alertMessage), dismissButton: .default(Text("Close")))}
-        .edgesIgnoringSafeArea(.bottom)
+        .ignoresSafeArea(.container, edges: .bottom)
         .navigationTitle("")
         .toolbar(.hidden, for: .navigationBar)
     }

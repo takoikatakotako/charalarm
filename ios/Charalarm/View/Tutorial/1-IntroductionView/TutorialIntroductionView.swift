@@ -29,10 +29,10 @@ struct TutorialIntroductionView: View {
                 })
                 .padding(.bottom, 28)
         }
-        .edgesIgnoringSafeArea(.bottom)
+        .ignoresSafeArea(.container, edges: .bottom)
         .navigationTitle("")
         .toolbar(.hidden, for: .navigationBar)
-        .background(Color.white.edgesIgnoringSafeArea(.all))
+        .background(Color.white.ignoresSafeArea())
     }
 }
 

@@ -28,7 +28,7 @@ struct CharaListView: View {
                 }
                 .padding(.bottom, 28)
             }
-            .edgesIgnoringSafeArea(.bottom)
+            .ignoresSafeArea(.container, edges: .bottom)
             .onAppear {
                 viewState.fetchCharacters()
             }

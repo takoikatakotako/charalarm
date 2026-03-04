@@ -85,7 +85,7 @@ struct TopView: View {
                 .background(LinearGradient(gradient: Gradient(colors: [Color.gray.opacity(0.8), Color.gray.opacity(0.2)]), startPoint: UnitPoint(x: 0.5, y: 0.03), endPoint: UnitPoint(x: 0.5, y: 0)).opacity(0.9))
             }
         }
-        .edgesIgnoringSafeArea([.top, .bottom])
+        .ignoresSafeArea(.container, edges: [.top, .bottom])
         .onReceive(NotificationCenter.default.publisher(for: NSNotification.setChara)) { notification in
             let charaID: String? = notification.userInfo?[NSNotification.setCharaUserInfoKeyCharaID] as? String
             viewState.updateChara(charaID: charaID)

@@ -71,7 +71,7 @@ struct TutorialCallView: View {
         .onDisappear {
             viewModel.onDisappear()
         }
-        .edgesIgnoringSafeArea(.all)
+        .ignoresSafeArea()
         .navigationTitle("")
         .toolbar(.hidden, for: .navigationBar)
     }

@@ -89,7 +89,7 @@ struct CallView: View {
                 .background(Color.gray)
             }
         }
-        .edgesIgnoringSafeArea(.bottom)
+        .ignoresSafeArea(.container, edges: .bottom)
         .onAppear {
             viewState.incoming()
         }

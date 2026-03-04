@@ -5,7 +5,7 @@ struct CallingView: View {
     var body: some View {
         ZStack {
             Color.gray
-                .edgesIgnoringSafeArea(.all)
+                .ignoresSafeArea()
 
             VStack {
                 Spacer()
