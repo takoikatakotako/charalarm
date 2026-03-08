@@ -3,7 +3,12 @@ import Foundation
 class AlarmListViewState: ObservableObject {
     @Published var alarms: [Alarm] = []
     @Published var sheet: AlarmListViewSheetItem?
-    @Published var alert: AlarmListViewAlertItem?
+    @Published var showingAlert = false
+    @Published var alertMessage: String? {
+        didSet {
+            showingAlert = alertMessage != nil
+        }
+    }
     @Published var showingIndicator: Bool = true
 
     private let apiRepository = APIRepository()
@@ -25,10 +30,10 @@ class AlarmListViewState: ObservableObject {
             if userDefaultsRepository.getEnablePremiumPlan() {
                 sheet = .alarmDetailForCreate
             } else {
-                alert = .error(UUID(), String(localized: "alarm-list-too-much"))
+                alertMessage = String(localized: "alarm-list-too-much")
             }
         } else {
-            alert = .error(UUID(), String(localized: "alarm-you-can-create-up-to-three-alarms"))
+            alertMessage = String(localized: "alarm-you-can-create-up-to-three-alarms")
         }
     }
 
@@ -68,7 +73,7 @@ class AlarmListViewState: ObservableObject {
             showingIndicator = true
             guard let userID = keychainRepository.getUserID(),
                   let authToken = keychainRepository.getAuthToken() else {
-                    alert = .error(UUID(), String(localized: "error-failed-to-get-authentication-information"))
+                    alertMessage = String(localized: "error-failed-to-get-authentication-information")
                 return
             }
 
@@ -78,7 +83,7 @@ class AlarmListViewState: ObservableObject {
                 self.showingIndicator = false
                 self.alarms = alarms.map { $0.toAlarm() }
             } catch {
-                self.alert = .error(UUID(), String(localized: "alarm-failed-to-get-the-alarm-list"))
+                self.alertMessage = String(localized: "alarm-failed-to-get-the-alarm-list")
             }
 
             // Set VoIP Push
@@ -95,7 +100,7 @@ class AlarmListViewState: ObservableObject {
             showingIndicator = true
             guard let userID = keychainRepository.getUserID(),
                   let authToken = keychainRepository.getAuthToken() else {
-                    alert = .error(UUID(), String(localized: "error-failed-to-get-authentication-information"))
+                    alertMessage = String(localized: "error-failed-to-get-authentication-information")
                 return
             }
 
@@ -104,7 +109,7 @@ class AlarmListViewState: ObservableObject {
                 self.showingIndicator = false
                 self.alarms = alarms.map { $0.toAlarm() }
             } catch {
-                self.alert = .error(UUID(), String(localized: "alarm-failed-to-get-the-alarm-list"))
+                self.alertMessage = String(localized: "alarm-failed-to-get-the-alarm-list")
             }
         }
     }
@@ -112,7 +117,7 @@ class AlarmListViewState: ObservableObject {
     func updateAlarmEnable(alarmId: UUID, isEnable: Bool) {
         guard let userID = keychainRepository.getUserID(),
               let authToken = keychainRepository.getAuthToken() else {
-            alert = .error(UUID(), String(localized: "error-failed-to-get-authentication-information"))
+            alertMessage = String(localized: "error-failed-to-get-authentication-information")
             return
         }
 
@@ -127,7 +132,7 @@ class AlarmListViewState: ObservableObject {
                 let requestBody = AlarmEditRequest(alarm: alarm.toAlarmRequest(userID: UUID(uuidString: userID)!))
                 try await apiRepository.editAlarm(userID: userID, authToken: authToken, requestBody: requestBody)
             } catch {
-                alert = .error(UUID(), String(localized: "alarm-failed-to-edit-the-alarm"))
+                alertMessage = String(localized: "alarm-failed-to-edit-the-alarm")
             }
         }
     }

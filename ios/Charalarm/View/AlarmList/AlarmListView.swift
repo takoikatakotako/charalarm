@@ -34,14 +34,14 @@ struct AlarmListView: View {
             .onAppear {
                 viewState.onAppear()
             }
-            .alert(item: $viewState.alert) { item in
-                switch item {
-                case .ad:
-                    return Alert(title: Text(""), message: Text("動画見てください！"), primaryButton: .default(Text("aaa"), action: {
-                    }), secondaryButton: .cancel())
-                case let .error(_, message):
-                    return Alert(title: Text(""), message: Text(message), dismissButton: .default(Text(String(localized: "common-close"))))
-                }
+            .alert(
+                viewState.alertMessage ?? "",
+                isPresented: $viewState.showingAlert,
+                presenting: viewState.alertMessage
+            ) { _ in
+                Button(String(localized: "common-close")) {}
+            } message: { message in
+                Text(message)
             }
             .sheet(item: $viewState.sheet, onDismiss: {
                 viewState.fetchAlarms()

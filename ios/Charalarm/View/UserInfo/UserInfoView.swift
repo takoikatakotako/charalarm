@@ -93,9 +93,15 @@ struct UserInfoView: View {
         .onAppear {
             viewState.fetchUserInfo()
         }
-        .alert(item: $viewState.alert, content: { item in
-            Alert(title: Text("Error"), message: Text(item.message), dismissButton: .default(Text("Close")))
-        })
+        .alert(
+            "Error",
+            isPresented: $viewState.showingAlert,
+            presenting: viewState.alertMessage
+        ) { _ in
+            Button("Close") {}
+        } message: { message in
+            Text(message)
+        }
         .padding()
         .navigationTitle(String(localized: "user-info-user-nfo"))
         .navigationBarTitleDisplayMode(.inline)

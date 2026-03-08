@@ -4,7 +4,12 @@ import SwiftUI
 class UserInfoViewState: ObservableObject {
     @Published private var tapCount: Int = 0
     @Published var userInfo: UserInfo?
-    @Published var alert: UserInfoAlertItem?
+    @Published var showingAlert = false
+    @Published var alertMessage: String? {
+        didSet {
+            showingAlert = alertMessage != nil
+        }
+    }
 
 //    private let appDelegate = UIApplication.shared.delegate as? AppDelegate
     private let apiRepository = APIRepository()
@@ -53,14 +58,14 @@ class UserInfoViewState: ObservableObject {
         Task { @MainActor in
             guard let userID = keychainRepository.getUserID(),
                   let authToken = keychainRepository.getAuthToken() else {
-                alert = UserInfoAlertItem(message: "認証情報の取得に失敗しました")
+                alertMessage = "認証情報の取得に失敗しました"
                 return
             }
 
             do {
                 userInfo = try await apiRepository.getUserInfo(userID: userID, authToken: authToken)
             } catch {
-                alert = UserInfoAlertItem(message: "ユーザー情報の取得に失敗しました")
+                alertMessage = "ユーザー情報の取得に失敗しました"
             }
         }
     }

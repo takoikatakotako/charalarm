@@ -94,39 +94,14 @@ struct TopView: View {
             viewState.onAppear()
             adDelegate.load()
         }
-        .alert(item: $viewState.alert) { item in
-            switch item {
-            case .failedToGetCharacterInformation:
-                return Alert(
-                    title: Text(""),
-                    message: Text(String(localized: "error-failed-to-get-character-information")),
-                    dismissButton: .default(Text(String(localized: "common-close")))
-                )
-            case .failedToGetCharacterSelectionInformation:
-                return Alert(
-                    title: Text(""),
-                    message: Text(String(localized: "error-failed-to-get-character-selection-information")),
-                    dismissButton: .default(Text(String(localized: "common-close")))
-                )
-            case .failedToGetCharactersResources:
-                return Alert(
-                    title: Text(""),
-                    message: Text(String(localized: "error-failed-to-get-characters-resources")),
-                    dismissButton: .default(Text(String(localized: "common-close")))
-                )
-            case .failedToSetCharacterImage:
-                return Alert(
-                    title: Text(""),
-                    message: Text(String(localized: "error-failed-to-set-character-image")),
-                    dismissButton: .default(Text(String(localized: "common-close")))
-                )
-            case .thisFeatureIsNotAvailableInYourRegion:
-                return Alert(
-                    title: Text(""),
-                    message: Text(String(localized: "error-this-feature-is-not-available-in-your-region")),
-                    dismissButton: .default(Text(String(localized: "common-close")))
-                )
-            }
+        .alert(
+            viewState.alert?.message ?? "",
+            isPresented: $viewState.showingAlert,
+            presenting: viewState.alert
+        ) { _ in
+            Button(String(localized: "common-close")) {}
+        } message: { item in
+            Text(item.message)
         }
         .sheet(item: $viewState.sheet) {
             // On Dissmiss
