@@ -26,14 +26,14 @@ struct AlarmDetailCharaSelecter: View {
                             WebImage(url: URL(string: chara.thumbnailUrlString))
                                 .resizable()
                                 .frame(width: 64, height: 64)
-                                .cornerRadius(10)
+                                .clipShape(RoundedRectangle(cornerRadius: 10))
                         } else {
                             Text("?")
                                 .frame(width: 64, height: 64)
-                                .foregroundColor(Color.white)
+                                .foregroundStyle(Color.white)
                                 .font(Font.system(size: 24).bold())
                                 .background(Color(UIColor.lightGray))
-                                .cornerRadius(10)
+                                .clipShape(RoundedRectangle(cornerRadius: 10))
                         }
 
                         Button {
@@ -41,10 +41,10 @@ struct AlarmDetailCharaSelecter: View {
                         } label: {
                             Text("?")
                                 .frame(width: 56, height: 56)
-                                .foregroundColor(Color.white)
+                                .foregroundStyle(Color.white)
                                 .font(Font.system(size: 24).bold())
                                 .background(Color(UIColor.lightGray))
-                                .cornerRadius(10)
+                                .clipShape(RoundedRectangle(cornerRadius: 10))
                                 .padding(.top, 8)
                         }
 
@@ -55,7 +55,7 @@ struct AlarmDetailCharaSelecter: View {
                                 WebImage(url: URL(string: chara.thumbnailUrlString))
                                     .resizable()
                                     .frame(width: 56, height: 56)
-                                    .cornerRadius(10)
+                                    .clipShape(RoundedRectangle(cornerRadius: 10))
                                     .padding(.top, 8)
                             }
                         }

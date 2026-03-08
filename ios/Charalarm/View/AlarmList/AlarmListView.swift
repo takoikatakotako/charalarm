@@ -68,7 +68,7 @@ struct AlarmListView: View {
                     }) {
                         Image(R.image.alarmAddIcon.name)
                             .renderingMode(.template)
-                            .foregroundColor(Color(R.color.charalarmDefaultGreen.name))
+                            .foregroundStyle(Color(R.color.charalarmDefaultGreen.name))
                     }
                 }
             }

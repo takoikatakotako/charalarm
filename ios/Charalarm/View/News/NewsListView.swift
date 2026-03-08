@@ -27,7 +27,7 @@ struct NewsListView: View {
                     }) {
                         Image(R.image.commonIconClose.name)
                             .renderingMode(.template)
-                            .foregroundColor(Color(R.color.charalarmDefaultGray.name))
+                            .foregroundStyle(Color(R.color.charalarmDefaultGray.name))
                     }
                 }
             }

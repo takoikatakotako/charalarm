@@ -50,7 +50,7 @@ struct TutorialAcceptPrivacyPolicyView: View {
                     .progressViewStyle(CircularProgressViewStyle(tint: Color.white))
                     .frame(width: 160, height: 160)
                     .background(Color.black.opacity(0.3))
-                    .cornerRadius(16)
+                    .clipShape(RoundedRectangle(cornerRadius: 16))
             }
         }
         .alert("", isPresented: $viewModel.showingAlert) {

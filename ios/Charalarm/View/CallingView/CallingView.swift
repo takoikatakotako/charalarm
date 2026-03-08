@@ -12,7 +12,7 @@ struct CallingView: View {
 
                 Text("Calling...")
                     .font(Font.system(size: 40).bold())
-                    .foregroundColor(.white)
+                    .foregroundStyle(.white)
 
                 Spacer()
 
@@ -21,12 +21,12 @@ struct CallingView: View {
                 }) {
                     Image(systemName: "phone.fill.arrow.down.left")
                         .resizable()
-                        .foregroundColor(Color.white)
+                        .foregroundStyle(Color.white)
                         .frame(width: 40, height: 40)
                 }
                 .frame(width: 80, height: 80)
                 .background(Color(R.color.callRed.name))
-                .cornerRadius(40)
+                .clipShape(RoundedRectangle(cornerRadius: 40))
                 .padding(.bottom, 48)
             }
             .ignoresSafeArea(.all)

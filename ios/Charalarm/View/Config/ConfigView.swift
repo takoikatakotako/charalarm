@@ -16,7 +16,7 @@ struct ConfigView: View {
                     ) {
                         NavigationLink(destination: UserInfoView(viewState: UserInfoViewState())) {
                             Text(String(localized: "config-user-info"))
-                                .foregroundColor(Color(R.color.textColor.name))
+                                .foregroundStyle(Color(R.color.textColor.name))
                         }
                     }
 
@@ -29,53 +29,53 @@ struct ConfigView: View {
                             viewState.subscriptionButtonTapped()
                         } label: {
                             Text(String(localized: "config-about-premium-plan"))
-                                .foregroundColor(Color(R.color.textColor.name))
+                                .foregroundStyle(Color(R.color.textColor.name))
                         }
                     }
 
                     Section(
                         header:
                             Text("お問い合わせ")
-                            .foregroundColor(Color(R.color.textColor.name))
+                            .foregroundStyle(Color(R.color.textColor.name))
                     ) {
                         NavigationLink(destination: ContactView(viewState: ContactViewState())) {
                             Text("お問い合わせ")
-                                .foregroundColor(Color(R.color.textColor.name))
+                                .foregroundStyle(Color(R.color.textColor.name))
                         }
                     }
 
                     Section(
                         header:
                             Text("開発者情報")
-                            .foregroundColor(Color(R.color.textColor.name))
+                            .foregroundStyle(Color(R.color.textColor.name))
                     ) {
                         Button(action: {
                             viewState.openUrlString(string: OfficialDiscordUrlString)
                         }) {
                             Text(String(localized: "config-official-discord"))
-                                .foregroundColor(Color(R.color.textColor.name))
+                                .foregroundStyle(Color(R.color.textColor.name))
                         }
 
                         Button(action: {
                             viewState.openUrlString(string: OfficialTwitterUrlString)
                         }) {
                             Text(String(localized: "config-official-twitter"))
-                                .foregroundColor(Color(R.color.textColor.name))
+                                .foregroundStyle(Color(R.color.textColor.name))
                         }
                     }
 
                     Section(
                         header:
                             Text(String(localized: "config-application-info"))
-                            .foregroundColor(Color(R.color.textColor.name))
+                            .foregroundStyle(Color(R.color.textColor.name))
                     ) {
                         // バージョン情報
                         HStack {
                             Text(String(localized: "config-version-info"))
-                                .foregroundColor(Color(R.color.textColor.name))
+                                .foregroundStyle(Color(R.color.textColor.name))
                             Spacer()
                             Text(viewState.versionString)
-                                .foregroundColor(Color(R.color.textColor.name))
+                                .foregroundStyle(Color(R.color.textColor.name))
                         }
 
                         // ライセンス
@@ -90,10 +90,10 @@ struct ConfigView: View {
                             guard let settingsUrl = URL(string: UIApplication.openSettingsURLString) else {
                                 return
                             }
-                            UIApplication.shared.open(settingsUrl, completionHandler: nil)
+                            UIApplication.shared.open(settingsUrl)
                         } label: {
                             Text(String(localized: "config-other-app-setting"))
-                                .foregroundColor(Color(R.color.textColor.name))
+                                .foregroundStyle(Color(R.color.textColor.name))
                         }
                     }
 
@@ -106,7 +106,7 @@ struct ConfigView: View {
                             viewState.resetButtonTapped()
                         }) {
                             Text(String(localized: "config-reset"))
-                                .foregroundColor(Color(R.color.textColor.name))
+                                .foregroundStyle(Color(R.color.textColor.name))
                         }
                         .alert(String(localized: "config-reset"), isPresented: $viewState.showingResetAlert) {
                             Button(String(localized: "common-cancel"), role: .cancel) {}

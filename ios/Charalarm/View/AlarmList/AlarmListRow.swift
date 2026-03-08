@@ -57,7 +57,7 @@ struct AlarmListRow: View {
             VStack(alignment: .leading, spacing: 8) {
                 Text(alarm.name)
                     .font(Font.system(size: 20))
-                    .frame(width: UIScreen.main.bounds.size.width - 32, alignment: .leading)
+                    .frame(maxWidth: .infinity, alignment: .leading)
                     .lineLimit(1)
 
                 Text("\(String(format: "%02d", alarm.hour)):\(String(format: "%02d", alarm.minute))")
@@ -66,7 +66,7 @@ struct AlarmListRow: View {
                     .font(Font.system(size: 20))
             }
             .fixedSize(horizontal: true, vertical: false)
-            .foregroundColor(Color.white)
+            .foregroundStyle(Color.white)
             .padding(.leading, 16)
 
             HStack {
@@ -80,7 +80,7 @@ struct AlarmListRow: View {
         }
         .frame(height: 140)
         .background(backgroundColor)
-        .cornerRadius(16)
+        .clipShape(RoundedRectangle(cornerRadius: 16))
         .padding(8)
     }
 }

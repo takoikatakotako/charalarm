@@ -42,7 +42,7 @@ class ConfigViewState: ObservableObject {
         guard let settingsUrl = URL(string: UIApplication.openSettingsURLString) else {
             return
         }
-        UIApplication.shared.open(settingsUrl, completionHandler: nil)
+        UIApplication.shared.open(settingsUrl)
     }
 
     func resetButtonTapped() {

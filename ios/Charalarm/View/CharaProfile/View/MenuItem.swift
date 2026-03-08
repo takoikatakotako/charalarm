@@ -11,7 +11,7 @@ struct MenuItem: View {
         }.tint(.white)
             .frame(width: 60, height: 60)
             .background(Color.black)
-            .cornerRadius(30)
+            .clipShape(RoundedRectangle(cornerRadius: 30))
             .shadow(color: .black, radius: 4, x: 4, y: 4)
             .opacity(0.9)
     }

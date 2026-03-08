@@ -14,12 +14,12 @@ struct AlarmDetailDeleteAlarmButton: View {
                 delegate.deleteAlarm(alarmId: alarmId)
             }) {
                 Text(String(localized: "alarm-delete-alarm"))
-                    .foregroundColor(Color.white)
+                    .foregroundStyle(Color.white)
                     .font(Font.system(size: 16).bold())
                     .frame(height: 46)
                     .frame(minWidth: 0, maxWidth: .infinity)
                     .background(Color(R.color.charalarmDefaultPink.name))
-                    .cornerRadius(28)
+                    .clipShape(RoundedRectangle(cornerRadius: 28))
                     .padding(.horizontal, 24)
             }
         }

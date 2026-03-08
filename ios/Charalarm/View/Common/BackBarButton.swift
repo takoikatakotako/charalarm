@@ -8,7 +8,7 @@ struct BackBarButton: View {
         }) {
             Image(R.image.commonBackIcon.name)
                 .renderingMode(.template)
-                .foregroundColor(Color(R.color.charalarmDefaultGray.name))
+                .foregroundStyle(Color(R.color.charalarmDefaultGray.name))
         }
     }
 }

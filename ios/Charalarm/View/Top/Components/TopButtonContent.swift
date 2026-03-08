@@ -5,7 +5,7 @@ struct TopButtonContent: View {
     var body: some View {
         Group {
             Image(imageName)
-                .foregroundColor(.white)
+                .foregroundStyle(.white)
                 .padding(8)
         }
         .background(Color.clear)

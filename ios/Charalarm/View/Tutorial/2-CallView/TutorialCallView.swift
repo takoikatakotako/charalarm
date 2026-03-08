@@ -17,7 +17,7 @@ struct TutorialCallView: View {
             if viewModel.isCalling {
                 VStack {
                     Text("ずんだもん")
-                        .foregroundColor(Color.white)
+                        .foregroundStyle(Color.white)
                         .font(Font.system(size: 48))
                         .padding(.top, 156)
                     Spacer()
@@ -29,7 +29,7 @@ struct TutorialCallView: View {
                                     .frame(width: 36, height: 36)
                                     .padding(16)
                                     .background(Color.red)
-                                    .cornerRadius(32)
+                                    .clipShape(RoundedRectangle(cornerRadius: 32))
                             }
                         }
 
@@ -44,7 +44,7 @@ struct TutorialCallView: View {
                                     .frame(width: 36, height: 36)
                                     .padding(16)
                                     .background(Color.green)
-                                    .cornerRadius(32)
+                                    .clipShape(RoundedRectangle(cornerRadius: 32))
                             }
                         }
                     }
