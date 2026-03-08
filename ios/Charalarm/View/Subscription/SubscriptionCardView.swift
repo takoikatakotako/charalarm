@@ -33,12 +33,10 @@ struct SubscriptionCardView: View {
     }
 }
 
-struct SubscriptionCardView_Previews: PreviewProvider {
-    static var previews: some View {
-        SubscriptionCardView(
-            title: "特典１: アラーム数上限アップ",
-            systemImageName: "calendar",
-            description: "アラームを10個まで設定することができます"
-        )
-    }
+#Preview {
+    SubscriptionCardView(
+        title: "特典１: アラーム数上限アップ",
+        systemImageName: "calendar",
+        description: "アラームを10個まで設定することができます"
+    )
 }

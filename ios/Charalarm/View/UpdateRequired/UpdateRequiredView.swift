@@ -30,14 +30,6 @@ struct UpdateRequiredView: View {
     }
 }
 
-struct UpdateRequiredView_Previews: PreviewProvider {
-    static var previews: some View {
-        Group {
-            UpdateRequiredView()
-                .previewDevice(PreviewDevice(rawValue: "iPhone X"))
-
-            UpdateRequiredView()
-                .previewDevice(PreviewDevice(rawValue: "iPhone 8"))
-        }
-    }
+#Preview {
+    UpdateRequiredView()
 }

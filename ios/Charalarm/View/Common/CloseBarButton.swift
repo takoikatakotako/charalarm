@@ -13,8 +13,6 @@ struct CloseBarButton: View {
     }
 }
 
-struct CloseBarButton_Previews: PreviewProvider {
-    static var previews: some View {
-        CloseBarButton(action: {})
-    }
+#Preview {
+    CloseBarButton(action: {})
 }

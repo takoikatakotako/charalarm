@@ -120,49 +120,35 @@ struct MockAlarmListRowDelegate: AlarmListRowDelegate {
     }
 }
 
-struct AlarmListRow_Previews: PreviewProvider {
-    struct PreviewWrapper: View {
-        let alarm: Alarm
-        init(enable: Bool = true, name: String = "モーニングコール", hour: Int = 9, minute: Int = 30) {
-            self.alarm = Alarm(
-                alarmID: UUID(),
-                type: .IOS_VOIP_PUSH_NOTIFICATION,
-                enable: true,
-                name: "xxxx",
-                hour: 8,
-                minute: 30,
-                timeDifference: 0,
-                charaName: "xxxx",
-                charaID: "xxxx",
-                voiceFileName: "ssssss",
-                sunday: true,
-                monday: true,
-                tuesday: true,
-                wednesday: true,
-                thursday: true,
-                friday: true,
-                saturday: true
-            )
-        }
-
-        var body: some View {
-            AlarmListRow(delegate: MockAlarmListRowDelegate(), alarm: alarm)
-        }
+private struct AlarmListRowPreviewWrapper: View {
+    let alarm: Alarm
+    init(enable: Bool = true, name: String = "モーニングコール", hour: Int = 9, minute: Int = 30) {
+        self.alarm = Alarm(
+            alarmID: UUID(),
+            type: .IOS_VOIP_PUSH_NOTIFICATION,
+            enable: true,
+            name: "xxxx",
+            hour: 8,
+            minute: 30,
+            timeDifference: 0,
+            charaName: "xxxx",
+            charaID: "xxxx",
+            voiceFileName: "ssssss",
+            sunday: true,
+            monday: true,
+            tuesday: true,
+            wednesday: true,
+            thursday: true,
+            friday: true,
+            saturday: true
+        )
     }
 
-    static var previews: some View {
-        Group {
-            PreviewWrapper()
-                .previewDevice(PreviewDevice(rawValue: "iPhone X"))
-                .previewDisplayName("iPhone X")
-
-            PreviewWrapper(name: "長い長いモーニングコール。長い長いモーニングコール。")
-                .previewDevice(PreviewDevice(rawValue: "iPhone X"))
-                .previewDisplayName("iPhone X")
-
-            PreviewWrapper()
-                .previewDevice(PreviewDevice(rawValue: "iPhone 8"))
-                .previewDisplayName("iPhone 8")
-        }
+    var body: some View {
+        AlarmListRow(delegate: MockAlarmListRowDelegate(), alarm: alarm)
     }
+}
+
+#Preview {
+    AlarmListRowPreviewWrapper()
 }

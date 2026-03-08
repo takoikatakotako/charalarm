@@ -50,14 +50,6 @@ struct CharaListView: View {
     }
 }
 
-struct CharacterList_Previews: PreviewProvider {
-    static var previews: some View {
-        Group {
-            CharaListView(viewState: CharacterListViewState())
-                .previewDevice(PreviewDevice(rawValue: "iPhone X"))
-
-            CharaListView(viewState: CharacterListViewState())
-                .previewDevice(PreviewDevice(rawValue: "iPhone 8"))
-        }
-    }
+#Preview {
+    CharaListView(viewState: CharacterListViewState())
 }

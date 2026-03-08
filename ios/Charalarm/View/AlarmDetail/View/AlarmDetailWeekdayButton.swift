@@ -22,24 +22,6 @@ struct AlarmDetailWeekdayButton: View {
     }
 }
 
-struct AlarmDetailWeekdayButton_Previews: PreviewProvider {
-    struct PreviewWrapperOn: View {
-        var body: some View {
-            AlarmDetailWeekdayButton(enable: .constant(true), title: String(localized: "day-of-week-monday"))
-        }
-    }
-
-    struct PreviewWrapperOff: View {
-        var body: some View {
-            AlarmDetailWeekdayButton(enable: .constant(false), title: String(localized: "day-of-week-monday"))        }
-    }
-
-    static var previews: some View {
-        Group {
-            PreviewWrapperOn()
-                .previewLayout(.sizeThatFits)
-            PreviewWrapperOff()
-                .previewLayout(.sizeThatFits)
-        }
-    }
+#Preview {
+    AlarmDetailWeekdayButton(enable: .constant(true), title: String(localized: "day-of-week-monday"))
 }

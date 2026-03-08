@@ -15,9 +15,6 @@ struct AlarmDetailVoiceText: View {
     }
 }
 
-struct AlarmDetailVoiceText_Previews: PreviewProvider {
-    static var previews: some View {
-        AlarmDetailVoiceText(fileMessage: "あなたは死なないわ私が守るもの")
-            .previewLayout(.sizeThatFits)
-    }
+#Preview {
+    AlarmDetailVoiceText(fileMessage: "あなたは死なないわ私が守るもの")
 }

@@ -34,10 +34,10 @@ struct CallingView: View {
     }
 }
 
-struct CallingView_Previews: PreviewProvider {
-    static var previews: some View {
-        CallingView(viewState: CallingViewState(charaID: nil, charaName: nil, callUUID: nil))
+#Preview {
+    CallingView(viewState: CallingViewState(charaID: nil, charaName: nil, callUUID: nil))
+}
 
-        CallingView(viewState: CallingViewState(charaID: nil, charaName: "井上結衣", callUUID: nil))
-    }
+#Preview {
+    CallingView(viewState: CallingViewState(charaID: nil, charaName: "井上結衣", callUUID: nil))
 }

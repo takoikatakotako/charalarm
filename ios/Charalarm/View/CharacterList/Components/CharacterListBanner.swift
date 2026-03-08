@@ -30,9 +30,6 @@ struct CharacterListBanner: View {
     }
 }
 
-struct CharacterListBanner_Previews: PreviewProvider {
-    static var previews: some View {
-        CharacterListBanner()
-            .previewLayout(.sizeThatFits)
-    }
+#Preview {
+    CharacterListBanner()
 }

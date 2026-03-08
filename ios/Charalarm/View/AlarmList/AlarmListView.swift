@@ -82,8 +82,6 @@ extension AlarmListView: AlarmListRowDelegate {
     }
 }
 
-struct AlarmListView_Previews: PreviewProvider {
-    static var previews: some View {
-        AlarmListView()
-    }
+#Preview {
+    AlarmListView()
 }

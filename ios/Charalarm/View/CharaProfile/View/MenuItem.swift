@@ -17,12 +17,6 @@ struct MenuItem: View {
     }
 }
 
-struct MenuItem_Previews: PreviewProvider {
-    static var previews: some View {
-        Group {
-            MenuItem(imageName: "profile-call")
-            MenuItem(imageName: "profile-check")
-
-        }.previewLayout(.fixed(width: 60, height: 60))
-    }
+#Preview {
+    MenuItem(imageName: "profile-call")
 }

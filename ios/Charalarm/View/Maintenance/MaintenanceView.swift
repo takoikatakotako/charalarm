@@ -25,8 +25,6 @@ struct MaintenanceView: View {
     }
 }
 
-struct MaintenanceView_Previews: PreviewProvider {
-    static var previews: some View {
-        MaintenanceView()
-    }
+#Preview {
+    MaintenanceView()
 }

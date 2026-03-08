@@ -20,8 +20,6 @@ struct ErrorView: View {
     }
 }
 
-struct ErrorView_Previews: PreviewProvider {
-    static var previews: some View {
-        ErrorView(viewState: ErrorViewState())
-    }
+#Preview {
+    ErrorView(viewState: ErrorViewState())
 }

@@ -114,10 +114,8 @@ struct SubscriptionView: View {
     }
 }
 
-struct PremiunPlanDescriptionView_Previews: PreviewProvider {
-    static var previews: some View {
-        SubscriptionView(viewState: SubscriptionViewState())
-            .navigationBarTitleDisplayMode(.inline)
-            .navigationTitle("プレミアムプラン")
-    }
+#Preview {
+    SubscriptionView(viewState: SubscriptionViewState())
+        .navigationBarTitleDisplayMode(.inline)
+        .navigationTitle("プレミアムプラン")
 }

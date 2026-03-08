@@ -39,14 +39,6 @@ struct CharaProfileRow: View {
     }
 }
 
-struct ProfileRow_Previews: PreviewProvider {
-    static var previews: some View {
-        Group {
-            CharaProfileRow(title: "名前", text: "井上結衣", url: URL(string: "https://swiswiswift.com/")!)
-                .previewLayout(.sizeThatFits)
-
-            CharaProfileRow(title: "プロフィール", text: "長い長いプロフィール。長い長いプロフィール。長い長いプロフィール。長い長いプロフィール。長い長いプロフィール。長い長いプロフィール。長い長いプロフィール。長い長いプロフィール。長い長いプロフィール。長い長いプロフィール。長い長いプロフィール。長い長いプロフィール。", url: nil)
-                .previewLayout(.sizeThatFits)
-        }
-    }
+#Preview {
+    CharaProfileRow(title: "名前", text: "井上結衣", url: URL(string: "https://swiswiswift.com/")!)
 }

@@ -49,8 +49,6 @@ struct TutorialRequireTrackingView: View {
     }
 }
 
-struct TutorialRequireTrackingView_Previews: PreviewProvider {
-    static var previews: some View {
-        TutorialRequireTrackingView()
-    }
+#Preview {
+    TutorialRequireTrackingView()
 }

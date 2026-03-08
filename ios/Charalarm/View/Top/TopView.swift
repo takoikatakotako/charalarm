@@ -145,17 +145,6 @@ struct TopView: View {
     }
 }
 
-struct TopView_Previews: PreviewProvider {
-    static var previews: some View {
-        Group {
-            TopView()
-                .previewDevice(PreviewDevice(rawValue: "iPhone 11"))
-                .previewDisplayName("iPhone 11")
-                .environment(\.colorScheme, .light)
-            TopView()
-                .previewDevice(PreviewDevice(rawValue: "iPhone 8"))
-                .previewDisplayName("iPhone 8")
-                .environment(\.colorScheme, .dark)
-        }
-    }
+#Preview {
+    TopView()
 }

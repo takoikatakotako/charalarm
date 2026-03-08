@@ -77,14 +77,6 @@ struct TutorialCallView: View {
     }
 }
 
-struct TutorialSecondView_Previews: PreviewProvider {
-    static var previews: some View {
-        Group {
-            TutorialCallView()
-                .previewDevice(PreviewDevice(rawValue: "iPhone X"))
-
-            TutorialCallView()
-                .previewDevice(PreviewDevice(rawValue: "iPhone 8"))
-        }
-    }
+#Preview {
+    TutorialCallView()
 }

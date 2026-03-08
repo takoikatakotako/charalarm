@@ -15,8 +15,6 @@ struct TutorialHolderView: View {
     }
 }
 
-struct TutorialHolderView_Previews: PreviewProvider {
-    static var previews: some View {
-        TutorialHolderView()
-    }
+#Preview {
+    TutorialHolderView()
 }

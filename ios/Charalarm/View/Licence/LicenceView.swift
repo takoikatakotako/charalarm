@@ -31,10 +31,8 @@ struct LicenceView: View {
     }
 }
 
-struct LicenceView_Previews: PreviewProvider {
-    static var previews: some View {
-        NavigationStack {
-            LicenceView(viewState: LicenceViewState())
-        }
+#Preview {
+    NavigationStack {
+        LicenceView(viewState: LicenceViewState())
     }
 }

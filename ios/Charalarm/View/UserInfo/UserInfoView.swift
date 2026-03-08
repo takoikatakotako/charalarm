@@ -110,8 +110,6 @@ struct UserInfoView: View {
     }
 }
 
-struct UserInfoView_Previews: PreviewProvider {
-    static var previews: some View {
-        UserInfoView(viewState: UserInfoViewState())
-    }
+#Preview {
+    UserInfoView(viewState: UserInfoViewState())
 }

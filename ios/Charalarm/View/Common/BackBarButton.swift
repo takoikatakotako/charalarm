@@ -13,8 +13,6 @@ struct BackBarButton: View {
     }
 }
 
-struct BackBarButton_Previews: PreviewProvider {
-    static var previews: some View {
-        BackBarButton(action: {})
-    }
+#Preview {
+    BackBarButton(action: {})
 }

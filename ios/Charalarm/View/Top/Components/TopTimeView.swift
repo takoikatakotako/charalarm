@@ -38,9 +38,6 @@ struct TopTimeView: View {
     }
 }
 
-struct TopTimeView_Previews: PreviewProvider {
-    static var previews: some View {
-        TopTimeView()
-            .previewLayout(.sizeThatFits)
-    }
+#Preview {
+    TopTimeView()
 }

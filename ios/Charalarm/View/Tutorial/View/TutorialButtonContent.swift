@@ -13,9 +13,6 @@ struct TutorialButtonContent: View {
     }
 }
 
-struct TutorialButton_Previews: PreviewProvider {
-    static var previews: some View {
-        TutorialButtonContent(text: "プライバシーポリシーに同意する")
-            .previewLayout(.sizeThatFits)
-    }
+#Preview {
+    TutorialButtonContent(text: "プライバシーポリシーに同意する")
 }

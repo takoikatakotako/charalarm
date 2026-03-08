@@ -92,14 +92,6 @@ struct CharaProfileView: View {
     }
 }
 
-struct ProfileView_Previews: PreviewProvider {
-    struct PreviewWrapper: View {
-        var body: some View {
-            CharaProfileView(viewState: CharaProfileViewState(charaID: "com.example.xxx"))
-        }
-    }
-
-    static var previews: some View {
-        PreviewWrapper()
-    }
+#Preview {
+    CharaProfileView(viewState: CharaProfileViewState(charaID: "com.example.xxx"))
 }

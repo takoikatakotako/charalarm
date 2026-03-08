@@ -35,14 +35,6 @@ struct TutorialThirdView: View {
     }
 }
 
-struct TutorialThirdView_Previews: PreviewProvider {
-    static var previews: some View {
-        Group {
-            TutorialThirdView()
-                .previewDevice(PreviewDevice(rawValue: "iPhone X"))
-
-            TutorialThirdView()
-                .previewDevice(PreviewDevice(rawValue: "iPhone 8"))
-        }
-    }
+#Preview {
+    TutorialThirdView()
 }

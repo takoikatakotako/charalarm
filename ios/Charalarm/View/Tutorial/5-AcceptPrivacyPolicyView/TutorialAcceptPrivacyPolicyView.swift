@@ -64,14 +64,6 @@ struct TutorialAcceptPrivacyPolicyView: View {
     }
 }
 
-struct TutorialAcceptPrivacyPolicyView_Previews: PreviewProvider {
-    static var previews: some View {
-        Group {
-            TutorialAcceptPrivacyPolicyView()
-                .previewDevice(PreviewDevice(rawValue: "iPhone X"))
-
-            TutorialAcceptPrivacyPolicyView()
-                .previewDevice(PreviewDevice(rawValue: "iPhone 8"))
-        }
-    }
+#Preview {
+    TutorialAcceptPrivacyPolicyView()
 }
