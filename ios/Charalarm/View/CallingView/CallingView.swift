@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct CallingView: View {
-    @StateObject var viewState: CallingViewState
+    @State var viewState: CallingViewState
     var body: some View {
         ZStack {
             Color.gray

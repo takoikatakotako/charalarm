@@ -1,11 +1,10 @@
-import UIKit
 import SwiftUI
 
-class UserInfoViewState: ObservableObject {
-    @Published private var tapCount: Int = 0
-    @Published var userInfo: UserInfo?
-    @Published var showingAlert = false
-    @Published var alertMessage: String? {
+@Observable class UserInfoViewState {
+    private var tapCount: Int = 0
+    var userInfo: UserInfo?
+    var showingAlert = false
+    var alertMessage: String? {
         didSet {
             showingAlert = alertMessage != nil
         }

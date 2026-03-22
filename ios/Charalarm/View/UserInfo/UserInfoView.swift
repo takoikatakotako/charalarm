@@ -4,7 +4,7 @@ import UniformTypeIdentifiers
 struct UserInfoView: View {
     @Environment(\.dismiss) private var dismiss
 
-    @StateObject var viewState: UserInfoViewState
+    @State var viewState: UserInfoViewState
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -107,7 +107,7 @@ struct UserInfoView: View {
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
         .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
+            ToolbarItem(placement: .topBarLeading) {
                 BackBarButton {
                     dismiss()
                 }

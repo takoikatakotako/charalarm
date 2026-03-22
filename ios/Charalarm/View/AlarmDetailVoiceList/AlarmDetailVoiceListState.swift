@@ -1,7 +1,7 @@
 import SwiftUI
 import AVFoundation
 
-class AlarmDetailVoiceListState: ObservableObject {
+@Observable class AlarmDetailVoiceListState {
     let chara: Chara
     var avPlayer: AVPlayer?
     var selectedCharaCall: CharaCall?

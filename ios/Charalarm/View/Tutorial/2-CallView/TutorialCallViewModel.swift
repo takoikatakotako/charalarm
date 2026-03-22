@@ -1,12 +1,11 @@
-import UIKit
 import SwiftUI
 import AVFoundation
 
-class TutorialCallViewModel: ObservableObject {
-    @Published var isCalling = true
-    @Published var showingNextButton = false
-    @Published var incomingAudioPlayer: AVAudioPlayer!
-    @Published var voiceAudioPlayer: AVAudioPlayer!
+@Observable class TutorialCallViewModel {
+    var isCalling = true
+    var showingNextButton = false
+    var incomingAudioPlayer: AVAudioPlayer!
+    var voiceAudioPlayer: AVAudioPlayer!
 
     func onAppear() {
         if let sound = NSDataAsset(name: "ringtone") {

@@ -3,7 +3,8 @@ import AdSupport
 import AppTrackingTransparency
 
 struct TutorialAcceptPrivacyPolicyView: View {
-    @StateObject var viewModel = TutorialAcceptPrivacyPolicyViewModel()
+    @Environment(\.openURL) private var openURL
+    @State var viewModel = TutorialAcceptPrivacyPolicyViewModel()
 
     var body: some View {
         ZStack {
@@ -15,7 +16,9 @@ struct TutorialAcceptPrivacyPolicyView: View {
                     .padding(.horizontal, 12)
 
                 Button(action: {
-                    viewModel.openPrivacyPolicy()
+                    if let url = URL(string: PrivacyPolicyUrlString) {
+                        openURL(url)
+                    }
                 }) {
                     Text(String(localized: "tutorial-open-the-privacy-policy"))
                         .font(Font.system(size: 20))

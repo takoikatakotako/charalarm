@@ -2,8 +2,9 @@ import SwiftUI
 import SDWebImageSwiftUI
 
 struct ConfigView: View {
-    @StateObject var viewState: ConfigViewState
+    @State var viewState: ConfigViewState
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.openURL) private var openURL
 
     var body: some View {
         NavigationStack {
@@ -50,14 +51,18 @@ struct ConfigView: View {
                             .foregroundStyle(Color(R.color.textColor.name))
                     ) {
                         Button(action: {
-                            viewState.openUrlString(string: OfficialDiscordUrlString)
+                            if let url = URL(string: OfficialDiscordUrlString) {
+                                openURL(url)
+                            }
                         }) {
                             Text(String(localized: "config-official-discord"))
                                 .foregroundStyle(Color(R.color.textColor.name))
                         }
 
                         Button(action: {
-                            viewState.openUrlString(string: OfficialTwitterUrlString)
+                            if let url = URL(string: OfficialTwitterUrlString) {
+                                openURL(url)
+                            }
                         }) {
                             Text(String(localized: "config-official-twitter"))
                                 .foregroundStyle(Color(R.color.textColor.name))
@@ -87,10 +92,9 @@ struct ConfigView: View {
 
                         // その他
                         Button {
-                            guard let settingsUrl = URL(string: UIApplication.openSettingsURLString) else {
-                                return
+                            if let settingsUrl = URL(string: UIApplication.openSettingsURLString) {
+                                openURL(settingsUrl)
                             }
-                            UIApplication.shared.open(settingsUrl)
                         } label: {
                             Text(String(localized: "config-other-app-setting"))
                                 .foregroundStyle(Color(R.color.textColor.name))
@@ -136,7 +140,7 @@ struct ConfigView: View {
             .navigationBarTitleDisplayMode(.inline)
             .navigationBarBackButtonHidden()
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
+                ToolbarItem(placement: .topBarLeading) {
                     Button(action: {
                         dismiss()
                     }) {

@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct ContactView: View {
-    @StateObject var viewState: ContactViewState
+    @State var viewState: ContactViewState
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
@@ -61,7 +61,7 @@ struct ContactView: View {
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden()
         .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
+            ToolbarItem(placement: .topBarLeading) {
                 Button(action: {
                     dismiss()
                 }) {
@@ -73,7 +73,7 @@ struct ContactView: View {
                         .foregroundStyle(Color.white)
                 }
             }
-            ToolbarItem(placement: .navigationBarTrailing) {
+            ToolbarItem(placement: .topBarTrailing) {
                 Button(action: {
                     viewState.sendMessage()
                 }) {

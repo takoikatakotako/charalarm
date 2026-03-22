@@ -1,15 +1,15 @@
 import Foundation
 
-class AlarmListViewState: ObservableObject {
-    @Published var alarms: [Alarm] = []
-    @Published var sheet: AlarmListViewSheetItem?
-    @Published var showingAlert = false
-    @Published var alertMessage: String? {
+@Observable class AlarmListViewState {
+    var alarms: [Alarm] = []
+    var sheet: AlarmListViewSheetItem?
+    var showingAlert = false
+    var alertMessage: String? {
         didSet {
             showingAlert = alertMessage != nil
         }
     }
-    @Published var showingIndicator: Bool = true
+    var showingIndicator: Bool = true
 
     private let apiRepository = APIRepository()
     private let keychainRepository: KeychainRepository = KeychainRepository()

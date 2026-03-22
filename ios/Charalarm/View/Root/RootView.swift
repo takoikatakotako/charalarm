@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct RootView: View {
-    @StateObject var viewState: RootViewState
+    @State var viewState: RootViewState
 
     var body: some View {
         ZStack {

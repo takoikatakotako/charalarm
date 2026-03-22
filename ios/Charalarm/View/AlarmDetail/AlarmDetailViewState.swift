@@ -2,16 +2,16 @@ import Foundation
 import SwiftUI
 import Combine
 
-class AlarmDetailViewState: ObservableObject {
-    @Published var alarm: Alarm
-    @Published var characters: [Chara] = []
-    @Published var showingAlert = false
-    @Published var alertMessage = ""
-    @Published var sheet: AlarmDetailViewSheetItem?
-    @Published var selectedChara: Chara?
-    @Published var selectedCharaCall: CharaCall?
-    @Published var showingIndicator: Bool = false
-    @Published var dismiss: Bool = false
+@Observable class AlarmDetailViewState {
+    var alarm: Alarm
+    var characters: [Chara] = []
+    var showingAlert = false
+    var alertMessage = ""
+    var sheet: AlarmDetailViewSheetItem?
+    var selectedChara: Chara?
+    var selectedCharaCall: CharaCall?
+    var showingIndicator: Bool = false
+    var dismiss: Bool = false
 
     var dismissRequest: AnyPublisher<Void, Never> {
         dismissSubject.eraseToAnyPublisher()

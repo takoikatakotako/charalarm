@@ -1,13 +1,16 @@
 import SwiftUI
 
 struct LicenceView: View {
-    @StateObject var viewState: LicenceViewState
+    @Environment(\.openURL) private var openURL
+    @State var viewState: LicenceViewState
 
     var body: some View {
         List {
             Section(header: Text(String(localized: "license-character"))) {
                 Button {
-                    viewState.openZunZunProject()
+                    if let url = URL(string: ZunZunProjectURLString) {
+                        openURL(url)
+                    }
                 } label: {
                     Text("ずんだもん")
                 }
@@ -16,7 +19,9 @@ struct LicenceView: View {
 
             Section(header: Text(String(localized: "license-software"))) {
                 Button {
-                    viewState.openZunZunProject()
+                    if let url = URL(string: VoiceVoxURLString) {
+                        openURL(url)
+                    }
                 } label: {
                     Text("VOICEVOX:ずんだもん")
                 }

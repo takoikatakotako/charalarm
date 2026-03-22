@@ -2,7 +2,7 @@ import SwiftUI
 
 struct AlarmDetailVoiceList: View {
     let delegate: AlarmDetailVoiceListDelegate
-    @StateObject var viewState: AlarmDetailVoiceListState
+    @State var viewState: AlarmDetailVoiceListState
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {

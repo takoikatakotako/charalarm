@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct ErrorView: View {
-    @StateObject var viewState: ErrorViewState
+    @State var viewState: ErrorViewState
 
     var body: some View {
         VStack {

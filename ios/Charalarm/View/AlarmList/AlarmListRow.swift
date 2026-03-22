@@ -4,10 +4,10 @@ protocol AlarmListRowDelegate {
     func updateAlarmEnable(alarmId: UUID, isEnable: Bool)
 }
 
-class AlarmListRowModel: ObservableObject {
+@Observable class AlarmListRowModel {
     let alarmID: UUID?
     let delegate: AlarmListRowDelegate?
-    @Published var enable: Bool {
+    var enable: Bool {
         didSet {
             guard let alarmId = alarmID else {
                 return
@@ -24,7 +24,7 @@ class AlarmListRowModel: ObservableObject {
 }
 
 struct AlarmListRow: View {
-    @ObservedObject var alarmListModel: AlarmListRowModel
+    @Bindable var alarmListModel: AlarmListRowModel
     let alarm: Alarm
 
     init(delegate: AlarmListRowDelegate, alarm: Alarm) {

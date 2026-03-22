@@ -36,15 +36,15 @@ enum TopViewModelSheet: Identifiable {
     }
 }
 
-class TopViewState: ObservableObject {
-    @Published var charaImage = UIImage()
-    @Published var showingAlert = false
-    @Published var alert: TopViewModelAlert? {
+@Observable class TopViewState {
+    var charaImage = UIImage()
+    var showingAlert = false
+    var alert: TopViewModelAlert? {
         didSet {
             showingAlert = alert != nil
         }
     }
-    @Published var sheet: TopViewModelSheet?
+    var sheet: TopViewModelSheet?
     private let userDefaultsRepository: UserDefaultsRepository = UserDefaultsRepository()
     private let fileHandler: FileRepositoryProtcol = FileRepository()
 

@@ -5,7 +5,7 @@ import SDWebImageSwiftUI
 struct CharaProfileView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.requestReview) private var requestReview
-    @StateObject var viewState: CharaProfileViewState
+    @State var viewState: CharaProfileViewState
 
     var body: some View {
         GeometryReader { geometory in
@@ -59,7 +59,7 @@ struct CharaProfileView: View {
         }
         .navigationBarBackButtonHidden(true)
         .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
+            ToolbarItem(placement: .topBarLeading) {
                 BackBarButton {
                     dismiss()
                 }

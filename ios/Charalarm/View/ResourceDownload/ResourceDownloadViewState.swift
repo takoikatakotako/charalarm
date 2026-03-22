@@ -1,15 +1,15 @@
 import Foundation
 
-class ResourceDownloadViewState: ObservableObject {
+@Observable class ResourceDownloadViewState {
     private let charaID: String
     private let apiRepository = APIRepository()
     private let fileRepository = FileRepository()
     private let userDefaultsRepository = UserDefaultsRepository()
     private let localCharaResourceUseCase = LocalCharaResourceUseCase()
 
-    @Published var mainMessage: String = "リソースをダウンロードしています"
-    @Published var progressMessage: String = ""
-    @Published var showDismissButton = false
+    var mainMessage: String = "リソースをダウンロードしています"
+    var progressMessage: String = ""
+    var showDismissButton = false
 
     init(charaID: String) {
         self.charaID = charaID

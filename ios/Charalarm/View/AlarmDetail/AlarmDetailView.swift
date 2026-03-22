@@ -3,7 +3,7 @@ import SDWebImageSwiftUI
 
 struct AlarmDetailView: View {
     @Environment(\.dismiss) private var dismiss
-    @StateObject var viewState: AlarmDetailViewState
+    @State var viewState: AlarmDetailViewState
 
     private var title: String {
         switch viewState.type {
@@ -70,12 +70,12 @@ struct AlarmDetailView: View {
                 viewState.onDisappear()
             }
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
+                ToolbarItem(placement: .topBarLeading) {
                     CloseBarButton {
                         dismiss()
                     }
                 }
-                ToolbarItem(placement: .navigationBarTrailing) {
+                ToolbarItem(placement: .topBarTrailing) {
                     Button(action: {
                         viewState.createOrEditAlarm()
                     }) {

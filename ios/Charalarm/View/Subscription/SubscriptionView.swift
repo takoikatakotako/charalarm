@@ -3,7 +3,8 @@ import StoreKit
 
 struct SubscriptionView: View {
     @Environment(\.dismiss) private var dismiss
-    @StateObject var viewState: SubscriptionViewState
+    @Environment(\.openURL) private var openURL
+    @State var viewState: SubscriptionViewState
     var body: some View {
         ZStack {
             ScrollView {
@@ -64,12 +65,12 @@ struct SubscriptionView: View {
 
                     HStack {
                         Button {
-                            viewState.openTeams()
+                            openURL(viewState.openURLRepository.terms)
                         } label: {
                             Text(String(localized: "common-terms"))
                         }
                         Button {
-                            viewState.openPrivacyPolicy()
+                            openURL(viewState.openURLRepository.privacyPolicy)
                         } label: {
                             Text(String(localized: "common-privacy"))
                         }

@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct TutorialCallView: View {
-    @StateObject var viewModel = TutorialCallViewModel()
+    @State var viewModel = TutorialCallViewModel()
 
     var body: some View {
         ZStack(alignment: .bottom) {

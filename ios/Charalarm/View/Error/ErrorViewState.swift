@@ -1,6 +1,6 @@
 import SwiftUI
 
-class ErrorViewState: ObservableObject {
+@Observable class ErrorViewState {
     private let keychainRepository = KeychainRepository()
     private let authUseCase = AuthUseCase()
 

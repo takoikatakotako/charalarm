@@ -3,8 +3,9 @@ import UIKit
 import SDWebImageSwiftUI
 
 struct CharaListView: View {
-    @StateObject var viewState: CharacterListViewState
+    @State var viewState: CharacterListViewState
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.openURL) private var openURL
 
     var body: some View {
         NavigationStack {
@@ -20,7 +21,7 @@ struct CharaListView: View {
                 VStack {
                     Spacer()
                     Button(action: {
-                        viewState.characterAddRequestTapped()
+                        openURL(viewState.openURLRepository.characterAdditionRequestURL)
                     }) {
                         CharacterListBanner()
                             .padding(.horizontal, 16)
@@ -40,7 +41,7 @@ struct CharaListView: View {
             .navigationTitle(String(localized: "character-character-list"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
+                ToolbarItem(placement: .topBarLeading) {
                     CloseBarButton {
                         dismiss()
                     }

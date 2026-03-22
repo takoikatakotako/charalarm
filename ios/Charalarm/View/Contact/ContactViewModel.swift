@@ -1,19 +1,17 @@
 import Foundation
-
-import UIKit
 import SwiftUI
 
-class ContactViewState: ObservableObject {
+@Observable class ContactViewState {
     private let discordRepository = DiscordRepository()
     private let keychainRepository = KeychainRepository()
 
-    @Published var id: String = ""
-    @Published var email: String = ""
-    @Published var message: String = ""
+    var id: String = ""
+    var email: String = ""
+    var message: String = ""
 
-    @Published var showingIndicator: Bool = false
-    @Published var showingAlert: Bool = false
-    @Published var alertEntity: AlertEntity?
+    var showingIndicator: Bool = false
+    var showingAlert: Bool = false
+    var alertEntity: AlertEntity?
 
     func onAppear() {
         Task { @MainActor in

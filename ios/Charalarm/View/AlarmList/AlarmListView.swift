@@ -4,7 +4,7 @@ import GoogleMobileAds
 struct AlarmListView: View {
     @Environment(\.dismiss) private var dismiss
 
-    @StateObject var viewState: AlarmListViewState = AlarmListViewState()
+    @State var viewState: AlarmListViewState = AlarmListViewState()
 
     var body: some View {
         NavigationStack {
@@ -57,12 +57,12 @@ struct AlarmListView: View {
             .navigationTitle("")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
+                ToolbarItem(placement: .topBarLeading) {
                     CloseBarButton {
                         dismiss()
                     }
                 }
-                ToolbarItem(placement: .navigationBarTrailing) {
+                ToolbarItem(placement: .topBarTrailing) {
                     Button(action: {
                         viewState.addAlarmButtonTapped()
                     }) {

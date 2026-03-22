@@ -6,7 +6,7 @@ import SDWebImageSwiftUI
 struct CallView: View {
     @Environment(\.dismiss) private var dismiss
 
-    @StateObject var viewState: CallViewState
+    @State var viewState: CallViewState
 
     var body: some View {
         ZStack {

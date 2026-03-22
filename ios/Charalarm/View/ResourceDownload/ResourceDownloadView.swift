@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct ResourceDownloadView: View {
-    @StateObject var viewState: ResourceDownloadViewState
+    @State var viewState: ResourceDownloadViewState
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {

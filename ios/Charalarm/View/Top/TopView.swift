@@ -6,7 +6,7 @@ import AVKit
 import GoogleMobileAds
 
 struct TopView: View {
-    @StateObject var viewState = TopViewState()
+    @State var viewState = TopViewState()
     @StateObject var adDelegate = AdmobRewardedHandler()
 
     var body: some View {

@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct CharaProfileRow: View {
+    @Environment(\.openURL) private var openURL
     let title: String
     let text: String
     let url: URL?
@@ -21,9 +22,7 @@ struct CharaProfileRow: View {
 
             if let url = url {
                 Button(action: {
-                    if UIApplication.shared.canOpenURL(url) {
-                        UIApplication.shared.open(url)
-                    }
+                    openURL(url)
                 }, label: {
                     Image(R.image.profileOpenUrl.name)
                         .resizable()

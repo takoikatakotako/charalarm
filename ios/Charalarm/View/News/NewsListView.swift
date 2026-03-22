@@ -2,7 +2,8 @@ import SwiftUI
 
 struct NewsListView: View {
     @Environment(\.dismiss) private var dismiss
-    @StateObject private var viewModel = NewsListViewModel()
+    @Environment(\.openURL) private var openURL
+    @State private var viewModel = NewsListViewModel()
 
     var body: some View {
         NavigationStack {
@@ -11,9 +12,7 @@ struct NewsListView: View {
                     guard let url = URL(string: news.url) else {
                         return
                     }
-                    if UIApplication.shared.canOpenURL(url) {
-                        UIApplication.shared.open(url)
-                    }
+                    openURL(url)
                 } label: {
                     NewsRow(news: news)
                 }
@@ -21,7 +20,7 @@ struct NewsListView: View {
             .navigationTitle(String(localized: "news-news"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
+                ToolbarItem(placement: .topBarLeading) {
                     Button(action: {
                         dismiss()
                     }) {
