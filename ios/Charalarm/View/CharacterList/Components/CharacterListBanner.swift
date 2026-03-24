@@ -15,7 +15,7 @@ struct CharacterListBanner: View {
                 Text(String(localized: "character-request"))
                     .multilineTextAlignment(.leading)
                     .font(.system(size: 14))
-                    .foregroundStyle(Color(R.color.brownColor.name))
+                    .foregroundStyle(Color(.charalarmBrown))
                     .padding(.horizontal, 44)
                     .padding(.vertical, 8)
                 Spacer()
