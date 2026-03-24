@@ -30,13 +30,6 @@ struct TutorialAcceptPrivacyPolicyView: View {
                     .frame(width: 300, height: 300)
                 Spacer()
 
-                NavigationLink(
-                    destination: TutorialRequireTrackingView(),
-                    isActive: $viewModel.accountCreated,
-                    label: {
-                        EmptyView()
-                    })
-
                 Button(action: {
                     viewModel.signUp()
                 }, label: {
@@ -64,6 +57,9 @@ struct TutorialAcceptPrivacyPolicyView: View {
         .ignoresSafeArea(.container, edges: .bottom)
         .navigationTitle("")
         .toolbar(.hidden, for: .navigationBar)
+        .navigationDestination(isPresented: $viewModel.accountCreated) {
+            TutorialRequireTrackingView()
+        }
     }
 }
 
