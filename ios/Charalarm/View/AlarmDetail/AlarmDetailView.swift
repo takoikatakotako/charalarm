@@ -2,8 +2,8 @@ import SwiftUI
 import SDWebImageSwiftUI
 
 struct AlarmDetailView: View {
-    @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
-    @StateObject var viewState: AlarmDetailViewState
+    @Environment(\.dismiss) private var dismiss
+    @State var viewState: AlarmDetailViewState
 
     private var title: String {
         switch viewState.type {
@@ -15,7 +15,7 @@ struct AlarmDetailView: View {
     }
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             ZStack {
                 ScrollView {
                     VStack(alignment: .center) {
@@ -61,7 +61,7 @@ struct AlarmDetailView: View {
 
             }
             .onReceive(viewState.dismissRequest) { _ in
-                presentationMode.wrappedValue.dismiss()
+                dismiss()
             }
             .onAppear {
                 viewState.onAppear()
@@ -69,22 +69,25 @@ struct AlarmDetailView: View {
             .onDisappear {
                 viewState.onDisappear()
             }
-            .navigationBarItems(
-                leading: CloseBarButton {
-                    presentationMode.wrappedValue.dismiss()
-                },
-                trailing:
-                    HStack {
-                        Button(action: {
-                            viewState.createOrEditAlarm()
-                        }) {
-                            Text(String(localized: "common-save"))
-                                .foregroundColor(Color(R.color.charalarmDefaultGreen.name))
-                        }
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    CloseBarButton {
+                        dismiss()
                     }
-            )
-            .alert(isPresented: $viewState.showingAlert) {
-                Alert(title: Text(""), message: Text(viewState.alertMessage), dismissButton: .default(Text("閉じる")))
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button(action: {
+                        viewState.createOrEditAlarm()
+                    }) {
+                        Text(String(localized: "common-save"))
+                            .foregroundStyle(Color(R.color.charalarmDefaultGreen.name))
+                    }
+                }
+            }
+            .alert("", isPresented: $viewState.showingAlert) {
+                Button("閉じる") {}
+            } message: {
+                Text(viewState.alertMessage)
             }
             .sheet(item: $viewState.sheet) { item in
                 switch item {
@@ -94,8 +97,9 @@ struct AlarmDetailView: View {
                     AlarmDetailTimeDeffarenceSelecter(timeDeffarence: $viewState.alarm.timeDifference)
                 }
             }
-            .navigationBarHidden(false)
-            .navigationBarTitle(title, displayMode: .inline)
+            .toolbar(.visible, for: .navigationBar)
+            .navigationTitle(title)
+            .navigationBarTitleDisplayMode(.inline)
         }
     }
 }

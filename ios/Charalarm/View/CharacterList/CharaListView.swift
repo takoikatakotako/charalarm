@@ -3,11 +3,12 @@ import UIKit
 import SDWebImageSwiftUI
 
 struct CharaListView: View {
-    @StateObject var viewState: CharacterListViewState
-    @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
+    @State var viewState: CharacterListViewState
+    @Environment(\.dismiss) private var dismiss
+    @Environment(\.openURL) private var openURL
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             ZStack {
                 List(viewState.charaList) { chara in
                     NavigationLink(destination: CharaProfileView(viewState: CharaProfileViewState(chara: chara))) {
@@ -20,7 +21,7 @@ struct CharaListView: View {
                 VStack {
                     Spacer()
                     Button(action: {
-                        viewState.characterAddRequestTapped()
+                        openURL(viewState.openURLRepository.characterAdditionRequestURL)
                     }) {
                         CharacterListBanner()
                             .padding(.horizontal, 16)
@@ -28,36 +29,28 @@ struct CharaListView: View {
                 }
                 .padding(.bottom, 28)
             }
-            .edgesIgnoringSafeArea(.bottom)
+            .ignoresSafeArea(.container, edges: .bottom)
             .onAppear {
                 viewState.fetchCharacters()
             }
-            .alert(isPresented: $viewState.showingAlert) {
-                Alert(
-                    title: Text(""),
-                    message: Text(viewState.alertMessage),
-                    dismissButton: .default(Text(String(localized: "common-close")))
-                )
+            .alert("", isPresented: $viewState.showingAlert) {
+                Button(String(localized: "common-close")) {}
+            } message: {
+                Text(viewState.alertMessage)
             }
-            .navigationBarTitle(String(localized: "character-character-list"), displayMode: .inline)
-            .navigationBarItems(
-                leading:
+            .navigationTitle(String(localized: "character-character-list"))
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
                     CloseBarButton {
-                        presentationMode.wrappedValue.dismiss()
+                        dismiss()
                     }
-            )
+                }
+            }
         }
     }
 }
 
-struct CharacterList_Previews: PreviewProvider {
-    static var previews: some View {
-        Group {
-            CharaListView(viewState: CharacterListViewState())
-                .previewDevice(PreviewDevice(rawValue: "iPhone X"))
-
-            CharaListView(viewState: CharacterListViewState())
-                .previewDevice(PreviewDevice(rawValue: "iPhone 8"))
-        }
-    }
+#Preview {
+    CharaListView(viewState: CharacterListViewState())
 }

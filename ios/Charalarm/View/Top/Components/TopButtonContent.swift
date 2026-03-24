@@ -5,7 +5,7 @@ struct TopButtonContent: View {
     var body: some View {
         Group {
             Image(imageName)
-                .foregroundColor(.white)
+                .foregroundStyle(.white)
                 .padding(8)
         }
         .background(Color.clear)
@@ -16,9 +16,6 @@ struct TopButtonContent: View {
     }
 }
 
-struct TopButton_Previews: PreviewProvider {
-    static var previews: some View {
-        TopButtonContent(imageName: "top-news")
-            .previewLayout(.sizeThatFits)
-    }
+#Preview {
+    TopButtonContent(imageName: "top-news")
 }

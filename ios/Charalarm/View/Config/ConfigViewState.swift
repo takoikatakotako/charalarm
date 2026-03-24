@@ -1,19 +1,17 @@
-import UIKit
 import SwiftUI
 
-class ConfigViewState: ObservableObject {
-    @Published var character: Chara?
-    @Published var showingAlert = false
-    @Published var alertMessage = ""
-    @Published var showingResetAlert = false
-    @Published var showingSubscriptionSheet = false
+@Observable class ConfigViewState {
+    var character: Chara?
+    var showingAlert = false
+    var alertMessage = ""
+    var showingResetAlert = false
+    var showingSubscriptionSheet = false
 
     private let keychainRepository: KeychainRepository = KeychainRepository()
     private let userDefaultsRepository = UserDefaultsRepository()
     private let appUseCase = AppUseCase()
     private let apiRepository = APIRepository()
     private let authUseCase = AuthUseCase()
-    private let openURLRepository = OpenURLRepository()
 
     var isShowingADs: Bool {
         if userDefaultsRepository.getEnablePremiumPlan() {
@@ -38,22 +36,8 @@ class ConfigViewState: ObservableObject {
         showingSubscriptionSheet = true
     }
 
-    func openAppSetting() {
-        guard let settingsUrl = URL(string: UIApplication.openSettingsURLString) else {
-            return
-        }
-        UIApplication.shared.open(settingsUrl, completionHandler: nil)
-    }
-
     func resetButtonTapped() {
         showingResetAlert = true
-    }
-
-    func openUrlString(string: String) {
-        guard let url = URL(string: string) else {
-            return
-        }
-        UIApplication.shared.open(url)
     }
 
     func withdraw() {
@@ -71,20 +55,6 @@ class ConfigViewState: ObservableObject {
                 authUseCase.reset()
             }
             NotificationCenter.default.post(name: NSNotification.didReset, object: self, userInfo: nil)
-        }
-    }
-
-    func openInquiry() {
-        let url = openURLRepository.inqueryURL
-        if UIApplication.shared.canOpenURL(url) {
-            UIApplication.shared.open(url)
-        }
-    }
-
-    func openCharacterAdditionRequest() {
-        let url = openURLRepository.characterAdditionRequestURL
-        if UIApplication.shared.canOpenURL(url) {
-            UIApplication.shared.open(url)
         }
     }
 

@@ -1,18 +1,17 @@
 import Foundation
 import CallKit
 import SwiftUI
-import Combine
 
-class CharaProfileViewState: ObservableObject {
+@Observable class CharaProfileViewState {
     let charaID: String
-    @Published var chara: Chara?
-    @Published var showCallView: Bool = false
-    @Published var showSelectAlert = false
-    @Published var showingResourceDownloadView = false
-    @Published var downloadError = false
-    @Published var progressMessage = ""
-    @Published var showingAlert = false
-    @Published var alertMessage = ""
+    var chara: Chara?
+    var showCallView: Bool = false
+    var showSelectAlert = false
+    var showingResourceDownloadView = false
+    var downloadError = false
+    var progressMessage = ""
+    var showingAlert = false
+    var alertMessage = ""
 
     private var numberOfResource: Int = 0
     private var numberOfDownloadedReosurce: Int = 0

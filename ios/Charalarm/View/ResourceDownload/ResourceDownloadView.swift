@@ -1,8 +1,8 @@
 import SwiftUI
 
 struct ResourceDownloadView: View {
-    @StateObject var viewState: ResourceDownloadViewState
-    @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
+    @State var viewState: ResourceDownloadViewState
+    @Environment(\.dismiss) private var dismiss
 
     var body: some View {
         VStack {
@@ -11,7 +11,7 @@ struct ResourceDownloadView: View {
 
             if viewState.showDismissButton {
                 Button {
-                    presentationMode.wrappedValue.dismiss()
+                    dismiss()
                 } label: {
                     Text(String(localized: "common-close"))
                 }

@@ -29,21 +29,13 @@ struct TutorialIntroductionView: View {
                 })
                 .padding(.bottom, 28)
         }
-        .edgesIgnoringSafeArea(.bottom)
+        .ignoresSafeArea(.container, edges: .bottom)
         .navigationTitle("")
-        .navigationBarHidden(true)
-        .background(Color.white.edgesIgnoringSafeArea(.all))
+        .toolbar(.hidden, for: .navigationBar)
+        .background(Color.white.ignoresSafeArea())
     }
 }
 
-struct TutorialFirstView_Previews: PreviewProvider {
-    static var previews: some View {
-        Group {
-            TutorialIntroductionView()
-                .previewDevice(PreviewDevice(rawValue: "iPhone X"))
-
-            TutorialIntroductionView()
-                .previewDevice(PreviewDevice(rawValue: "iPhone 8"))
-        }
-    }
+#Preview {
+    TutorialIntroductionView()
 }

@@ -1,13 +1,12 @@
-import UIKit
 import SwiftUI
 import FirebaseAuth
 
-class RootViewState: ObservableObject {
-    @Published var type: RootViewType = .loading
+@Observable class RootViewState {
+    var type: RootViewType = .loading
 
-    @Published var charaID: String?
-    @Published var charaName: String?
-    @Published var callUUID: UUID?
+    var charaID: String?
+    var charaName: String?
+    var callUUID: UUID?
 
     private let apiRepository = APIRepository()
     private let appUseCase = AppUseCase()

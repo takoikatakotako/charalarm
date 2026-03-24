@@ -6,7 +6,7 @@ struct TopTimeView: View {
 
     var body: some View {
         Text(getTime())
-            .foregroundColor(Color.white)
+            .foregroundStyle(Color.white)
             .font(Font.system(size: 56).bold())
             .padding(.top, 12)
         .onReceive(timer) { input in
@@ -38,9 +38,6 @@ struct TopTimeView: View {
     }
 }
 
-struct TopTimeView_Previews: PreviewProvider {
-    static var previews: some View {
-        TopTimeView()
-            .previewLayout(.sizeThatFits)
-    }
+#Preview {
+    TopTimeView()
 }

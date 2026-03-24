@@ -2,14 +2,15 @@ import SwiftUI
 import StoreKit
 
 struct SubscriptionView: View {
-    @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
-    @StateObject var viewState: SubscriptionViewState
+    @Environment(\.dismiss) private var dismiss
+    @Environment(\.openURL) private var openURL
+    @State var viewState: SubscriptionViewState
     var body: some View {
         ZStack {
             ScrollView {
                 HStack {
                     Button {
-                        presentationMode.wrappedValue.dismiss()
+                        dismiss()
                     } label: {
                         Image(systemName: "xmark")
                             .resizable()
@@ -64,12 +65,12 @@ struct SubscriptionView: View {
 
                     HStack {
                         Button {
-                            viewState.openTeams()
+                            openURL(viewState.openURLRepository.terms)
                         } label: {
                             Text(String(localized: "common-terms"))
                         }
                         Button {
-                            viewState.openPrivacyPolicy()
+                            openURL(viewState.openURLRepository.privacyPolicy)
                         } label: {
                             Text(String(localized: "common-privacy"))
                         }
@@ -114,10 +115,8 @@ struct SubscriptionView: View {
     }
 }
 
-struct PremiunPlanDescriptionView_Previews: PreviewProvider {
-    static var previews: some View {
-        SubscriptionView(viewState: SubscriptionViewState())
-            .navigationBarTitleDisplayMode(.inline)
-            .navigationTitle("プレミアムプラン")
-    }
+#Preview {
+    SubscriptionView(viewState: SubscriptionViewState())
+        .navigationBarTitleDisplayMode(.inline)
+        .navigationTitle("プレミアムプラン")
 }

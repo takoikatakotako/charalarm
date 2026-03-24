@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct RootView: View {
-    @StateObject var viewState: RootViewState
+    @State var viewState: RootViewState
 
     var body: some View {
         ZStack {
@@ -42,8 +42,6 @@ struct RootView: View {
     }
 }
 
-struct RootView_Previews: PreviewProvider {
-    static var previews: some View {
-        RootView(viewState: RootViewState())
-    }
+#Preview {
+    RootView(viewState: RootViewState())
 }

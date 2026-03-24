@@ -3,7 +3,8 @@ import AdSupport
 import AppTrackingTransparency
 
 struct TutorialAcceptPrivacyPolicyView: View {
-    @StateObject var viewModel = TutorialAcceptPrivacyPolicyViewModel()
+    @Environment(\.openURL) private var openURL
+    @State var viewModel = TutorialAcceptPrivacyPolicyViewModel()
 
     var body: some View {
         ZStack {
@@ -15,7 +16,9 @@ struct TutorialAcceptPrivacyPolicyView: View {
                     .padding(.horizontal, 12)
 
                 Button(action: {
-                    viewModel.openPrivacyPolicy()
+                    if let url = URL(string: PrivacyPolicyUrlString) {
+                        openURL(url)
+                    }
                 }) {
                     Text(String(localized: "tutorial-open-the-privacy-policy"))
                         .font(Font.system(size: 20))
@@ -26,13 +29,6 @@ struct TutorialAcceptPrivacyPolicyView: View {
                     .scaledToFit()
                     .frame(width: 300, height: 300)
                 Spacer()
-
-                NavigationLink(
-                    destination: TutorialRequireTrackingView(),
-                    isActive: $viewModel.accountCreated,
-                    label: {
-                        EmptyView()
-                    })
 
                 Button(action: {
                     viewModel.signUp()
@@ -50,25 +46,23 @@ struct TutorialAcceptPrivacyPolicyView: View {
                     .progressViewStyle(CircularProgressViewStyle(tint: Color.white))
                     .frame(width: 160, height: 160)
                     .background(Color.black.opacity(0.3))
-                    .cornerRadius(16)
+                    .clipShape(RoundedRectangle(cornerRadius: 16))
             }
         }
-        .alert(isPresented: $viewModel.showingAlert) {
-            Alert(title: Text(""), message: Text(viewModel.alertMessage), dismissButton: .default(Text("Close")))}
-        .edgesIgnoringSafeArea(.bottom)
+        .alert("", isPresented: $viewModel.showingAlert) {
+            Button("Close") {}
+        } message: {
+            Text(viewModel.alertMessage)
+        }
+        .ignoresSafeArea(.container, edges: .bottom)
         .navigationTitle("")
-        .navigationBarHidden(true)
+        .toolbar(.hidden, for: .navigationBar)
+        .navigationDestination(isPresented: $viewModel.accountCreated) {
+            TutorialRequireTrackingView()
+        }
     }
 }
 
-struct TutorialAcceptPrivacyPolicyView_Previews: PreviewProvider {
-    static var previews: some View {
-        Group {
-            TutorialAcceptPrivacyPolicyView()
-                .previewDevice(PreviewDevice(rawValue: "iPhone X"))
-
-            TutorialAcceptPrivacyPolicyView()
-                .previewDevice(PreviewDevice(rawValue: "iPhone 8"))
-        }
-    }
+#Preview {
+    TutorialAcceptPrivacyPolicyView()
 }

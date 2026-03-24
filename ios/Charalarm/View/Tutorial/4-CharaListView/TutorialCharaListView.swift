@@ -32,20 +32,12 @@ struct TutorialCharaListView: View {
                 })
                 .padding(.bottom, 28)
         }
-        .edgesIgnoringSafeArea(.bottom)
+        .ignoresSafeArea(.container, edges: .bottom)
         .navigationTitle("")
-        .navigationBarHidden(true)
+        .toolbar(.hidden, for: .navigationBar)
     }
 }
 
-struct TutorialFourthView_Previews: PreviewProvider {
-    static var previews: some View {
-        Group {
-            TutorialCharaListView()
-                .previewDevice(PreviewDevice(rawValue: "iPhone X"))
-
-            TutorialCharaListView()
-                .previewDevice(PreviewDevice(rawValue: "iPhone 8"))
-        }
-    }
+#Preview {
+    TutorialCharaListView()
 }

@@ -29,20 +29,12 @@ struct TutorialThirdView: View {
                 })
                 .padding(.bottom, 28)
         }
-        .edgesIgnoringSafeArea(.bottom)
+        .ignoresSafeArea(.container, edges: .bottom)
         .navigationTitle("")
-        .navigationBarHidden(true)
+        .toolbar(.hidden, for: .navigationBar)
     }
 }
 
-struct TutorialThirdView_Previews: PreviewProvider {
-    static var previews: some View {
-        Group {
-            TutorialThirdView()
-                .previewDevice(PreviewDevice(rawValue: "iPhone X"))
-
-            TutorialThirdView()
-                .previewDevice(PreviewDevice(rawValue: "iPhone 8"))
-        }
-    }
+#Preview {
+    TutorialThirdView()
 }

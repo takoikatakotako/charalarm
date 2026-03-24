@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct UpdateRequiredView: View {
+    @Environment(\.openURL) private var openURL
     var body: some View {
         VStack(spacing: 12) {
             Text(String(localized: "update-requird-update-requird"))
@@ -19,7 +20,7 @@ struct UpdateRequiredView: View {
 
             Button(action: {
                 if let url = URL(string: CharalarmAppStoreUrlString) {
-                    UIApplication.shared.open(url)
+                    openURL(url)
                 }
             }) {
                 Text(String(localized: "update-requird-open-app-store"))
@@ -30,14 +31,6 @@ struct UpdateRequiredView: View {
     }
 }
 
-struct UpdateRequiredView_Previews: PreviewProvider {
-    static var previews: some View {
-        Group {
-            UpdateRequiredView()
-                .previewDevice(PreviewDevice(rawValue: "iPhone X"))
-
-            UpdateRequiredView()
-                .previewDevice(PreviewDevice(rawValue: "iPhone 8"))
-        }
-    }
+#Preview {
+    UpdateRequiredView()
 }

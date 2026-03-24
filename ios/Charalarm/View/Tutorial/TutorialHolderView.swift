@@ -9,15 +9,12 @@ struct TutorialHolderView: View {
     // 6. TutorialRequireTrackingView
     // 7. TutorialFinallyView
     var body: some View {
-        NavigationView {
+        NavigationStack {
             TutorialIntroductionView()
         }
-        .navigationViewStyle(StackNavigationViewStyle())
     }
 }
 
-struct TutorialHolderView_Previews: PreviewProvider {
-    static var previews: some View {
-        TutorialHolderView()
-    }
+#Preview {
+    TutorialHolderView()
 }

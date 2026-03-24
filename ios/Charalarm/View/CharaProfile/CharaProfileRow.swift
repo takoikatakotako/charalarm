@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct CharaProfileRow: View {
+    @Environment(\.openURL) private var openURL
     let title: String
     let text: String
     let url: URL?
@@ -9,11 +10,11 @@ struct CharaProfileRow: View {
             VStack(alignment: .leading) {
                 Text(title)
                     .font(Font.headline)
-                    .foregroundColor(Color.gray)
+                    .foregroundStyle(Color.gray)
                     .padding(.top, 8)
                     .padding(.bottom, 8)
                 Text(text)
-                    .foregroundColor(Color.gray)
+                    .foregroundStyle(Color.gray)
                     .lineLimit(nil)
                     .fixedSize(horizontal: false, vertical: true)
                 Divider()
@@ -21,14 +22,12 @@ struct CharaProfileRow: View {
 
             if let url = url {
                 Button(action: {
-                    if UIApplication.shared.canOpenURL(url) {
-                        UIApplication.shared.open(url)
-                    }
+                    openURL(url)
                 }, label: {
                     Image(R.image.profileOpenUrl.name)
                         .resizable()
                         .renderingMode(.template)
-                        .foregroundColor(Color(R.color.charalarmDefaultGray.name))
+                        .foregroundStyle(Color(R.color.charalarmDefaultGray.name))
                         .frame(width: 24, height: 24, alignment: .center)
                         .padding(.horizontal, 8)
                         .padding(.vertical, 16)
@@ -39,14 +38,6 @@ struct CharaProfileRow: View {
     }
 }
 
-struct ProfileRow_Previews: PreviewProvider {
-    static var previews: some View {
-        Group {
-            CharaProfileRow(title: "名前", text: "井上結衣", url: URL(string: "https://swiswiswift.com/")!)
-                .previewLayout(.sizeThatFits)
-
-            CharaProfileRow(title: "プロフィール", text: "長い長いプロフィール。長い長いプロフィール。長い長いプロフィール。長い長いプロフィール。長い長いプロフィール。長い長いプロフィール。長い長いプロフィール。長い長いプロフィール。長い長いプロフィール。長い長いプロフィール。長い長いプロフィール。長い長いプロフィール。", url: nil)
-                .previewLayout(.sizeThatFits)
-        }
-    }
+#Preview {
+    CharaProfileRow(title: "名前", text: "井上結衣", url: URL(string: "https://swiswiswift.com/")!)
 }

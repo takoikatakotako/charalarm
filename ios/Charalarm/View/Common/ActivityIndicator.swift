@@ -1,21 +1,13 @@
 import SwiftUI
 
-struct ActivityIndicator: UIViewRepresentable {
-    func makeUIView(context: UIViewRepresentableContext<ActivityIndicator>) -> UIActivityIndicatorView {
-        return UIActivityIndicatorView(style: .large)
-    }
-    func updateUIView(_ uiView: UIActivityIndicatorView, context: UIViewRepresentableContext<ActivityIndicator>) {
-        uiView.color = UIColor.white
-        uiView.style = .large
-        uiView.startAnimating()
-    }
-}
-
 struct CharalarmActivityIndicator: View {
     var body: some View {
-        ActivityIndicator()
+        ProgressView()
+            .progressViewStyle(.circular)
+            .tint(.white)
+            .scaleEffect(1.5)
             .padding(12)
             .background(Color.gray.opacity(0.8))
-            .cornerRadius(12)
+            .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 }

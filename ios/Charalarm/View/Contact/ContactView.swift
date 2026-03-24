@@ -1,8 +1,8 @@
 import SwiftUI
 
 struct ContactView: View {
-    @StateObject var viewState: ContactViewState
-    @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
+    @State var viewState: ContactViewState
+    @Environment(\.dismiss) private var dismiss
 
     var body: some View {
         ZStack {
@@ -60,32 +60,30 @@ struct ContactView: View {
         .toolbarBackground(Color(.appMain), for: .navigationBar)
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden()
-        .navigationBarItems(
-            leading:
-                HStack {
-                    Button(action: {
-                        presentationMode.wrappedValue.dismiss()
-                    }) {
-                        Image(systemName: "chevron.backward")
-                            .font(.system(size: 18, weight: .semibold))
-                            .padding(.top, 4)
-                            .padding(.trailing, 4)
-                            .padding(.bottom, 4)
-                            .foregroundStyle(Color.white)
-                    }
-                },
-            trailing:
-                HStack {
-                    Button(action: {
-                        viewState.sendMessage()
-                    }) {
-                        Text("送信")
-                            .font(.system(size: 18, weight: .semibold))
-                            .foregroundStyle(Color.white)
-                            .padding(4)
-                    }
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                Button(action: {
+                    dismiss()
+                }) {
+                    Image(systemName: "chevron.backward")
+                        .font(.system(size: 18, weight: .semibold))
+                        .padding(.top, 4)
+                        .padding(.trailing, 4)
+                        .padding(.bottom, 4)
+                        .foregroundStyle(Color.white)
                 }
-        )
+            }
+            ToolbarItem(placement: .topBarTrailing) {
+                Button(action: {
+                    viewState.sendMessage()
+                }) {
+                    Text("送信")
+                        .font(.system(size: 18, weight: .semibold))
+                        .foregroundStyle(Color.white)
+                        .padding(4)
+                }
+            }
+        }
         .onAppear {
             viewState.onAppear()
         }
@@ -104,7 +102,7 @@ struct ContactView: View {
 }
 
 #Preview {
-    NavigationView {
+    NavigationStack {
         ContactView(viewState: ContactViewState())
     }
 }

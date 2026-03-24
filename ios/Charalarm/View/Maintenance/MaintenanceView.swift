@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct MaintenanceView: View {
+    @Environment(\.openURL) private var openURL
     var body: some View {
         VStack(spacing: 12) {
             Text("メンテナンス中です")
@@ -14,7 +15,7 @@ struct MaintenanceView: View {
 
             Button(action: {
                 if let url = URL(string: OfficialTwitterUrlString) {
-                    UIApplication.shared.open(url)
+                    openURL(url)
                 }
             }) {
                 Text("キャラームのTwitterを開く")
@@ -25,8 +26,6 @@ struct MaintenanceView: View {
     }
 }
 
-struct MaintenanceView_Previews: PreviewProvider {
-    static var previews: some View {
-        MaintenanceView()
-    }
+#Preview {
+    MaintenanceView()
 }

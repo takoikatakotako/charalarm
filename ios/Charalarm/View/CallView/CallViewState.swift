@@ -1,15 +1,14 @@
 import SwiftUI
-import UIKit
 import AVFoundation
 
-class CallViewState: ObservableObject {
+@Observable class CallViewState {
     let charaDomain: String
     let charaName: String
     let resourceHandler = CharaUseCase()
 
-    @Published var overlay = true
-    @Published var incomingAudioPlayer: AVAudioPlayer?
-    @Published var voiceAudioPlayer: AVPlayer?
+    var overlay = true
+    var incomingAudioPlayer: AVAudioPlayer?
+    var voiceAudioPlayer: AVPlayer?
 
     var charaThumbnailUrlString: String {
         return resourceHandler.getCharaThumbnailUrlString(charaID: charaDomain)

@@ -1,9 +1,9 @@
 import SwiftUI
 
-class NewsListViewModel: ObservableObject {
-    @Published var newsList: [News] = []
-    @Published var showingAlert = false
-    @Published var alertMessage = ""
+@Observable class NewsListViewModel {
+    var newsList: [News] = []
+    var showingAlert = false
+    var alertMessage = ""
     // let newsRepository: NewsRepository = NewsRepository()
 
     func fetchNews() {

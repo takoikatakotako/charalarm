@@ -3,8 +3,9 @@ import StoreKit
 import SDWebImageSwiftUI
 
 struct CharaProfileView: View {
-    @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
-    @StateObject var viewState: CharaProfileViewState
+    @Environment(\.dismiss) private var dismiss
+    @Environment(\.requestReview) private var requestReview
+    @State var viewState: CharaProfileViewState
 
     var body: some View {
         GeometryReader { geometory in
@@ -57,23 +58,23 @@ struct CharaProfileView: View {
             }
         }
         .navigationBarBackButtonHidden(true)
-        .navigationBarItems(
-            leading:
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
                 BackBarButton {
-                    presentationMode.wrappedValue.dismiss()
+                    dismiss()
                 }
-        )
+            }
+        }
         .onAppear {
             viewState.fetchCharacter()
         }
-        .alert(isPresented: $viewState.showSelectAlert) {
-            Alert(
-                title: Text(String(localized: "profile-character-selection")),
-                message: Text(String(localized: "profile-want-to-call-this-character")),
-                primaryButton: .default(Text(String(localized: "common-close"))) {
-                }, secondaryButton: .default(Text(String(localized: "profile-yes"))) {
-                    viewState.selectCharacter()
-                })
+        .alert(String(localized: "profile-character-selection"), isPresented: $viewState.showSelectAlert) {
+            Button(String(localized: "common-close"), role: .cancel) {}
+            Button(String(localized: "profile-yes")) {
+                viewState.selectCharacter()
+            }
+        } message: {
+            Text(String(localized: "profile-want-to-call-this-character"))
         }
         .sheet(isPresented: $viewState.showCallView) {
             CallView(viewState: CallViewState(charaDomain: viewState.chara?.charaID ?? "", charaName: viewState.chara?.name ?? ""))
@@ -81,9 +82,7 @@ struct CharaProfileView: View {
         .sheet(
             isPresented: $viewState.showCallView,
             onDismiss: {
-                if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
-                    SKStoreReviewController.requestReview(in: scene)
-                }
+                requestReview()
             }) {
                 CallView(viewState: CallViewState(charaDomain: viewState.chara?.charaID ?? "", charaName: viewState.chara?.name ?? ""))
             }
@@ -93,14 +92,6 @@ struct CharaProfileView: View {
     }
 }
 
-struct ProfileView_Previews: PreviewProvider {
-    struct PreviewWrapper: View {
-        var body: some View {
-            CharaProfileView(viewState: CharaProfileViewState(charaID: "com.example.xxx"))
-        }
-    }
-
-    static var previews: some View {
-        PreviewWrapper()
-    }
+#Preview {
+    CharaProfileView(viewState: CharaProfileViewState(charaID: "com.example.xxx"))
 }

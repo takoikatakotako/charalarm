@@ -2,12 +2,12 @@ import SwiftUI
 import GoogleMobileAds
 
 struct AlarmListView: View {
-    @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
+    @Environment(\.dismiss) private var dismiss
 
-    @StateObject var viewState: AlarmListViewState = AlarmListViewState()
+    @State var viewState: AlarmListViewState = AlarmListViewState()
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             ZStack(alignment: .bottom) {
                 ZStack(alignment: .center) {
                     ScrollView {
@@ -34,14 +34,14 @@ struct AlarmListView: View {
             .onAppear {
                 viewState.onAppear()
             }
-            .alert(item: $viewState.alert) { item in
-                switch item {
-                case .ad:
-                    return Alert(title: Text(""), message: Text("動画見てください！"), primaryButton: .default(Text("aaa"), action: {
-                    }), secondaryButton: .cancel())
-                case let .error(_, message):
-                    return Alert(title: Text(""), message: Text(message), dismissButton: .default(Text(String(localized: "common-close"))))
-                }
+            .alert(
+                viewState.alertMessage ?? "",
+                isPresented: $viewState.showingAlert,
+                presenting: viewState.alertMessage
+            ) { _ in
+                Button(String(localized: "common-close")) {}
+            } message: { message in
+                Text(message)
             }
             .sheet(item: $viewState.sheet, onDismiss: {
                 viewState.fetchAlarms()
@@ -54,20 +54,24 @@ struct AlarmListView: View {
                 }
             })
             .navigationBarBackButtonHidden(true)
-            .navigationBarTitle("", displayMode: .inline)
-            .navigationBarItems(
-                leading: CloseBarButton {
-                    presentationMode.wrappedValue.dismiss()
-                },
-                trailing:
+            .navigationTitle("")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    CloseBarButton {
+                        dismiss()
+                    }
+                }
+                ToolbarItem(placement: .topBarTrailing) {
                     Button(action: {
                         viewState.addAlarmButtonTapped()
                     }) {
                         Image(R.image.alarmAddIcon.name)
                             .renderingMode(.template)
-                            .foregroundColor(Color(R.color.charalarmDefaultGreen.name))
+                            .foregroundStyle(Color(R.color.charalarmDefaultGreen.name))
                     }
-            )
+                }
+            }
         }
     }
 }
@@ -78,8 +82,6 @@ extension AlarmListView: AlarmListRowDelegate {
     }
 }
 
-struct AlarmListView_Previews: PreviewProvider {
-    static var previews: some View {
-        AlarmListView()
-    }
+#Preview {
+    AlarmListView()
 }

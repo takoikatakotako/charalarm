@@ -26,20 +26,12 @@ struct TutorialFinallyView: View {
             }
             .padding(.bottom, 28)
         }
-        .edgesIgnoringSafeArea(.bottom)
+        .ignoresSafeArea(.container, edges: .bottom)
         .navigationTitle("")
-        .navigationBarHidden(true)
+        .toolbar(.hidden, for: .navigationBar)
     }
 }
 
-struct TutorialSixthView_Previews: PreviewProvider {
-    static var previews: some View {
-        Group {
-            TutorialFinallyView()
-                .previewDevice(PreviewDevice(rawValue: "iPhone X"))
-
-            TutorialFinallyView()
-                .previewDevice(PreviewDevice(rawValue: "iPhone 8"))
-        }
-    }
+#Preview {
+    TutorialFinallyView()
 }

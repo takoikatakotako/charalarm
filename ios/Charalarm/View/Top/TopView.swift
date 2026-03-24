@@ -6,7 +6,7 @@ import AVKit
 import GoogleMobileAds
 
 struct TopView: View {
-    @StateObject var viewState = TopViewState()
+    @State var viewState = TopViewState()
     @StateObject var adDelegate = AdmobRewardedHandler()
 
     var body: some View {
@@ -85,7 +85,7 @@ struct TopView: View {
                 .background(LinearGradient(gradient: Gradient(colors: [Color.gray.opacity(0.8), Color.gray.opacity(0.2)]), startPoint: UnitPoint(x: 0.5, y: 0.03), endPoint: UnitPoint(x: 0.5, y: 0)).opacity(0.9))
             }
         }
-        .edgesIgnoringSafeArea([.top, .bottom])
+        .ignoresSafeArea(.container, edges: [.top, .bottom])
         .onReceive(NotificationCenter.default.publisher(for: NSNotification.setChara)) { notification in
             let charaID: String? = notification.userInfo?[NSNotification.setCharaUserInfoKeyCharaID] as? String
             viewState.updateChara(charaID: charaID)
@@ -94,39 +94,14 @@ struct TopView: View {
             viewState.onAppear()
             adDelegate.load()
         }
-        .alert(item: $viewState.alert) { item in
-            switch item {
-            case .failedToGetCharacterInformation:
-                return Alert(
-                    title: Text(""),
-                    message: Text(String(localized: "error-failed-to-get-character-information")),
-                    dismissButton: .default(Text(String(localized: "common-close")))
-                )
-            case .failedToGetCharacterSelectionInformation:
-                return Alert(
-                    title: Text(""),
-                    message: Text(String(localized: "error-failed-to-get-character-selection-information")),
-                    dismissButton: .default(Text(String(localized: "common-close")))
-                )
-            case .failedToGetCharactersResources:
-                return Alert(
-                    title: Text(""),
-                    message: Text(String(localized: "error-failed-to-get-characters-resources")),
-                    dismissButton: .default(Text(String(localized: "common-close")))
-                )
-            case .failedToSetCharacterImage:
-                return Alert(
-                    title: Text(""),
-                    message: Text(String(localized: "error-failed-to-set-character-image")),
-                    dismissButton: .default(Text(String(localized: "common-close")))
-                )
-            case .thisFeatureIsNotAvailableInYourRegion:
-                return Alert(
-                    title: Text(""),
-                    message: Text(String(localized: "error-this-feature-is-not-available-in-your-region")),
-                    dismissButton: .default(Text(String(localized: "common-close")))
-                )
-            }
+        .alert(
+            viewState.alert?.message ?? "",
+            isPresented: $viewState.showingAlert,
+            presenting: viewState.alert
+        ) { _ in
+            Button(String(localized: "common-close")) {}
+        } message: { item in
+            Text(item.message)
         }
         .sheet(item: $viewState.sheet) {
             // On Dissmiss
@@ -145,17 +120,6 @@ struct TopView: View {
     }
 }
 
-struct TopView_Previews: PreviewProvider {
-    static var previews: some View {
-        Group {
-            TopView()
-                .previewDevice(PreviewDevice(rawValue: "iPhone 11"))
-                .previewDisplayName("iPhone 11")
-                .environment(\.colorScheme, .light)
-            TopView()
-                .previewDevice(PreviewDevice(rawValue: "iPhone 8"))
-                .previewDisplayName("iPhone 8")
-                .environment(\.colorScheme, .dark)
-        }
-    }
+#Preview {
+    TopView()
 }

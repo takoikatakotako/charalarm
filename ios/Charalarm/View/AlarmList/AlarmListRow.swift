@@ -4,10 +4,10 @@ protocol AlarmListRowDelegate {
     func updateAlarmEnable(alarmId: UUID, isEnable: Bool)
 }
 
-class AlarmListRowModel: ObservableObject {
+@Observable class AlarmListRowModel {
     let alarmID: UUID?
     let delegate: AlarmListRowDelegate?
-    @Published var enable: Bool {
+    var enable: Bool {
         didSet {
             guard let alarmId = alarmID else {
                 return
@@ -24,7 +24,7 @@ class AlarmListRowModel: ObservableObject {
 }
 
 struct AlarmListRow: View {
-    @ObservedObject var alarmListModel: AlarmListRowModel
+    @Bindable var alarmListModel: AlarmListRowModel
     let alarm: Alarm
 
     init(delegate: AlarmListRowDelegate, alarm: Alarm) {
@@ -57,7 +57,7 @@ struct AlarmListRow: View {
             VStack(alignment: .leading, spacing: 8) {
                 Text(alarm.name)
                     .font(Font.system(size: 20))
-                    .frame(width: UIScreen.main.bounds.size.width - 32, alignment: .leading)
+                    .frame(maxWidth: .infinity, alignment: .leading)
                     .lineLimit(1)
 
                 Text("\(String(format: "%02d", alarm.hour)):\(String(format: "%02d", alarm.minute))")
@@ -66,7 +66,7 @@ struct AlarmListRow: View {
                     .font(Font.system(size: 20))
             }
             .fixedSize(horizontal: true, vertical: false)
-            .foregroundColor(Color.white)
+            .foregroundStyle(Color.white)
             .padding(.leading, 16)
 
             HStack {
@@ -80,7 +80,7 @@ struct AlarmListRow: View {
         }
         .frame(height: 140)
         .background(backgroundColor)
-        .cornerRadius(16)
+        .clipShape(RoundedRectangle(cornerRadius: 16))
         .padding(8)
     }
 }
@@ -120,49 +120,35 @@ struct MockAlarmListRowDelegate: AlarmListRowDelegate {
     }
 }
 
-struct AlarmListRow_Previews: PreviewProvider {
-    struct PreviewWrapper: View {
-        let alarm: Alarm
-        init(enable: Bool = true, name: String = "モーニングコール", hour: Int = 9, minute: Int = 30) {
-            self.alarm = Alarm(
-                alarmID: UUID(),
-                type: .IOS_VOIP_PUSH_NOTIFICATION,
-                enable: true,
-                name: "xxxx",
-                hour: 8,
-                minute: 30,
-                timeDifference: 0,
-                charaName: "xxxx",
-                charaID: "xxxx",
-                voiceFileName: "ssssss",
-                sunday: true,
-                monday: true,
-                tuesday: true,
-                wednesday: true,
-                thursday: true,
-                friday: true,
-                saturday: true
-            )
-        }
-
-        var body: some View {
-            AlarmListRow(delegate: MockAlarmListRowDelegate(), alarm: alarm)
-        }
+private struct AlarmListRowPreviewWrapper: View {
+    let alarm: Alarm
+    init(enable: Bool = true, name: String = "モーニングコール", hour: Int = 9, minute: Int = 30) {
+        self.alarm = Alarm(
+            alarmID: UUID(),
+            type: .IOS_VOIP_PUSH_NOTIFICATION,
+            enable: true,
+            name: "xxxx",
+            hour: 8,
+            minute: 30,
+            timeDifference: 0,
+            charaName: "xxxx",
+            charaID: "xxxx",
+            voiceFileName: "ssssss",
+            sunday: true,
+            monday: true,
+            tuesday: true,
+            wednesday: true,
+            thursday: true,
+            friday: true,
+            saturday: true
+        )
     }
 
-    static var previews: some View {
-        Group {
-            PreviewWrapper()
-                .previewDevice(PreviewDevice(rawValue: "iPhone X"))
-                .previewDisplayName("iPhone X")
-
-            PreviewWrapper(name: "長い長いモーニングコール。長い長いモーニングコール。")
-                .previewDevice(PreviewDevice(rawValue: "iPhone X"))
-                .previewDisplayName("iPhone X")
-
-            PreviewWrapper()
-                .previewDevice(PreviewDevice(rawValue: "iPhone 8"))
-                .previewDisplayName("iPhone 8")
-        }
+    var body: some View {
+        AlarmListRow(delegate: MockAlarmListRowDelegate(), alarm: alarm)
     }
+}
+
+#Preview {
+    AlarmListRowPreviewWrapper()
 }

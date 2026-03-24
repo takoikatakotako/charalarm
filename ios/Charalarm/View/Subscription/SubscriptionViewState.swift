@@ -1,14 +1,14 @@
 import StoreKit
 
-class SubscriptionViewState: ObservableObject {
-    @Published var product: Product?
-    @Published var enableDisplayLock: Bool = false
-    @Published var showingAlert: Bool = false
-    @Published var alertMessage: String?
+@Observable class SubscriptionViewState {
+    var product: Product?
+    var enableDisplayLock: Bool = false
+    var showingAlert: Bool = false
+    var alertMessage: String?
 
     private let apiRepository = APIRepository()
     private let userDefaultsRepository = UserDefaultsRepository()
-    private let openURLRepository = OpenURLRepository()
+    let openURLRepository = OpenURLRepository()
 
     var priceMessage: String {
         if let product = product, let period = product.subscription?.subscriptionPeriod {
@@ -85,27 +85,6 @@ class SubscriptionViewState: ObservableObject {
                 alertMessage = String(localized: "error-failed-to-subscription-restore")
                 showingAlert = true
             }
-        }
-    }
-
-    func openTeams() {
-        let url = openURLRepository.terms
-        if UIApplication.shared.canOpenURL(url) {
-            UIApplication.shared.open(url)
-        }
-    }
-
-    func openPrivacyPolicy() {
-        let url = openURLRepository.privacyPolicy
-        if UIApplication.shared.canOpenURL(url) {
-            UIApplication.shared.open(url)
-        }
-    }
-
-    func openAboutCancel() {
-        let url = openURLRepository.privacyPolicy
-        if UIApplication.shared.canOpenURL(url) {
-            UIApplication.shared.open(url)
         }
     }
 

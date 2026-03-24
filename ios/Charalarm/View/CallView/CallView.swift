@@ -4,9 +4,9 @@ import SDWebImageSwiftUI
 
 // TODO: モックであるようなことが伝わる名前にする
 struct CallView: View {
-    @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
+    @Environment(\.dismiss) private var dismiss
 
-    @StateObject var viewState: CallViewState
+    @State var viewState: CallViewState
 
     var body: some View {
         ZStack {
@@ -18,27 +18,28 @@ struct CallView: View {
                         Image(R.image.characterPlaceholder.name)
                             .resizable()
                     }
-                    .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.width)
+                    .aspectRatio(1, contentMode: .fit)
+                    .frame(maxWidth: .infinity)
                     .scaledToFill()
 
                     Text(viewState.charaName)
                         .font(Font.system(size: 40))
-                        .foregroundColor(Color.white)
+                        .foregroundStyle(Color.white)
                         .padding(.top, 100)
                     Spacer()
 
                     Button(action: {
                         viewState.fadeOut()
-                        presentationMode.wrappedValue.dismiss()
+                        dismiss()
                     }) {
                         Image(systemName: "phone.fill.arrow.down.left")
                             .resizable()
-                            .foregroundColor(Color.white)
+                            .foregroundStyle(Color.white)
                             .frame(width: 40, height: 40)
                     }
                     .frame(width: 80, height: 80)
                     .background(Color(R.color.callRed.name))
-                    .cornerRadius(40)
+                    .clipShape(RoundedRectangle(cornerRadius: 40))
                 }                    .padding(.bottom, 60)
 
             }
@@ -47,7 +48,7 @@ struct CallView: View {
                     VStack {
                         Text(viewState.charaName)
                             .font(Font.system(size: 40))
-                            .foregroundColor(Color.white)
+                            .foregroundStyle(Color.white)
                             .padding(.top, 100)
 
                         Spacer()
@@ -55,17 +56,17 @@ struct CallView: View {
                         HStack(spacing: 160) {
                             Button(action: {
                                 viewState.fadeOut()
-                                presentationMode.wrappedValue.dismiss()
+                                dismiss()
                             }) {
 
                                 Image(systemName: "phone.fill.arrow.down.left")
                                     .resizable()
-                                    .foregroundColor(Color.white)
+                                    .foregroundStyle(Color.white)
                                     .frame(width: 40, height: 40)
                             }
                             .frame(width: 80, height: 80)
                             .background(Color(R.color.callRed.name))
-                            .cornerRadius(40)
+                            .clipShape(RoundedRectangle(cornerRadius: 40))
 
                             Button(action: {
                                 viewState.call()
@@ -75,12 +76,12 @@ struct CallView: View {
                             }) {
                                 Image(systemName: "phone.fill")
                                     .resizable()
-                                    .foregroundColor(Color.white)
+                                    .foregroundStyle(Color.white)
                                     .frame(width: 40, height: 40)
                             }
                             .frame(width: 80, height: 80)
                             .background(Color(R.color.callGreen.name))
-                            .cornerRadius(40)
+                            .clipShape(RoundedRectangle(cornerRadius: 40))
 
                         }
                         .padding(.bottom, 60)
@@ -89,7 +90,7 @@ struct CallView: View {
                 .background(Color.gray)
             }
         }
-        .edgesIgnoringSafeArea(.bottom)
+        .ignoresSafeArea(.container, edges: .bottom)
         .onAppear {
             viewState.incoming()
         }

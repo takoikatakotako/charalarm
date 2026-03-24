@@ -24,20 +24,18 @@ struct NewsRow: View {
     }
 }
 
-struct NewsRow_Previews: PreviewProvider {
-    struct PreviewWrapper: View {
-        let news = News(
-            newsId: 1,
-            siteName: "Twitter",
-            url: "google.com",
-            title: "IntelliJでJavaのGradleのプロジェクトを作成する",
-            description: "IntelliJでJavaのGradleのプロジェクトを作成する方法です。", registeredAt: Date())
-        var body: some View {
-            NewsRow(news: news)
-        }
+private struct NewsRowPreviewWrapper: View {
+    let news = News(
+        newsId: 1,
+        siteName: "Twitter",
+        url: "google.com",
+        title: "IntelliJでJavaのGradleのプロジェクトを作成する",
+        description: "IntelliJでJavaのGradleのプロジェクトを作成する方法です。", registeredAt: Date())
+    var body: some View {
+        NewsRow(news: news)
     }
+}
 
-    static var previews: some View {
-        PreviewWrapper()
-    }
+#Preview {
+    NewsRowPreviewWrapper()
 }

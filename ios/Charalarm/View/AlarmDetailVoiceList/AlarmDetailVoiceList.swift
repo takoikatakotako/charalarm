@@ -2,11 +2,11 @@ import SwiftUI
 
 struct AlarmDetailVoiceList: View {
     let delegate: AlarmDetailVoiceListDelegate
-    @StateObject var viewState: AlarmDetailVoiceListState
-    @Environment(\.presentationMode) private var presentationMode
+    @State var viewState: AlarmDetailVoiceListState
+    @Environment(\.dismiss) private var dismiss
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             List {
                 // ランダム用
                 Button {
@@ -27,7 +27,7 @@ struct AlarmDetailVoiceList: View {
                     Button {
                         viewState.playVoice(charaCall: charaCall)
                         delegate.selectCharaAndCall(chara: viewState.chara, charaCall: charaCall)
-                        presentationMode.wrappedValue.dismiss()
+                        dismiss()
                     } label: {
                         HStack {
                             Image(R.image.alarmVoicePlay.name)
@@ -39,7 +39,7 @@ struct AlarmDetailVoiceList: View {
                     .buttonStyle(PlainButtonStyle())
                  }
             }
-            .navigationBarTitle("\(viewState.chara.name)のボイス")
+            .navigationTitle("\(viewState.chara.name)のボイス")
             .navigationBarTitleDisplayMode(.inline)
         }
     }

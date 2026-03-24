@@ -2,9 +2,9 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 struct UserInfoView: View {
-    @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
+    @Environment(\.dismiss) private var dismiss
 
-    @StateObject var viewState: UserInfoViewState
+    @State var viewState: UserInfoViewState
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -93,23 +93,29 @@ struct UserInfoView: View {
         .onAppear {
             viewState.fetchUserInfo()
         }
-        .alert(item: $viewState.alert, content: { item in
-            Alert(title: Text("Error"), message: Text(item.message), dismissButton: .default(Text("Close")))
-        })
+        .alert(
+            "Error",
+            isPresented: $viewState.showingAlert,
+            presenting: viewState.alertMessage
+        ) { _ in
+            Button("Close") {}
+        } message: { message in
+            Text(message)
+        }
         .padding()
-        .navigationBarTitle(String(localized: "user-info-user-nfo"), displayMode: .inline)
+        .navigationTitle(String(localized: "user-info-user-nfo"))
+        .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
-        .navigationBarItems(
-            leading:
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
                 BackBarButton {
-                    presentationMode.wrappedValue.dismiss()
+                    dismiss()
                 }
-        )
+            }
+        }
     }
 }
 
-struct UserInfoView_Previews: PreviewProvider {
-    static var previews: some View {
-        UserInfoView(viewState: UserInfoViewState())
-    }
+#Preview {
+    UserInfoView(viewState: UserInfoViewState())
 }

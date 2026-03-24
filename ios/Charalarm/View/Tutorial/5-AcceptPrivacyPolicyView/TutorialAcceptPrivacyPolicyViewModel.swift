@@ -2,23 +2,16 @@ import SwiftUI
 import AdSupport
 import AppTrackingTransparency
 
-class TutorialAcceptPrivacyPolicyViewModel: ObservableObject {
-    @Published var accountCreated = false
-    @Published var creatingAccount = false
-    @Published var showingAlert = false
-    @Published var alertMessage = ""
+@Observable class TutorialAcceptPrivacyPolicyViewModel {
+    var accountCreated = false
+    var creatingAccount = false
+    var showingAlert = false
+    var alertMessage = ""
 
     private let userID = UUID()
     private let authToken = UUID()
     private let keychainRepository: KeychainRepository = KeychainRepository()
     private let apiRepository = APIRepository()
-
-    func openPrivacyPolicy() {
-        guard let url = URL(string: PrivacyPolicyUrlString) else {
-            return
-        }
-        UIApplication.shared.open(url)
-    }
 
     func signUp() {
         guard !creatingAccount else {
@@ -27,9 +20,8 @@ class TutorialAcceptPrivacyPolicyViewModel: ObservableObject {
 
         creatingAccount = true
 
-        let delegate = UIApplication.shared.delegate as? AppDelegate
-        let optionalPushToken = delegate?.model.pushToken
-        let optionalVoIPPushToken = delegate?.model.voipPushToken
+        let optionalPushToken: String? = Variables.shared.pushToken.isEmpty ? nil : Variables.shared.pushToken
+        let optionalVoIPPushToken: String? = Variables.shared.voipPushToken.isEmpty ? nil : Variables.shared.voipPushToken
 
         Task { @MainActor in
             // ここでユーザー登録してトークンを設定する

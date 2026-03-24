@@ -20,13 +20,6 @@ struct TutorialRequireTrackingView: View {
                 .scaledToFit()
                 .frame(width: 300, height: 300)
 
-            NavigationLink(
-                destination: TutorialFinallyView(),
-                isActive: $goNextView,
-                label: {
-                    EmptyView()
-                })
-
             Spacer()
 
             Button(action: {
@@ -37,9 +30,12 @@ struct TutorialRequireTrackingView: View {
             })
             .padding(.bottom, 28)
         }
-        .edgesIgnoringSafeArea(.bottom)
+        .ignoresSafeArea(.container, edges: .bottom)
         .navigationTitle("")
-        .navigationBarHidden(true)
+        .toolbar(.hidden, for: .navigationBar)
+        .navigationDestination(isPresented: $goNextView) {
+            TutorialFinallyView()
+        }
     }
 
     func requestTrackingAuthorization() {
@@ -49,8 +45,6 @@ struct TutorialRequireTrackingView: View {
     }
 }
 
-struct TutorialRequireTrackingView_Previews: PreviewProvider {
-    static var previews: some View {
-        TutorialRequireTrackingView()
-    }
+#Preview {
+    TutorialRequireTrackingView()
 }

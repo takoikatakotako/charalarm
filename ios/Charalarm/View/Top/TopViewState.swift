@@ -3,14 +3,26 @@ import AVFoundation
 import AdSupport
 import AppTrackingTransparency
 
-enum TopViewModelAlert: Identifiable {
+enum TopViewModelAlert {
     case failedToGetCharacterInformation
     case failedToGetCharacterSelectionInformation
     case failedToGetCharactersResources
     case failedToSetCharacterImage
     case thisFeatureIsNotAvailableInYourRegion
-    var id: Int {
-        return hashValue
+
+    var message: String {
+        switch self {
+        case .failedToGetCharacterInformation:
+            return String(localized: "error-failed-to-get-character-information")
+        case .failedToGetCharacterSelectionInformation:
+            return String(localized: "error-failed-to-get-character-selection-information")
+        case .failedToGetCharactersResources:
+            return String(localized: "error-failed-to-get-characters-resources")
+        case .failedToSetCharacterImage:
+            return String(localized: "error-failed-to-set-character-image")
+        case .thisFeatureIsNotAvailableInYourRegion:
+            return String(localized: "error-this-feature-is-not-available-in-your-region")
+        }
     }
 }
 
@@ -24,10 +36,15 @@ enum TopViewModelSheet: Identifiable {
     }
 }
 
-class TopViewState: ObservableObject {
-    @Published var charaImage = UIImage()
-    @Published var alert: TopViewModelAlert?
-    @Published var sheet: TopViewModelSheet?
+@Observable class TopViewState {
+    var charaImage = UIImage()
+    var showingAlert = false
+    var alert: TopViewModelAlert? {
+        didSet {
+            showingAlert = alert != nil
+        }
+    }
+    var sheet: TopViewModelSheet?
     private let userDefaultsRepository: UserDefaultsRepository = UserDefaultsRepository()
     private let fileHandler: FileRepositoryProtcol = FileRepository()
 

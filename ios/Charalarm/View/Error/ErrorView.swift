@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct ErrorView: View {
-    @StateObject var viewState: ErrorViewState
+    @State var viewState: ErrorViewState
 
     var body: some View {
         VStack {
@@ -20,8 +20,6 @@ struct ErrorView: View {
     }
 }
 
-struct ErrorView_Previews: PreviewProvider {
-    static var previews: some View {
-        ErrorView(viewState: ErrorViewState())
-    }
+#Preview {
+    ErrorView(viewState: ErrorViewState())
 }

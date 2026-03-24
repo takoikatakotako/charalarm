@@ -35,17 +35,14 @@ struct AlarmDetailTimePicker: View {
     }
 }
 
-struct AlarmDetailTimePicker_Previews: PreviewProvider {
-    struct PreviewWrapper: View {
-        @State var hour: Int = 3
-        @State var minute: Int = 12
-        var body: some View {
-            AlarmDetailTimePicker(hour: $hour, minute: $minute)
-        }
+private struct AlarmDetailTimePickerPreviewWrapper: View {
+    @State var hour: Int = 3
+    @State var minute: Int = 12
+    var body: some View {
+        AlarmDetailTimePicker(hour: $hour, minute: $minute)
     }
+}
 
-    static var previews: some View {
-        PreviewWrapper()
-            .previewLayout(.sizeThatFits)
-    }
+#Preview {
+    AlarmDetailTimePickerPreviewWrapper()
 }
