@@ -2,7 +2,6 @@ import Foundation
 import CallKit
 import SwiftUI
 
-
 @Observable class CharaProfileViewState {
     let charaID: String
     var chara: Chara?
