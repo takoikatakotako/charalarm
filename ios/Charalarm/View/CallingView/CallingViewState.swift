@@ -18,7 +18,8 @@ import AVFoundation
 
     func endCall() {
         guard let callUUID = callUUID else {
-            fatalError("Message")
+            CharalarmLogger.error("endCall failed: callUUID is nil", error: nil)
+            return
         }
 
         let endCallAction = CXEndCallAction(call: callUUID)

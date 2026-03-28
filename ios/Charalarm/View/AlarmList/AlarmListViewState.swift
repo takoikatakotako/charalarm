@@ -91,6 +91,7 @@ import Foundation
                 let pushToken = PushTokenRequest(pushToken: Variables.shared.voipPushToken)
                 try await apiRepository.postPushTokenAddVoIPPushToken(userID: userID, authToken: authToken, pushToken: pushToken)
             } catch {
+                CharalarmLogger.error("failed to register VoIP push token, file: \(#file), line: \(#line)", error: error)
             }
         }
     }
@@ -127,9 +128,13 @@ import Foundation
 
         alarms[index].enable = isEnable
         let alarm = alarms[index]
+        guard let userUUID = UUID(uuidString: userID) else {
+            alertMessage = String(localized: "error-failed-to-get-authentication-information")
+            return
+        }
         Task { @MainActor in
             do {
-                let requestBody = AlarmEditRequest(alarm: alarm.toAlarmRequest(userID: UUID(uuidString: userID)!))
+                let requestBody = AlarmEditRequest(alarm: alarm.toAlarmRequest(userID: userUUID))
                 try await apiRepository.editAlarm(userID: userID, authToken: authToken, requestBody: requestBody)
             } catch {
                 alertMessage = String(localized: "alarm-failed-to-edit-the-alarm")

@@ -191,7 +191,13 @@ enum TopViewModelSheet: Identifiable {
 
         do {
             let data = try fileHandler.loadData(directoryName: charaDomain, fileName: imageName)
-            charaImage = UIImage(data: data)!
+            guard let image = UIImage(data: data) else {
+                DispatchQueue.main.async {
+                    self.alert = .failedToSetCharacterImage
+                }
+                return
+            }
+            charaImage = image
         } catch {
             DispatchQueue.main.async {
                 self.alert = .failedToSetCharacterImage

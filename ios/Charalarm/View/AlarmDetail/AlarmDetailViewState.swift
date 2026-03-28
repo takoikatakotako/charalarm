@@ -32,7 +32,8 @@ import Combine
     }
 
     var alarmTimeString: String {
-        return "\(String(format: "%02d", alarm.hour)):\(String(format: "%02d", alarm.minute))(GMT+\("9"))"
+        let sign = alarm.timeDifference >= 0 ? "+" : "-"
+        return "\(String(format: "%02d", alarm.hour)):\(String(format: "%02d", alarm.minute))(GMT\(sign)\(abs(alarm.timeDifference)))"
     }
 
     init(alarm: Alarm, type: AlarmDetailViewTyep) {
@@ -80,7 +81,7 @@ import Combine
     func deleteAlarm() {
         guard let userID = keychainRepository.getUserID(),
               let authToken = keychainRepository.getAuthToken() else {
-            self.alertMessage = "不明なエラーです（UserDefaultsに匿名ユーザー名とかがない）"
+            self.alertMessage = String(localized: "error-failed-to-get-authentication-information")
             self.showingAlert = true
             return
         }
@@ -92,7 +93,7 @@ import Combine
                 dismissSubject.send()
                 showingIndicator = false
             } catch {
-                self.alertMessage = "xyz"
+                self.alertMessage = String(localized: "alarm-failed-to-delete-the-alarm")
                 self.showingAlert = true
             }
         }
@@ -134,21 +135,26 @@ import Combine
     private func createAlarm() {
         guard let userID = keychainRepository.getUserID(),
               let authToken = keychainRepository.getAuthToken() else {
-            alertMessage = "Error"
+            alertMessage = String(localized: "error-failed-to-get-authentication-information")
+            showingAlert = true
+            return
+        }
+        guard let userUUID = UUID(uuidString: userID) else {
+            alertMessage = String(localized: "error-failed-to-get-authentication-information")
             showingAlert = true
             return
         }
         Task { @MainActor in
             showingIndicator = true
             do {
-                let alarmRequest = alarm.toAlarmRequest(userID: UUID(uuidString: userID)!)
+                let alarmRequest = alarm.toAlarmRequest(userID: userUUID)
                 let alarmAddRequest = AlarmAddRequest(alarm: alarmRequest)
                 try await apiRepository.addAlarm(userID: userID, authToken: authToken, requestBody: alarmAddRequest)
                 dismissSubject.send()
                 showingIndicator = false
             } catch {
-                print(error)
-                alertMessage = "Error"
+                CharalarmLogger.error("failed to create alarm, file: \(#file), line: \(#line)", error: error)
+                alertMessage = String(localized: "alarm-failed-to-create-an-alarm")
                 showingAlert = true
             }
         }
@@ -157,20 +163,25 @@ import Combine
     private func editAlarm() {
         guard let userID = keychainRepository.getUserID(),
               let authToken = keychainRepository.getAuthToken() else {
-            alertMessage = "不明なエラーです（UserDefaultsに匿名ユーザー名とかがない）"
+            alertMessage = String(localized: "error-failed-to-get-authentication-information")
+            showingAlert = true
+            return
+        }
+        guard let userUUID = UUID(uuidString: userID) else {
+            alertMessage = String(localized: "error-failed-to-get-authentication-information")
             showingAlert = true
             return
         }
         Task { @MainActor in
             showingIndicator = true
             do {
-                let alarmRequest = alarm.toAlarmRequest(userID: UUID(uuidString: userID)!)
+                let alarmRequest = alarm.toAlarmRequest(userID: userUUID)
                 let alarmEditRequest = AlarmEditRequest(alarm: alarmRequest)
                 try await apiRepository.editAlarm(userID: userID, authToken: authToken, requestBody: alarmEditRequest)
                 dismissSubject.send()
                 showingIndicator = false
             } catch {
-                alertMessage = "Error"
+                alertMessage = String(localized: "alarm-failed-to-edit-the-alarm")
                 showingAlert = true
             }
         }

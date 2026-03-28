@@ -26,10 +26,7 @@ import SwiftUI
     }
 
     var charaDomain: String {
-        guard let characterDomain = userDefaultsRepository.getCharaID() else {
-            fatalError("CHARA_DOMAIN が取得できませんでした")
-        }
-        return characterDomain
+        return userDefaultsRepository.getCharaID() ?? ""
     }
 
     func subscriptionButtonTapped() {
@@ -43,7 +40,7 @@ import SwiftUI
     func withdraw() {
         guard let userID = keychainRepository.getUserID(),
               let authToken = keychainRepository.getAuthToken() else {
-            self.alertMessage = "不明なエラーです（UserDefaultsに匿名ユーザー名とかがない）"
+            self.alertMessage = String(localized: "error-failed-to-get-authentication-information")
             self.showingAlert = true
             return
         }
