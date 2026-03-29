@@ -33,9 +33,6 @@
     "%@のボイス" : {
 
     },
-    "aaa" : {
-
-    },
     "alarm-add-alarm" : {
       "localizations" : {
         "en" : {
@@ -98,6 +95,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "アラーム編集"
+          }
+        }
+      }
+    },
+    "alarm-failed-to-delete-the-alarm" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Failed to delete the alarm."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "アラームの削除に失敗しました。"
           }
         }
       }
@@ -1946,9 +1960,6 @@
 
     },
     "ランダム" : {
-
-    },
-    "動画見てください！" : {
 
     },
     "送信" : {
