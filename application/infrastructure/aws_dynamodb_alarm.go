@@ -315,6 +315,9 @@ func (a *AWS) deleteAlarm(alarmID string) error {
 
 func (a *AWS) batchDeleteAlarm(ctx context.Context, alarmIDs []string) error {
 	client, err := a.createDynamoDBClient()
+	if err != nil {
+		return err
+	}
 
 	// 一括削除のためのrequestItemsを作成
 	requestItems := make([]types.WriteRequest, 0)
