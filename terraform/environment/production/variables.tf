@@ -22,7 +22,7 @@ locals {
   resource_domain                    = "resource.charalarm.com"
   resource_bucket_name               = "resource.charalarm.com"
   resource_acm_certificate_arn       = "arn:aws:acm:us-east-1:986921280333:certificate/c62fff84-8e07-495a-8fa9-359372471c37"
-  ios_voip_push_certificate_filename = "production-voip-expiration-20260408-certificate.pem"
-  ios_voip_push_private_filename     = "production-voip-expiration-20260408-privatekey.pem"
+  ios_voip_push_certificate_filename = "production-voip-expiration-20270507-certificate.pem"
+  ios_voip_push_private_filename     = "production-voip-expiration-20270507-privatekey.pem"
   datadog_log_forwarder_arn          = "arn:aws:lambda:ap-northeast-1:986921280333:function:datadog-forwarder"
 }

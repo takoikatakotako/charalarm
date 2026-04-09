@@ -10,12 +10,6 @@ resource "aws_sns_platform_application" "ios_push_platform_application" {
   apple_platform_team_id       = var.apple_platform_team_id
   apple_platform_bundle_id     = var.apple_platform_bundle_id
 
-  lifecycle {
-    ignore_changes = [
-      # なぜかTerraformから設定できないためignoreに設定している
-      platform_credential
-    ]
-  }
 }
 
 resource "aws_sns_platform_application" "ios_voip_push_platform_application" {
