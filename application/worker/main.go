@@ -35,8 +35,8 @@ func Handler(ctx context.Context, event events.SQSEvent) (events.APIGatewayProxy
 				fmt.Println("@@@@@@@@@@@")
 				fmt.Println("Failed to Send Dead Letter Error")
 				fmt.Println("@@@@@@@@@@@")
-				continue
 			}
+			continue
 		}
 
 		fmt.Println("@@@@@@@@@@@")
