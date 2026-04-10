@@ -340,14 +340,23 @@ func (a *AWS) batchDeleteAlarm(ctx context.Context, alarmIDs []string) error {
 		requestItems = append(requestItems, requestItem)
 	}
 
-	// アラームを削除
-	_, err = client.BatchWriteItem(ctx, &dynamodb.BatchWriteItemInput{
-		RequestItems: map[string][]types.WriteRequest{
-			database.AlarmTableName: requestItems,
-		},
-	})
-	if err != nil {
-		return err
+	// BatchWriteItem は1回最大25件のため、チャンク分割して実行
+	const maxBatchSize = 25
+	for i := 0; i < len(requestItems); i += maxBatchSize {
+		end := i + maxBatchSize
+		if end > len(requestItems) {
+			end = len(requestItems)
+		}
+		chunk := requestItems[i:end]
+
+		_, err = client.BatchWriteItem(ctx, &dynamodb.BatchWriteItemInput{
+			RequestItems: map[string][]types.WriteRequest{
+				database.AlarmTableName: chunk,
+			},
+		})
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }
