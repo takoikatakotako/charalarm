@@ -52,6 +52,9 @@ func (a *AWS) GetAlarmList(userID string) ([]database.Alarm, error) {
 	// クエリ実行
 	keyEx := expression.Key(database.AlarmTableColumnUserID).Equal(expression.Value(userID))
 	expr, err := expression.NewBuilder().WithKeyCondition(keyEx).Build()
+	if err != nil {
+		return []database.Alarm{}, err
+	}
 	output, err := client.Query(context.TODO(), &dynamodb.QueryInput{
 		TableName:                 aws.String(database.AlarmTableName),
 		IndexName:                 aws.String(database.AlarmTableIndexUserID),
@@ -89,6 +92,9 @@ func (a *AWS) QueryByAlarmTime(hour int, minute int, weekday time.Weekday) ([]da
 
 	keyEx := expression.Key(database.AlarmTableColumnTime).Equal(expression.Value(alarmTime))
 	expr, err := expression.NewBuilder().WithKeyCondition(keyEx).Build()
+	if err != nil {
+		return []database.Alarm{}, err
+	}
 
 	output, err := client.Query(context.TODO(), &dynamodb.QueryInput{
 		TableName:                 aws.String(database.AlarmTableName),
