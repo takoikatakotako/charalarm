@@ -2,7 +2,6 @@ import SwiftUI
 
 struct LicenceView: View {
     @Environment(\.openURL) private var openURL
-    @State var viewState: LicenceViewState
 
     var body: some View {
         List {
@@ -38,6 +37,6 @@ struct LicenceView: View {
 
 #Preview {
     NavigationStack {
-        LicenceView(viewState: LicenceViewState())
+        LicenceView()
     }
 }

@@ -85,7 +85,7 @@ struct ConfigView: View {
 
                         // ライセンス
                         NavigationLink {
-                            LicenceView(viewState: LicenceViewState())
+                            LicenceView()
                         } label: {
                             Text(String(localized: "config-license"))
                         }
