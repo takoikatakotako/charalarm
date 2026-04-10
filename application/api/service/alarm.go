@@ -174,7 +174,7 @@ func (a *Alarm) GetAlarms(userID string, authToken string) (output.GetAlarms, er
 	} else {
 		pc, fileName, _, _ := runtime.Caller(1)
 		funcName := runtime.FuncForPC(pc).Name()
-		msg := fmt.Sprintf("Authentication Failure, UserID: %s, AuthToken: %s", user.UserID, user.AuthToken)
+		msg := fmt.Sprintf("Authentication Failure, UserID: %s", user.UserID)
 		slog.Error(msg, slog.String("file", fileName), slog.String("func", funcName))
 		return output.GetAlarms{}, errors.New(common.ErrorAuthenticationFailure)
 	}

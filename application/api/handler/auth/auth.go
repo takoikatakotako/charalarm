@@ -3,13 +3,11 @@ package auth
 import (
 	"encoding/base64"
 	"errors"
-	"fmt"
 	"github.com/takoikatakotako/charalarm/infrastructure/database"
 	"strings"
 )
 
 func Basic(authorizationHeader string) (string, string, error) {
-	fmt.Printf("authHeader: %s\n", authorizationHeader)
 	array := strings.Split(authorizationHeader, " ")
 	if len(array) != 2 {
 		return "", "", errors.New("auth error1")
