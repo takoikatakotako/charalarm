@@ -79,7 +79,7 @@ func (a *Alarm) AddAlarm(input input.AddAlarm) error {
 		// 不明なターゲット
 		pc, fileName, _, _ := runtime.Caller(1)
 		funcName := runtime.FuncForPC(pc).Name()
-		slog.Error(err.Error(), slog.String("file", fileName), slog.String("func", funcName))
+		slog.Error("Unknown alarm type", slog.String("alarmType", input.Alarm.Type), slog.String("file", fileName), slog.String("func", funcName))
 		return errors.New(common.ErrorInvalidValue)
 	}
 	databaseAlarm := convertToDatabaseAlarm(input.Alarm, target)
@@ -112,7 +112,7 @@ func (a *Alarm) EditAlarm(input input.EditAlarm) error {
 		// 不明なターゲット
 		pc, fileName, _, _ := runtime.Caller(1)
 		funcName := runtime.FuncForPC(pc).Name()
-		slog.Error(err.Error(), slog.String("file", fileName), slog.String("func", funcName))
+		slog.Error("Unknown alarm type", slog.String("alarmType", input.Alarm.Type), slog.String("file", fileName), slog.String("func", funcName))
 		return errors.New(common.ErrorInvalidValue)
 	}
 
