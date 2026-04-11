@@ -12,8 +12,8 @@ import (
 func main() {
 	// environment
 	env := environment.Environment{}
-	env.SetCharalarmAWSProfile("local")
-	env.SetResourceBaseURL("http://localhost:4566")
+	env.SetCharalarmAWSProfile("")
+	env.SetResourceBaseURL("")
 
 	// infrastructure
 	awsRepository := infrastructure.AWS{
