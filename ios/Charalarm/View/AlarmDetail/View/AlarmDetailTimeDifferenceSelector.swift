@@ -1,7 +1,7 @@
 import SwiftUI
 
-struct AlarmDetailTimeDeffarenceSelecter: View {
-    @Binding var timeDeffarence: Decimal
+struct AlarmDetailTimeDifferenceSelector: View {
+    @Binding var timeDifference: Decimal
     @Environment(\.dismiss) private var dismiss
 
     private let cityList: [TimeDifference] = [
@@ -33,7 +33,7 @@ struct AlarmDetailTimeDeffarenceSelecter: View {
     var body: some View {
         List(cityList) { city in
             Button {
-                timeDeffarence = city.timeDifference
+                timeDifference = city.timeDifference
                 dismiss()
             } label: {
                 VStack(alignment: .leading) {

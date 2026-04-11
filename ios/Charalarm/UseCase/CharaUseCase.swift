@@ -75,7 +75,7 @@ struct CharaUseCase: CharaUseCaseProtcol {
         try fileRepository.saveFile(directoryName: defaultsCharaID, fileName: "resource.json", data: resourceData)
     }
 
-    func loadLocalCharaReesource() throws -> LocalCharaResource {
+    func loadLocalCharaResource() throws -> LocalCharaResource {
         guard let charaID = userDefaultsRepository.getCharaID() else {
             throw CharalarmError.clientError
         }

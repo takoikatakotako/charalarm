@@ -1,15 +1,15 @@
 import Foundation
 
-protocol AppUseCaseProtcol {
+protocol AppUseCaseProtocol {
     var isDoneTutorial: Bool {get}
     var appVersion: String {get}
     var appBuild: String {get}
 }
 
-struct AppUseCase: AppUseCaseProtcol {
-    let keychainRepository: KeychainRepositoryProtcol
+struct AppUseCase: AppUseCaseProtocol {
+    let keychainRepository: KeychainRepositoryProtocol
 
-    init(keychainRepository: KeychainRepositoryProtcol = KeychainRepository()) {
+    init(keychainRepository: KeychainRepositoryProtocol = KeychainRepository()) {
         self.keychainRepository = keychainRepository
     }
 

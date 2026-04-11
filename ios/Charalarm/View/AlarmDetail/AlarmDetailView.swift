@@ -32,7 +32,7 @@ struct AlarmDetailView: View {
                         .padding(.horizontal, 16)
                         .padding(.bottom, 16)
 
-                        AlarmDetailWeekdaySelecter(alarm: $viewState.alarm)
+                        AlarmDetailWeekdaySelector(alarm: $viewState.alarm)
 
                         VStack(alignment: .leading) {
                             TextField(String(localized: "alarm-please-enter-the-alarm-name"), text: $viewState.alarm.name)
@@ -41,7 +41,7 @@ struct AlarmDetailView: View {
                         .padding(.horizontal, 16)
                         .padding(.vertical, 16)
 
-                        AlarmDetailCharaSelecter(delegate: self, selectedChara: $viewState.selectedChara, charas: $viewState.characters)
+                        AlarmDetailCharaSelector(delegate: self, selectedChara: $viewState.selectedChara, charas: $viewState.characters)
                             .padding(.horizontal, 16)
                             .padding(.bottom, 16)
 
@@ -93,8 +93,8 @@ struct AlarmDetailView: View {
                 switch item {
                 case let .voiceList(chara):
                     AlarmDetailVoiceList(delegate: self, viewState: AlarmDetailVoiceListState(chara: chara))
-                case .timeDeffarenceList:
-                    AlarmDetailTimeDeffarenceSelecter(timeDeffarence: $viewState.alarm.timeDifference)
+                case .timeDifferenceList:
+                    AlarmDetailTimeDifferenceSelector(timeDifference: $viewState.alarm.timeDifference)
                 }
             }
             .toolbar(.visible, for: .navigationBar)
@@ -104,7 +104,7 @@ struct AlarmDetailView: View {
     }
 }
 
-extension AlarmDetailView: AlarmDetailCharaSelecterDelegate {
+extension AlarmDetailView: AlarmDetailCharaSelectorDelegate {
     func setRandomChara() {
         viewState.setRandomChara()
     }

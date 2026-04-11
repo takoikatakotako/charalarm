@@ -46,7 +46,7 @@ enum TopViewModelSheet: Identifiable {
     }
     var sheet: TopViewModelSheet?
     private let userDefaultsRepository: UserDefaultsRepository = UserDefaultsRepository()
-    private let fileHandler: FileRepositoryProtcol = FileRepository()
+    private let fileHandler: FileRepositoryProtocol = FileRepository()
 
     private let localCharaResourceUseCase = LocalCharaResourceUseCase()
 
@@ -116,20 +116,6 @@ enum TopViewModelSheet: Identifiable {
         playCharaVoice(charaDomain: charaDomain, resource: resource, key: key)
     }
 
-    //    func featchCharacter(charaDomain: String) async throws -> Character {
-    //        Task {
-    //            let
-    //        }
-    //        charaRepository.fetchCharacter(charaDomain: charaDomain) { result in
-    //            switch result {
-    //            case let .success(character):
-    //                completion(character)
-    //            case .failure:
-    //                self.alert = .failedToGetCharacterInformation
-    //            }
-    //        }
-    //    }
-
     func updateChara(charaID: String?) {
         guard let charaID = charaID else {
             DispatchQueue.main.async {
@@ -150,40 +136,8 @@ enum TopViewModelSheet: Identifiable {
         }
 
         setCharaImage(charaDomain: charaID, resource: resource, key: key)
-
-        //        guard let charaDomain = userDefaultsRepository.getCharaDomain() else {
-        //            DispatchQueue.main.async {
-        //                self.alert = .failedToGetCharacterSelectionInformation
-        //            }
-        //            return
-        //        }
-        //
-        //        guard let resource = getResource(charaDomain: charaDomain) else {
-        //            DispatchQueue.main.async {
-        //                self.alert = .failedToGetCharactersResources
-        //            }
-        //            return
-        //        }
-        //
-        //        guard let key = resource.expression.keys.randomElement() else {
-        //            return
-        //        }
-        //
-        //        setCharaImage(charaDomain: charaDomain, resource: resource, key: key)
     }
 
-    //    private func getResource(charaDomain: String) -> Resource? {
-    //        guard let data = try? fileHandler.loadData(directoryName: charaDomain, fileName: "resource.json") else {
-    //            return nil
-    //        }
-    //        let decoder = JSONDecoder()
-    //        decoder.dateDecodingStrategy = .iso8601
-    //        guard let resource = try? decoder.decode(Resource.self, from: data) else {
-    //            return nil
-    //        }
-    //        return resource
-    //    }
-    //
     private func setCharaImage(charaDomain: String, resource: LocalCharaResource, key: String) {
         guard let imageName = resource.expressions[key]?.imageFileNames.randomElement() else {
             return

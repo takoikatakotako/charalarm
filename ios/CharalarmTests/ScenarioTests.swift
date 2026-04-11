@@ -1,7 +1,7 @@
 import XCTest
 @testable import CharalarmLocal
 
-class SenarioTests: XCTestCase {
+class ScenarioTests: XCTestCase {
 
     override func setUp() {
         // Put setup code here. This method is called before the invocation of each test method in the class.
@@ -11,7 +11,7 @@ class SenarioTests: XCTestCase {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
     }
 
-    func testSenario() async throws {
+    func testScenario() async throws {
         // Auth Info
         let userID = UUID()
         let authToken = UUID()

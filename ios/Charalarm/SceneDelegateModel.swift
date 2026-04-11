@@ -2,14 +2,14 @@ import UIKit
 import AVKit
 
 class SceneDelegateModel {
-    private let fileRepository: FileRepositoryProtcol
+    private let fileRepository: FileRepositoryProtocol
     private let userDefaultsRepository: UserDefaultsRepositoryProtocol
-    private let authUseCase: AppUseCaseProtcol
+    private let authUseCase: AppUseCaseProtocol
 
     init(
-        fileRepository: FileRepositoryProtcol = FileRepository(),
+        fileRepository: FileRepositoryProtocol = FileRepository(),
         userDefaultsRepository: UserDefaultsRepositoryProtocol = UserDefaultsRepository(),
-        authUseCase: AppUseCaseProtcol = AppUseCase()
+        authUseCase: AppUseCaseProtocol = AppUseCase()
     ) {
         self.fileRepository = fileRepository
         self.userDefaultsRepository = userDefaultsRepository

@@ -5,6 +5,6 @@ enum AlarmDetailViewSheetItem: Identifiable, Hashable {
         return self
     }
 
-    case timeDeffarenceList
+    case timeDifferenceList
     case voiceList(Chara)
 }
