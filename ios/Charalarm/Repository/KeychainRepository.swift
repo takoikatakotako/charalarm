@@ -1,14 +1,14 @@
 import Foundation
 import KeychainAccess
 
-protocol KeychainRepositoryProtcol {
+protocol KeychainRepositoryProtocol {
     func setUserID(userID: UUID?) throws
     func setAuthToken(authToken: UUID?) throws
     func getUserID() -> String?
     func getAuthToken() -> String?
 }
 
-struct KeychainRepository: KeychainRepositoryProtcol {
+struct KeychainRepository: KeychainRepositoryProtocol {
     // Key
     private let USER_ID = "USER_ID"
     private let AUTH_TOKEN = "AUTH_TOKEN"

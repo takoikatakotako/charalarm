@@ -14,7 +14,7 @@ import SwiftUI
     var alertMessage = ""
 
     private var numberOfResource: Int = 0
-    private var numberOfDownloadedReosurce: Int = 0
+    private var numberOfDownloadedResource: Int = 0
     private let apiRepository = APIRepository()
     private let resourceHandler = CharaUseCase()
     private let fileRepository = FileRepository()

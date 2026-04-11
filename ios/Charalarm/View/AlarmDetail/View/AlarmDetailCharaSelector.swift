@@ -1,13 +1,13 @@
 import SwiftUI
 import SDWebImageSwiftUI
 
-protocol AlarmDetailCharaSelecterDelegate {
+protocol AlarmDetailCharaSelectorDelegate {
     func setRandomChara()
     func showVoiceList(chara: Chara)
 }
 
-struct AlarmDetailCharaSelecter: View {
-    var delegate: AlarmDetailCharaSelecterDelegate
+struct AlarmDetailCharaSelector: View {
+    var delegate: AlarmDetailCharaSelectorDelegate
     @Binding var selectedChara: Chara?
     @Binding var charas: [Chara]
 
@@ -67,13 +67,13 @@ struct AlarmDetailCharaSelecter: View {
     }
 }
 
-// struct AlarmDetailCharaSelecter_Previews: PreviewProvider {
-//    struct PreviewWrapper: View, AlarmDetailCharaSelecterDelegate {
+// struct AlarmDetailCharaSelector_Previews: PreviewProvider {
+//    struct PreviewWrapper: View, AlarmDetailCharaSelectorDelegate {
 //        @State var selectedChara: Character?
 //        @State var charas: [Character] = [Character.mock()]
 //
 //        var body: some View {
-//            AlarmDetailCharaSelecter(delegate: self, selectedChara: $selectedChara, charas: $charas)
+//            AlarmDetailCharaSelector(delegate: self, selectedChara: $selectedChara, charas: $charas)
 //        }
 //
 //        func setRandomChara() {}

@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct AlarmDetailWeekdaySelecter: View {
+struct AlarmDetailWeekdaySelector: View {
     @Binding var alarm: Alarm
     var body: some View {
         HStack {
@@ -15,12 +15,12 @@ struct AlarmDetailWeekdaySelecter: View {
     }
 }
 
-// struct AlarmDetailWeekdaySelecter_Previews: PreviewProvider {
+// struct AlarmDetailWeekdaySelector_Previews: PreviewProvider {
 //    struct PreviewWrapper: View {
 //        @State var dayOfWeeks: [DayOfWeek] = [.MON, .WED, .FRI, .SUN]
 //
 //        var body: some View {
-//            AlarmDetailWeekdaySelecter(dayOfWeeks: $dayOfWeeks)
+//            AlarmDetailWeekdaySelector(dayOfWeeks: $dayOfWeeks)
 //        }
 //    }
 //

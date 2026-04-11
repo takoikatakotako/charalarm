@@ -12,7 +12,7 @@ import FirebaseAuth
     private let appUseCase = AppUseCase()
     private let charaUseCase = CharaUseCase()
     private let userDefaultsRepository = UserDefaultsRepository()
-    private let fileRepository: FileRepositoryProtcol = FileRepository()
+    private let fileRepository: FileRepositoryProtocol = FileRepository()
 
     func onAppear() {
         Task { @MainActor in
@@ -55,9 +55,9 @@ import FirebaseAuth
                 }
 
                 // デコードできるかチェックする
-                if let localCharaReesource = try? charaUseCase.loadLocalCharaReesource() {
+                if let localCharaResource = try? charaUseCase.loadLocalCharaResource() {
                     // 最新更新できるかチェックする
-                    try? await charaUseCase.checkUpdateCharaResource(charaID: localCharaReesource.charaID, updatedAt: localCharaReesource.updatedAt)
+                    try? await charaUseCase.checkUpdateCharaResource(charaID: localCharaResource.charaID, updatedAt: localCharaResource.updatedAt)
                 } else {
                     // 最新版を落とす
                     try? await charaUseCase.fetchAndDownloadCharaResource()

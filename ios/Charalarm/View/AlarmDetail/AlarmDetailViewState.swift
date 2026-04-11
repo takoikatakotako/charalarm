@@ -129,7 +129,7 @@ import Combine
     }
 
     func timeDirrerenceTapped() {
-        sheet = .timeDeffarenceList
+        sheet = .timeDifferenceList
     }
 
     private func createAlarm() {

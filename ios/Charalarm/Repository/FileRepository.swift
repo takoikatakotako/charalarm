@@ -1,13 +1,13 @@
 import Foundation
 
-protocol FileRepositoryProtcol {
+protocol FileRepositoryProtocol {
     func saveFile(directoryName: String, fileName: String, data: Data) throws
     func getFileURL(directoryName: String, fileName: String) throws -> URL
     func loadData(directoryName: String, fileName: String) throws -> Data
     func isExistDirectory(directoryName: String) throws -> Bool
 }
 
-struct FileRepository: FileRepositoryProtcol {
+struct FileRepository: FileRepositoryProtocol {
     func saveFile(directoryName: String, fileName: String, data: Data) throws {
         guard let dir = FileManager.default.urls( for: .documentDirectory, in: .userDomainMask ).first else {
             throw FileHandlerError.directoryNotFound
