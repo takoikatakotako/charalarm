@@ -83,7 +83,10 @@ func (a *AWS) ReceiveAlarmInfoMessage() ([]types.Message, error) {
 }
 
 func (a *AWS) PurgeQueue() error {
-	queueURL := "http://localhost:4566/000000000000/voip-push-queue.fifo"
+	queueURL, err := a.GetQueueURL(VoIPPushQueueName)
+	if err != nil {
+		return err
+	}
 
 	// SQSClient作成
 	client, err := a.createSQSClient()

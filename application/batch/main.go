@@ -8,24 +8,14 @@ import (
 	"github.com/takoikatakotako/charalarm/batch/service"
 	"github.com/takoikatakotako/charalarm/environment"
 	"github.com/takoikatakotako/charalarm/infrastructure"
-	"os"
 	"time"
 )
-
-func getEnvironment(key string, defaultValue string) string {
-	// 環境変数の値を取得
-	val, exists := os.LookupEnv(key)
-	if !exists {
-		return defaultValue
-	}
-	return val
-}
 
 func handler(ctx context.Context, event events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	// environment
 	env := environment.Environment{}
-	env.SetResourceBaseURL("local")
-	env.SetResourceBaseURL("http://localhost:4566")
+	env.SetCharalarmAWSProfile("")
+	env.SetResourceBaseURL("")
 
 	// Repository
 	awsRepository := infrastructure.AWS{
