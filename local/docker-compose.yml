@@ -1,6 +1,6 @@
 services:
   moto:
-    image: motoserver/moto:latest
+    image: motoserver/moto:5.1.22
     container_name: charalarm-moto
     ports:
       - "4566:5000"
