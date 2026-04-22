@@ -23,7 +23,7 @@ jobs:
       contents: read
     services:
       moto:
-        image: motoserver/moto:latest
+        image: motoserver/moto:5.1.22
         ports:
           - 4566:5000
         env:

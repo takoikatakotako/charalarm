@@ -5,9 +5,8 @@ on:
   pull_request:
     paths:
       - ios/**
-    branches: 
+    branches:
       - main
-      - develop
 
 env:
   DEVELOPER_DIR: /Applications/Xcode_16.4.0.app
