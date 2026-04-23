@@ -8,8 +8,10 @@
 charalarm/
 ├── application/     # バックエンド (Go 1.24, Lambda)
 │   ├── api/         # REST API (Echo)
+│   ├── admin_api/   # 管理画面用 API (Echo, CloudFront 配下)
 │   ├── batch/       # 毎分実行バッチ (EventBridge)
 │   └── worker/      # プッシュ通知送信 (SQS Consumer)
+├── admin/           # 管理画面 (Next.js 16, 静的エクスポート)
 ├── ios/             # iOSアプリ (SwiftUI, iOS 16+)
 ├── terraform/       # インフラ (AWS)
 │   └── environment/ # development/staging/production/management
@@ -57,11 +59,11 @@ cd ios && mint bootstrap
 
 ## 環境
 
-| 環境 | Bundle ID | API |
-|------|-----------|-----|
-| Development | com.swiswiswift.sandbox.charalarm | api.charalarm-development.com |
-| Staging | com.charalarm.staging | api.charalarm-staging.com |
-| Production | com.swiswiswift.CharacterAlarm | api3.charalarm.com |
+| 環境 | Bundle ID | API | 管理画面 |
+|------|-----------|-----|----------|
+| Development | com.swiswiswift.sandbox.charalarm | api.charalarm-development.swiswiswift.com | admin.charalarm-development.swiswiswift.com |
+| Staging | com.charalarm.staging | api.charalarm-staging.com | - |
+| Production | com.swiswiswift.CharacterAlarm | api3.charalarm.com | - |
 
 ## ブランチ戦略
 

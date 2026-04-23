@@ -34,6 +34,16 @@ module "api_repository" {
   ]
 }
 
+module "admin_api_repository" {
+  source = "../../modules/repository"
+  name   = "charalarm-admin-api"
+  allow_pull_account_ids = [
+    local.development_account_id,
+    local.staging_account_id,
+    local.production_account_id
+  ]
+}
+
 module "batch_repository" {
   source = "../../modules/repository"
   name   = "charalarm-batch"

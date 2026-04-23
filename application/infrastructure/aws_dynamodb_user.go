@@ -2,6 +2,7 @@ package infrastructure
 
 import (
 	"context"
+	"encoding/base64"
 	"errors"
 	"fmt"
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -12,6 +13,56 @@ import (
 	"github.com/takoikatakotako/charalarm/common"
 	"github.com/takoikatakotako/charalarm/infrastructure/database"
 )
+
+// ScanUsers ユーザーをScanで取得する (管理画面用)
+// cursor は LastEvaluatedKey の userID を base64 エンコードしたもの
+func (a *AWS) ScanUsers(limit int, cursor string) ([]database.User, string, error) {
+	client, err := a.createDynamoDBClient()
+	if err != nil {
+		return nil, "", err
+	}
+
+	scanInput := &dynamodb.ScanInput{
+		TableName: aws.String(database.UserTableName),
+		Limit:     aws.Int32(int32(limit)),
+	}
+
+	if cursor != "" {
+		decoded, err := base64.URLEncoding.DecodeString(cursor)
+		if err != nil {
+			return nil, "", fmt.Errorf("invalid cursor: %w", err)
+		}
+		scanInput.ExclusiveStartKey = map[string]types.AttributeValue{
+			database.UserTableUserId: &types.AttributeValueMemberS{
+				Value: string(decoded),
+			},
+		}
+	}
+
+	ctx := context.Background()
+	output, err := client.Scan(ctx, scanInput)
+	if err != nil {
+		return nil, "", err
+	}
+
+	users := make([]database.User, 0, len(output.Items))
+	for _, item := range output.Items {
+		user := database.User{}
+		if err := attributevalue.UnmarshalMap(item, &user); err != nil {
+			continue
+		}
+		users = append(users, user)
+	}
+
+	nextCursor := ""
+	if last, ok := output.LastEvaluatedKey[database.UserTableUserId]; ok {
+		if v, ok := last.(*types.AttributeValueMemberS); ok {
+			nextCursor = base64.URLEncoding.EncodeToString([]byte(v.Value))
+		}
+	}
+
+	return users, nextCursor, nil
+}
 
 // GetUser Userを取得する
 func (a *AWS) GetUser(userID string) (database.User, error) {
