@@ -1,4 +1,5 @@
 API_REPOSITORY_URI = 448049807848.dkr.ecr.ap-northeast-1.amazonaws.com/charalarm-api
+ADMIN_API_REPOSITORY_URI = 448049807848.dkr.ecr.ap-northeast-1.amazonaws.com/charalarm-admin-api
 BATCH_REPOSITORY_URI = 448049807848.dkr.ecr.ap-northeast-1.amazonaws.com/charalarm-batch
 WORKER_REPOSITORY_URI = 448049807848.dkr.ecr.ap-northeast-1.amazonaws.com/charalarm-worker
 
@@ -22,6 +23,20 @@ build-api-image:
 .PHONY: list-api-images
 list-api-images:
 	aws ecr list-images --registry-id 448049807848 --repository-name charalarm-api --output table
+
+
+# Admin API
+.PHONY: build-admin-api-image
+build-admin-api-image:
+	aws ecr get-login-password --region ap-northeast-1 | docker login --username AWS --password-stdin 448049807848.dkr.ecr.ap-northeast-1.amazonaws.com
+	docker buildx build --platform linux/arm64 \
+		-t ${ADMIN_API_REPOSITORY_URI}:latest \
+		-t ${ADMIN_API_REPOSITORY_URI}:${GITHUB_SHA} \
+		--provenance=false --push -f admin_api/Dockerfile .
+
+.PHONY: list-admin-api-images
+list-admin-api-images:
+	aws ecr list-images --registry-id 448049807848 --repository-name charalarm-admin-api --output table
 
 
 # Batch

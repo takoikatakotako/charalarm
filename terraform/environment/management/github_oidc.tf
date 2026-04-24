@@ -17,6 +17,7 @@ data "aws_iam_policy_document" "github_actions_list_images" {
     ]
     resources = [
       "arn:aws:ecr:ap-northeast-1:448049807848:repository/charalarm-api",
+      "arn:aws:ecr:ap-northeast-1:448049807848:repository/charalarm-admin-api",
       "arn:aws:ecr:ap-northeast-1:448049807848:repository/charalarm-batch",
       "arn:aws:ecr:ap-northeast-1:448049807848:repository/charalarm-worker",
     ]

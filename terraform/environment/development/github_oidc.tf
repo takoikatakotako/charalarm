@@ -48,9 +48,34 @@ data "aws_iam_policy_document" "github_actions_deploy" {
     ]
     resources = [
       "arn:aws:ecr:ap-northeast-1:448049807848:repository/charalarm-api",
+      "arn:aws:ecr:ap-northeast-1:448049807848:repository/charalarm-admin-api",
       "arn:aws:ecr:ap-northeast-1:448049807848:repository/charalarm-batch",
       "arn:aws:ecr:ap-northeast-1:448049807848:repository/charalarm-worker",
     ]
+  }
+
+  # 管理画面フロントエンドの S3 同期 + CloudFront キャッシュ削除
+  statement {
+    effect = "Allow"
+    actions = [
+      "s3:ListBucket",
+      "s3:GetObject",
+      "s3:PutObject",
+      "s3:DeleteObject",
+    ]
+    resources = [
+      "arn:aws:s3:::${local.prefix}-admin",
+      "arn:aws:s3:::${local.prefix}-admin/*",
+    ]
+  }
+
+  statement {
+    effect = "Allow"
+    actions = [
+      "cloudfront:ListDistributions",
+      "cloudfront:CreateInvalidation",
+    ]
+    resources = ["*"]
   }
 }
 
