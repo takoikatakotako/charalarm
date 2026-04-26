@@ -50,33 +50,6 @@ class Variables {
         self.subscriptionProductID = productID
     }
 
-    // Datadog Client Token
-    static var datadogClientToken: String {
-        return Bundle.main.infoDictionary?["DATADOG_CLIENT_TOKEN"] as? String ?? ""
-    }
-    private(set) var datadogClientToken: String = ""
-    func setDataDogClientToken(_ token: String) {
-        self.datadogClientToken = token
-    }
-
-    // Datadog Log Environment
-    static var datadogLogENV: String {
-        return Bundle.main.infoDictionary?["DATADOG_LOG_ENV"] as? String ?? ""
-    }
-    private(set) var datadogLogENV: String = ""
-    func setDataDogLogENV(_ env: String) {
-        self.datadogLogENV = env
-    }
-
-    // Datadog Log Service
-    static var datadogLogService: String {
-        return Bundle.main.infoDictionary?["DATADOG_LOG_SERVICE"] as? String ?? ""
-    }
-    private(set) var datadogLogService: String = ""
-    func setDataDogLogService(_ service: String) {
-        self.datadogLogService = service
-    }
-
     // Push Token
     private(set) var pushToken: String = ""
     func setPushToken(_ pushToken: String) {

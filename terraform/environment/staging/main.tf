@@ -97,9 +97,3 @@ module "platform_application" {
 module "dynamodb" {
   source = "../../modules/dynamodb"
 }
-
-
-module "datadog" {
-  source     = "../../modules/datadog"
-  dd_api_key = local.dd_api_key
-}

@@ -26,12 +26,6 @@
 	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
-	<key>DATADOG_CLIENT_TOKEN</key>
-	<string>${DATADOG_CLIENT_TOKEN}</string>
-	<key>DATADOG_LOG_ENV</key>
-	<string>${DATADOG_LOG_ENV}</string>
-	<key>DATADOG_LOG_SERVICE</key>
-	<string>${DATADOG_LOG_SERVICE}</string>
 	<key>GADApplicationIdentifier</key>
 	<string>${GAD_APPLICATION_IDENTIFER}</string>
 	<key>GADIsAdManagerApp</key>

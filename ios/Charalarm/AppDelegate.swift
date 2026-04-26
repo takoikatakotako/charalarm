@@ -7,8 +7,6 @@ import CallKit
 import AVKit
 import GoogleMobileAds
 import StoreKit
-import DatadogCore
-import DatadogLogs
 
 class AppDelegate: UIResponder, UIApplicationDelegate {
     let model = AppDelegateModel(apiRepository: APIRepository(), keychainRepository: KeychainRepository())
@@ -41,17 +39,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         } catch {
             assertionFailure("ERROR: CANNOT PLAY MUSIC IN BACKGROUND. Message from code: \"\(error)\"")
         }
-
-        // Datadogのロガーを設定する
-        Datadog.initialize(
-            with: Datadog.Configuration(
-                clientToken: Variables.datadogClientToken,
-                env: Variables.datadogLogENV,
-                service: Variables.datadogLogService
-            ),
-            trackingConsent: .granted
-        )
-        Logs.enable()
 
         return true
     }

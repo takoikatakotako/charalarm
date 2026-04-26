@@ -134,21 +134,3 @@ module "web_api" {
 }
 
 
-# module "batch" {
-#   source          = "../../modules/batch"
-#   resource_domain = local.resource_domain
-# }
-
-# module "worker" {
-#   source                    = "../../modules/worker"
-#   datadog_log_forwarder_arn = local.datadog_log_forwarder_arn
-# }
-
-# module "datadog" {
-#   source     = "../../modules/datadog"
-#   dd_api_key = local.dd_api_key
-# }
-
-# module "github" {
-#   source = "../../modules/github"
-# }
