@@ -3,4 +3,6 @@ output "worker_lambda_function_arn" {
   description = "Worker Lambda Function ARN"
 }
 
-# aws_lambda_function.lambda_edge_function.qualified_arn
+output "function_name" {
+  value = aws_lambda_function.worker_lambda_function.function_name
+}

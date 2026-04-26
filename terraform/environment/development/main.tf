@@ -101,32 +101,3 @@ module "dynamodb" {
 
 
 
-# deprecated
-
-# module "web_api" {
-#   source                    = "../../modules/web_api"
-#   domain                    = local.api_domain
-#   route53_zone_id           = local.route53_zone_id
-#   acm_certificate_arn       = local.api_acm_certificate_arn
-#   application_version       = local.application_version
-#   application_bucket_name   = local.application_bucket_name
-#   resource_domain           = local.resource_domain
-#   datadog_log_forwarder_arn = local.datadog_log_forwarder_arn
-# }
-
-# module "datadog" {
-#   source     = "../../modules/datadog"
-#   dd_api_key = local.dd_api_key
-# }
-
-# module "github" {
-#   source = "../../modules/github"
-# }
-
-# module "lp" {
-#   source              = "../../modules/lp"
-#   bucket_name         = local.lp_bucket_name
-#   acm_certificate_arn = local.lp_acm_certificate_arn
-#   domain              = local.lp_domain
-#   zone_id             = local.route53_zone_id
-# }

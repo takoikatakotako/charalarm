@@ -23,9 +23,6 @@ packages:
   Firebase:
     url: https://github.com/firebase/firebase-ios-sdk
     from: 12.9.0
-  Datadog:
-    url: https://github.com/Datadog/dd-sdk-ios.git
-    from: 3.6.1
   Rswift:
     url: https://github.com/mac-cain13/R.swift
     from: 7.8.0
@@ -58,10 +55,6 @@ _commonDependencies: &commonDependencies
   - sdk: AdSupport.framework
   - sdk: AppTrackingTransparency.framework
   - sdk: StoreKit.framework
-  - package: Datadog
-    product: DatadogCore
-  - package: Datadog
-    product: DatadogLogs
   - package: Firebase
     product: FirebaseAnalytics
   - package: Firebase
@@ -119,9 +112,6 @@ targets:
           ADMOB_ALARM_LIST: ca-app-pub-3940256099942544/2934735716
           ADMOB_CONFIG: ca-app-pub-3940256099942544/2934735716
           SUBSCRIPTION_PRODUCT_ID: charalarm.development.monthly.subscription
-          DATADOG_CLIENT_TOKEN: pub2bd816c3d9d7157b4e1fd5febf77951f
-          DATADOG_LOG_ENV: charalarm-development
-          DATADOG_LOG_SERVICE: charalarm-development
         Release:
           CODE_SIGN_ENTITLEMENTS: Charalarm/CharalarmRelease.entitlements
           API_ENDPOINT: https://api.charalarm-development.swiswiswift.com
@@ -130,9 +120,6 @@ targets:
           ADMOB_ALARM_LIST: ca-app-pub-3940256099942544/2934735716
           ADMOB_CONFIG: ca-app-pub-3940256099942544/2934735716
           SUBSCRIPTION_PRODUCT_ID: charalarm.development.monthly.subscription
-          DATADOG_CLIENT_TOKEN: pub2bd816c3d9d7157b4e1fd5febf77951f
-          DATADOG_LOG_ENV: charalarm-development
-          DATADOG_LOG_SERVICE: charalarm-development
 
   CharalarmStaging:
     templates: [CharalarmApp]
@@ -158,9 +145,6 @@ targets:
           ADMOB_ALARM_LIST: ca-app-pub-3940256099942544/2934735716
           ADMOB_CONFIG: ca-app-pub-3940256099942544/2934735716
           SUBSCRIPTION_PRODUCT_ID: charalarm.staging.monthly.subscription
-          DATADOG_CLIENT_TOKEN: pub8e7e9ddd556eb859180ccad19517dd5c
-          DATADOG_LOG_ENV: charalarm-staging
-          DATADOG_LOG_SERVICE: charalarm-staging
         Release:
           CODE_SIGN_ENTITLEMENTS: Charalarm/CharalarmRelease.entitlements
           API_ENDPOINT: https://api.charalarm-staging.swiswiswift.com
@@ -169,9 +153,6 @@ targets:
           ADMOB_ALARM_LIST: ca-app-pub-3940256099942544/2934735716
           ADMOB_CONFIG: ca-app-pub-3940256099942544/2934735716
           SUBSCRIPTION_PRODUCT_ID: charalarm.staging.monthly.subscription
-          DATADOG_CLIENT_TOKEN: pub8e7e9ddd556eb859180ccad19517dd5c
-          DATADOG_LOG_ENV: charalarm-staging
-          DATADOG_LOG_SERVICE: charalarm-staging
 
   CharalarmProduction:
     templates: [CharalarmApp]
@@ -197,9 +178,6 @@ targets:
           ADMOB_ALARM_LIST: ca-app-pub-5587141252700968/8220227024
           ADMOB_CONFIG: ca-app-pub-5587141252700968/1355204268
           SUBSCRIPTION_PRODUCT_ID: charalarm.production.monthly.subscription
-          DATADOG_CLIENT_TOKEN: pub746809c11c5291884508b5936605a3bf
-          DATADOG_LOG_ENV: charalarm-production
-          DATADOG_LOG_SERVICE: charalarm-production
         Release:
           CODE_SIGN_ENTITLEMENTS: Charalarm/CharalarmRelease.entitlements
           API_ENDPOINT: https://api3.charalarm.com
@@ -208,6 +186,3 @@ targets:
           ADMOB_ALARM_LIST: ca-app-pub-5587141252700968/8220227024
           ADMOB_CONFIG: ca-app-pub-5587141252700968/1355204268
           SUBSCRIPTION_PRODUCT_ID: charalarm.production.monthly.subscription
-          DATADOG_CLIENT_TOKEN: pub746809c11c5291884508b5936605a3bf
-          DATADOG_LOG_ENV: charalarm-production
-          DATADOG_LOG_SERVICE: charalarm-production

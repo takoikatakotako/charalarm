@@ -10,5 +10,4 @@ locals {
 
   ios_voip_push_certificate_filename = "staging-voip-expiration-20270507-certificate.pem"
   ios_voip_push_private_filename     = "staging-voip-expiration-20270507-privatekey.pem"
-  datadog_log_forwarder_arn          = "arn:aws:lambda:ap-northeast-1:334832660826:function:datadog-forwarder"
 }

@@ -27,7 +27,9 @@ struct APIClient {
 
         let (data, urlResponse) = try await URLSession.shared.data(for: urlRequest)
 
-        CharalarmLogger.debug(urlRequest.curlString)
+        #if DEBUG
+        print(urlRequest.curlString)
+        #endif
 
         guard let urlResponse = urlResponse as? HTTPURLResponse else {
             throw CharalarmError.clientError
