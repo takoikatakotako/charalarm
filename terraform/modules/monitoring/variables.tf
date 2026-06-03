@@ -39,3 +39,9 @@ variable "api_cloudfront_distribution_ids" {
   description = "Dashboard に表示する CloudFront distribution ID のマップ (ラベル → ID)"
   default     = {}
 }
+
+variable "create_dashboard" {
+  type        = bool
+  description = "CloudWatch Dashboard を作成するか (コスト削減のため development/staging では false)"
+  default     = true
+}

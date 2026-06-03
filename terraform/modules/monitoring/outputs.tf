@@ -3,7 +3,7 @@ output "sns_topic_arn" {
 }
 
 output "dashboard_name" {
-  value = aws_cloudwatch_dashboard.main.dashboard_name
+  value = var.create_dashboard ? aws_cloudwatch_dashboard.main[0].dashboard_name : null
 }
 
 output "slack_notifier_function_name" {
