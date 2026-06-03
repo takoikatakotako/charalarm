@@ -6,6 +6,9 @@ module "monitoring" {
   name_prefix                      = local.prefix
   slack_webhook_ssm_parameter_name = "/charalarm/staging/slack-webhook-url"
 
+  # コスト削減のため Dashboard は作成しない (Alarm / Slack 通知は維持)
+  create_dashboard = false
+
   worker_function_name = module.worker2.function_name
   batch_function_name  = module.batch2.function_name
 
