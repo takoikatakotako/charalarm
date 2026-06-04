@@ -54,17 +54,6 @@ module "platform_application" {
   ios_voip_push_private_file     = local.ios_voip_push_private_filename
 }
 
-module "web_api" {
-  source                    = "./web_api"
-  domain                    = local.api_domain
-  route53_zone_id           = local.route53_zone_id
-  acm_certificate_arn       = local.api_acm_certificate_arn
-  application_version       = local.application_version
-  application_bucket_name   = local.application_bucket_name
-  resource_domain           = local.resource_domain
-  datadog_log_forwarder_arn = local.datadog_log_forwarder_arn
-}
-
 
 module "batch" {
   source          = "./batch"
