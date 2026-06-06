@@ -5,6 +5,14 @@ resource "aws_s3_bucket" "s3_bucket" {
   bucket = var.bucket_name
 }
 
+resource "aws_s3_bucket_public_access_block" "bucket_public_access_block" {
+  bucket                  = aws_s3_bucket.s3_bucket.id
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
+
 resource "aws_s3_bucket_policy" "s3_bucket_policy" {
   bucket = aws_s3_bucket.s3_bucket.id
   policy = data.aws_iam_policy_document.iam_policy_document.json
@@ -14,27 +22,26 @@ resource "aws_s3_bucket_policy" "s3_bucket_policy" {
   ]
 }
 
-resource "aws_s3_bucket_public_access_block" "bucket_public_access_block" {
-  bucket                  = aws_s3_bucket.s3_bucket.id
-  block_public_acls       = false
-  block_public_policy     = false
-  ignore_public_acls      = false
-  restrict_public_buckets = false
-}
-
+# CloudFront (OAC) からの GetObject のみ許可
 data "aws_iam_policy_document" "iam_policy_document" {
   statement {
-    sid = "AddPerm"
+    sid    = "AllowCloudFrontServicePrincipalReadOnly"
+    effect = "Allow"
     actions = [
       "s3:GetObject"
     ]
     principals {
-      type        = "*"
-      identifiers = ["*"]
+      type        = "Service"
+      identifiers = ["cloudfront.amazonaws.com"]
     }
     resources = [
-      "arn:aws:s3:::${var.bucket_name}/*"
+      "${aws_s3_bucket.s3_bucket.arn}/*"
     ]
+    condition {
+      test     = "StringEquals"
+      variable = "AWS:SourceArn"
+      values   = [aws_cloudfront_distribution.charalarm_cloudfront_distribution.arn]
+    }
   }
 }
 
@@ -42,10 +49,18 @@ data "aws_iam_policy_document" "iam_policy_document" {
 ##############################################################
 # CloudFront
 ##############################################################
+resource "aws_cloudfront_origin_access_control" "s3_oac" {
+  name                              = var.bucket_name
+  origin_access_control_origin_type = "s3"
+  signing_behavior                  = "always"
+  signing_protocol                  = "sigv4"
+}
+
 resource "aws_cloudfront_distribution" "charalarm_cloudfront_distribution" {
   origin {
-    domain_name = "${var.bucket_name}.s3.amazonaws.com"
-    origin_id   = "S3-${var.bucket_name}"
+    domain_name              = aws_s3_bucket.s3_bucket.bucket_regional_domain_name
+    origin_id                = "S3-${var.bucket_name}"
+    origin_access_control_id = aws_cloudfront_origin_access_control.s3_oac.id
   }
 
   aliases = [
