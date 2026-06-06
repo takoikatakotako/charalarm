@@ -15,7 +15,7 @@ API: [https://api.charalarm.swiswiswift.com/healthcheck](https://api.charalarm.s
 # Production
 オリジン: [https://charalarm.com](https://charalarm.com)
 リソース: [https://resource.charalarm.com/com.charalarm.yui/thumbnail.png](https://resource.charalarm.com/com.charalarm.yui/thumbnail.png)
-API: [https://api2.charalarm.com/healthcheck](https://api2.charalarm.com/healthcheck)
+API: [https://api3.charalarm.com/healthcheck](https://api3.charalarm.com/healthcheck)
 
 
 # /
