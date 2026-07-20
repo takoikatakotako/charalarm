@@ -16,7 +16,8 @@ enum VoicevoxPoC {
                 NSLog("🟢VOICEVOX_POC start")
                 try repository.setupSynthesizer()
                 NSLog("🟢VOICEVOX_POC synthesizer ready")
-                let wav = try await repository.synthesize(text: "こんにちは、ずんだもんなのだ。テスト発話なのだ。")
+                // 3 = ずんだもん ノーマル
+                let wav = try await repository.synthesize(text: "こんにちは、ずんだもんなのだ。テスト発話なのだ。", styleId: 3)
                 let header = String(bytes: wav.prefix(4), encoding: .ascii) ?? "----"
                 NSLog("🟢VOICEVOX_POC synthesized bytes=\(wav.count) header=\(header)")
                 guard header == "RIFF", wav.count > 44 else {

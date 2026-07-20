@@ -1,12 +1,9 @@
 import Foundation
 import voicevox_core
 
-/// VOICEVOX CORE を端末内で動かし、ずんだもん (styleId=3) の音声を合成する。
+/// VOICEVOX CORE を端末内で動かし、指定スタイルID の音声を合成する。
 /// 辞書・音声モデルはアプリバンドルにフォルダ参照として同梱している。
 class VoicevoxRepository: TextToSpeechRepository {
-
-    /// ずんだもん ノーマル
-    private static let zundamonNormalStyleId = 3
 
     private var synthesizer: OpaquePointer?
 
@@ -59,14 +56,14 @@ class VoicevoxRepository: TextToSpeechRepository {
         voicevox_voice_model_file_delete(voiceModelFile)
     }
 
-    func synthesize(text: String) async throws -> Data {
+    func synthesize(text: String, styleId: Int) async throws -> Data {
         let voicevoxTtsOptions = voicevox_make_default_tts_options()
         let cText = strdup(text)
         defer { free(cText) }
         var wavLength: UInt = 0
         var wavBuffer: UnsafeMutablePointer<UInt8>?
         let synthesizerTtsResultCode = voicevox_synthesizer_tts(
-            synthesizer, cText, VoicevoxStyleId(Self.zundamonNormalStyleId), voicevoxTtsOptions, &wavLength, &wavBuffer
+            synthesizer, cText, VoicevoxStyleId(styleId), voicevoxTtsOptions, &wavLength, &wavBuffer
         )
         guard synthesizerTtsResultCode == 0 else {
             throw VoicevoxError.synthesizerTextToSpeechFailed

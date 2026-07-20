@@ -67,6 +67,14 @@ struct ConfigView: View {
                             Text(String(localized: "config-official-twitter"))
                                 .foregroundStyle(Color(R.color.textColor.name))
                         }
+
+                        #if DEBUG
+                        // フェーズ2: ずんだもん会話のPoC導線（開発用）
+                        NavigationLink(destination: ConversationView()) {
+                            Text("[DEBUG] ずんだもんと通話")
+                                .foregroundStyle(Color(R.color.textColor.name))
+                        }
+                        #endif
                     }
 
                     Section(
