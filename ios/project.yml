@@ -52,6 +52,10 @@ schemes:
 
 # 共通設定をYAML anchorsで定義
 _commonDependencies: &commonDependencies
+  - framework: Voicevox/voicevox_core.xcframework
+    embed: true
+  - framework: Voicevox/voicevox_onnxruntime.xcframework
+    embed: true
   - sdk: AdSupport.framework
   - sdk: AppTrackingTransparency.framework
   - sdk: StoreKit.framework
@@ -94,7 +98,13 @@ targets:
       - path: Charalarm
         excludes:
           - Charalarm/Resource
+          - Charalarm/open_jtalk_dic_utf_8-1.11
+          - Charalarm/vvms
       - path: Charalarm/Resource
+        type: folder
+      - path: Charalarm/open_jtalk_dic_utf_8-1.11
+        type: folder
+      - path: Charalarm/vvms
         type: folder
       - path: Config/Develop
     settings:
@@ -127,7 +137,13 @@ targets:
       - path: Charalarm
         excludes:
           - Charalarm/Resource
+          - Charalarm/open_jtalk_dic_utf_8-1.11
+          - Charalarm/vvms
       - path: Charalarm/Resource
+        type: folder
+      - path: Charalarm/open_jtalk_dic_utf_8-1.11
+        type: folder
+      - path: Charalarm/vvms
         type: folder
       - path: Config/Staging
     settings:
@@ -160,7 +176,13 @@ targets:
       - path: Charalarm
         excludes:
           - Charalarm/Resource
+          - Charalarm/open_jtalk_dic_utf_8-1.11
+          - Charalarm/vvms
       - path: Charalarm/Resource
+        type: folder
+      - path: Charalarm/open_jtalk_dic_utf_8-1.11
+        type: folder
+      - path: Charalarm/vvms
         type: folder
       - path: Config/Production
     settings:

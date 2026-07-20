@@ -40,6 +40,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             assertionFailure("ERROR: CANNOT PLAY MUSIC IN BACKGROUND. Message from code: \"\(error)\"")
         }
 
+        #if DEBUG
+        // 端末内 VOICEVOX 合成の疎通確認 (VOICEVOX_POC=1 起動時のみ)
+        VoicevoxPoC.runIfEnabled()
+        #endif
+
         return true
     }
 

@@ -29,5 +29,6 @@ Charalarmの開発に関するドキュメントです。
 
 - [リポジトリ](repositories.md)
 - [ロードマップ](roadmap.md)
+- [ずんだもん音声会話機能 移植プラン](zundamon-voice-conversation.md)
 - [アップデート](update.md)
 - [問い合わせ対応](contact.md)
