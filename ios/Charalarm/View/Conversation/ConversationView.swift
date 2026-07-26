@@ -1,9 +1,20 @@
 import SwiftUI
 
-/// ずんだもんとのリアルタイム音声会話画面（フェーズ2: アプリ内 simulated）。
+/// ずんだもんとのリアルタイム音声会話画面。
+/// standalone（DEBUG 動線）と CallKit 着信フローの両方から使う。
 struct ConversationView: View {
-    @StateObject private var viewModel = ConversationViewModel()
+    @StateObject private var viewModel: ConversationViewModel
     @Environment(\.dismiss) private var dismiss
+
+    init(
+        mode: ConversationMode = .standalone,
+        textGenerationRepository: TextGenerationRepository = BackendTextGenerationRepository()
+    ) {
+        _viewModel = StateObject(wrappedValue: ConversationViewModel(
+            mode: mode,
+            textGenerationRepository: textGenerationRepository
+        ))
+    }
 
     var body: some View {
         VStack(spacing: 24) {
@@ -32,7 +43,7 @@ struct ConversationView: View {
                 .foregroundStyle(.secondary)
 
             Button(role: .destructive) {
-                viewModel.requestDismiss()
+                viewModel.endButtonTapped()
             } label: {
                 Text("通話を終了")
                     .frame(maxWidth: .infinity)
@@ -43,6 +54,9 @@ struct ConversationView: View {
         }
         .onAppear {
             viewModel.onAppear()
+        }
+        .onDisappear {
+            viewModel.teardown()
         }
         .onChange(of: viewModel.shouldDismiss) { _, shouldDismiss in
             if shouldDismiss {

@@ -81,15 +81,32 @@ Charalarm 既存の CallKit/VoIP 着信フローを維持し、**着信応答後
 
 ## フェーズ計画
 
-- **フェーズ 0（調査・確定）**：iOS 18 化の影響範囲、VOICEVOX CORE の Charalarm でのビルド可否、`.vvm` 配布方式を確定。
-- **フェーズ 1（TTS PoC）**：`VoicevoxRepository` と xcframework/`.vvm` を Charalarm に取り込み、
+- **フェーズ 0（調査・確定）** ✅：iOS 18 化は不要（既に iOS 18.0 ターゲット）、VOICEVOX CORE の Charalarm でのビルド可否、`.vvm` 配布方式を確定。
+- **フェーズ 1（TTS PoC）** ✅：`VoicevoxRepository` と xcframework/`.vvm` を Charalarm に取り込み、
   「ずんだもんが一言発話」する最小実装を通す。S3 配信 (`Makefile`) も移植。
-- **フェーズ 2（会話ループ）**：`CallViewModel` 系 + `TextChunker` + STT を移植し、
-  画面上でターン制会話を成立させる（LLM は backend `/chat` 経由）。
-- **フェーズ 3（アラーム接続）**：既存 CallKit 着信フローに会話セッションを接続し、
-  「アラーム発火 → 取ると会話」を実機で通す。`.caf` 再生と差し替え。
-- **フェーズ 4（LLM/backend）**：Charalarm backend に `/chat`（デフォルト OpenAI・差替可能）を実装し、
-  端末からキーを排除。ずんだもんペルソナをサーバ/クライアントで整理。
+- **フェーズ 2（会話ループ）** ✅：`ConversationViewModel` 系 + `TextChunker` + STT を移植し、
+  画面上でターン制会話を成立させる（LLM は当初 Stub、フェーズ4で backend `/chat` に差替）。
+- **フェーズ 3（アラーム接続）** ✅：既存 CallKit 着信フローに会話セッションを接続。
+  push payload の `charaID`（worker が既に送信済み）を iOS 側でパースし、`ConversationCapability`
+  で会話対応キャラ（ずんだもん）を判定 → `RootViewType.conversation` へ分岐。会話キャラでは
+  `AppDelegateModel.receiveVoipPush()` の `.caf` 再生を抑止。会話画面は `ConversationMode.callKit`
+  で着信音をスキップし、終話は既存の `CXEndCallAction → endCall 通知 → RootView .top` チェーンを再利用。
+- **フェーズ 4（LLM/backend）** ✅：Charalarm backend に `POST /chat`（`api/handler/chat.go`,
+  `api/service/chat.go`, `api/service/llm/`）を実装。プロバイダは `llm.Client` インターフェースで
+  差替可能・デフォルト OpenAI（`gpt-4o-mini`）、キーはサーバ環境変数。iOS は
+  `BackendTextGenerationRepository` が Keychain の userID/authToken で認証して叩く。
+
+### フェーズ 4 デプロイ時の必須設定
+
+`/chat` は環境変数からキー/モデルを読む（`environment/environment.go`）。api Lambda に以下を設定する（Terraform）:
+
+| 環境変数 | 既定 | 用途 |
+|---|---|---|
+| `OPENAI_API_KEY` | (空) | **必須**。未設定だと `/chat` は 500 を返す |
+| `CHARALARM_LLM_PROVIDER` | `openai` | プロバイダ選択（将来 anthropic 等） |
+| `CHARALARM_LLM_MODEL` | `gpt-4o-mini` | モデル名 |
+
+キーは Terraform の secret 管理（SSM/Secrets Manager 等）から Lambda 環境変数へ注入する想定。**このコミットには含めていない**（別途インフラ側で設定が必要）。
 
 ## 検証方法
 

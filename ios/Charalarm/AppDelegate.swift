@@ -101,6 +101,7 @@ extension AppDelegate: PKPushRegistryDelegate {
            let dataDictionary = try? JSONSerialization.jsonObject(with: data, options: []) as? [String: String],
            let charaNeme = dataDictionary["charaName"],
            let voiceFileURL = dataDictionary["voiceFileURL"] {
+            model.setCharaID(charaID: dataDictionary["charaID"] ?? "")
             model.setCharaName(charaName: charaNeme)
             model.setVoiceFileURL(voiceFileURL: voiceFileURL)
         }

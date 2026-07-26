@@ -2,6 +2,7 @@ import UIKit
 import AVKit
 
 class AppDelegateModel {
+    private(set) var charaID: String = ""
     private(set) var charaName: String = ""
     private(set) var voiceFileURL: String = ""
     private var audioPlayer = AVAudioPlayer()
@@ -17,6 +18,10 @@ class AppDelegateModel {
         self.fileRepository = FileRepository()
         self.keychainRepository = KeychainRepository()
         self.userDefaultsRepository = UserDefaultsRepository()
+    }
+
+    func setCharaID(charaID: String) {
+        self.charaID = charaID
     }
 
     func setCharaName(charaName: String) {
@@ -80,6 +85,11 @@ class AppDelegateModel {
 
     // VoIP Pushを受信
     func receiveVoipPush() {
+        // 会話対応キャラ（ずんだもん）は録音ファイルを再生せず、音声会話画面が音声を扱う
+        if ConversationCapability.isCapable(charaID: charaID) {
+            return
+        }
+
         guard let url = URL(string: voiceFileURL) else {
             // エラーだよメッセージを流す
             return
@@ -103,8 +113,9 @@ class AppDelegateModel {
     }
 
     func answerCall(callUUID: UUID) {
+        // charaID が未取得(旧ペイロード等)の場合は空のまま = 非会話キャラ扱いで従来の録音再生にフォールバック
         let userInfo: [String: Any] = [
-            NSNotification.answerCallUserInfoKeyCharaID: "jp.zunko.zundamon",
+            NSNotification.answerCallUserInfoKeyCharaID: charaID,
             NSNotification.answerCallUserInfoKeyCharaName: charaName,
             NSNotification.answerCallUserInfoKeyCallUUID: callUUID
         ]

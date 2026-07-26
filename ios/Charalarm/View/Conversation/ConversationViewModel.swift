@@ -1,6 +1,7 @@
 import SwiftUI
 import Speech
 import AVFoundation
+import CallKit
 
 /// ずんだもんとのリアルタイム音声会話（ターン制）。
 /// フェーズ2: アプリ内会話画面（simulated）。CallKit 着信フローへの接続はフェーズ3。
@@ -39,6 +40,13 @@ class ConversationViewModel: NSObject, ObservableObject {
         static let noInputEndPrompt = "ユーザーの声が聞こえなくなったので、少し心配しつつ、ずんだもんらしい親しみやすい挨拶で会話を終了してください。"
     }
 
+    // MARK: - Mode
+
+    /// 起動モード（アプリ内単体 or CallKit 着信フロー）。
+    private let mode: ConversationMode
+
+    private let callController = CXCallController()
+
     // MARK: - Repositories
 
     private let voicevoxRepository: TextToSpeechRepository
@@ -68,9 +76,11 @@ class ConversationViewModel: NSObject, ObservableObject {
     // MARK: - Initialization
 
     init(
+        mode: ConversationMode = .standalone,
         voicevoxRepository: TextToSpeechRepository = VoicevoxRepository(),
-        textGenerationRepository: TextGenerationRepository = StubTextGenerationRepository()
+        textGenerationRepository: TextGenerationRepository = BackendTextGenerationRepository()
     ) {
+        self.mode = mode
         self.voicevoxRepository = voicevoxRepository
         self.textGenerationRepository = textGenerationRepository
     }
@@ -92,10 +102,51 @@ class ConversationViewModel: NSObject, ObservableObject {
         }
     }
 
-    func requestDismiss() {
+    /// 「通話を終了」ボタン。モードにより挙動を分ける。
+    func endButtonTapped() {
+        switch mode {
+        case .standalone:
+            requestDismiss()
+        case .callKit(let callUUID):
+            requestCallKitEnd(callUUID: callUUID)
+        }
+    }
+
+    /// 画面が閉じられる際のクリーンアップ（CallKit 終話で RootView が .top に戻ったとき等）。
+    func teardown() {
+        cleanupResources()
+    }
+
+    private func requestDismiss() {
         guard !shouldDismiss else { return }
         cleanupResources()
         shouldDismiss = true
+    }
+
+    /// CallKit の通話を終了する。終話は endCall 通知経由で RootView が畳む。
+    private func requestCallKitEnd(callUUID: UUID?) {
+        guard let callUUID = callUUID else {
+            // callUUID 不明時はフォールバックで画面だけ閉じる
+            requestDismiss()
+            return
+        }
+        let endCallAction = CXEndCallAction(call: callUUID)
+        let transaction = CXTransaction(action: endCallAction)
+        callController.request(transaction) { error in
+            if let error = error {
+                CharalarmLogger.error("CallKit 終話に失敗", error: error)
+            }
+        }
+    }
+
+    /// 会話が自然終了したとき、モードに応じて画面/通話を閉じる。
+    private func finishConversation() {
+        switch mode {
+        case .standalone:
+            requestDismiss()
+        case .callKit(let callUUID):
+            requestCallKitEnd(callUUID: callUUID)
+        }
     }
 
     // MARK: - Conversation Flow
@@ -112,8 +163,10 @@ class ConversationViewModel: NSObject, ObservableObject {
         }
         guard !shouldDismiss else { return }
 
-        // 着信音を再生
-        playRingtone()
+        // 着信音を再生（CallKit モードでは着信音はシステムが鳴らすのでスキップ）
+        if case .standalone = mode {
+            playRingtone()
+        }
 
         // 初回の応答を生成
         status = .generatingScript
@@ -176,6 +229,8 @@ class ConversationViewModel: NSObject, ObservableObject {
 
         status = .ended
         conversationTimer?.invalidate()
+
+        finishConversation()
     }
 
     // MARK: - VOICEVOX

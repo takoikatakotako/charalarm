@@ -95,10 +95,11 @@ import FirebaseAuth
     }
 
     func answerCall(charaID: String?, charaName: String?, callUUID: UUID?) {
-        type = .calling
         self.charaID = charaID
         self.charaName = charaName
         self.callUUID = callUUID
+        // 会話対応キャラ（ずんだもん）は音声会話画面へ、それ以外は従来の録音再生へ
+        type = ConversationCapability.isCapable(charaID: charaID) ? .conversation : .calling
     }
 
     func endCall() {

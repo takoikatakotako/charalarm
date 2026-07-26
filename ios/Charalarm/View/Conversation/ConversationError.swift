@@ -5,9 +5,12 @@ enum ConversationError: LocalizedError {
     case speechRecognitionPermissionDenied
     case audioPlaybackFailed
     case speechRecognitionFailed(Error)
+    case notAuthenticated
 
     var errorDescription: String? {
         switch self {
+        case .notAuthenticated:
+            return "ユーザー認証情報が取得できませんでした"
         case .ringtoneNotFound:
             return "着信音ファイルが見つかりません"
         case .speechRecognitionPermissionDenied:

@@ -5,6 +5,7 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/takoikatakotako/charalarm/api/handler"
 	"github.com/takoikatakotako/charalarm/api/service"
+	"github.com/takoikatakotako/charalarm/api/service/llm"
 	"github.com/takoikatakotako/charalarm/environment"
 	"github.com/takoikatakotako/charalarm/infrastructure"
 )
@@ -14,6 +15,9 @@ func main() {
 	env := environment.Environment{}
 	env.SetCharalarmAWSProfile("local")
 	env.SetResourceBaseURL("http://localhost:4566")
+	env.SetLLMProvider("openai")
+	env.SetLLMModel("gpt-4o-mini")
+	env.SetOpenAIAPIKey("")
 
 	// infrastructure
 	awsRepository := infrastructure.AWS{
@@ -34,6 +38,10 @@ func main() {
 	pushTokenService := service.PushToken{
 		AWS: awsRepository,
 	}
+	chatService := service.Chat{
+		AWS:       awsRepository,
+		LLMClient: llm.NewClient(env.LLMProvider, env.OpenAIAPIKey, env.LLMModel),
+	}
 
 	// handler
 	healthcheckHandler := handler.Healthcheck{}
@@ -52,6 +60,9 @@ func main() {
 		Service: pushTokenService,
 	}
 	newsHandler := handler.News{}
+	chatHandler := handler.Chat{
+		Service: chatService,
+	}
 
 	e := echo.New()
 	e.Use(middleware.Logger())
@@ -87,6 +98,9 @@ func main() {
 
 	// news
 	e.GET("/news/list", newsHandler.NewsListGet)
+
+	// chat (ずんだもんとの会話)
+	e.POST("/chat", chatHandler.ChatPost)
 
 	e.Logger.Fatal(e.Start(":8080"))
 }
