@@ -1,3 +1,8 @@
+# ずんだもん会話用 LLM の API キー (SSM に手動投入した SecureString を apply 時に読む)
+data "aws_ssm_parameter" "openai_api_key" {
+  name = var.openai_api_key_ssm_parameter_name
+}
+
 # API Lambda Function
 resource "aws_lambda_function" "api_lambda_function" {
   function_name = "charalarm-api"
@@ -10,7 +15,10 @@ resource "aws_lambda_function" "api_lambda_function" {
   environment {
     variables = {
       "CHARALARM_AWS_PROFILE"       = "",
-      "CHARALARM_RESOURCE_BASE_URL" = var.resource_base_url
+      "CHARALARM_RESOURCE_BASE_URL" = var.resource_base_url,
+      "OPENAI_API_KEY"              = data.aws_ssm_parameter.openai_api_key.value,
+      "CHARALARM_LLM_PROVIDER"      = var.llm_provider,
+      "CHARALARM_LLM_MODEL"         = var.llm_model
     }
   }
 

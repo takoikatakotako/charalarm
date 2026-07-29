@@ -106,7 +106,36 @@ Charalarm 既存の CallKit/VoIP 着信フローを維持し、**着信応答後
 | `CHARALARM_LLM_PROVIDER` | `openai` | プロバイダ選択（将来 anthropic 等） |
 | `CHARALARM_LLM_MODEL` | `gpt-4o-mini` | モデル名 |
 
-キーは Terraform の secret 管理（SSM/Secrets Manager 等）から Lambda 環境変数へ注入する想定。**このコミットには含めていない**（別途インフラ側で設定が必要）。
+キーは既存の admin 認証情報と同じく **SSM Parameter Store (SecureString)** に手動投入し、
+Terraform が apply 時に読み込んで Lambda 環境変数へ焼き込む（`modules/api/main.tf` の
+`data "aws_ssm_parameter" "openai_api_key"`）。SSM 読み取りは apply 実行ロールの権限で行うため
+Lambda 実行時の追加 IAM は不要。
+
+**SSM パラメータ名（環境別）**:
+
+| 環境 | パラメータ名 |
+|---|---|
+| development | `/charalarm/dev/openai-api-key` |
+| staging | `/charalarm/staging/openai-api-key` |
+| production | `/charalarm/production/openai-api-key` |
+
+**手順（apply 前に一度だけ）**:
+
+```bash
+# 例: development。値はリポジトリに含めない
+aws ssm put-parameter \
+  --name "/charalarm/dev/openai-api-key" \
+  --type SecureString \
+  --value "sk-..." \
+  --profile charalarm-development-sso
+
+cd terraform/environment/development
+terraform plan   # data source がパラメータを解決できることを確認
+terraform apply
+```
+
+パラメータが未作成のまま apply すると `data.aws_ssm_parameter` の解決に失敗する。
+`CHARALARM_LLM_PROVIDER` / `CHARALARM_LLM_MODEL` は module 変数（既定 openai / gpt-4o-mini）で上書き可能。
 
 ## 検証方法
 
