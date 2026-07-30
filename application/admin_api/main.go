@@ -23,6 +23,9 @@ func main() {
 	alarmService := service.Alarm{
 		AWS: awsRepository,
 	}
+	newsService := service.News{
+		AWS: awsRepository,
+	}
 
 	healthcheckHandler := handler.Healthcheck{}
 	userHandler := handler.User{
@@ -30,6 +33,9 @@ func main() {
 	}
 	alarmHandler := handler.Alarm{
 		Service: alarmService,
+	}
+	newsHandler := handler.News{
+		Service: newsService,
 	}
 
 	e := echo.New()
@@ -41,6 +47,10 @@ func main() {
 	e.GET("/users", userHandler.UsersGet)
 	e.GET("/users/:userID", userHandler.UserGet)
 	e.GET("/users/:userID/alarms", alarmHandler.UserAlarmsGet)
+
+	e.GET("/news", newsHandler.NewsListGet)
+	e.POST("/news", newsHandler.NewsPost)
+	e.DELETE("/news/:newsID", newsHandler.NewsDelete)
 
 	e.Logger.Fatal(e.Start(":8080"))
 }

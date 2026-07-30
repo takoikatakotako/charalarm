@@ -82,3 +82,17 @@ resource "aws_dynamodb_table" "chara_table" {
     type = "S"
   }
 }
+
+resource "aws_dynamodb_table" "news_table" {
+  name           = "news-table"
+  hash_key       = "newsID"
+  billing_mode   = "PROVISIONED"
+  read_capacity  = 1
+  write_capacity = 1
+  stream_enabled = false
+
+  attribute {
+    name = "newsID"
+    type = "S"
+  }
+}

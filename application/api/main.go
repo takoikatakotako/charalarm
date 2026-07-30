@@ -47,6 +47,9 @@ func main() {
 	pushTokenService := service.PushToken{
 		AWS: awsRepository,
 	}
+	newsService := service.News{
+		AWS: awsRepository,
+	}
 	chatService := service.Chat{
 		AWS:       awsRepository,
 		LLMClient: llm.NewClient(env.LLMProvider, env.OpenAIAPIKey, env.LLMModel),
@@ -68,7 +71,9 @@ func main() {
 	pushTokenHandler := handler.PushToken{
 		Service: pushTokenService,
 	}
-	newsHandler := handler.News{}
+	newsHandler := handler.News{
+		Service: newsService,
+	}
 	chatHandler := handler.Chat{
 		Service: chatService,
 	}
