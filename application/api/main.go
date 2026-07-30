@@ -1,19 +1,32 @@
 package main
 
 import (
+	"context"
+	"log"
+
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/takoikatakotako/charalarm/api/handler"
 	"github.com/takoikatakotako/charalarm/api/service"
+	"github.com/takoikatakotako/charalarm/api/service/llm"
 	"github.com/takoikatakotako/charalarm/environment"
 	"github.com/takoikatakotako/charalarm/infrastructure"
 )
 
 func main() {
+	// "ssm:///path" 形式の環境変数を Parameter Store の値に解決する
+	// (OPENAI_API_KEY 等の秘密値を Lambda 環境変数/state に平文で残さないため)
+	if err := environment.ResolveSSMEnv(context.Background()); err != nil {
+		log.Fatalf("failed to resolve SSM environment variables: %v", err)
+	}
+
 	// environment
 	env := environment.Environment{}
 	env.SetCharalarmAWSProfile("local")
 	env.SetResourceBaseURL("http://localhost:4566")
+	env.SetLLMProvider("openai")
+	env.SetLLMModel("gpt-4o-mini")
+	env.SetOpenAIAPIKey("")
 
 	// infrastructure
 	awsRepository := infrastructure.AWS{
@@ -34,6 +47,10 @@ func main() {
 	pushTokenService := service.PushToken{
 		AWS: awsRepository,
 	}
+	chatService := service.Chat{
+		AWS:       awsRepository,
+		LLMClient: llm.NewClient(env.LLMProvider, env.OpenAIAPIKey, env.LLMModel),
+	}
 
 	// handler
 	healthcheckHandler := handler.Healthcheck{}
@@ -52,6 +69,9 @@ func main() {
 		Service: pushTokenService,
 	}
 	newsHandler := handler.News{}
+	chatHandler := handler.Chat{
+		Service: chatService,
+	}
 
 	e := echo.New()
 	e.Use(middleware.Logger())
@@ -87,6 +107,9 @@ func main() {
 
 	// news
 	e.GET("/news/list", newsHandler.NewsListGet)
+
+	// chat (ずんだもんとの会話)
+	e.POST("/chat", chatHandler.ChatPost)
 
 	e.Logger.Fatal(e.Start(":8080"))
 }

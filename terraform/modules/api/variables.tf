@@ -39,3 +39,19 @@ variable "api_cloudfront_certificate" {
 variable "resource_base_url" {
   type = string
 }
+
+# ずんだもん会話用 LLM (デフォルト OpenAI) の API キーを保持する SSM パラメータ名。
+# 秘密値は SSM Parameter Store (SecureString) に手動投入し、名前だけを渡す。
+variable "openai_api_key_ssm_parameter_name" {
+  type = string
+}
+
+variable "llm_provider" {
+  type    = string
+  default = "openai"
+}
+
+variable "llm_model" {
+  type    = string
+  default = "gpt-4o-mini"
+}

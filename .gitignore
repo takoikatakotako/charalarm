@@ -126,3 +126,10 @@ site/
 
 # Claude Code
 .claude/settings.local.json
+
+# VOICEVOX (端末内合成用の大容量バイナリ。S3/公式配布から取得: cd ios && make setup-voicevox)
+ios/libs/
+ios/Voicevox/voicevox_core.xcframework/
+ios/Voicevox/voicevox_onnxruntime.xcframework/
+ios/Charalarm/open_jtalk_dic_utf_8-1.11/
+ios/Charalarm/vvms/

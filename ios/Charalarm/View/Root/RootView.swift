@@ -17,6 +17,8 @@ struct RootView: View {
                 TutorialHolderView()
             } else if viewState.type == .calling {
                 CallingView(viewState: CallingViewState(charaID: viewState.charaID, charaName: viewState.charaName, callUUID: viewState.callUUID))
+            } else if viewState.type == .conversation {
+                ConversationView(mode: .callKit(callUUID: viewState.callUUID))
             } else if viewState.type == .error {
                 ErrorView(viewState: ErrorViewState())
             }

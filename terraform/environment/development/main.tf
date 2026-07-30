@@ -51,6 +51,8 @@ module "api" {
   api_cloudfront_certificate    = module.cloudfront_api_certificate.certificate_arn
   root_domain_zone_id           = module.root_domain.zone_id
   resource_base_url             = "https://${local.resource_domain}"
+
+  openai_api_key_ssm_parameter_name = "/charalarm/dev/openai-api-key"
 }
 
 

@@ -67,6 +67,20 @@ struct ConfigView: View {
                             Text(String(localized: "config-official-twitter"))
                                 .foregroundStyle(Color(R.color.textColor.name))
                         }
+
+                        #if DEBUG
+                        // ずんだもん会話の開発用動線
+                        // Stub: バックエンド不要でループ確認（オウム返し）
+                        NavigationLink(destination: ConversationView(textGenerationRepository: StubTextGenerationRepository())) {
+                            Text("[DEBUG] ずんだもんと通話 (Stub)")
+                                .foregroundStyle(Color(R.color.textColor.name))
+                        }
+                        // Backend: 実際の /chat を叩く（要サインアップ済み・デプロイ済み）
+                        NavigationLink(destination: ConversationView()) {
+                            Text("[DEBUG] ずんだもんと通話 (Backend)")
+                                .foregroundStyle(Color(R.color.textColor.name))
+                        }
+                        #endif
                     }
 
                     Section(

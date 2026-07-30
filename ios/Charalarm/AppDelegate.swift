@@ -40,6 +40,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             assertionFailure("ERROR: CANNOT PLAY MUSIC IN BACKGROUND. Message from code: \"\(error)\"")
         }
 
+        #if DEBUG
+        // 端末内 VOICEVOX 合成の疎通確認 (VOICEVOX_POC=1 起動時のみ)
+        VoicevoxPoC.runIfEnabled()
+        #endif
+
         return true
     }
 
@@ -96,6 +101,7 @@ extension AppDelegate: PKPushRegistryDelegate {
            let dataDictionary = try? JSONSerialization.jsonObject(with: data, options: []) as? [String: String],
            let charaNeme = dataDictionary["charaName"],
            let voiceFileURL = dataDictionary["voiceFileURL"] {
+            model.setCharaID(charaID: dataDictionary["charaID"] ?? "")
             model.setCharaName(charaName: charaNeme)
             model.setVoiceFileURL(voiceFileURL: voiceFileURL)
         }

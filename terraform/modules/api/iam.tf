@@ -67,6 +67,34 @@ data "aws_iam_policy_document" "api_lambda_function_role_policy_document" {
     ]
     resources = ["*"]
   }
+
+  # 会話用 LLM キー等を実行時に Parameter Store から解決するための権限
+  statement {
+    effect = "Allow"
+    actions = [
+      "ssm:GetParameter",
+      "ssm:GetParameters",
+    ]
+    resources = [
+      "arn:aws:ssm:ap-northeast-1:${local.account_id}:parameter${var.openai_api_key_ssm_parameter_name}"
+    ]
+  }
+
+  # SecureString(既定の aws/ssm キー)を復号するための権限
+  statement {
+    effect = "Allow"
+    actions = [
+      "kms:Decrypt",
+    ]
+    resources = [
+      data.aws_kms_alias.ssm.target_key_arn
+    ]
+  }
+}
+
+# SecureString の復号に使う AWS 管理 KMS キー
+data "aws_kms_alias" "ssm" {
+  name = "alias/aws/ssm"
 }
 
 resource "aws_iam_role_policy_attachment" "api_lambda_function_role_policy_attachment" {

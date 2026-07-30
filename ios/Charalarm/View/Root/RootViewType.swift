@@ -7,5 +7,6 @@ enum RootViewType: Equatable {
     case top
     case tutorial
     case calling
+    case conversation
     case error
 }
