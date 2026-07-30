@@ -147,6 +147,18 @@ extension APIRepository {
 }
 
 extension APIRepository {
+    /// お知らせ一覧を取得する（新しい順）。
+    func getNewsList() async throws -> [News] {
+        let path = "/news/list"
+        let url = try createURL(path: path)
+        let requestHeader: [String: String] = APIHeader.defaultHeader
+        let requestBody: Encodable? = nil
+        let newsList: [News] = try await APIClient().request(url: url, httpMethod: .get, requestHeader: requestHeader, requestBody: requestBody)
+        return newsList
+    }
+}
+
+extension APIRepository {
     /// ずんだもんとの会話応答を backend `/chat` から取得する。
     func postChat(userID: String, authToken: String, messages: [ChatMessage]) async throws -> String {
         let path = "/chat"

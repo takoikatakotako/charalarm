@@ -2,20 +2,12 @@ import SwiftUI
 
 struct NewsListView: View {
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.openURL) private var openURL
     @State private var viewModel = NewsListViewModel()
 
     var body: some View {
         NavigationStack {
             List(viewModel.newsList) { news in
-                Button {
-                    guard let url = URL(string: news.url) else {
-                        return
-                    }
-                    openURL(url)
-                } label: {
-                    NewsRow(news: news)
-                }
+                NewsRow(news: news)
             }
             .navigationTitle(String(localized: "news-news"))
             .navigationBarTitleDisplayMode(.inline)
