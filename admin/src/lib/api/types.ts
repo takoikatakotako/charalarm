@@ -45,3 +45,14 @@ export interface Alarm {
 export interface UserAlarmsResponse {
   alarms: Alarm[];
 }
+
+export interface News {
+  newsId: string;
+  title: string;
+  body: string;
+  registeredAt: string;
+}
+
+export interface NewsListResponse {
+  news: News[];
+}

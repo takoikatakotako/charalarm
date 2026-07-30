@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Users } from "lucide-react";
+import { Users, Megaphone } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navigation = [
   { name: "ユーザー", href: "/users", icon: Users },
+  { name: "お知らせ", href: "/news", icon: Megaphone },
 ];
 
 export function Sidebar() {
