@@ -1,6 +1,9 @@
 package main
 
 import (
+	"context"
+	"log"
+
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/takoikatakotako/charalarm/api/handler"
@@ -11,6 +14,12 @@ import (
 )
 
 func main() {
+	// "ssm:///path" 形式の環境変数を Parameter Store の値に解決する
+	// (OPENAI_API_KEY 等の秘密値を Lambda 環境変数/state に平文で残さないため)
+	if err := environment.ResolveSSMEnv(context.Background()); err != nil {
+		log.Fatalf("failed to resolve SSM environment variables: %v", err)
+	}
+
 	// environment
 	env := environment.Environment{}
 	env.SetCharalarmAWSProfile("local")
