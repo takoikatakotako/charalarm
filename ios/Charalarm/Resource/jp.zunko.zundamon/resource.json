@@ -1,19 +1,19 @@
 {
-  "charaID" : "com.charalarm.yui",
-  "updatedAt": "2023-06-14",
+  "charaID" : "jp.zunko.zundamon",
+  "updatedAt": "2026-07-31",
   "expressions" : {
     "normal" : {
       "voiceFileNames" : [
-        "tap-11.caf",
-        "tap-12.caf",
-        "tap-13.caf",
-        "tap-14.caf",
-        "tap-15.caf",
-        "tap-16.caf",
-        "tap-17.caf",
-        "tap-18.caf",
-        "tap-19.caf",
-        "tap-20.caf"
+        "tap-01.caf",
+        "tap-02.caf",
+        "tap-03.caf",
+        "tap-04.caf",
+        "tap-05.caf",
+        "tap-06.caf",
+        "tap-07.caf",
+        "tap-08.caf",
+        "tap-09.caf",
+        "tap-10.caf"
       ],
       "imageFileNames" : [
         "normal-0.png",
