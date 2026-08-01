@@ -84,6 +84,12 @@ aws dynamodb put-item \
     --item '{"charaID":{"S":"com.senpu-ki-soft.momiji"},"enable":{"BOOL":true},"name":{"S":"紅葉"},"created_at":{"S":"2023-06-05"},"updated_at":{"S":"2023-06-14"},"description":{"S":"金髪紅眼の美少女。疲れ気味のあなたを心配して様々な癒しを、と考えている。その正体は幾百年を生きる鬼の末裔。あるいはあなたに恋慕を抱く彼女。ちょっと素直になりきれないものの、なんやかんやいってそばにいてくれる面倒見のいい少女。日々あなたの生活を見届けている。「わっち？　名は紅葉でありんす。主様の支えになれるよう、掃除でもみみかきでもなんでも言っておくんなんし。か、かわいい？　い、いきなりそんなこと言わないでおくんなんし！」"},"calls":{"L":[{"M":{"message":{"S":"紅葉さんの天気だね。"},"voiceFileName":{"S":"call-on-weekday-morning.caf"}}},{"M":{"message":{"S":"紅葉さんの肩凝るねー"},"voiceFileName":{"S":"call-on-weekday-afternoon.caf"}}},{"M":{"message":{"S":"紅葉さんのボイス3"},"voiceFileName":{"S":"call-holiday-scheduled-alarm.caf"}}},{"M":{"message":{"S":"紅葉さんのボイス4"},"voiceFileName":{"S":"call-holiday-no-scheduled.caf"}}},{"M":{"message":{"S":"紅葉さんのボイス"},"voiceFileName":{"S":"call-small-talk.caf"}}}]},"expressions":{"M":{"normal":{"M":{"imageFileNames":{"L":[{"S":"normal.png"}]},"voiceFileNames":{"L":[{"S":"tap-general-1.caf"},{"S":"tap-general-2.caf"},{"S":"tap-general-3.caf"},{"S":"tap-general-4.caf"},{"S":"tap-general-5.caf"}]}}}}}}' \
     --region ap-northeast-1
 
+aws dynamodb put-item \
+    --endpoint-url $ENDPOINT_URL \
+    --table-name chara-table \
+    --item '{"charaID":{"S":"jp.zunko.zundamon"},"enable":{"BOOL":true},"name":{"S":"ずんだもん"},"created_at":{"S":"2026-07-31"},"updated_at":{"S":"2026-07-31"},"description":{"S":"ずんだの妖精なのだ。ずんだもんと呼んでほしいのだ！VOICEVOXの声で、電話をかけるとおしゃべりもできるのだ〜。よろしくなのだ！"},"profiles":{"L":[{"M":{"title":{"S":"音声"},"name":{"S":"VOICEVOX:ずんだもん"},"url":{"S":"https://voicevox.hiroshiba.jp/"}}},{"M":{"title":{"S":"イラスト"},"name":{"S":"（イラスト作者を記入）"},"url":{"S":"https://zunko.jp/"}}}]},"calls":{"L":[{"M":{"message":{"S":"ずんだもんのモーニングコール1"},"voiceFileName":{"S":"call-01.caf"}}},{"M":{"message":{"S":"ずんだもんのモーニングコール2"},"voiceFileName":{"S":"call-02.caf"}}},{"M":{"message":{"S":"ずんだもんのモーニングコール3"},"voiceFileName":{"S":"call-03.caf"}}},{"M":{"message":{"S":"ずんだもんのモーニングコール4"},"voiceFileName":{"S":"call-04.caf"}}},{"M":{"message":{"S":"ずんだもんのモーニングコール5"},"voiceFileName":{"S":"call-05.caf"}}}]},"expressions":{"M":{"normal":{"M":{"imageFileNames":{"L":[{"S":"normal-0.png"},{"S":"smile-0.png"},{"S":"woo-0.png"},{"S":"woo-1.png"}]},"voiceFileNames":{"L":[{"S":"tap-01.caf"},{"S":"tap-02.caf"},{"S":"tap-03.caf"},{"S":"tap-04.caf"},{"S":"tap-05.caf"},{"S":"tap-06.caf"},{"S":"tap-07.caf"},{"S":"tap-08.caf"},{"S":"tap-09.caf"},{"S":"tap-10.caf"}]}}}}}}' \
+    --region ap-northeast-1
+
 
 # news-table
 aws dynamodb create-table \

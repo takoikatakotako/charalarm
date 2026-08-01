@@ -57,8 +57,8 @@ func TestGetCharaList(t *testing.T) {
 		t.Errorf("unexpected error: %v", err)
 	}
 
-	// Assert
-	assert.Equal(t, len(charaList), 2)
+	// Assert (yui / momiji / zundamon の3体)
+	assert.Equal(t, len(charaList), 3)
 }
 
 func TestGetRandomChara(t *testing.T) {
