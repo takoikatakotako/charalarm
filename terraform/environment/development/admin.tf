@@ -2,10 +2,11 @@
 # Admin API (Lambda)
 ##############################################################
 module "admin_api" {
-  source        = "../../modules/admin_api"
-  function_name = "${local.prefix}-admin-api"
-  image_uri     = "448049807848.dkr.ecr.ap-northeast-1.amazonaws.com/charalarm-admin-api"
-  image_tag     = "latest"
+  source                           = "../../modules/admin_api"
+  function_name                    = "${local.prefix}-admin-api"
+  image_uri                        = "448049807848.dkr.ecr.ap-northeast-1.amazonaws.com/charalarm-admin-api"
+  image_tag                        = "latest"
+  origin_secret_ssm_parameter_name = "/charalarm/dev/admin/basic-auth-password"
 }
 
 

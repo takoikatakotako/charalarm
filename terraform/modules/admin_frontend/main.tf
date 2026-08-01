@@ -37,13 +37,6 @@ resource "aws_cloudfront_origin_access_control" "admin_frontend" {
   signing_protocol                  = "sigv4"
 }
 
-resource "aws_cloudfront_origin_access_control" "admin_api" {
-  name                              = "${var.name_prefix}-admin-api"
-  origin_access_control_origin_type = "lambda"
-  signing_behavior                  = "always"
-  signing_protocol                  = "sigv4"
-}
-
 ##############################################################
 # CloudFront Functions (Basic 認証 + URI 書き換え)
 ##############################################################
@@ -97,8 +90,9 @@ resource "aws_cloudfront_function" "admin_api_auth_rewrite" {
           headers: { 'www-authenticate': { value: 'Basic realm="Admin"' } },
         };
       }
-      // OAC SigV4 署名と競合するため Basic 認証通過後に Authorization を削除
       delete request.headers.authorization;
+      // auth=NONE の admin_api を生URL直叩きから守るため共有秘密ヘッダを注入
+      request.headers['x-origin-verify'] = { value: '${data.aws_ssm_parameter.basic_auth_password.value}' };
       request.uri = request.uri.replace(/^\/api/, '');
       if (request.uri === '') {
         request.uri = '/';
@@ -119,9 +113,8 @@ resource "aws_cloudfront_distribution" "admin" {
   }
 
   origin {
-    domain_name              = local.api_origin_domain
-    origin_id                = "lambda-admin-api"
-    origin_access_control_id = aws_cloudfront_origin_access_control.admin_api.id
+    domain_name = local.api_origin_domain
+    origin_id   = "lambda-admin-api"
 
     custom_origin_config {
       http_port              = 80
@@ -216,18 +209,6 @@ resource "aws_route53_record" "admin" {
     name                   = aws_cloudfront_distribution.admin.domain_name
     zone_id                = local.cloudfront_zone_id
   }
-}
-
-##############################################################
-# Lambda Permission (CloudFront から OAC で呼び出すため)
-##############################################################
-resource "aws_lambda_permission" "admin_cloudfront" {
-  statement_id           = "AllowCloudFrontInvoke"
-  action                 = "lambda:InvokeFunctionUrl"
-  function_name          = var.admin_api_function_name
-  principal              = "cloudfront.amazonaws.com"
-  function_url_auth_type = "AWS_IAM"
-  source_arn             = aws_cloudfront_distribution.admin.arn
 }
 
 ##############################################################
