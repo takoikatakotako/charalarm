@@ -55,7 +55,7 @@ data "aws_iam_policy_document" "admin_api_lambda_function_role_policy_document" 
     resources = ["*"]
   }
 
-  # 管理画面は読み取りのみ。書き込みが必要になったら拡張する
+  # 参照は全テーブル読み取り可
   statement {
     effect = "Allow"
     actions = [
@@ -64,6 +64,18 @@ data "aws_iam_policy_document" "admin_api_lambda_function_role_policy_document" 
       "dynamodb:Query",
     ]
     resources = ["*"]
+  }
+
+  # お知らせの作成・削除は news-table のみ書き込み可(最小権限)
+  statement {
+    effect = "Allow"
+    actions = [
+      "dynamodb:PutItem",
+      "dynamodb:DeleteItem",
+    ]
+    resources = [
+      "arn:aws:dynamodb:ap-northeast-1:${local.account_id}:table/news-table"
+    ]
   }
 }
 
