@@ -8,11 +8,11 @@ struct BackendTextGenerationRepository: TextGenerationRepository {
     private let apiRepository = APIRepository()
     private let keychainRepository = KeychainRepository()
 
-    func generateResponse(inputs: [ChatMessage]) async throws -> String {
+    func generateResponse(charaID: String, inputs: [ChatMessage]) async throws -> String {
         guard let userID = keychainRepository.getUserID(),
               let authToken = keychainRepository.getAuthToken() else {
             throw ConversationError.notAuthenticated
         }
-        return try await apiRepository.postChat(userID: userID, authToken: authToken, messages: inputs)
+        return try await apiRepository.postChat(userID: userID, authToken: authToken, charaID: charaID, messages: inputs)
     }
 }

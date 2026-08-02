@@ -7,6 +7,8 @@ type ChatMessage struct {
 }
 
 // Chat は /chat のリクエストボディ。
+// CharaID を指定すると、そのキャラの人格プロンプトをサーバ側で先頭に付与する。
 type Chat struct {
+	CharaID  string        `json:"charaID"`
 	Messages []ChatMessage `json:"messages"`
 }

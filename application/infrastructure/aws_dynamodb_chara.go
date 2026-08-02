@@ -51,6 +51,25 @@ func (a *AWS) GetChara(charaID string) (database.Chara, error) {
 	return chara, nil
 }
 
+// UpsertChara キャラを作成/更新する (PutItem)
+func (a *AWS) UpsertChara(chara database.Chara) error {
+	client, err := a.createDynamoDBClient()
+	if err != nil {
+		return err
+	}
+
+	av, err := attributevalue.MarshalMap(chara)
+	if err != nil {
+		return err
+	}
+
+	_, err = client.PutItem(context.Background(), &dynamodb.PutItemInput{
+		TableName: aws.String(database.CharaTableName),
+		Item:      av,
+	})
+	return err
+}
+
 // GetCharaList キャラ一覧を取得
 func (a *AWS) GetCharaList() ([]database.Chara, error) {
 	// クライアント作成

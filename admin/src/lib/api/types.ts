@@ -83,6 +83,16 @@ export interface Chara {
   profiles: CharaProfile[];
   calls: CharaCall[];
   expressions: Record<string, CharaExpression>;
+  conversationPrompt: string;
+  voicevoxStyleID: number;
+}
+
+export interface CharaUpdate {
+  enable: boolean;
+  name: string;
+  description: string;
+  conversationPrompt: string;
+  voicevoxStyleID: number;
 }
 
 export interface CharaListResponse {

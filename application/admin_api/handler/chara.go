@@ -29,19 +29,29 @@ type charaExpressionResponse struct {
 }
 
 type charaResponse struct {
-	CharaID     string                             `json:"charaID"`
-	Enable      bool                               `json:"enable"`
-	CreatedAt   string                             `json:"createdAt"`
-	UpdatedAt   string                             `json:"updatedAt"`
-	Name        string                             `json:"name"`
-	Description string                             `json:"description"`
-	Profiles    []charaProfileResponse             `json:"profiles"`
-	Calls       []charaCallResponse                `json:"calls"`
-	Expressions map[string]charaExpressionResponse `json:"expressions"`
+	CharaID            string                             `json:"charaID"`
+	Enable             bool                               `json:"enable"`
+	CreatedAt          string                             `json:"createdAt"`
+	UpdatedAt          string                             `json:"updatedAt"`
+	Name               string                             `json:"name"`
+	Description        string                             `json:"description"`
+	Profiles           []charaProfileResponse             `json:"profiles"`
+	Calls              []charaCallResponse                `json:"calls"`
+	Expressions        map[string]charaExpressionResponse `json:"expressions"`
+	ConversationPrompt string                             `json:"conversationPrompt"`
+	VoicevoxStyleID    int                                `json:"voicevoxStyleID"`
 }
 
 type charaListResponse struct {
 	Charas []charaResponse `json:"charas"`
+}
+
+type charaUpdateRequest struct {
+	Enable             bool   `json:"enable"`
+	Name               string `json:"name"`
+	Description        string `json:"description"`
+	ConversationPrompt string `json:"conversationPrompt"`
+	VoicevoxStyleID    int    `json:"voicevoxStyleID"`
 }
 
 func (h *Chara) CharaListGet(c echo.Context) error {
@@ -70,6 +80,30 @@ func (h *Chara) CharaGet(c echo.Context) error {
 	return c.JSON(http.StatusOK, toCharaResponse(chara))
 }
 
+func (h *Chara) CharaPut(c echo.Context) error {
+	charaID := c.Param("charaID")
+	if charaID == "" {
+		return c.JSON(http.StatusBadRequest, newErrorResponse("invalid_chara_id", "charaID is required"))
+	}
+
+	req := new(charaUpdateRequest)
+	if err := c.Bind(req); err != nil {
+		return c.JSON(http.StatusBadRequest, newErrorResponse("invalid_request", err.Error()))
+	}
+
+	updated, err := h.Service.UpdateChara(charaID, output.CharaUpdate{
+		Enable:             req.Enable,
+		Name:               req.Name,
+		Description:        req.Description,
+		ConversationPrompt: req.ConversationPrompt,
+		VoicevoxStyleID:    req.VoicevoxStyleID,
+	})
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, newErrorResponse("update_chara_failed", err.Error()))
+	}
+	return c.JSON(http.StatusOK, toCharaResponse(updated))
+}
+
 func toCharaResponse(c output.Chara) charaResponse {
 	profiles := make([]charaProfileResponse, 0, len(c.Profiles))
 	for _, p := range c.Profiles {
@@ -90,14 +124,16 @@ func toCharaResponse(c output.Chara) charaResponse {
 	}
 
 	return charaResponse{
-		CharaID:     c.CharaID,
-		Enable:      c.Enable,
-		CreatedAt:   c.CreatedAt,
-		UpdatedAt:   c.UpdatedAt,
-		Name:        c.Name,
-		Description: c.Description,
-		Profiles:    profiles,
-		Calls:       calls,
-		Expressions: expressions,
+		CharaID:            c.CharaID,
+		Enable:             c.Enable,
+		CreatedAt:          c.CreatedAt,
+		UpdatedAt:          c.UpdatedAt,
+		Name:               c.Name,
+		Description:        c.Description,
+		Profiles:           profiles,
+		Calls:              calls,
+		Expressions:        expressions,
+		ConversationPrompt: c.ConversationPrompt,
+		VoicevoxStyleID:    c.VoicevoxStyleID,
 	}
 }

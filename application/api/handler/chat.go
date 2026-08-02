@@ -33,7 +33,7 @@ func (h *Chat) ChatPost(c echo.Context) error {
 		messages = append(messages, llm.Message{Role: llm.Role(m.Role), Content: m.Content})
 	}
 
-	reply, err := h.Service.Reply(c.Request().Context(), userID, authToken, messages)
+	reply, err := h.Service.Reply(c.Request().Context(), userID, authToken, req.CharaID, messages)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, response.Message{Message: "Error!"})
 	}
