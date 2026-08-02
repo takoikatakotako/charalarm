@@ -6,7 +6,7 @@
 
 ```
 charalarm/
-├── application/     # バックエンド (Go 1.24, Lambda)
+├── application/     # バックエンド (Go 1.25, Lambda)
 │   ├── api/         # REST API (Echo)
 │   ├── admin_api/   # 管理画面用 API (Echo, CloudFront 配下)
 │   ├── batch/       # 毎分実行バッチ (EventBridge)
@@ -24,7 +24,7 @@ charalarm/
 ## 技術スタック
 
 **iOS**: Swift, SwiftUI, Combine, Firebase, Datadog, CallKit
-**Backend**: Go 1.24, Echo v4, AWS SDK v2
+**Backend**: Go 1.25, Echo v4, AWS SDK v2
 **Infra**: Lambda, DynamoDB, SQS, SNS, S3, CloudFront, API Gateway, EventBridge
 **IaC**: Terraform
 **CI/CD**: GitHub Actions (OIDC認証)
