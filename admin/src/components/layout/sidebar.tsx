@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Users, Megaphone } from "lucide-react";
+import { Users, Megaphone, Smile } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navigation = [
   { name: "ユーザー", href: "/users", icon: Users },
+  { name: "キャラクター", href: "/chara", icon: Smile },
   { name: "お知らせ", href: "/news", icon: Megaphone },
 ];
 
