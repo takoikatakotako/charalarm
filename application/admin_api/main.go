@@ -86,6 +86,7 @@ func main() {
 
 	e.GET("/chara", charaHandler.CharaListGet)
 	e.GET("/chara/:charaID", charaHandler.CharaGet)
+	e.PUT("/chara/:charaID", charaHandler.CharaPut)
 
 	e.Logger.Fatal(e.Start(":8080"))
 }

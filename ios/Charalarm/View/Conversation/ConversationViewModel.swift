@@ -24,16 +24,18 @@ class ConversationViewModel: NSObject, ObservableObject {
         static let locale = Locale(identifier: "ja-JP")
         static let ringtoneAssetName = "ringtone"
 
+        /// 会話キャラの charaID。人格プロンプトはサーバ側(chara-table)が持つ。
+        static let charaID = "jp.zunko.zundamon"
+
         /// 会話キャラの VOICEVOX スタイルID。将来はキャラ属性から渡す（ずんだもん ノーマル = 3）。
         static let voicevoxStyleId = 3
 
-        static let systemPrompt = """
-            あなたはずんだの妖精のずんだもんです。語尾に「なのだ」をつけ、親しみやすく楽しい口調で話してください。
+        /// 会話開始時の制御プロンプト。キャラの人格はサーバ側で付与されるため、
+        /// ここには「電話を受けた場面」の指示だけを持つ。
+        static let openingPrompt = """
             今は電話がかかってきて受け取ったところから会話を始めます。
             最初のセリフは必ず「電話を受けた感のある挨拶」にしてください。
-            例: 「もしもし〜？ずんだもんなのだ！」、「は〜い、ずんだもんなのだ！」、「お電話ありがとうなのだ！」など。
             例を参考にしつつ、毎回少し違う言い回しにしてください。
-            暴力的・攻撃的・不快な発言はしないでください。
             """
 
         static let endConversationPrompt = "会話時間が2分を超えたので、ずんだもんらしく親しみやすい挨拶で会話を終了してください。"
@@ -170,8 +172,8 @@ class ConversationViewModel: NSObject, ObservableObject {
 
         // 初回の応答を生成
         status = .generatingScript
-        chatMessages.append(ChatMessage(role: .system, content: Constants.systemPrompt))
-        let initialScript = try await textGenerationRepository.generateResponse(inputs: chatMessages)
+        chatMessages.append(ChatMessage(role: .system, content: Constants.openingPrompt))
+        let initialScript = try await textGenerationRepository.generateResponse(charaID: Constants.charaID, inputs: chatMessages)
         guard !shouldDismiss else { return }
 
         stopRingtone()
@@ -205,7 +207,7 @@ class ConversationViewModel: NSObject, ObservableObject {
         chatMessages.append(ChatMessage(role: .user, content: userInput))
 
         status = .generatingScript
-        let response = try await textGenerationRepository.generateResponse(inputs: chatMessages)
+        let response = try await textGenerationRepository.generateResponse(charaID: Constants.charaID, inputs: chatMessages)
         guard !shouldDismiss else { return }
 
         chatMessages.append(ChatMessage(role: .assistant, content: response))
@@ -221,7 +223,7 @@ class ConversationViewModel: NSObject, ObservableObject {
         chatMessages.append(ChatMessage(role: .system, content: prompt))
 
         status = .generatingScript
-        let farewellScript = try await textGenerationRepository.generateResponse(inputs: chatMessages)
+        let farewellScript = try await textGenerationRepository.generateResponse(charaID: Constants.charaID, inputs: chatMessages)
         chatMessages.append(ChatMessage(role: .assistant, content: farewellScript))
         text = farewellScript
 

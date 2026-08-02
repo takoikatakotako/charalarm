@@ -17,7 +17,8 @@ type Chat struct {
 }
 
 // Reply はユーザーを認証したうえで、メッセージ列に対する応答を LLM から生成する。
-func (s *Chat) Reply(ctx context.Context, userID string, authToken string, messages []llm.Message) (string, error) {
+// charaID を指定すると、そのキャラの人格プロンプトをサーバ側でメッセージ先頭に付与する。
+func (s *Chat) Reply(ctx context.Context, userID string, authToken string, charaID string, messages []llm.Message) (string, error) {
 	// バリデーション
 	if !database.IsValidUUID(userID) || !database.IsValidUUID(authToken) {
 		return "", errors.New(common.ErrorInvalidValue)
@@ -35,6 +36,17 @@ func (s *Chat) Reply(ctx context.Context, userID string, authToken string, messa
 	// メッセージが空なら弾く
 	if len(messages) == 0 {
 		return "", errors.New(common.ErrorInvalidValue)
+	}
+
+	// キャラの人格プロンプトをサーバ側で先頭に付与する (アプリ更新なしで性格を管理できる)
+	if charaID != "" {
+		chara, err := s.AWS.GetChara(charaID)
+		if err == nil && chara.ConversationPrompt != "" {
+			messages = append([]llm.Message{{
+				Role:    llm.RoleSystem,
+				Content: chara.ConversationPrompt,
+			}}, messages...)
+		}
 	}
 
 	return s.LLMClient.Chat(ctx, messages)

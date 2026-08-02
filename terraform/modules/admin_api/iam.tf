@@ -66,7 +66,7 @@ data "aws_iam_policy_document" "admin_api_lambda_function_role_policy_document" 
     resources = ["*"]
   }
 
-  # お知らせの作成・削除は news-table のみ書き込み可(最小権限)
+  # お知らせ / キャラの作成・更新・削除に必要な書き込み(最小権限)
   statement {
     effect = "Allow"
     actions = [
@@ -74,7 +74,8 @@ data "aws_iam_policy_document" "admin_api_lambda_function_role_policy_document" 
       "dynamodb:DeleteItem",
     ]
     resources = [
-      "arn:aws:dynamodb:ap-northeast-1:${local.account_id}:table/news-table"
+      "arn:aws:dynamodb:ap-northeast-1:${local.account_id}:table/news-table",
+      "arn:aws:dynamodb:ap-northeast-1:${local.account_id}:table/chara-table"
     ]
   }
 }

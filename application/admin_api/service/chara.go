@@ -2,6 +2,7 @@ package service
 
 import (
 	"sort"
+	"time"
 
 	"github.com/takoikatakotako/charalarm/admin_api/service/output"
 	"github.com/takoikatakotako/charalarm/infrastructure"
@@ -38,6 +39,27 @@ func (s *Chara) GetChara(charaID string) (output.Chara, error) {
 	return toCharaOutput(chara), nil
 }
 
+// UpdateChara 既存キャラの編集可能フィールドを更新する。
+func (s *Chara) UpdateChara(charaID string, update output.CharaUpdate) (output.Chara, error) {
+	chara, err := s.AWS.GetChara(charaID)
+	if err != nil {
+		return output.Chara{}, err
+	}
+
+	// 編集可能フィールドのみ上書き (calls/expressions/profiles は据え置き)
+	chara.Enable = update.Enable
+	chara.Name = update.Name
+	chara.Description = update.Description
+	chara.ConversationPrompt = update.ConversationPrompt
+	chara.VoicevoxStyleID = update.VoicevoxStyleID
+	chara.UpdatedAd = time.Now().Format("2006-01-02")
+
+	if err := s.AWS.UpsertChara(chara); err != nil {
+		return output.Chara{}, err
+	}
+	return toCharaOutput(chara), nil
+}
+
 func toCharaOutput(c database.Chara) output.Chara {
 	profiles := make([]output.CharaProfile, 0, len(c.Profiles))
 	for _, p := range c.Profiles {
@@ -58,14 +80,16 @@ func toCharaOutput(c database.Chara) output.Chara {
 	}
 
 	return output.Chara{
-		CharaID:     c.CharaID,
-		Enable:      c.Enable,
-		CreatedAt:   c.CreatedAt,
-		UpdatedAt:   c.UpdatedAd,
-		Name:        c.Name,
-		Description: c.Description,
-		Profiles:    profiles,
-		Calls:       calls,
-		Expressions: expressions,
+		CharaID:            c.CharaID,
+		Enable:             c.Enable,
+		CreatedAt:          c.CreatedAt,
+		UpdatedAt:          c.UpdatedAd,
+		Name:               c.Name,
+		Description:        c.Description,
+		Profiles:           profiles,
+		Calls:              calls,
+		Expressions:        expressions,
+		ConversationPrompt: c.ConversationPrompt,
+		VoicevoxStyleID:    c.VoicevoxStyleID,
 	}
 }

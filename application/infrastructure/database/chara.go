@@ -15,6 +15,10 @@ type Chara struct {
 	Profiles    []CharaProfile             `dynamodbav:"profiles"`
 	Expressions map[string]CharaExpression `dynamodbav:"expressions"`
 	Calls       []CharaCall                `dynamodbav:"calls"`
+
+	// 会話キャラ用。ConversationPrompt が空でないキャラは音声会話に対応する。
+	ConversationPrompt string `dynamodbav:"conversationPrompt"`
+	VoicevoxStyleID    int    `dynamodbav:"voicevoxStyleID"`
 }
 
 type CharaProfile struct {
