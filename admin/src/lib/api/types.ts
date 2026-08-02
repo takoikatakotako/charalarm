@@ -56,3 +56,35 @@ export interface News {
 export interface NewsListResponse {
   news: News[];
 }
+
+export interface CharaProfile {
+  title: string;
+  name: string;
+  url: string;
+}
+
+export interface CharaCall {
+  message: string;
+  voiceFileName: string;
+}
+
+export interface CharaExpression {
+  imageFileNames: string[];
+  voiceFileNames: string[];
+}
+
+export interface Chara {
+  charaID: string;
+  enable: boolean;
+  createdAt: string;
+  updatedAt: string;
+  name: string;
+  description: string;
+  profiles: CharaProfile[];
+  calls: CharaCall[];
+  expressions: Record<string, CharaExpression>;
+}
+
+export interface CharaListResponse {
+  charas: Chara[];
+}

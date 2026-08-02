@@ -51,6 +51,9 @@ func main() {
 	newsService := service.News{
 		AWS: awsRepository,
 	}
+	charaService := service.Chara{
+		AWS: awsRepository,
+	}
 
 	healthcheckHandler := handler.Healthcheck{}
 	userHandler := handler.User{
@@ -61,6 +64,9 @@ func main() {
 	}
 	newsHandler := handler.News{
 		Service: newsService,
+	}
+	charaHandler := handler.Chara{
+		Service: charaService,
 	}
 
 	e := echo.New()
@@ -77,6 +83,9 @@ func main() {
 	e.GET("/news", newsHandler.NewsListGet)
 	e.POST("/news", newsHandler.NewsPost)
 	e.DELETE("/news/:newsID", newsHandler.NewsDelete)
+
+	e.GET("/chara", charaHandler.CharaListGet)
+	e.GET("/chara/:charaID", charaHandler.CharaGet)
 
 	e.Logger.Fatal(e.Start(":8080"))
 }
