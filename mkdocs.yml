@@ -28,6 +28,8 @@ nav:
           - 紅葉: development/chara-momiji.md
           - ずんだもん: development/chara-zundamon.md
       - ロードマップ: development/roadmap.md
+      - 端末内TTS設計: on-device-tts-architecture.md
+      - TTSの権利・ライセンス: development/tts-rights-and-licensing.md
       - リポジトリ: development/repositories.md
       - アプリアーキテクチャ: development/app-architecture.md
       - アップデート: development/update.md
