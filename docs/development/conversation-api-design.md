@@ -22,6 +22,123 @@
    └─ VOICEVOX（ずんだもん、端末内）
 ```
 
+## 会話の流れの例
+
+### 1. アラームで着信してから終話まで（全体）
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor U as ユーザー
+    participant App as 端末（iOS）
+    participant DB as 端末のDB
+    participant API as Lambda
+    participant LLM as LLM
+    participant TTS as Gemini TTS
+
+    Note over App: VoIP push → CallKit で着信
+    U->>App: 電話に出る
+    App->>DB: キャラの記憶（memory）を読む
+    opt 朝のひと言で予定を使う設定がオン
+        App->>App: EventKit で今日の予定を読む
+    end
+    App->>API: POST /chat（memory, messages: [], context）
+    API->>LLM: キャラ設定 + memory + context
+    LLM-->>API: 最初のひと言
+    API-->>App: { type: message, text }
+    loop 文ごと
+        App->>API: POST /tts（text）
+        API->>TTS: 合成
+        TTS-->>API: 音声
+        API-->>App: audio/wav
+        App->>U: 再生（次の文は並行して合成）
+    end
+
+    loop 会話（最大120秒）
+        U->>App: 話す（端末内で音声認識）
+        App->>API: POST /chat（memory, 今回の通話の messages）
+        API-->>App: 返答
+        App->>U: /tts で合成して再生
+    end
+
+    U->>App: 電話を切る
+    App->>DB: 今回の会話を保存
+    App->>API: POST /conversation/summarize（memory, messages）
+    API->>LLM: 前回までの記憶 + 今回の会話
+    LLM-->>API: 新しい記憶
+    API-->>App: { memory }
+    App->>DB: 記憶を更新（サーバーには残らない）
+```
+
+### 2. 「今日の予定は？」（端末の道具を頼み返す）
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor U as ユーザー
+    participant App as 端末（iOS）
+    participant API as Lambda
+    participant LLM as LLM
+
+    U->>App: 「今日の予定は？」
+    App->>API: POST /chat（messages, capabilities: [calendar.read]）
+    API->>LLM: 道具の定義つきで問い合わせ
+    LLM-->>API: calendar.today を使いたい
+    API-->>App: { type: toolCall, filler: "ちょっと見てみるのだ…", calls }
+    par
+        App->>U: filler を再生
+    and
+        App->>App: EventKit で予定を読む（タイトルと時刻だけ）
+    end
+    App->>API: POST /chat（messages + toolCall + 予定の結果）
+    API->>LLM: 結果つきで問い合わせ（端末の道具はもう使わせない）
+    LLM-->>API: 返答
+    API-->>App: { type: message, text: "今日は10時から歯医者なのだ" }
+    App->>U: /tts で合成して再生
+    Note over App: 次のターンからは予定の生データを履歴から落とす<br/>このターンの発話は TTS サンプルに保存しない
+```
+
+### 3. 「今日のニュースは？」（サーバーの道具は往復が増えない）
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor U as ユーザー
+    participant App as 端末（iOS）
+    participant API as Lambda
+    participant LLM as LLM
+    participant News as ニュース
+
+    U->>App: 「今日のニュースは？」
+    App->>API: POST /chat
+    API->>LLM: 問い合わせ
+    LLM-->>API: news.headlines を使いたい
+    API->>News: 取得（キャッシュがあればそれを使う）
+    News-->>API: 見出し
+    API->>LLM: 結果つきで問い合わせ
+    LLM-->>API: 返答
+    API-->>App: { type: message, text }
+    App->>U: /tts で合成して再生
+```
+
+### 4. ずんだもんの場合（音声合成だけ端末内）
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor U as ユーザー
+    participant App as 端末（iOS）
+    participant VV as VOICEVOX（端末内）
+    participant API as Lambda
+
+    U->>App: 話す
+    App->>API: POST /chat（新キャラと同じ）
+    API-->>App: 返答
+    App->>VV: 文ごとに合成
+    VV-->>App: 音声
+    App->>U: 再生（/tts は呼ばない）
+```
+
 ## データの方針
 
 | データ | 置き場所 | 備考 |
