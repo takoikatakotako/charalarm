@@ -30,6 +30,7 @@ nav:
       - ロードマップ: development/roadmap.md
       - 端末内TTS設計: on-device-tts-architecture.md
       - TTSの権利・ライセンス: development/tts-rights-and-licensing.md
+      - 会話API設計: development/conversation-api-design.md
       - リポジトリ: development/repositories.md
       - アプリアーキテクチャ: development/app-architecture.md
       - アップデート: development/update.md
