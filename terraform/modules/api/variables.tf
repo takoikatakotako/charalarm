@@ -55,3 +55,25 @@ variable "llm_model" {
   type    = string
   default = "gpt-4o-mini"
 }
+
+# 音声合成 (Vertex AI の Gemini TTS)。gcp_project が空なら /tts は 503 を返す。
+variable "gcp_project" {
+  type    = string
+  default = ""
+}
+
+# Workload Identity 連携の credential config (external_account の JSON)。秘密値は含まない。
+variable "gcp_credential_config" {
+  type    = string
+  default = ""
+}
+
+variable "tts_model" {
+  type    = string
+  default = "gemini-3.8-flash-tts"
+}
+
+variable "tts_voice" {
+  type    = string
+  default = "ja-jp-advisor-5"
+}

@@ -14,7 +14,12 @@ resource "aws_lambda_function" "api_lambda_function" {
       # 秘密値は焼き込まず "ssm://<param名>" ポインタを渡し、起動時にアプリが SSM から解決する
       "OPENAI_API_KEY"         = "ssm://${var.openai_api_key_ssm_parameter_name}",
       "CHARALARM_LLM_PROVIDER" = var.llm_provider,
-      "CHARALARM_LLM_MODEL"    = var.llm_model
+      "CHARALARM_LLM_MODEL"    = var.llm_model,
+      # Vertex AI へは Workload Identity 連携で認証する (SA の鍵は使わない)
+      "CHARALARM_GCP_PROJECT"           = var.gcp_project,
+      "CHARALARM_GCP_CREDENTIAL_CONFIG" = var.gcp_credential_config,
+      "CHARALARM_TTS_MODEL"             = var.tts_model,
+      "CHARALARM_TTS_VOICE"             = var.tts_voice
     }
   }
 

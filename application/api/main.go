@@ -9,6 +9,7 @@ import (
 	"github.com/takoikatakotako/charalarm/api/handler"
 	"github.com/takoikatakotako/charalarm/api/service"
 	"github.com/takoikatakotako/charalarm/api/service/llm"
+	"github.com/takoikatakotako/charalarm/api/service/tts"
 	"github.com/takoikatakotako/charalarm/environment"
 	"github.com/takoikatakotako/charalarm/infrastructure"
 )
@@ -54,6 +55,18 @@ func main() {
 		AWS:       awsRepository,
 		LLMClient: llm.NewClient(env.LLMProvider, env.OpenAIAPIKey, env.LLMModel),
 	}
+	ttsEnv := environment.LoadTTSEnvironment()
+	textToSpeechService := service.TextToSpeech{
+		AWS:   awsRepository,
+		Voice: tts.Voice{Model: ttsEnv.Model, Name: ttsEnv.Voice},
+	}
+	if ttsEnv.GCPProject != "" {
+		client, err := tts.NewGeminiClient(context.Background(), ttsEnv.GCPProject, ttsEnv.GCPCredentialConfig)
+		if err != nil {
+			log.Fatalf("failed to create tts client: %v", err)
+		}
+		textToSpeechService.Client = client
+	}
 
 	// handler
 	healthcheckHandler := handler.Healthcheck{}
@@ -76,6 +89,9 @@ func main() {
 	}
 	chatHandler := handler.Chat{
 		Service: chatService,
+	}
+	textToSpeechHandler := handler.TextToSpeech{
+		Service: textToSpeechService,
 	}
 
 	e := echo.New()
@@ -115,6 +131,9 @@ func main() {
 
 	// chat (ずんだもんとの会話)
 	e.POST("/chat", chatHandler.ChatPost)
+
+	// tts (キャラの発話を音声にする)
+	e.POST("/tts", textToSpeechHandler.TextToSpeechPost)
 
 	e.Logger.Fatal(e.Start(":8080"))
 }
