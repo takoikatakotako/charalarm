@@ -53,6 +53,8 @@ module "api" {
   resource_base_url             = "https://${local.resource_domain}"
 
   openai_api_key_ssm_parameter_name = "/charalarm/dev/openai-api-key"
+  # 5.0.0 の会話は GPT-6 Luna で検証する（staging / production は検証後に切り替える）
+  llm_model = "gpt-6-luna"
 }
 
 
