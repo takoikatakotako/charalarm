@@ -7,7 +7,9 @@ type Environment struct {
 	ResourceBaseURL string
 	LLMProvider     string
 	LLMModel        string
-	OpenAIAPIKey    string
+	// LLMThinkingLevel は Gemini の思考の深さ。OpenAI では使わない。
+	LLMThinkingLevel string
+	OpenAIAPIKey     string
 }
 
 func (e *Environment) SetCharalarmAWSProfile(defaultValue string) {
@@ -48,24 +50,42 @@ func (e *Environment) SetOpenAIAPIKey(defaultValue string) {
 	}
 }
 
-// TTSEnvironment は音声合成 (Vertex AI の Gemini TTS) の設定。
-type TTSEnvironment struct {
-	// GCPProject が空なら音声合成は無効 (/tts は 503 を返す)。
-	GCPProject string
-	// GCPCredentialConfig は Workload Identity 連携の credential config (external_account の JSON)。秘密値は含まない。
+// SetLLMThinkingLevel は Gemini の思考の深さ (例: MINIMAL) を設定する。空なら指定しない。
+func (e *Environment) SetLLMThinkingLevel(defaultValue string) {
+	e.LLMThinkingLevel = defaultValue
+	if val, exists := os.LookupEnv("CHARALARM_LLM_THINKING_LEVEL"); exists {
+		e.LLMThinkingLevel = val
+	}
+}
+
+// GCPEnvironment は Vertex AI (Gemini の会話・TTS) を呼ぶための設定。
+type GCPEnvironment struct {
+	// Project が空なら Vertex AI は使わない。
+	Project string
+	// CredentialConfig は Workload Identity 連携の credential config (external_account の JSON)。秘密値は含まない。
 	// 空ならアプリケーションのデフォルト認証情報を使う (ローカル用)。
-	GCPCredentialConfig string
-	Model               string
-	Voice               string
+	CredentialConfig string
+}
+
+// LoadGCPEnvironment は Vertex AI の設定を環境変数から読む。
+func LoadGCPEnvironment() GCPEnvironment {
+	return GCPEnvironment{
+		Project:          os.Getenv("CHARALARM_GCP_PROJECT"),
+		CredentialConfig: os.Getenv("CHARALARM_GCP_CREDENTIAL_CONFIG"),
+	}
+}
+
+// TTSEnvironment は音声合成 (Gemini TTS) の設定。
+type TTSEnvironment struct {
+	Model string
+	Voice string
 }
 
 // LoadTTSEnvironment は音声合成の設定を環境変数から読む。
 func LoadTTSEnvironment() TTSEnvironment {
 	e := TTSEnvironment{
-		GCPProject:          os.Getenv("CHARALARM_GCP_PROJECT"),
-		GCPCredentialConfig: os.Getenv("CHARALARM_GCP_CREDENTIAL_CONFIG"),
-		Model:               "gemini-3.8-flash-tts",
-		Voice:               "ja-jp-advisor-5",
+		Model: "gemini-3.8-flash-tts",
+		Voice: "ja-jp-advisor-5",
 	}
 	if val, exists := os.LookupEnv("CHARALARM_TTS_MODEL"); exists && val != "" {
 		e.Model = val

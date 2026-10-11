@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"log"
+	"net/http"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -10,6 +11,7 @@ import (
 	"github.com/takoikatakotako/charalarm/api/service"
 	"github.com/takoikatakotako/charalarm/api/service/llm"
 	"github.com/takoikatakotako/charalarm/api/service/tts"
+	"github.com/takoikatakotako/charalarm/api/service/vertex"
 	"github.com/takoikatakotako/charalarm/environment"
 	"github.com/takoikatakotako/charalarm/infrastructure"
 )
@@ -27,7 +29,31 @@ func main() {
 	env.SetResourceBaseURL("http://localhost:4566")
 	env.SetLLMProvider("openai")
 	env.SetLLMModel("gpt-4o-mini")
+	env.SetLLMThinkingLevel("MINIMAL")
 	env.SetOpenAIAPIKey("")
+
+	// Vertex AI (Gemini の会話・TTS)。Workload Identity 連携で認証する
+	gcpEnv := environment.LoadGCPEnvironment()
+	var gcpHTTPClient *http.Client
+	if gcpEnv.Project != "" {
+		client, err := vertex.NewHTTPClient(context.Background(), gcpEnv.CredentialConfig)
+		if err != nil {
+			log.Fatalf("failed to create vertex client: %v", err)
+		}
+		gcpHTTPClient = client
+	}
+
+	// LLM
+	var llmClient llm.Client
+	switch env.LLMProvider {
+	case "gemini":
+		if gcpHTTPClient == nil {
+			log.Fatalf("CHARALARM_GCP_PROJECT is required for the gemini provider")
+		}
+		llmClient = llm.NewGeminiClient(gcpEnv.Project, env.LLMModel, env.LLMThinkingLevel, gcpHTTPClient)
+	default:
+		llmClient = llm.NewClient(env.LLMProvider, env.OpenAIAPIKey, env.LLMModel)
+	}
 
 	// infrastructure
 	awsRepository := infrastructure.AWS{
@@ -53,19 +79,15 @@ func main() {
 	}
 	chatService := service.Chat{
 		AWS:       awsRepository,
-		LLMClient: llm.NewClient(env.LLMProvider, env.OpenAIAPIKey, env.LLMModel),
+		LLMClient: llmClient,
 	}
 	ttsEnv := environment.LoadTTSEnvironment()
 	textToSpeechService := service.TextToSpeech{
 		AWS:   awsRepository,
 		Voice: tts.Voice{Model: ttsEnv.Model, Name: ttsEnv.Voice},
 	}
-	if ttsEnv.GCPProject != "" {
-		client, err := tts.NewGeminiClient(context.Background(), ttsEnv.GCPProject, ttsEnv.GCPCredentialConfig)
-		if err != nil {
-			log.Fatalf("failed to create tts client: %v", err)
-		}
-		textToSpeechService.Client = client
+	if gcpHTTPClient != nil {
+		textToSpeechService.Client = tts.NewGeminiClient(gcpEnv.Project, gcpHTTPClient)
 	}
 
 	// handler

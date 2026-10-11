@@ -53,8 +53,10 @@ module "api" {
   resource_base_url             = "https://${local.resource_domain}"
 
   openai_api_key_ssm_parameter_name = "/charalarm/dev/openai-api-key"
-  # 5.0.0 の会話は GPT-6 Luna で検証する（staging / production は検証後に切り替える）
-  llm_model = "gpt-6-luna"
+  # 5.0.0 の会話は Vertex AI の Gemini で検証する（staging / production は検証後に切り替える）。
+  # 認証は TTS と同じ Workload Identity 連携
+  llm_provider = "gemini"
+  llm_model    = "gemini-3.1-flash-lite"
 
   # Gemini TTS は sandbox の Vertex AI を使う (gcp-iac の terraform/sandbox/charalarm.tf)
   gcp_project           = "sandbox-492513"
