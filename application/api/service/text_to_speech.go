@@ -23,7 +23,7 @@ var ErrTTSNotConfigured = errors.New("tts is not configured")
 type TextToSpeech struct {
 	AWS    infrastructure.AWS
 	Client tts.Client
-	// Voice は PoC の間は全キャラ共通。キャラごとの声はキャラ情報で持つ予定。
+	// Voice は既定の声。キャラ情報 (geminiVoice / geminiVoiceStyle) で上書きする。
 	Voice tts.Voice
 }
 
@@ -51,12 +51,34 @@ func (s *TextToSpeech) Synthesize(ctx context.Context, userID string, authToken 
 		return tts.Audio{}, errors.New(common.ErrorAuthenticationFailure)
 	}
 
+	// Gemini TTS で話すキャラだけ合成する (VOICEVOX のキャラは端末内で合成する)
+	chara, err := s.AWS.GetChara(charaID)
+	if err != nil {
+		return tts.Audio{}, errors.New(common.ErrorInvalidValue)
+	}
+	if !isConversationChara(chara) || voiceProviderOf(chara) != VoiceProviderGemini {
+		return tts.Audio{}, errors.New(common.ErrorInvalidValue)
+	}
+	voice := voiceOf(chara, s.Voice)
+
 	start := time.Now()
-	audio, err := s.Client.Synthesize(ctx, text, s.Voice)
+	audio, err := s.Client.Synthesize(ctx, text, voice)
 	if err != nil {
 		return tts.Audio{}, err
 	}
 	log.Printf("tts: chara=%s voice=%s model=%s chars=%d audio=%.2fs elapsed=%dms",
-		charaID, s.Voice.Name, s.Voice.Model, utf8.RuneCountInString(text), audio.Seconds, time.Since(start).Milliseconds())
+		charaID, voice.Name, voice.Model, utf8.RuneCountInString(text), audio.Seconds, time.Since(start).Milliseconds())
 	return audio, nil
+}
+
+// voiceOf はキャラの声を返す。キャラに設定がなければ既定の声を使う。
+func voiceOf(chara database.Chara, defaultVoice tts.Voice) tts.Voice {
+	voice := defaultVoice
+	if chara.GeminiVoice != "" {
+		voice.Name = chara.GeminiVoice
+	}
+	if chara.GeminiVoiceStyle != "" {
+		voice.Style = chara.GeminiVoiceStyle
+	}
+	return voice
 }

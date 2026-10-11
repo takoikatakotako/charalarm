@@ -240,6 +240,23 @@ sequenceDiagram
 - 記憶は「呼び方・好み・前に話したこと」のような項目を決めた形にする。キャラの口調に引っ張られにくくするため。
 - 予定の生データは記憶に入れない。
 
+## キャラごとの会話の設定
+
+会話の設定はキャラ情報（chara-table）に持ち、キャラを切り替えると通話の中身も変わる。
+
+| 項目（chara-table） | 中身 | `/chara` で端末に返すか |
+|---|---|---|
+| `conversationPrompt` | キャラの人格プロンプト。空でなければ会話に対応する | 返さない（サーバが `/chat` で付ける） |
+| `voiceProvider` | `voicevox`（端末内で合成）か `gemini`（`/tts` で合成）。空なら `voicevox` | 返す |
+| `voicevoxStyleID` | VOICEVOX のスタイル ID | 返す |
+| `geminiVoice` / `geminiVoiceStyle` | Gemini TTS の声と話し方。空ならサーバの既定 | 返さない（サーバが `/tts` で使う） |
+| `callOpeningPrompt` / `callEndingPrompt` / `callNoInputEndingPrompt` | 通話の最初・2分経過・無音のときの指示。空ならサーバの既定 | 返す |
+
+- `/chara` のレスポンスでは、会話に対応するキャラだけが `conversation` を持つ。
+- 端末は `conversation` の場面のプロンプトを `system` として `/chat` に送る（場面は呼び出し側が知っている）。
+- `/tts` は `voiceProvider` が `gemini` のキャラだけ合成する。
+- 管理画面の更新 API は、送られなかった項目を変えない（管理画面がまだ送らない項目を、保存のたびに空で消さないため）。
+
 ## エージェントと道具
 
 返答を作る LLM が function calling で道具を選ぶ。ルーター用の別モデルは置かない（1段増えるだけ遅くなるため）。

@@ -185,16 +185,17 @@ func convertToCharaOutputs(databaseCharas []database.Chara, baseURL string) []ou
 
 func convertToCharaOutput(databaseChara database.Chara, baseURL string) output.Chara {
 	return output.Chara{
-		CharaID:     databaseChara.CharaID,
-		Enable:      databaseChara.Enable,
-		Name:        databaseChara.Name,
-		CreatedAt:   databaseChara.CreatedAt,
-		UpdatedAt:   databaseChara.UpdatedAd,
-		Description: databaseChara.Description,
-		Profiles:    databaseCharaProfileListToResponseCharaProfileList(databaseChara.Profiles),
-		Resources:   databaseCharaToResponseCharaResourceList(databaseChara, baseURL),
-		Expression:  databaseCharaExpressionMapToResponseCharaExpressionMap(databaseChara.Expressions, baseURL, databaseChara.CharaID),
-		Calls:       databaseCharaCallListToResponseCharaCallList(databaseChara.Calls, baseURL, databaseChara.CharaID),
+		CharaID:      databaseChara.CharaID,
+		Enable:       databaseChara.Enable,
+		Name:         databaseChara.Name,
+		CreatedAt:    databaseChara.CreatedAt,
+		UpdatedAt:    databaseChara.UpdatedAd,
+		Description:  databaseChara.Description,
+		Profiles:     databaseCharaProfileListToResponseCharaProfileList(databaseChara.Profiles),
+		Resources:    databaseCharaToResponseCharaResourceList(databaseChara, baseURL),
+		Expression:   databaseCharaExpressionMapToResponseCharaExpressionMap(databaseChara.Expressions, baseURL, databaseChara.CharaID),
+		Calls:        databaseCharaCallListToResponseCharaCallList(databaseChara.Calls, baseURL, databaseChara.CharaID),
+		Conversation: convertToCharaConversation(databaseChara),
 	}
 }
 

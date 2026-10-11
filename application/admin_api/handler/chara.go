@@ -40,6 +40,13 @@ type charaResponse struct {
 	Expressions        map[string]charaExpressionResponse `json:"expressions"`
 	ConversationPrompt string                             `json:"conversationPrompt"`
 	VoicevoxStyleID    int                                `json:"voicevoxStyleID"`
+	// 会話の声と通話の場面のプロンプト。空なら API がサーバの既定を使う。
+	VoiceProvider           string `json:"voiceProvider"`
+	GeminiVoice             string `json:"geminiVoice"`
+	GeminiVoiceStyle        string `json:"geminiVoiceStyle"`
+	CallOpeningPrompt       string `json:"callOpeningPrompt"`
+	CallEndingPrompt        string `json:"callEndingPrompt"`
+	CallNoInputEndingPrompt string `json:"callNoInputEndingPrompt"`
 }
 
 type charaListResponse struct {
@@ -52,6 +59,13 @@ type charaUpdateRequest struct {
 	Description        string `json:"description"`
 	ConversationPrompt string `json:"conversationPrompt"`
 	VoicevoxStyleID    int    `json:"voicevoxStyleID"`
+	// 以下は省略できる。送られなかった項目は今の値のまま。
+	VoiceProvider           *string `json:"voiceProvider"`
+	GeminiVoice             *string `json:"geminiVoice"`
+	GeminiVoiceStyle        *string `json:"geminiVoiceStyle"`
+	CallOpeningPrompt       *string `json:"callOpeningPrompt"`
+	CallEndingPrompt        *string `json:"callEndingPrompt"`
+	CallNoInputEndingPrompt *string `json:"callNoInputEndingPrompt"`
 }
 
 func (h *Chara) CharaListGet(c echo.Context) error {
@@ -97,6 +111,14 @@ func (h *Chara) CharaPut(c echo.Context) error {
 		Description:        req.Description,
 		ConversationPrompt: req.ConversationPrompt,
 		VoicevoxStyleID:    req.VoicevoxStyleID,
+		Conversation: output.CharaConversationUpdate{
+			VoiceProvider:           req.VoiceProvider,
+			GeminiVoice:             req.GeminiVoice,
+			GeminiVoiceStyle:        req.GeminiVoiceStyle,
+			CallOpeningPrompt:       req.CallOpeningPrompt,
+			CallEndingPrompt:        req.CallEndingPrompt,
+			CallNoInputEndingPrompt: req.CallNoInputEndingPrompt,
+		},
 	})
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, newErrorResponse("update_chara_failed", err.Error()))
@@ -124,16 +146,22 @@ func toCharaResponse(c output.Chara) charaResponse {
 	}
 
 	return charaResponse{
-		CharaID:            c.CharaID,
-		Enable:             c.Enable,
-		CreatedAt:          c.CreatedAt,
-		UpdatedAt:          c.UpdatedAt,
-		Name:               c.Name,
-		Description:        c.Description,
-		Profiles:           profiles,
-		Calls:              calls,
-		Expressions:        expressions,
-		ConversationPrompt: c.ConversationPrompt,
-		VoicevoxStyleID:    c.VoicevoxStyleID,
+		CharaID:                 c.CharaID,
+		Enable:                  c.Enable,
+		CreatedAt:               c.CreatedAt,
+		UpdatedAt:               c.UpdatedAt,
+		Name:                    c.Name,
+		Description:             c.Description,
+		Profiles:                profiles,
+		Calls:                   calls,
+		Expressions:             expressions,
+		ConversationPrompt:      c.ConversationPrompt,
+		VoicevoxStyleID:         c.VoicevoxStyleID,
+		VoiceProvider:           c.Conversation.VoiceProvider,
+		GeminiVoice:             c.Conversation.GeminiVoice,
+		GeminiVoiceStyle:        c.Conversation.GeminiVoiceStyle,
+		CallOpeningPrompt:       c.Conversation.CallOpeningPrompt,
+		CallEndingPrompt:        c.Conversation.CallEndingPrompt,
+		CallNoInputEndingPrompt: c.Conversation.CallNoInputEndingPrompt,
 	}
 }
