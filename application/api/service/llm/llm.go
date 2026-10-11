@@ -25,6 +25,7 @@ type Client interface {
 }
 
 // NewClient は provider に応じた Client を返す（未知の値は OpenAI にフォールバック）。
+// gemini は認証つきの HTTP クライアントが要るので、main で NewGeminiClient を使う。
 func NewClient(provider string, apiKey string, model string) Client {
 	switch provider {
 	// case "anthropic":

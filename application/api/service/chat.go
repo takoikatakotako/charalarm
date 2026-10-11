@@ -22,6 +22,9 @@ const (
 	chatMaxTimeZoneLength = 64
 )
 
+// chatSpeechInstruction は全キャラ共通の話し方の指示。返答は音声で読み上げるため。
+const chatSpeechInstruction = "返答はそのまま音声で読み上げます。絵文字・顔文字・飾りの記号（✨や★など）・箇条書き・マークダウンは使わず、話し言葉の文だけで答えてください。句読点（、。！？）は普通に使ってください。"
+
 // Chat はキャラとの会話応答を生成するサービス。
 type Chat struct {
 	AWS       infrastructure.AWS
@@ -111,13 +114,14 @@ func validateChatInput(input ChatInput) error {
 }
 
 // buildChatMessages は LLM に渡すメッセージ列を組み立てる。
-// プロンプトキャッシュが効くよう、変わりにくい順 (キャラ設定 → 記憶 → その場の情報 → 会話) に並べる。
+// プロンプトキャッシュが効くよう、変わりにくい順 (キャラ設定 → 話し方 → 記憶 → その場の情報 → 会話) に並べる。
 func buildChatMessages(persona string, input ChatInput) ([]llm.Message, error) {
-	messages := make([]llm.Message, 0, len(input.Messages)+3)
+	messages := make([]llm.Message, 0, len(input.Messages)+4)
 
 	if persona != "" {
 		messages = append(messages, llm.Message{Role: llm.RoleSystem, Content: persona})
 	}
+	messages = append(messages, llm.Message{Role: llm.RoleSystem, Content: chatSpeechInstruction})
 
 	if input.Memory != "" {
 		messages = append(messages, llm.Message{

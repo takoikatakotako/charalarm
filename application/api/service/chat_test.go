@@ -53,29 +53,31 @@ func TestValidateChatInput(t *testing.T) {
 func TestBuildChatMessages(t *testing.T) {
 	user := llm.Message{Role: llm.RoleUser, Content: "おはよう"}
 
-	t.Run("キャラ設定 → 記憶 → 現在時刻 → 会話の順に並ぶ", func(t *testing.T) {
+	t.Run("キャラ設定 → 話し方 → 記憶 → 現在時刻 → 会話の順に並ぶ", func(t *testing.T) {
 		messages, err := buildChatMessages("あなたはずんだもんです。", ChatInput{
 			Memory:   "呼び方はたこさん",
 			Context:  &ChatContext{Now: "2026-10-11T07:05:00+09:00", TimeZone: "Asia/Tokyo"},
 			Messages: []llm.Message{user},
 		})
 		assert.NoError(t, err)
-		assert.Len(t, messages, 4)
+		assert.Len(t, messages, 5)
 
 		assert.Equal(t, llm.Message{Role: llm.RoleSystem, Content: "あなたはずんだもんです。"}, messages[0])
 
-		assert.Equal(t, llm.RoleSystem, messages[1].Role)
-		assert.Contains(t, messages[1].Content, "<memory>\n呼び方はたこさん\n</memory>")
+		assert.Equal(t, llm.Message{Role: llm.RoleSystem, Content: chatSpeechInstruction}, messages[1])
 
-		assert.Equal(t, llm.Message{Role: llm.RoleSystem, Content: "現在の日時: 2026年10月11日(日) 07:05（Asia/Tokyo）"}, messages[2])
+		assert.Equal(t, llm.RoleSystem, messages[2].Role)
+		assert.Contains(t, messages[2].Content, "<memory>\n呼び方はたこさん\n</memory>")
 
-		assert.Equal(t, user, messages[3])
+		assert.Equal(t, llm.Message{Role: llm.RoleSystem, Content: "現在の日時: 2026年10月11日(日) 07:05（Asia/Tokyo）"}, messages[3])
+
+		assert.Equal(t, user, messages[4])
 	})
 
-	t.Run("省略したものは入れない", func(t *testing.T) {
+	t.Run("省略したものは入れない（話し方の指示は常に入る）", func(t *testing.T) {
 		messages, err := buildChatMessages("", ChatInput{Messages: []llm.Message{user}})
 		assert.NoError(t, err)
-		assert.Equal(t, []llm.Message{user}, messages)
+		assert.Equal(t, []llm.Message{{Role: llm.RoleSystem, Content: chatSpeechInstruction}, user}, messages)
 	})
 }
 
@@ -92,7 +94,7 @@ func formatChatTimeString(t *testing.T, now string, timeZone string) string {
 		Messages: []llm.Message{{Role: llm.RoleUser, Content: "x"}},
 	})
 	assert.NoError(t, err)
-	return strings.TrimPrefix(messages[0].Content, "現在の日時: ")
+	return strings.TrimPrefix(messages[1].Content, "現在の日時: ")
 }
 
 func repeatMessage(m llm.Message, n int) []llm.Message {

@@ -9,48 +9,27 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"time"
 
-	"golang.org/x/oauth2"
-	"golang.org/x/oauth2/google"
+	"github.com/takoikatakotako/charalarm/api/service/vertex"
 )
 
-const (
-	vertexEndpoint    = "https://aiplatform.googleapis.com"
-	cloudPlatformAuth = "https://www.googleapis.com/auth/cloud-platform"
-	defaultSampleRate = 24000
-)
+const defaultSampleRate = 24000
 
 // GeminiClient は Vertex AI の Gemini TTS を呼ぶ Client 実装。
 type GeminiClient struct {
-	Project    string
-	Endpoint   string
+	Project  string
+	Endpoint string
+	// HTTPClient は認証つきのクライアント (vertex.NewHTTPClient)。
 	HTTPClient *http.Client
 }
 
 // NewGeminiClient は GeminiClient を生成する。
-// credentialConfig (external_account の JSON) を渡すと Workload Identity 連携で認証する (Lambda 用)。
-// 空ならアプリケーションのデフォルト認証情報を使う (ローカルでは gcloud auth application-default login)。
-// トークンは最初の呼び出しで取得するので、ここでは通信しない。
-func NewGeminiClient(ctx context.Context, project string, credentialConfig string) (*GeminiClient, error) {
-	var creds *google.Credentials
-	var err error
-	if credentialConfig != "" {
-		creds, err = google.CredentialsFromJSONWithType(ctx, []byte(credentialConfig), google.ExternalAccount, cloudPlatformAuth)
-	} else {
-		creds, err = google.FindDefaultCredentials(ctx, cloudPlatformAuth)
-	}
-	if err != nil {
-		return nil, fmt.Errorf("failed to load google credentials: %w", err)
-	}
-
-	httpClient := oauth2.NewClient(ctx, creds.TokenSource)
-	httpClient.Timeout = 30 * time.Second
+func NewGeminiClient(project string, httpClient *http.Client) *GeminiClient {
 	return &GeminiClient{
 		Project:    project,
-		Endpoint:   vertexEndpoint,
+		Endpoint:   vertex.Endpoint,
 		HTTPClient: httpClient,
-	}, nil
+	}
 }
 
 type geminiPart struct {
