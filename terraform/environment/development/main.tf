@@ -55,6 +55,10 @@ module "api" {
   openai_api_key_ssm_parameter_name = "/charalarm/dev/openai-api-key"
   # 5.0.0 の会話は GPT-6 Luna で検証する（staging / production は検証後に切り替える）
   llm_model = "gpt-6-luna"
+
+  # Gemini TTS は sandbox の Vertex AI を使う (gcp-iac の terraform/sandbox/charalarm.tf)
+  gcp_project           = "sandbox-492513"
+  gcp_credential_config = local.gcp_credential_config
 }
 
 
@@ -105,3 +109,22 @@ module "dynamodb" {
 
 
 
+
+##############################################################
+# Vertex AI (Gemini TTS) の credential config
+##############################################################
+# API Lambda の実行ロールの AWS 認証情報を、Workload Identity 連携で
+# GCP の charalarm-tts SA のトークンに交換する。秘密値は含まない。
+locals {
+  gcp_credential_config = jsonencode({
+    type                              = "external_account"
+    audience                          = "//iam.googleapis.com/projects/870183222406/locations/global/workloadIdentityPools/charalarm-aws/providers/development"
+    subject_token_type                = "urn:ietf:params:aws:token-type:aws4_request"
+    token_url                         = "https://sts.googleapis.com/v1/token"
+    service_account_impersonation_url = "https://iamcredentials.googleapis.com/v1/projects/-/serviceAccounts/charalarm-tts@sandbox-492513.iam.gserviceaccount.com:generateAccessToken"
+    credential_source = {
+      environment_id                 = "aws1"
+      regional_cred_verification_url = "https://sts.{region}.amazonaws.com?Action=GetCallerIdentity&Version=2011-06-15"
+    }
+  })
+}
