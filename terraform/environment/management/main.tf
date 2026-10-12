@@ -2,7 +2,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "5.83.1"
+      version = "6.68.0"
     }
   }
 
@@ -10,12 +10,12 @@ terraform {
     bucket  = "charalarm.terraform.state"
     key     = "management/terraform.tfstate"
     region  = "ap-northeast-1"
-    profile = "charalarm-management"
+    profile = "charalarm-management-sso"
   }
 }
 
 provider "aws" {
-  profile = "charalarm-management"
+  profile = "charalarm-management-sso"
   region  = "ap-northeast-1"
 }
 
