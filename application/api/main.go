@@ -117,7 +117,10 @@ func main() {
 	}
 
 	e := echo.New()
-	e.Use(middleware.Logger())
+	// アクセスログには IP アドレスや User-Agent を出さない (個人情報をサーバに残さないため)
+	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
+		Format: `{"time":"${time_rfc3339}","method":"${method}","path":"${path}","status":${status},"latency_human":"${latency_human}","error":"${error}"}` + "\n",
+	}))
 
 	// healthcheck
 	e.GET("/healthcheck", healthcheckHandler.HealthcheckGet)
