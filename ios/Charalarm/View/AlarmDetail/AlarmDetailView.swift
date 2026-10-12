@@ -60,8 +60,10 @@ struct AlarmDetailView: View {
                 }
 
             }
-            .onReceive(viewState.dismissRequest) { _ in
-                dismiss()
+            .onChange(of: viewState.shouldDismiss) { _, shouldDismiss in
+                if shouldDismiss {
+                    dismiss()
+                }
             }
             .onAppear {
                 viewState.onAppear()

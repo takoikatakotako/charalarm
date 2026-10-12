@@ -1,6 +1,5 @@
 import Foundation
 import SwiftUI
-import Combine
 
 @Observable class AlarmDetailViewState {
     var alarm: Alarm
@@ -11,12 +10,8 @@ import Combine
     var selectedChara: Chara?
     var selectedCharaCall: CharaCall?
     var showingIndicator: Bool = false
-    var dismiss: Bool = false
-
-    var dismissRequest: AnyPublisher<Void, Never> {
-        dismissSubject.eraseToAnyPublisher()
-    }
-    private let dismissSubject = PassthroughSubject<Void, Never>()
+    /// true にすると画面を閉じる（保存・削除が終わったとき）
+    var shouldDismiss = false
 
     let type: AlarmDetailViewTyep
 //    private let alarmRepository: AlarmRepository = AlarmRepository()
@@ -90,7 +85,7 @@ import Combine
             do {
                 let alarmDeleteRequest = AlarmDeleteRequest(alarmID: alarm.alarmID)
                 try await apiRepository.deleteAlarm(userID: userID, authToken: authToken, requestBody: alarmDeleteRequest)
-                dismissSubject.send()
+                shouldDismiss = true
                 showingIndicator = false
             } catch {
                 self.alertMessage = String(localized: "alarm-failed-to-delete-the-alarm")
@@ -150,7 +145,7 @@ import Combine
                 let alarmRequest = alarm.toAlarmRequest(userID: userUUID)
                 let alarmAddRequest = AlarmAddRequest(alarm: alarmRequest)
                 try await apiRepository.addAlarm(userID: userID, authToken: authToken, requestBody: alarmAddRequest)
-                dismissSubject.send()
+                shouldDismiss = true
                 showingIndicator = false
             } catch {
                 CharalarmLogger.error("failed to create alarm, file: \(#file), line: \(#line)", error: error)
@@ -178,7 +173,7 @@ import Combine
                 let alarmRequest = alarm.toAlarmRequest(userID: userUUID)
                 let alarmEditRequest = AlarmEditRequest(alarm: alarmRequest)
                 try await apiRepository.editAlarm(userID: userID, authToken: authToken, requestBody: alarmEditRequest)
-                dismissSubject.send()
+                shouldDismiss = true
                 showingIndicator = false
             } catch {
                 alertMessage = String(localized: "alarm-failed-to-edit-the-alarm")

@@ -6,15 +6,16 @@ import CallKit
 /// キャラとのリアルタイム音声会話（ターン制）。
 /// 声（端末内の VOICEVOX か /tts の Gemini TTS）と通話の場面の指示は、キャラ情報（サーバ）から決める。
 @MainActor
-class ConversationViewModel: NSObject, ObservableObject {
+@Observable
+class ConversationViewModel: NSObject {
 
-    // MARK: - Published Properties
+    // MARK: - Observed Properties
 
-    @Published var text = ""
-    @Published var charaName = ""
-    @Published var status: ConversationStatus = .idle
-    @Published var conversationDuration: TimeInterval = 0
-    @Published var shouldDismiss = false
+    var text = ""
+    var charaName = ""
+    var status: ConversationStatus = .idle
+    var conversationDuration: TimeInterval = 0
+    var shouldDismiss = false
 
     // MARK: - Constants
 

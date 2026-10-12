@@ -7,7 +7,7 @@ import GoogleMobileAds
 
 struct TopView: View {
     @State var viewState = TopViewState()
-    @StateObject var adDelegate = AdmobRewardedHandler()
+    @State private var adDelegate = AdmobRewardedHandler()
 
     var body: some View {
         ZStack {
@@ -97,9 +97,11 @@ struct TopView: View {
             }
         }
         .ignoresSafeArea(.container, edges: [.top, .bottom])
-        .onReceive(NotificationCenter.default.publisher(for: NSNotification.setChara)) { notification in
-            let charaID: String? = notification.userInfo?[NSNotification.setCharaUserInfoKeyCharaID] as? String
-            viewState.updateChara(charaID: charaID)
+        .task {
+            for await notification in NotificationCenter.default.notifications(named: NSNotification.setChara) {
+                let charaID: String? = notification.userInfo?[NSNotification.setCharaUserInfoKeyCharaID] as? String
+                viewState.updateChara(charaID: charaID)
+            }
         }
         .onAppear {
             viewState.onAppear()

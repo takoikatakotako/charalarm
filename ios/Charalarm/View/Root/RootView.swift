@@ -26,20 +26,28 @@ struct RootView: View {
         .onAppear {
             viewState.onAppear()
         }
-        .onReceive(NotificationCenter.default.publisher(for: NSNotification.doneTutorial)) { _ in
-            viewState.doneTutorial()
+        .task {
+            for await _ in NotificationCenter.default.notifications(named: NSNotification.doneTutorial) {
+                viewState.doneTutorial()
+            }
         }
-        .onReceive(NotificationCenter.default.publisher(for: NSNotification.didReset)) { _ in
-            viewState.didReset()
+        .task {
+            for await _ in NotificationCenter.default.notifications(named: NSNotification.didReset) {
+                viewState.didReset()
+            }
         }
-        .onReceive(NotificationCenter.default.publisher(for: NSNotification.answerCall)) { notification in
-            let charaID: String? = notification.userInfo?[NSNotification.answerCallUserInfoKeyCharaID] as? String
-            let charaName: String? = notification.userInfo?[NSNotification.answerCallUserInfoKeyCharaName] as? String
-            let callUUID: UUID? = notification.userInfo?[NSNotification.answerCallUserInfoKeyCallUUID] as? UUID
-            viewState.answerCall(charaID: charaID, charaName: charaName, callUUID: callUUID)
+        .task {
+            for await notification in NotificationCenter.default.notifications(named: NSNotification.answerCall) {
+                let charaID: String? = notification.userInfo?[NSNotification.answerCallUserInfoKeyCharaID] as? String
+                let charaName: String? = notification.userInfo?[NSNotification.answerCallUserInfoKeyCharaName] as? String
+                let callUUID: UUID? = notification.userInfo?[NSNotification.answerCallUserInfoKeyCallUUID] as? UUID
+                viewState.answerCall(charaID: charaID, charaName: charaName, callUUID: callUUID)
+            }
         }
-        .onReceive(NotificationCenter.default.publisher(for: NSNotification.endCall)) { _ in
-            viewState.endCall()
+        .task {
+            for await _ in NotificationCenter.default.notifications(named: NSNotification.endCall) {
+                viewState.endCall()
+            }
         }
     }
 }

@@ -3,7 +3,7 @@ import SwiftUI
 /// キャラとのリアルタイム音声会話画面。
 /// ホーム画面の電話ボタン（standalone）と CallKit 着信フローの両方から使う。
 struct ConversationView: View {
-    @StateObject private var viewModel: ConversationViewModel
+    @State private var viewModel: ConversationViewModel
     @Environment(\.dismiss) private var dismiss
 
     init(
@@ -11,7 +11,7 @@ struct ConversationView: View {
         mode: ConversationMode = .standalone,
         textGenerationRepository: TextGenerationRepository = BackendTextGenerationRepository()
     ) {
-        _viewModel = StateObject(wrappedValue: ConversationViewModel(
+        _viewModel = State(initialValue: ConversationViewModel(
             charaID: charaID,
             mode: mode,
             textGenerationRepository: textGenerationRepository
