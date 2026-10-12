@@ -73,26 +73,42 @@ export interface CharaExpression {
   voiceFileNames: string[];
 }
 
-export interface Chara {
-  charaID: string;
+/** 見た目のタイプ。illustration: 表情ごとの立ち絵 / vrm: 3D モデル */
+export type AppearanceType = "illustration" | "vrm";
+
+/** 会話のタイプ。none: アラーム専用 / voicevox: 端末内の VOICEVOX / gemini: サーバの Gemini TTS */
+export type ConversationType = "none" | "voicevox" | "gemini";
+
+/** 管理画面で編集する項目。キャラの追加と編集で同じ形 */
+export interface CharaSettings {
   enable: boolean;
-  createdAt: string;
-  updatedAt: string;
   name: string;
   description: string;
   profiles: CharaProfile[];
-  calls: CharaCall[];
-  expressions: Record<string, CharaExpression>;
+  displayOrder: number;
+  appearanceType: AppearanceType;
+  vrmFileName: string;
+  conversationType: ConversationType;
   conversationPrompt: string;
   voicevoxStyleID: number;
+  geminiVoice: string;
+  geminiVoiceStyle: string;
+  /** 通話の場面のプロンプト。空ならサーバの既定 */
+  callOpeningPrompt: string;
+  callEndingPrompt: string;
+  callNoInputEndingPrompt: string;
 }
 
-export interface CharaUpdate {
-  enable: boolean;
-  name: string;
-  description: string;
-  conversationPrompt: string;
-  voicevoxStyleID: number;
+export interface Chara extends CharaSettings {
+  charaID: string;
+  createdAt: string;
+  updatedAt: string;
+  calls: CharaCall[];
+  expressions: Record<string, CharaExpression>;
+}
+
+export interface CharaCreate extends CharaSettings {
+  charaID: string;
 }
 
 export interface CharaListResponse {

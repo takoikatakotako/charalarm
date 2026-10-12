@@ -88,6 +88,7 @@ func main() {
 	e.DELETE("/news/:newsID", newsHandler.NewsDelete)
 
 	e.GET("/chara", charaHandler.CharaListGet)
+	e.POST("/chara", charaHandler.CharaPost)
 	e.GET("/chara/:charaID", charaHandler.CharaGet)
 	e.PUT("/chara/:charaID", charaHandler.CharaPut)
 

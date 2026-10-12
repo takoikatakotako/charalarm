@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -12,7 +13,7 @@ type Chara struct {
 	Service service.Chara
 }
 
-type charaProfileResponse struct {
+type charaProfileJSON struct {
 	Title string `json:"title"`
 	Name  string `json:"name"`
 	URL   string `json:"url"`
@@ -28,44 +29,44 @@ type charaExpressionResponse struct {
 	VoiceFileNames []string `json:"voiceFileNames"`
 }
 
-type charaResponse struct {
-	CharaID            string                             `json:"charaID"`
-	Enable             bool                               `json:"enable"`
-	CreatedAt          string                             `json:"createdAt"`
-	UpdatedAt          string                             `json:"updatedAt"`
-	Name               string                             `json:"name"`
-	Description        string                             `json:"description"`
-	Profiles           []charaProfileResponse             `json:"profiles"`
-	Calls              []charaCallResponse                `json:"calls"`
-	Expressions        map[string]charaExpressionResponse `json:"expressions"`
-	ConversationPrompt string                             `json:"conversationPrompt"`
-	VoicevoxStyleID    int                                `json:"voicevoxStyleID"`
-	// 会話の声と通話の場面のプロンプト。空なら API がサーバの既定を使う。
-	VoiceProvider           string `json:"voiceProvider"`
-	GeminiVoice             string `json:"geminiVoice"`
-	GeminiVoiceStyle        string `json:"geminiVoiceStyle"`
+// charaSettingsJSON は管理画面で編集する項目。追加・編集のリクエストと、レスポンスで同じ形にする。
+type charaSettingsJSON struct {
+	Enable       bool               `json:"enable"`
+	Name         string             `json:"name"`
+	Description  string             `json:"description"`
+	Profiles     []charaProfileJSON `json:"profiles"`
+	DisplayOrder int                `json:"displayOrder"`
+	// 見た目のタイプ: "illustration" / "vrm"
+	AppearanceType string `json:"appearanceType"`
+	VRMFileName    string `json:"vrmFileName"`
+	// 会話のタイプ: "none" / "voicevox" / "gemini"
+	ConversationType   string `json:"conversationType"`
+	ConversationPrompt string `json:"conversationPrompt"`
+	VoicevoxStyleID    int    `json:"voicevoxStyleID"`
+	GeminiVoice        string `json:"geminiVoice"`
+	GeminiVoiceStyle   string `json:"geminiVoiceStyle"`
+	// 通話の場面のプロンプト。空なら API がサーバの既定を使う。
 	CallOpeningPrompt       string `json:"callOpeningPrompt"`
 	CallEndingPrompt        string `json:"callEndingPrompt"`
 	CallNoInputEndingPrompt string `json:"callNoInputEndingPrompt"`
+}
+
+type charaResponse struct {
+	CharaID     string                             `json:"charaID"`
+	CreatedAt   string                             `json:"createdAt"`
+	UpdatedAt   string                             `json:"updatedAt"`
+	Calls       []charaCallResponse                `json:"calls"`
+	Expressions map[string]charaExpressionResponse `json:"expressions"`
+	charaSettingsJSON
 }
 
 type charaListResponse struct {
 	Charas []charaResponse `json:"charas"`
 }
 
-type charaUpdateRequest struct {
-	Enable             bool   `json:"enable"`
-	Name               string `json:"name"`
-	Description        string `json:"description"`
-	ConversationPrompt string `json:"conversationPrompt"`
-	VoicevoxStyleID    int    `json:"voicevoxStyleID"`
-	// 以下は省略できる。送られなかった項目は今の値のまま。
-	VoiceProvider           *string `json:"voiceProvider"`
-	GeminiVoice             *string `json:"geminiVoice"`
-	GeminiVoiceStyle        *string `json:"geminiVoiceStyle"`
-	CallOpeningPrompt       *string `json:"callOpeningPrompt"`
-	CallEndingPrompt        *string `json:"callEndingPrompt"`
-	CallNoInputEndingPrompt *string `json:"callNoInputEndingPrompt"`
+type charaCreateRequest struct {
+	CharaID string `json:"charaID"`
+	charaSettingsJSON
 }
 
 func (h *Chara) CharaListGet(c echo.Context) error {
@@ -94,42 +95,77 @@ func (h *Chara) CharaGet(c echo.Context) error {
 	return c.JSON(http.StatusOK, toCharaResponse(chara))
 }
 
+func (h *Chara) CharaPost(c echo.Context) error {
+	req := new(charaCreateRequest)
+	if err := c.Bind(req); err != nil {
+		return c.JSON(http.StatusBadRequest, newErrorResponse("invalid_request", err.Error()))
+	}
+
+	created, err := h.Service.CreateChara(req.CharaID, toCharaSettings(req.charaSettingsJSON))
+	if err != nil {
+		return charaErrorResponse(c, "create_chara_failed", err)
+	}
+	return c.JSON(http.StatusCreated, toCharaResponse(created))
+}
+
 func (h *Chara) CharaPut(c echo.Context) error {
 	charaID := c.Param("charaID")
 	if charaID == "" {
 		return c.JSON(http.StatusBadRequest, newErrorResponse("invalid_chara_id", "charaID is required"))
 	}
 
-	req := new(charaUpdateRequest)
+	req := new(charaSettingsJSON)
 	if err := c.Bind(req); err != nil {
 		return c.JSON(http.StatusBadRequest, newErrorResponse("invalid_request", err.Error()))
 	}
 
-	updated, err := h.Service.UpdateChara(charaID, output.CharaUpdate{
-		Enable:             req.Enable,
-		Name:               req.Name,
-		Description:        req.Description,
-		ConversationPrompt: req.ConversationPrompt,
-		VoicevoxStyleID:    req.VoicevoxStyleID,
-		Conversation: output.CharaConversationUpdate{
-			VoiceProvider:           req.VoiceProvider,
-			GeminiVoice:             req.GeminiVoice,
-			GeminiVoiceStyle:        req.GeminiVoiceStyle,
-			CallOpeningPrompt:       req.CallOpeningPrompt,
-			CallEndingPrompt:        req.CallEndingPrompt,
-			CallNoInputEndingPrompt: req.CallNoInputEndingPrompt,
-		},
-	})
+	updated, err := h.Service.UpdateChara(charaID, toCharaSettings(*req))
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, newErrorResponse("update_chara_failed", err.Error()))
+		return charaErrorResponse(c, "update_chara_failed", err)
 	}
 	return c.JSON(http.StatusOK, toCharaResponse(updated))
 }
 
+func charaErrorResponse(c echo.Context, code string, err error) error {
+	switch {
+	case errors.Is(err, service.ErrInvalidChara):
+		return c.JSON(http.StatusBadRequest, newErrorResponse("invalid_chara", err.Error()))
+	case errors.Is(err, service.ErrCharaAlreadyExists):
+		return c.JSON(http.StatusConflict, newErrorResponse("chara_already_exists", err.Error()))
+	default:
+		return c.JSON(http.StatusInternalServerError, newErrorResponse(code, err.Error()))
+	}
+}
+
+func toCharaSettings(req charaSettingsJSON) output.CharaSettings {
+	profiles := make([]output.CharaProfile, 0, len(req.Profiles))
+	for _, p := range req.Profiles {
+		profiles = append(profiles, output.CharaProfile{Title: p.Title, Name: p.Name, URL: p.URL})
+	}
+	return output.CharaSettings{
+		Enable:                  req.Enable,
+		Name:                    req.Name,
+		Description:             req.Description,
+		Profiles:                profiles,
+		DisplayOrder:            req.DisplayOrder,
+		AppearanceType:          req.AppearanceType,
+		VRMFileName:             req.VRMFileName,
+		ConversationType:        req.ConversationType,
+		ConversationPrompt:      req.ConversationPrompt,
+		VoicevoxStyleID:         req.VoicevoxStyleID,
+		GeminiVoice:             req.GeminiVoice,
+		GeminiVoiceStyle:        req.GeminiVoiceStyle,
+		CallOpeningPrompt:       req.CallOpeningPrompt,
+		CallEndingPrompt:        req.CallEndingPrompt,
+		CallNoInputEndingPrompt: req.CallNoInputEndingPrompt,
+	}
+}
+
 func toCharaResponse(c output.Chara) charaResponse {
-	profiles := make([]charaProfileResponse, 0, len(c.Profiles))
-	for _, p := range c.Profiles {
-		profiles = append(profiles, charaProfileResponse{Title: p.Title, Name: p.Name, URL: p.URL})
+	s := c.Settings
+	profiles := make([]charaProfileJSON, 0, len(s.Profiles))
+	for _, p := range s.Profiles {
+		profiles = append(profiles, charaProfileJSON{Title: p.Title, Name: p.Name, URL: p.URL})
 	}
 
 	calls := make([]charaCallResponse, 0, len(c.Calls))
@@ -146,22 +182,27 @@ func toCharaResponse(c output.Chara) charaResponse {
 	}
 
 	return charaResponse{
-		CharaID:                 c.CharaID,
-		Enable:                  c.Enable,
-		CreatedAt:               c.CreatedAt,
-		UpdatedAt:               c.UpdatedAt,
-		Name:                    c.Name,
-		Description:             c.Description,
-		Profiles:                profiles,
-		Calls:                   calls,
-		Expressions:             expressions,
-		ConversationPrompt:      c.ConversationPrompt,
-		VoicevoxStyleID:         c.VoicevoxStyleID,
-		VoiceProvider:           c.Conversation.VoiceProvider,
-		GeminiVoice:             c.Conversation.GeminiVoice,
-		GeminiVoiceStyle:        c.Conversation.GeminiVoiceStyle,
-		CallOpeningPrompt:       c.Conversation.CallOpeningPrompt,
-		CallEndingPrompt:        c.Conversation.CallEndingPrompt,
-		CallNoInputEndingPrompt: c.Conversation.CallNoInputEndingPrompt,
+		CharaID:     c.CharaID,
+		CreatedAt:   c.CreatedAt,
+		UpdatedAt:   c.UpdatedAt,
+		Calls:       calls,
+		Expressions: expressions,
+		charaSettingsJSON: charaSettingsJSON{
+			Enable:                  s.Enable,
+			Name:                    s.Name,
+			Description:             s.Description,
+			Profiles:                profiles,
+			DisplayOrder:            s.DisplayOrder,
+			AppearanceType:          s.AppearanceType,
+			VRMFileName:             s.VRMFileName,
+			ConversationType:        s.ConversationType,
+			ConversationPrompt:      s.ConversationPrompt,
+			VoicevoxStyleID:         s.VoicevoxStyleID,
+			GeminiVoice:             s.GeminiVoice,
+			GeminiVoiceStyle:        s.GeminiVoiceStyle,
+			CallOpeningPrompt:       s.CallOpeningPrompt,
+			CallEndingPrompt:        s.CallEndingPrompt,
+			CallNoInputEndingPrompt: s.CallNoInputEndingPrompt,
+		},
 	}
 }

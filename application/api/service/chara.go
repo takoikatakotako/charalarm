@@ -1,6 +1,8 @@
 package service
 
 import (
+	"sort"
+
 	"github.com/takoikatakotako/charalarm/api/service/output"
 	"github.com/takoikatakotako/charalarm/infrastructure"
 	"github.com/takoikatakotako/charalarm/infrastructure/database"
@@ -40,5 +42,16 @@ func (c *Chara) GetCharaList() ([]output.Chara, error) {
 			filteredCharaList = append(filteredCharaList, chara)
 		}
 	}
+	sortCharas(filteredCharaList)
 	return convertToCharaOutputs(filteredCharaList, baseURL), nil
+}
+
+// sortCharas は表示順 (displayOrder の昇順、同じなら charaID 順) に並べる。
+func sortCharas(charas []database.Chara) {
+	sort.SliceStable(charas, func(i, j int) bool {
+		if charas[i].DisplayOrder != charas[j].DisplayOrder {
+			return charas[i].DisplayOrder < charas[j].DisplayOrder
+		}
+		return charas[i].CharaID < charas[j].CharaID
+	})
 }

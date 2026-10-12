@@ -56,7 +56,7 @@ func (s *TextToSpeech) Synthesize(ctx context.Context, userID string, authToken 
 	if err != nil {
 		return tts.Audio{}, errors.New(common.ErrorInvalidValue)
 	}
-	if !isConversationChara(chara) || voiceProviderOf(chara) != VoiceProviderGemini {
+	if !isConversationChara(chara) || chara.ConversationTypeOf() != database.ConversationTypeGemini {
 		return tts.Audio{}, errors.New(common.ErrorInvalidValue)
 	}
 	voice := voiceOf(chara, s.Voice)
