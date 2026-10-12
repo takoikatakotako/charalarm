@@ -39,10 +39,8 @@ func Handler(ctx context.Context, event events.SQSEvent) (events.APIGatewayProxy
 			continue
 		}
 
-		fmt.Println("@@@@@@@@@@@")
+		// req にはプッシュトークンが入るのでログに出さない
 		fmt.Println("Decode Success")
-		fmt.Println(req)
-		fmt.Println("@@@@@@@@@@@")
 
 		// メッセージを取得して処理する
 		err = s.PublishPlatformApplication(req)

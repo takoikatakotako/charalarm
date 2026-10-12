@@ -16,11 +16,7 @@ type Alarm struct {
 }
 
 func (a *Alarm) AlarmListGet(c echo.Context) error {
-	fmt.Println(c.Request())
 	authorizationHeader := c.Request().Header.Get("Authorization")
-	fmt.Println("-------")
-	fmt.Println(c.Request().Header)
-	fmt.Println("-------")
 
 	userID, authToken, err := auth.Basic(authorizationHeader)
 	if err != nil {
@@ -56,10 +52,6 @@ func (a *Alarm) AlarmAddPost(c echo.Context) error {
 		res := response.Message{Message: "Error!2"}
 		return c.JSON(http.StatusInternalServerError, res)
 	}
-
-	fmt.Println("@@@@@@@@@@")
-	fmt.Println(req)
-	fmt.Println("@@@@@@@@@@")
 
 	addAlarmInput := input.AddAlarm{
 		UserID:    userID,
