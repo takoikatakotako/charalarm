@@ -133,3 +133,6 @@ ios/Voicevox/voicevox_core.xcframework/
 ios/Voicevox/voicevox_onnxruntime.xcframework/
 ios/Charalarm/open_jtalk_dic_utf_8-1.11/
 ios/Charalarm/vvms/
+
+# Gemini TTS の PoC 用 CLI（手元だけで使う。コミットしない）
+application/tools/ttspoc/
