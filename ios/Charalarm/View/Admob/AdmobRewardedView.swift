@@ -2,7 +2,7 @@ import SwiftUI
 import GoogleMobileAds
 import UIKit
 
-class AdmobRewardedHandler: NSObject, ObservableObject {
+class AdmobRewardedHandler: NSObject {
     var rewardedAd: RewardedAd?
     func load() {
         RewardedAd.load(with: "ca-app-pub-3940256099942544/1712485313", request: nil) { ad, error in
