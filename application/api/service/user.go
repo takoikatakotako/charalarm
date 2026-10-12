@@ -29,7 +29,7 @@ func (u *User) GetUser(userID string, authToken string) (output.UserInfo, error)
 	return output.UserInfo{}, errors.New(common.AuthenticationFailure)
 }
 
-func (u *User) Signup(userID string, authToken string, platform string, ipAddress string) error {
+func (u *User) Signup(userID string, authToken string, platform string) error {
 	// バリデーション
 	if !database.IsValidUUID(userID) || !database.IsValidUUID(authToken) {
 		return errors.New(common.ErrorInvalidValue)
@@ -49,13 +49,12 @@ func (u *User) Signup(userID string, authToken string, platform string, ipAddres
 	// ユーザー作成
 	currentTime := time.Now()
 	user := database.User{
-		UserID:              userID,
-		AuthToken:           authToken,
-		Platform:            platform,
-		PremiumPlan:         false,
-		CreatedAt:           currentTime.Format(time.RFC3339),
-		UpdatedAt:           currentTime.Format(time.RFC3339),
-		RegisteredIPAddress: ipAddress,
+		UserID:      userID,
+		AuthToken:   authToken,
+		Platform:    platform,
+		PremiumPlan: false,
+		CreatedAt:   currentTime.Format(time.RFC3339),
+		UpdatedAt:   currentTime.Format(time.RFC3339),
 	}
 	err = u.AWS.InsertUser(user)
 	if err != nil {

@@ -39,9 +39,8 @@ func (u *User) UserSignupPost(c echo.Context) error {
 		res := response.Message{Message: "Error!"}
 		return c.JSON(http.StatusInternalServerError, res)
 	}
-	ipAddress := c.RealIP()
-
-	err := u.Service.Signup(req.UserID, req.AuthToken, req.Platform, ipAddress)
+	// IP アドレスは個人情報なので受け取らない (#278)
+	err := u.Service.Signup(req.UserID, req.AuthToken, req.Platform)
 	if err != nil {
 		fmt.Println(err)
 		res := response.Message{Message: "Error!"}

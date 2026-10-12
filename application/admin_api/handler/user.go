@@ -26,13 +26,12 @@ type userIOSPlatformInfoResponse struct {
 }
 
 type userResponse struct {
-	UserID              string                      `json:"userID"`
-	Platform            string                      `json:"platform"`
-	PremiumPlan         bool                        `json:"premiumPlan"`
-	CreatedAt           string                      `json:"createdAt"`
-	UpdatedAt           string                      `json:"updatedAt"`
-	RegisteredIPAddress string                      `json:"registeredIPAddress"`
-	IOSPlatformInfo     userIOSPlatformInfoResponse `json:"iosPlatformInfo"`
+	UserID          string                      `json:"userID"`
+	Platform        string                      `json:"platform"`
+	PremiumPlan     bool                        `json:"premiumPlan"`
+	CreatedAt       string                      `json:"createdAt"`
+	UpdatedAt       string                      `json:"updatedAt"`
+	IOSPlatformInfo userIOSPlatformInfoResponse `json:"iosPlatformInfo"`
 }
 
 type usersListResponse struct {
@@ -84,12 +83,11 @@ func (u *User) UserGet(c echo.Context) error {
 
 func toUserResponse(u output.User) userResponse {
 	return userResponse{
-		UserID:              u.UserID,
-		Platform:            u.Platform,
-		PremiumPlan:         u.PremiumPlan,
-		CreatedAt:           u.CreatedAt,
-		UpdatedAt:           u.UpdatedAt,
-		RegisteredIPAddress: u.RegisteredIPAddress,
+		UserID:      u.UserID,
+		Platform:    u.Platform,
+		PremiumPlan: u.PremiumPlan,
+		CreatedAt:   u.CreatedAt,
+		UpdatedAt:   u.UpdatedAt,
 		IOSPlatformInfo: userIOSPlatformInfoResponse{
 			PushToken:                u.IOSPlatformInfo.PushToken,
 			PushTokenSNSEndpoint:     u.IOSPlatformInfo.PushTokenSNSEndpoint,

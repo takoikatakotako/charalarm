@@ -20,9 +20,8 @@ type User struct {
 	Platform    string `dynamodbav:"platform"`
 	PremiumPlan bool   `dynamodbav:"premiumPlan"`
 
-	CreatedAt           string `dynamodbav:"createdAt"`
-	UpdatedAt           string `dynamodbav:"updatedAt"`
-	RegisteredIPAddress string `dynamodbav:"registeredIPAddress"`
+	CreatedAt string `dynamodbav:"createdAt"`
+	UpdatedAt string `dynamodbav:"updatedAt"`
 
 	IOSPlatformInfo UserIOSPlatformInfo `dynamodbav:"iosPlatformInfo"`
 }
@@ -66,11 +65,6 @@ func ValidateUser(user User) error {
 		user.UpdatedAt)
 	if err != nil {
 		return errors.New(common.ErrorInvalidValue + ": UpdatedAt")
-	}
-
-	// RegisteredIPAddress
-	if user.RegisteredIPAddress == "" {
-		return errors.New(common.ErrorInvalidValue + ": RegisteredIPAddress")
 	}
 
 	// IOSPlatformInfo

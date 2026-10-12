@@ -148,16 +148,14 @@ func TestDynamoDBRepository_UpdateUserPremiumPlan(t *testing.T) {
 func createUser(userID string, authToken string) database.User {
 	platform := "iOS"
 	currentTime := time.Now()
-	ipAddress := "127.0.0.1"
 
 	user := database.User{
-		UserID:              userID,
-		AuthToken:           authToken,
-		Platform:            platform,
-		PremiumPlan:         false,
-		CreatedAt:           currentTime.Format(time.RFC3339),
-		UpdatedAt:           currentTime.Format(time.RFC3339),
-		RegisteredIPAddress: ipAddress,
+		UserID:      userID,
+		AuthToken:   authToken,
+		Platform:    platform,
+		PremiumPlan: false,
+		CreatedAt:   currentTime.Format(time.RFC3339),
+		UpdatedAt:   currentTime.Format(time.RFC3339),
 	}
 	return user
 }

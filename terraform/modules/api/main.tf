@@ -108,3 +108,13 @@ resource "aws_route53_record" "api_record" {
     zone_id                = local.cloudfront_zone_id
   }
 }
+
+##################################################
+# Log Group
+##################################################
+# Lambda が自動で作ったロググループを Terraform で持ち、保持期間を付ける (#278)。
+# 既存のロググループは environment の import ブロックで取り込む。
+resource "aws_cloudwatch_log_group" "api_log_group" {
+  name              = "/aws/lambda/${aws_lambda_function.api_lambda_function.function_name}"
+  retention_in_days = 30
+}

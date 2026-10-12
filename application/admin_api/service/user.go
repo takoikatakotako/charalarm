@@ -36,12 +36,11 @@ func (u *User) GetUser(userID string) (output.User, error) {
 
 func toUserOutput(u database.User) output.User {
 	return output.User{
-		UserID:              u.UserID,
-		Platform:            u.Platform,
-		PremiumPlan:         u.PremiumPlan,
-		CreatedAt:           u.CreatedAt,
-		UpdatedAt:           u.UpdatedAt,
-		RegisteredIPAddress: u.RegisteredIPAddress,
+		UserID:      u.UserID,
+		Platform:    u.Platform,
+		PremiumPlan: u.PremiumPlan,
+		CreatedAt:   u.CreatedAt,
+		UpdatedAt:   u.UpdatedAt,
 		IOSPlatformInfo: output.IOSPlatformInfo{
 			PushToken:                u.IOSPlatformInfo.PushToken,
 			PushTokenSNSEndpoint:     u.IOSPlatformInfo.PushTokenSNSEndpoint,

@@ -27,5 +27,5 @@ resource "aws_lambda_function" "worker_lambda_function" {
 ##################################################
 resource "aws_cloudwatch_log_group" "worker_log_group" {
   name              = "/aws/lambda/${aws_lambda_function.worker_lambda_function.function_name}"
-  retention_in_days = 90
+  retention_in_days = 30
 }

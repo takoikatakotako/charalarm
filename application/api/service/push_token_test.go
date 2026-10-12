@@ -20,11 +20,10 @@ func TestPushTokenService_AddIOSPushToken(t *testing.T) {
 	// ユーザー作成
 	userID := uuid.New().String()
 	authToken := uuid.New().String()
-	ipAddress := "127.0.0.1"
 	platform := "iOS"
 	pushToken := uuid.New().String()
 
-	err := userService.Signup(userID, authToken, platform, ipAddress)
+	err := userService.Signup(userID, authToken, platform)
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
@@ -59,11 +58,10 @@ func TestPushTokenService_AddIOSPushTokenCanChange(t *testing.T) {
 	userID := uuid.New().String()
 	authToken := uuid.New().String()
 	platform := "iOS"
-	ipAddress := "127.0.0.1"
 	oldPushToken := uuid.New().String()
 	newPushToken := uuid.New().String()
 
-	err := userService.Signup(userID, authToken, platform, ipAddress)
+	err := userService.Signup(userID, authToken, platform)
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
@@ -119,9 +117,8 @@ func TestPushTokenService_AddIOSPushTokenMultiTimes(t *testing.T) {
 	userID := uuid.New().String()
 	authToken := uuid.New().String()
 	platform := "iOS"
-	ipAddress := "127.0.0.1"
 	pushToken := uuid.New().String()
-	err := userService.Signup(userID, authToken, platform, ipAddress)
+	err := userService.Signup(userID, authToken, platform)
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
@@ -163,10 +160,9 @@ func TestPushTokenService_AddIOSVoipPushToken(t *testing.T) {
 	userID := uuid.New().String()
 	authToken := uuid.New().String()
 	platform := "iOS"
-	ipAddress := "127.0.0.1"
 	pushToken := uuid.New().String()
 
-	err := userService.Signup(userID, authToken, platform, ipAddress)
+	err := userService.Signup(userID, authToken, platform)
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
@@ -203,11 +199,10 @@ func TestPushTokenService_AddIOSVoipPushTokenCanChange(t *testing.T) {
 	userID := uuid.New().String()
 	authToken := uuid.New().String()
 	platform := "iOS"
-	ipAddress := "127.0.0.1"
 	oldPushToken := uuid.New().String()
 	newPushToken := uuid.New().String()
 
-	err := userService.Signup(userID, authToken, platform, ipAddress)
+	err := userService.Signup(userID, authToken, platform)
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
@@ -261,10 +256,9 @@ func TestPushTokenService_AddIOSVoipPushTokenMultiChange(t *testing.T) {
 	userID := uuid.New().String()
 	authToken := uuid.New().String()
 	platform := "iOS"
-	ipAddress := "127.0.0.1"
 	pushToken := uuid.New().String()
 
-	err := userService.Signup(userID, authToken, platform, ipAddress)
+	err := userService.Signup(userID, authToken, platform)
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}

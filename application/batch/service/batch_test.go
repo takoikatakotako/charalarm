@@ -41,9 +41,8 @@ func TestBatchService_QueryDynamoDBAndSendMessage_RandomCharaAndRandomVoice(t *t
 	// ユーザー作成
 	userID := uuid.New().String()
 	authToken := uuid.New().String()
-	const ipAddress = "127.0.0.1"
 	const platform = "iOS"
-	err := createUser(userID, authToken, platform, ipAddress)
+	err := createUser(userID, authToken, platform)
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
@@ -132,9 +131,8 @@ func TestBatchService_QueryDynamoDBAndSendMessage_DecidedCharaAndRandomVoice(t *
 	// ユーザー作成
 	userID := uuid.New().String()
 	authToken := uuid.New().String()
-	const ipAddress = "127.0.0.1"
 	const platform = "iOS"
-	err := createUser(userID, authToken, platform, ipAddress)
+	err := createUser(userID, authToken, platform)
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
@@ -224,9 +222,8 @@ func TestBatchService_QueryDynamoDBAndSendMessage_DecidedCharaAndDecidedVoice(t 
 	// ユーザー作成
 	userID := uuid.New().String()
 	authToken := uuid.New().String()
-	const ipAddress = "127.0.0.1"
 	const platform = "iOS"
-	err := createUser(userID, authToken, platform, ipAddress)
+	err := createUser(userID, authToken, platform)
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
@@ -306,18 +303,17 @@ func getUser(userID string) (database.User, error) {
 	return repo.GetUser(userID)
 }
 
-func createUser(userID string, authToken string, platform string, ipAddress string) error {
+func createUser(userID string, authToken string, platform string) error {
 	// ユーザー作成
 	repo := infrastructure.AWS{Profile: "local"}
 	currentTime := time.Now()
 	user := database.User{
-		UserID:              userID,
-		AuthToken:           authToken,
-		Platform:            platform,
-		PremiumPlan:         false,
-		CreatedAt:           currentTime.Format(time.RFC3339),
-		UpdatedAt:           currentTime.Format(time.RFC3339),
-		RegisteredIPAddress: ipAddress,
+		UserID:      userID,
+		AuthToken:   authToken,
+		Platform:    platform,
+		PremiumPlan: false,
+		CreatedAt:   currentTime.Format(time.RFC3339),
+		UpdatedAt:   currentTime.Format(time.RFC3339),
 	}
 	return repo.InsertUser(user)
 }
