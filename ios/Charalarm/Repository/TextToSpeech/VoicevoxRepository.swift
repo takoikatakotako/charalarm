@@ -6,6 +6,12 @@ import voicevox_core
 class VoicevoxRepository: TextToSpeechRepository {
 
     private var synthesizer: OpaquePointer?
+    /// VOICEVOX のスタイルID（ずんだもん ノーマル = 3）。
+    private let styleId: Int
+
+    init(styleId: Int) {
+        self.styleId = styleId
+    }
 
     func setupSynthesizer() throws {
         // VoicevoxInitializeOptions を生成
@@ -56,7 +62,7 @@ class VoicevoxRepository: TextToSpeechRepository {
         voicevox_voice_model_file_delete(voiceModelFile)
     }
 
-    func synthesize(text: String, styleId: Int) async throws -> Data {
+    func synthesize(text: String) async throws -> Data {
         let voicevoxTtsOptions = voicevox_make_default_tts_options()
         let cText = strdup(text)
         defer { free(cText) }

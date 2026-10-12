@@ -3,14 +3,15 @@ import Speech
 import AVFoundation
 import CallKit
 
-/// ずんだもんとのリアルタイム音声会話（ターン制）。
-/// フェーズ2: アプリ内会話画面（simulated）。CallKit 着信フローへの接続はフェーズ3。
+/// キャラとのリアルタイム音声会話（ターン制）。
+/// 声（端末内の VOICEVOX か /tts の Gemini TTS）と通話の場面の指示は、キャラ情報（サーバ）から決める。
 @MainActor
 class ConversationViewModel: NSObject, ObservableObject {
 
     // MARK: - Published Properties
 
     @Published var text = ""
+    @Published var charaName = ""
     @Published var status: ConversationStatus = .idle
     @Published var conversationDuration: TimeInterval = 0
     @Published var shouldDismiss = false
@@ -23,23 +24,6 @@ class ConversationViewModel: NSObject, ObservableObject {
         static let conversationTimerInterval: TimeInterval = 1.0
         static let locale = Locale(identifier: "ja-JP")
         static let ringtoneAssetName = "ringtone"
-
-        /// 会話キャラの charaID。人格プロンプトはサーバ側(chara-table)が持つ。
-        static let charaID = "jp.zunko.zundamon"
-
-        /// 会話キャラの VOICEVOX スタイルID。将来はキャラ属性から渡す（ずんだもん ノーマル = 3）。
-        static let voicevoxStyleId = 3
-
-        /// 会話開始時の制御プロンプト。キャラの人格はサーバ側で付与されるため、
-        /// ここには「電話を受けた場面」の指示だけを持つ。
-        static let openingPrompt = """
-            今は電話がかかってきて受け取ったところから会話を始めます。
-            最初のセリフは必ず「電話を受けた感のある挨拶」にしてください。
-            例を参考にしつつ、毎回少し違う言い回しにしてください。
-            """
-
-        static let endConversationPrompt = "会話時間が2分を超えたので、ずんだもんらしく親しみやすい挨拶で会話を終了してください。"
-        static let noInputEndPrompt = "ユーザーの声が聞こえなくなったので、少し心配しつつ、ずんだもんらしい親しみやすい挨拶で会話を終了してください。"
     }
 
     // MARK: - Mode
@@ -51,8 +35,14 @@ class ConversationViewModel: NSObject, ObservableObject {
 
     // MARK: - Repositories
 
-    private let voicevoxRepository: TextToSpeechRepository
+    /// 会話するキャラ。人格プロンプトはサーバ側（chara-table）が持つ。
+    private let charaID: String
+    /// キャラの会話の設定。会話を始めるときにサーバから取得する。
+    private var conversation: CharaConversation?
+    /// 声はキャラごとに決まるので、会話の設定を取得してから作る。テストでは外から渡せる。
+    private var textToSpeechRepository: TextToSpeechRepository?
     private let textGenerationRepository: TextGenerationRepository
+    private let apiRepository = APIRepository()
 
     // MARK: - Speech Recognition
 
@@ -78,12 +68,14 @@ class ConversationViewModel: NSObject, ObservableObject {
     // MARK: - Initialization
 
     init(
+        charaID: String,
         mode: ConversationMode = .standalone,
-        voicevoxRepository: TextToSpeechRepository = VoicevoxRepository(),
+        textToSpeechRepository: TextToSpeechRepository? = nil,
         textGenerationRepository: TextGenerationRepository = BackendTextGenerationRepository()
     ) {
+        self.charaID = charaID
         self.mode = mode
-        self.voicevoxRepository = voicevoxRepository
+        self.textToSpeechRepository = textToSpeechRepository
         self.textGenerationRepository = textGenerationRepository
     }
 
@@ -96,7 +88,7 @@ class ConversationViewModel: NSObject, ObservableObject {
                 try await startConversation()
             } catch {
                 CharalarmLogger.error("会話エラー", error: error)
-                text = "ごめんなさいなのだ。エラーが発生してしまったのだ。少し時間をあけて、またリトライしてくれると嬉しいのだ〜。"
+                text = "ごめんなさい、うまくつながりませんでした。少し時間をあけて、またかけてみてください。"
                 #if DEBUG
                 text += "\n\n[DEBUG] \(error)"
                 #endif
@@ -154,9 +146,18 @@ class ConversationViewModel: NSObject, ObservableObject {
     // MARK: - Conversation Flow
 
     private func startConversation() async throws {
-        // VOICEVOX 初期化
-        status = .initializingVoiceVox
-        try voicevoxRepository.setupSynthesizer()
+        // キャラの会話の設定を取得し、声を準備する
+        status = .preparing
+        let chara = try await apiRepository.fetchCharacter(charaID: charaID)
+        guard let conversation = chara.conversation else {
+            throw ConversationError.notConversationChara
+        }
+        self.conversation = conversation
+        charaName = chara.name
+        let textToSpeechRepository = self.textToSpeechRepository
+            ?? Self.makeTextToSpeechRepository(charaID: charaID, conversation: conversation)
+        self.textToSpeechRepository = textToSpeechRepository
+        try textToSpeechRepository.setupSynthesizer()
         guard !shouldDismiss else { return }
 
         // 音声認識の許可
@@ -172,8 +173,8 @@ class ConversationViewModel: NSObject, ObservableObject {
 
         // 初回の応答を生成
         status = .generatingScript
-        chatMessages.append(ChatMessage(role: .system, content: Constants.openingPrompt))
-        let initialScript = try await textGenerationRepository.generateResponse(charaID: Constants.charaID, inputs: chatMessages)
+        chatMessages.append(ChatMessage(role: .system, content: conversation.openingPrompt))
+        let initialScript = try await textGenerationRepository.generateResponse(charaID: charaID, inputs: chatMessages)
         guard !shouldDismiss else { return }
 
         stopRingtone()
@@ -193,7 +194,7 @@ class ConversationViewModel: NSObject, ObservableObject {
         // ユーザーの発話を認識（無音や一時失敗は聞き直す）
         guard let userInput = await recognizeUserSpeechWithRetry() else {
             if !shouldDismiss {
-                try await endConversation(prompt: Constants.noInputEndPrompt)
+                try await endConversation(prompt: conversation?.noInputEndingPrompt)
             }
             return
         }
@@ -207,7 +208,7 @@ class ConversationViewModel: NSObject, ObservableObject {
         chatMessages.append(ChatMessage(role: .user, content: userInput))
 
         status = .generatingScript
-        let response = try await textGenerationRepository.generateResponse(charaID: Constants.charaID, inputs: chatMessages)
+        let response = try await textGenerationRepository.generateResponse(charaID: charaID, inputs: chatMessages)
         guard !shouldDismiss else { return }
 
         chatMessages.append(ChatMessage(role: .assistant, content: response))
@@ -219,11 +220,13 @@ class ConversationViewModel: NSObject, ObservableObject {
         try await conversationLoop()
     }
 
-    private func endConversation(prompt: String = Constants.endConversationPrompt) async throws {
-        chatMessages.append(ChatMessage(role: .system, content: prompt))
+    private func endConversation(prompt: String? = nil) async throws {
+        if let prompt = prompt ?? conversation?.endingPrompt {
+            chatMessages.append(ChatMessage(role: .system, content: prompt))
+        }
 
         status = .generatingScript
-        let farewellScript = try await textGenerationRepository.generateResponse(charaID: Constants.charaID, inputs: chatMessages)
+        let farewellScript = try await textGenerationRepository.generateResponse(charaID: charaID, inputs: chatMessages)
         chatMessages.append(ChatMessage(role: .assistant, content: farewellScript))
         text = farewellScript
 
@@ -235,11 +238,24 @@ class ConversationViewModel: NSObject, ObservableObject {
         finishConversation()
     }
 
-    // MARK: - VOICEVOX
+    // MARK: - Text to Speech
+
+    /// キャラの声の出し方に合わせて音声合成を選ぶ。
+    private static func makeTextToSpeechRepository(charaID: String, conversation: CharaConversation) -> TextToSpeechRepository {
+        switch conversation.voiceProvider {
+        case .voicevox:
+            return VoicevoxRepository(styleId: conversation.voicevoxStyleID)
+        case .gemini:
+            return BackendTextToSpeechRepository(charaID: charaID)
+        }
+    }
 
     private func synthesizeVoice(from script: String) async throws -> Data {
+        guard let textToSpeechRepository = textToSpeechRepository else {
+            throw ConversationError.notConversationChara
+        }
         status = .synthesizingVoice
-        return try await voicevoxRepository.synthesize(text: script, styleId: Constants.voicevoxStyleId)
+        return try await textToSpeechRepository.synthesize(text: script)
     }
 
     private func synthesizeAndPlayVoiceInChunks(from text: String) async throws {
@@ -349,7 +365,7 @@ class ConversationViewModel: NSObject, ObservableObject {
         audioPlayer = nil
 
         chatMessages.removeAll()
-        voicevoxRepository.cleanupSynthesizer()
+        textToSpeechRepository?.cleanupSynthesizer()
     }
 }
 

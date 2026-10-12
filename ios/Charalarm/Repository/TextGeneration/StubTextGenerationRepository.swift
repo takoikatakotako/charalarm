@@ -26,7 +26,7 @@ struct StubTextGenerationRepository: TextGenerationRepository {
 
         if last.role == ChatMessage.Role.system.rawValue {
             // 終了系プロンプトか初回プロンプトかで分岐
-            if last.content.contains("終了") || last.content.contains("聞こえなくなった") {
+            if last.content.contains("電話を切って") || last.content.contains("聞こえなくなった") {
                 return farewells.randomElement()!
             }
             return greetings.randomElement()!

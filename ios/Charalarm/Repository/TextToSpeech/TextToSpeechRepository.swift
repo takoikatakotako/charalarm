@@ -1,9 +1,8 @@
 import Foundation
 
+/// キャラの発話を音声（WAV）にする。声はキャラごとに決まるので、生成時に渡す。
 protocol TextToSpeechRepository {
     func setupSynthesizer() throws
-    /// - Parameter styleId: VOICEVOX のスタイルID (ずんだもん ノーマル = 3)。
-    ///   会話対応キャラを増やす際はキャラ属性から渡す。
-    func synthesize(text: String, styleId: Int) async throws -> Data
+    func synthesize(text: String) async throws -> Data
     func cleanupSynthesizer()
 }

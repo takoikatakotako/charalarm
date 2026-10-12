@@ -48,6 +48,26 @@ struct APIClient {
         return response
     }
 
+    // レスポンスを JSON ではなくそのまま受け取る場合（音声など）
+    func requestData(url: URL, httpMethod: HttpMethod, requestHeader: [String: String], requestBody: Encodable?) async throws -> Data {
+        var urlRequest = URLRequest(url: url)
+        urlRequest.httpMethod = httpMethod.rawValue
+        urlRequest.allHTTPHeaderFields = requestHeader
+        if let requestBody = requestBody, let httpBody = try? JSONEncoder().encode(requestBody) {
+            urlRequest.httpBody = httpBody
+        }
+
+        let (data, urlResponse) = try await URLSession.shared.data(for: urlRequest)
+        guard let urlResponse = urlResponse as? HTTPURLResponse else {
+            throw CharalarmError.clientError
+        }
+
+        guard (200 ... 299) ~= urlResponse.statusCode else {
+            throw CharalarmError.clientError
+        }
+        return data
+    }
+
     // レスポンスが不要の場合
     func request(url: URL, httpMethod: HttpMethod, requestHeader: [String: String], requestBody: Encodable?) async throws {
         var urlRequest = URLRequest(url: url)

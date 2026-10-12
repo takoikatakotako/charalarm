@@ -72,6 +72,17 @@ struct TopView: View {
                         Spacer()
 
                         Button(action: {
+                            Task {
+                                await viewState.callButtonTapped()
+                            }
+                        }) {
+                            TopButtonContent(systemImageName: "phone.fill")
+                        }
+                        .disabled(viewState.isPreparingCall)
+
+                        Spacer()
+
+                        Button(action: {
                             viewState.configButtonTapped()
                         }) {
                             TopButtonContent(imageName: R.image.topConfig.name)
@@ -102,6 +113,9 @@ struct TopView: View {
             Button(String(localized: "common-close")) {}
         } message: { item in
             Text(item.message)
+        }
+        .fullScreenCover(item: $viewState.conversationChara) { chara in
+            ConversationView(charaID: chara.charaID)
         }
         .sheet(item: $viewState.sheet) {
             // On Dissmiss
