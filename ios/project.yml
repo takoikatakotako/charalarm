@@ -22,13 +22,13 @@ packages:
     from: 4.2.2
   Firebase:
     url: https://github.com/firebase/firebase-ios-sdk
-    from: 12.9.0
+    from: 13.0.1
   Rswift:
     url: https://github.com/mac-cain13/R.swift
     from: 7.8.0
   GoogleMobileAds:
     url: https://github.com/googleads/swift-package-manager-google-mobile-ads
-    from: 13.0.0
+    from: 13.11.0
 
 schemes:
   Develop:
@@ -65,10 +65,6 @@ _commonDependencies: &commonDependencies
     product: FirebaseAuth
   - package: Firebase
     product: FirebaseCrashlytics
-  - package: Firebase
-    product: FirebaseFirestore
-  - package: Firebase
-    product: FirebaseRemoteConfig
   - package: KeychainAccess
     product: KeychainAccess
   - package: SDWebImageSwiftUI
