@@ -52,6 +52,12 @@ func (s *Chara) UpdateChara(charaID string, update output.CharaUpdate) (output.C
 	chara.Description = update.Description
 	chara.ConversationPrompt = update.ConversationPrompt
 	chara.VoicevoxStyleID = update.VoicevoxStyleID
+	setIfPresent(&chara.VoiceProvider, update.Conversation.VoiceProvider)
+	setIfPresent(&chara.GeminiVoice, update.Conversation.GeminiVoice)
+	setIfPresent(&chara.GeminiVoiceStyle, update.Conversation.GeminiVoiceStyle)
+	setIfPresent(&chara.CallOpeningPrompt, update.Conversation.CallOpeningPrompt)
+	setIfPresent(&chara.CallEndingPrompt, update.Conversation.CallEndingPrompt)
+	setIfPresent(&chara.CallNoInputEndingPrompt, update.Conversation.CallNoInputEndingPrompt)
 	chara.UpdatedAd = time.Now().Format("2006-01-02")
 
 	if err := s.AWS.UpsertChara(chara); err != nil {
@@ -91,5 +97,20 @@ func toCharaOutput(c database.Chara) output.Chara {
 		Expressions:        expressions,
 		ConversationPrompt: c.ConversationPrompt,
 		VoicevoxStyleID:    c.VoicevoxStyleID,
+		Conversation: output.CharaConversation{
+			VoiceProvider:           c.VoiceProvider,
+			GeminiVoice:             c.GeminiVoice,
+			GeminiVoiceStyle:        c.GeminiVoiceStyle,
+			CallOpeningPrompt:       c.CallOpeningPrompt,
+			CallEndingPrompt:        c.CallEndingPrompt,
+			CallNoInputEndingPrompt: c.CallNoInputEndingPrompt,
+		},
+	}
+}
+
+// setIfPresent は value が送られていれば (nil でなければ) dst を上書きする。
+func setIfPresent(dst *string, value *string) {
+	if value != nil {
+		*dst = *value
 	}
 }
