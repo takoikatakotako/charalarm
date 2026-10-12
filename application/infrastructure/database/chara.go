@@ -16,11 +16,21 @@ type Chara struct {
 	Expressions map[string]CharaExpression `dynamodbav:"expressions"`
 	Calls       []CharaCall                `dynamodbav:"calls"`
 
-	// 会話キャラ用。ConversationPrompt が空でないキャラは音声会話に対応する。
+	// DisplayOrder は一覧の表示順 (昇順)。
+	DisplayOrder int `dynamodbav:"displayOrder"`
+
+	// AppearanceType は見た目のタイプ。空なら illustration。AppearanceTypeOf で読む。
+	AppearanceType string `dynamodbav:"appearanceType"`
+	// VRMFileName は appearanceType が vrm のときの 3D モデルのファイル名。
+	VRMFileName string `dynamodbav:"vrmFileName"`
+
+	// ConversationType は会話のタイプ。空なら古い項目から導く。ConversationTypeOf で読む。
+	ConversationType   string `dynamodbav:"conversationType"`
 	ConversationPrompt string `dynamodbav:"conversationPrompt"`
 	VoicevoxStyleID    int    `dynamodbav:"voicevoxStyleID"`
 
-	// VoiceProvider は会話の声の出し方 ("voicevox": 端末内 / "gemini": サーバの /tts)。空なら voicevox。
+	// VoiceProvider は ConversationType より前の項目 ("voicevox" / "gemini")。
+	// ConversationType が空のキャラを読むときだけ使う。
 	VoiceProvider string `dynamodbav:"voiceProvider"`
 	// GeminiVoice は Gemini TTS の声 (例: ja-jp-advisor-5、複製した声なら voice_...)。空ならサーバの既定。
 	GeminiVoice string `dynamodbav:"geminiVoice"`
@@ -31,6 +41,47 @@ type Chara struct {
 	CallOpeningPrompt       string `dynamodbav:"callOpeningPrompt"`
 	CallEndingPrompt        string `dynamodbav:"callEndingPrompt"`
 	CallNoInputEndingPrompt string `dynamodbav:"callNoInputEndingPrompt"`
+}
+
+// 見た目のタイプ
+const (
+	// AppearanceTypeIllustration は表情ごとの立ち絵 (expressions の画像)。
+	AppearanceTypeIllustration = "illustration"
+	// AppearanceTypeVRM は 3D モデル (VRMFileName)。古いアプリ用に立ち絵も持たせる。
+	AppearanceTypeVRM = "vrm"
+)
+
+// 会話のタイプ
+const (
+	// ConversationTypeNone はアラーム専用。録音ボイスで電話をかけるだけ。
+	ConversationTypeNone = "none"
+	// ConversationTypeVoicevox は端末内の VOICEVOX で合成して会話する。
+	ConversationTypeVoicevox = "voicevox"
+	// ConversationTypeGemini はサーバの /tts (Gemini TTS) で合成して会話する。
+	ConversationTypeGemini = "gemini"
+)
+
+// AppearanceTypeOf は見た目のタイプを返す。未設定なら illustration。
+func (c Chara) AppearanceTypeOf() string {
+	if c.AppearanceType == "" {
+		return AppearanceTypeIllustration
+	}
+	return c.AppearanceType
+}
+
+// ConversationTypeOf は会話のタイプを返す。
+// 未設定なら古い項目から導く: 人格プロンプトが空ならアラーム専用、それ以外は voiceProvider (空なら voicevox)。
+func (c Chara) ConversationTypeOf() string {
+	if c.ConversationType != "" {
+		return c.ConversationType
+	}
+	if c.ConversationPrompt == "" {
+		return ConversationTypeNone
+	}
+	if c.VoiceProvider == "" {
+		return ConversationTypeVoicevox
+	}
+	return c.VoiceProvider
 }
 
 type CharaProfile struct {

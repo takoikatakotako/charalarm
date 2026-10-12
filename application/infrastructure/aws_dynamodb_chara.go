@@ -2,6 +2,7 @@ package infrastructure
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
@@ -12,7 +13,6 @@ import (
 	"log/slog"
 	"math/rand"
 	"runtime"
-	"time"
 )
 
 // GetChara キャラを取得する
@@ -70,6 +70,26 @@ func (a *AWS) UpsertChara(chara database.Chara) error {
 	return err
 }
 
+// CreateChara キャラを新しく作る。同じ charaID のキャラがあれば ConditionalCheckFailedException を返す。
+func (a *AWS) CreateChara(chara database.Chara) error {
+	client, err := a.createDynamoDBClient()
+	if err != nil {
+		return err
+	}
+
+	av, err := attributevalue.MarshalMap(chara)
+	if err != nil {
+		return err
+	}
+
+	_, err = client.PutItem(context.Background(), &dynamodb.PutItemInput{
+		TableName:           aws.String(database.CharaTableName),
+		Item:                av,
+		ConditionExpression: aws.String("attribute_not_exists(" + database.CharaTableCharaID + ")"),
+	})
+	return err
+}
+
 // GetCharaList キャラ一覧を取得
 func (a *AWS) GetCharaList() ([]database.Chara, error) {
 	// クライアント作成
@@ -105,35 +125,21 @@ func (a *AWS) GetCharaList() ([]database.Chara, error) {
 }
 
 // GetRandomChara
-// ランダムにキャラを1つ取得する, キャラ数が増えてきた場合は改良する
+// 有効なキャラからランダムに1つ取得する。準備中 (enable=false) のキャラはアラームに使わない。
 func (a *AWS) GetRandomChara() (database.Chara, error) {
-	// クライアント作成
-	client, err := a.createDynamoDBClient()
+	charaList, err := a.GetCharaList()
 	if err != nil {
 		return database.Chara{}, err
 	}
 
-	// クエリ実行
-	input := &dynamodb.ScanInput{
-		TableName: aws.String("chara-table"),
-		Limit:     aws.Int32(5),
+	enableCharas := make([]database.Chara, 0, len(charaList))
+	for _, chara := range charaList {
+		if chara.Enable {
+			enableCharas = append(enableCharas, chara)
+		}
 	}
-	output, err := client.Scan(context.Background(), input)
-	if err != nil {
-		return database.Chara{}, err
+	if len(enableCharas) == 0 {
+		return database.Chara{}, errors.New("no enable chara")
 	}
-
-	// ランダムに1件取得
-	rand.Seed(time.Now().UnixNano())
-	index := rand.Intn(len(output.Items))
-	item := output.Items[index]
-
-	// 取得結果をcharaに変換
-	chara := database.Chara{}
-	err = attributevalue.UnmarshalMap(item, &chara)
-	if err != nil {
-		return chara, err
-	}
-
-	return chara, nil
+	return enableCharas[rand.Intn(len(enableCharas))], nil
 }

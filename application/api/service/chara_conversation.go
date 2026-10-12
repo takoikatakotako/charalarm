@@ -5,13 +5,6 @@ import (
 	"github.com/takoikatakotako/charalarm/infrastructure/database"
 )
 
-const (
-	// VoiceProviderVoicevox は端末内の VOICEVOX で合成するキャラ。
-	VoiceProviderVoicevox = "voicevox"
-	// VoiceProviderGemini はサーバの /tts (Gemini TTS) で合成するキャラ。
-	VoiceProviderGemini = "gemini"
-)
-
 // 通話の場面のプロンプトの既定。キャラ情報 (chara-table) で上書きできる。
 // アラームではキャラの方からユーザーに電話をかける。
 const (
@@ -24,17 +17,9 @@ const (
 	defaultCallNoInputEndingPrompt = "ユーザーの声が聞こえなくなったので、少し心配しつつ、あなたらしい親しみやすい挨拶で電話を切ってください。"
 )
 
-// isConversationChara は会話に対応するキャラか。人格プロンプトがあるキャラだけが会話できる。
+// isConversationChara は会話に対応するキャラか。アラーム専用のキャラと、人格プロンプトがないキャラは会話しない。
 func isConversationChara(chara database.Chara) bool {
-	return chara.ConversationPrompt != ""
-}
-
-// voiceProviderOf はキャラの声の出し方を返す。未設定なら VOICEVOX (これまでのずんだもん)。
-func voiceProviderOf(chara database.Chara) string {
-	if chara.VoiceProvider == "" {
-		return VoiceProviderVoicevox
-	}
-	return chara.VoiceProvider
+	return chara.ConversationTypeOf() != database.ConversationTypeNone && chara.ConversationPrompt != ""
 }
 
 // convertToCharaConversation は会話の設定を返す。会話に対応しないキャラは nil。
@@ -43,7 +28,7 @@ func convertToCharaConversation(chara database.Chara) *output.CharaConversation 
 		return nil
 	}
 	return &output.CharaConversation{
-		VoiceProvider:       voiceProviderOf(chara),
+		VoiceProvider:       chara.ConversationTypeOf(),
 		VoicevoxStyleID:     chara.VoicevoxStyleID,
 		OpeningPrompt:       orDefault(chara.CallOpeningPrompt, defaultCallOpeningPrompt),
 		EndingPrompt:        orDefault(chara.CallEndingPrompt, defaultCallEndingPrompt),

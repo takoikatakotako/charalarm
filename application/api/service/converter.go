@@ -195,8 +195,17 @@ func convertToCharaOutput(databaseChara database.Chara, baseURL string) output.C
 		Resources:    databaseCharaToResponseCharaResourceList(databaseChara, baseURL),
 		Expression:   databaseCharaExpressionMapToResponseCharaExpressionMap(databaseChara.Expressions, baseURL, databaseChara.CharaID),
 		Calls:        databaseCharaCallListToResponseCharaCallList(databaseChara.Calls, baseURL, databaseChara.CharaID),
+		Appearance:   convertToCharaAppearance(databaseChara, baseURL),
 		Conversation: convertToCharaConversation(databaseChara),
 	}
+}
+
+func convertToCharaAppearance(databaseChara database.Chara, baseURL string) output.CharaAppearance {
+	appearance := output.CharaAppearance{Type: databaseChara.AppearanceTypeOf()}
+	if appearance.Type == database.AppearanceTypeVRM && databaseChara.VRMFileName != "" {
+		appearance.ModelFileURL = createFileURL(baseURL, databaseChara.CharaID, databaseChara.VRMFileName)
+	}
+	return appearance
 }
 
 func databaseCharaProfileListToResponseCharaProfileList(databaseCharaProfiles []database.CharaProfile) []output.CharaProfile {

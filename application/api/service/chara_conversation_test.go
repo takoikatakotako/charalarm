@@ -17,7 +17,7 @@ func TestConvertToCharaConversation(t *testing.T) {
 	t.Run("未設定の項目は既定を使う (声は VOICEVOX)", func(t *testing.T) {
 		conversation := convertToCharaConversation(database.Chara{ConversationPrompt: "ずんだもん", VoicevoxStyleID: 3})
 		assert.Equal(t, &output.CharaConversation{
-			VoiceProvider:       VoiceProviderVoicevox,
+			VoiceProvider:       database.ConversationTypeVoicevox,
 			VoicevoxStyleID:     3,
 			OpeningPrompt:       defaultCallOpeningPrompt,
 			EndingPrompt:        defaultCallEndingPrompt,
@@ -25,15 +25,28 @@ func TestConvertToCharaConversation(t *testing.T) {
 		}, conversation)
 	})
 
+	t.Run("古い voiceProvider のキャラは、その声で会話する", func(t *testing.T) {
+		conversation := convertToCharaConversation(database.Chara{ConversationPrompt: "結衣", VoiceProvider: "gemini"})
+		assert.Equal(t, database.ConversationTypeGemini, conversation.VoiceProvider)
+	})
+
+	t.Run("アラーム専用のキャラは、人格プロンプトがあっても会話しない", func(t *testing.T) {
+		assert.Nil(t, convertToCharaConversation(database.Chara{
+			ConversationType:   database.ConversationTypeNone,
+			ConversationPrompt: "結衣",
+			VoiceProvider:      "gemini",
+		}))
+	})
+
 	t.Run("キャラごとの設定で上書きする", func(t *testing.T) {
 		conversation := convertToCharaConversation(database.Chara{
 			ConversationPrompt:      "新キャラ",
-			VoiceProvider:           VoiceProviderGemini,
+			ConversationType:        database.ConversationTypeGemini,
 			CallOpeningPrompt:       "最初",
 			CallEndingPrompt:        "終わり",
 			CallNoInputEndingPrompt: "無音",
 		})
-		assert.Equal(t, VoiceProviderGemini, conversation.VoiceProvider)
+		assert.Equal(t, database.ConversationTypeGemini, conversation.VoiceProvider)
 		assert.Equal(t, "最初", conversation.OpeningPrompt)
 		assert.Equal(t, "終わり", conversation.EndingPrompt)
 		assert.Equal(t, "無音", conversation.NoInputEndingPrompt)

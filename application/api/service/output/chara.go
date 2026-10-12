@@ -11,8 +11,17 @@ type Chara struct {
 	Resources   []CharaResource            `json:"resources"`
 	Expression  map[string]CharaExpression `json:"expressions"`
 	Calls       []CharaCall                `json:"calls"`
+	Appearance  CharaAppearance            `json:"appearance"`
 	// Conversation は会話に対応するキャラだけが持つ。
 	Conversation *CharaConversation `json:"conversation,omitempty"`
+}
+
+// CharaAppearance は見た目。Type が vrm のときは ModelFileURL に 3D モデルがある。
+// 古いアプリは見ないので、vrm のキャラも expressions に立ち絵を持たせる。
+type CharaAppearance struct {
+	// Type は "illustration" か "vrm"。
+	Type         string `json:"type"`
+	ModelFileURL string `json:"modelFileURL,omitempty"`
 }
 
 // CharaConversation は会話の設定。キャラの人格プロンプトと Gemini の声はサーバだけが持つ。
