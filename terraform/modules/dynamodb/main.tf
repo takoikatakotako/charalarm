@@ -42,7 +42,10 @@ resource "aws_dynamodb_table" "alarm_table" {
   }
 
   global_secondary_index {
-    hash_key           = "userID"
+    key_schema {
+      attribute_name = "userID"
+      key_type       = "HASH"
+    }
     name               = "user-id-index"
     non_key_attributes = []
     projection_type    = "ALL"
@@ -51,7 +54,10 @@ resource "aws_dynamodb_table" "alarm_table" {
   }
 
   global_secondary_index {
-    hash_key           = "time"
+    key_schema {
+      attribute_name = "time"
+      key_type       = "HASH"
+    }
     name               = "alarm-time-index"
     non_key_attributes = []
     projection_type    = "ALL"
@@ -60,7 +66,10 @@ resource "aws_dynamodb_table" "alarm_table" {
   }
 
   global_secondary_index {
-    hash_key           = "target"
+    key_schema {
+      attribute_name = "target"
+      key_type       = "HASH"
+    }
     name               = "target-index"
     non_key_attributes = []
     projection_type    = "ALL"
