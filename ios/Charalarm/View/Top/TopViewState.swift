@@ -9,6 +9,7 @@ enum TopViewModelAlert {
     case failedToGetCharactersResources
     case failedToSetCharacterImage
     case thisFeatureIsNotAvailableInYourRegion
+    case thisCharacterCannotTalkYet
 
     var message: String {
         switch self {
@@ -22,6 +23,8 @@ enum TopViewModelAlert {
             return String(localized: "error-failed-to-set-character-image")
         case .thisFeatureIsNotAvailableInYourRegion:
             return String(localized: "error-this-feature-is-not-available-in-your-region")
+        case .thisCharacterCannotTalkYet:
+            return String(localized: "error-this-character-cannot-talk-yet")
         }
     }
 }
@@ -36,6 +39,12 @@ enum TopViewModelSheet: Identifiable {
     }
 }
 
+/// 電話ボタンで通話するキャラ（fullScreenCover 用）。
+struct TopConversationChara: Identifiable {
+    let charaID: String
+    var id: String { charaID }
+}
+
 @Observable class TopViewState {
     var charaImage = UIImage()
     var showingAlert = false
@@ -45,10 +54,14 @@ enum TopViewModelSheet: Identifiable {
         }
     }
     var sheet: TopViewModelSheet?
+    /// 電話ボタンで通話するキャラ。nil でなければ会話画面を出す。
+    var conversationChara: TopConversationChara?
+    var isPreparingCall = false
     private let userDefaultsRepository: UserDefaultsRepository = UserDefaultsRepository()
     private let fileHandler: FileRepositoryProtocol = FileRepository()
 
     private let localCharaResourceUseCase = LocalCharaResourceUseCase()
+    private let apiRepository = APIRepository()
 
     var audioPlayer: AVAudioPlayer?
 
@@ -95,6 +108,30 @@ enum TopViewModelSheet: Identifiable {
 
     func configButtonTapped() {
         sheet = .config
+    }
+
+    /// 電話ボタン。選んでいるキャラが会話に対応していれば、そのキャラと通話する。
+    @MainActor
+    func callButtonTapped() async {
+        guard !isPreparingCall else { return }
+        guard let charaID = userDefaultsRepository.getCharaID() else {
+            alert = .failedToGetCharacterSelectionInformation
+            return
+        }
+
+        isPreparingCall = true
+        defer { isPreparingCall = false }
+        do {
+            let chara = try await apiRepository.fetchCharacter(charaID: charaID)
+            guard chara.conversation != nil else {
+                alert = .thisCharacterCannotTalkYet
+                return
+            }
+            conversationChara = TopConversationChara(charaID: charaID)
+        } catch {
+            CharalarmLogger.error("キャラ情報の取得に失敗", error: error)
+            alert = .failedToGetCharacterInformation
+        }
     }
 
     func tapped() {

@@ -1043,6 +1043,22 @@
         }
       }
     },
+    "error-this-character-cannot-talk-yet" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This character can't talk yet."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "このキャラクターとはまだお話しできません。"
+          }
+        }
+      }
+    },
     "error-this-feature-is-not-available-in-your-region" : {
       "localizations" : {
         "en" : {

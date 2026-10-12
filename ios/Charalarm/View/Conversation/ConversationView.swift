@@ -1,16 +1,18 @@
 import SwiftUI
 
-/// ずんだもんとのリアルタイム音声会話画面。
-/// standalone（DEBUG 動線）と CallKit 着信フローの両方から使う。
+/// キャラとのリアルタイム音声会話画面。
+/// ホーム画面の電話ボタン（standalone）と CallKit 着信フローの両方から使う。
 struct ConversationView: View {
     @StateObject private var viewModel: ConversationViewModel
     @Environment(\.dismiss) private var dismiss
 
     init(
+        charaID: String,
         mode: ConversationMode = .standalone,
         textGenerationRepository: TextGenerationRepository = BackendTextGenerationRepository()
     ) {
         _viewModel = StateObject(wrappedValue: ConversationViewModel(
+            charaID: charaID,
             mode: mode,
             textGenerationRepository: textGenerationRepository
         ))
@@ -20,7 +22,7 @@ struct ConversationView: View {
         VStack(spacing: 24) {
             Spacer()
 
-            Text("ずんだもん")
+            Text(viewModel.charaName)
                 .font(.title2)
                 .bold()
 
@@ -68,7 +70,7 @@ struct ConversationView: View {
     private var statusLabel: String {
         switch viewModel.status {
         case .idle: return "準備中…"
-        case .initializingVoiceVox: return "VOICEVOX 初期化中…"
+        case .preparing: return "準備中…"
         case .requestingPermission: return "マイクの許可を確認中…"
         case .generatingScript: return "考え中…"
         case .synthesizingVoice: return "音声を準備中…"

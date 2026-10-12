@@ -12,6 +12,7 @@ struct Chara: Identifiable, Hashable, Equatable {
         resources = charaResponse.resources.map { CharaResource(fileURL: $0.fileURL) }
         expressions = charaResponse.expressions.mapValues { CharaExpression(imageFileURLs: $0.imageFileURLs, voiceFileURLs: $0.voiceFileURLs) }
         calls = charaResponse.calls.map { CharaCall(message: $0.message, voiceFileURL: $0.voiceFileURL)}
+        conversation = charaResponse.conversation.flatMap(CharaConversation.init(response:))
     }
 
     var id: String {
@@ -40,6 +41,37 @@ struct Chara: Identifiable, Hashable, Equatable {
     let resources: [CharaResource]
     let expressions: [String: CharaExpression]
     let calls: [CharaCall]
+    /// 会話の設定。会話に対応しないキャラは nil。
+    let conversation: CharaConversation?
+}
+
+/// キャラとの通話（会話）の設定。
+struct CharaConversation: Hashable, Equatable {
+    enum VoiceProvider: String {
+        /// 端末内の VOICEVOX で合成する。
+        case voicevox
+        /// サーバの /tts（Gemini TTS）で合成する。
+        case gemini
+    }
+
+    let voiceProvider: VoiceProvider
+    let voicevoxStyleID: Int
+    /// 通話の場面の指示。/chat に system として送る。
+    let openingPrompt: String
+    let endingPrompt: String
+    let noInputEndingPrompt: String
+
+    /// 知らない声の出し方なら nil（古いアプリでは会話しない）。
+    init?(response: CharaConversationResponse) {
+        guard let voiceProvider = VoiceProvider(rawValue: response.voiceProvider) else {
+            return nil
+        }
+        self.voiceProvider = voiceProvider
+        voicevoxStyleID = response.voicevoxStyleID
+        openingPrompt = response.openingPrompt
+        endingPrompt = response.endingPrompt
+        noInputEndingPrompt = response.noInputEndingPrompt
+    }
 }
 
 struct CharaProfile: Hashable, Equatable {

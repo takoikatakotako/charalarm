@@ -159,14 +159,23 @@ extension APIRepository {
 }
 
 extension APIRepository {
-    /// ずんだもんとの会話応答を backend `/chat` から取得する。
-    func postChat(userID: String, authToken: String, charaID: String, messages: [ChatMessage]) async throws -> String {
+    /// キャラとの会話応答を backend `/chat` から取得する。
+    func postChat(userID: String, authToken: String, charaID: String, messages: [ChatMessage], context: ChatContext) async throws -> String {
         let path = "/chat"
         let url = try createURL(path: path)
         let requestHeader: [String: String] = APIHeader.createAuthorizationRequestHeader(userID: userID, authToken: authToken)
-        let requestBody: Encodable? = ChatRequest(charaID: charaID, messages: messages)
+        let requestBody: Encodable? = ChatRequest(charaID: charaID, messages: messages, context: context)
         let chatResponse: ChatResponse = try await APIClient().request(url: url, httpMethod: .post, requestHeader: requestHeader, requestBody: requestBody)
         return chatResponse.message
+    }
+
+    /// キャラの発話を backend `/tts`（Gemini TTS）で音声（WAV）にする。
+    func postTextToSpeech(userID: String, authToken: String, charaID: String, text: String) async throws -> Data {
+        let path = "/tts"
+        let url = try createURL(path: path)
+        let requestHeader: [String: String] = APIHeader.createAuthorizationRequestHeader(userID: userID, authToken: authToken)
+        let requestBody: Encodable? = TextToSpeechRequest(charaID: charaID, text: text)
+        return try await APIClient().requestData(url: url, httpMethod: .post, requestHeader: requestHeader, requestBody: requestBody)
     }
 }
 

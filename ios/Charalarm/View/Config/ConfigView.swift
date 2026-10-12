@@ -2,6 +2,10 @@ import SwiftUI
 import SDWebImageSwiftUI
 
 struct ConfigView: View {
+    #if DEBUG
+    private static let debugConversationCharaID = "jp.zunko.zundamon"
+    #endif
+
     @State var viewState: ConfigViewState
     @Environment(\.dismiss) private var dismiss
     @Environment(\.openURL) private var openURL
@@ -69,15 +73,10 @@ struct ConfigView: View {
                         }
 
                         #if DEBUG
-                        // ずんだもん会話の開発用動線
-                        // Stub: バックエンド不要でループ確認（オウム返し）
-                        NavigationLink(destination: ConversationView(textGenerationRepository: StubTextGenerationRepository())) {
+                        // ずんだもん会話の開発用動線（本番の動線はホーム画面の電話ボタン）
+                        // Stub: 返答はオウム返し（キャラの会話の設定はサーバから取得する）
+                        NavigationLink(destination: ConversationView(charaID: Self.debugConversationCharaID, textGenerationRepository: StubTextGenerationRepository())) {
                             Text("[DEBUG] ずんだもんと通話 (Stub)")
-                                .foregroundStyle(Color(R.color.textColor.name))
-                        }
-                        // Backend: 実際の /chat を叩く（要サインアップ済み・デプロイ済み）
-                        NavigationLink(destination: ConversationView()) {
-                            Text("[DEBUG] ずんだもんと通話 (Backend)")
                                 .foregroundStyle(Color(R.color.textColor.name))
                         }
                         #endif

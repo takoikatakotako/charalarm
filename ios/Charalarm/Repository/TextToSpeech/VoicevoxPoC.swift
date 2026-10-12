@@ -7,7 +7,8 @@ import AVFoundation
 /// フェーズ1（ずんだもん一言発話）の検証用。会話機能の実装が進んだら削除する。
 enum VoicevoxPoC {
     private static var player: AVAudioPlayer?
-    private static let repository: TextToSpeechRepository = VoicevoxRepository()
+    // 3 = ずんだもん ノーマル
+    private static let repository: TextToSpeechRepository = VoicevoxRepository(styleId: 3)
 
     static func runIfEnabled() {
         guard ProcessInfo.processInfo.environment["VOICEVOX_POC"] == "1" else { return }
@@ -16,8 +17,7 @@ enum VoicevoxPoC {
                 NSLog("🟢VOICEVOX_POC start")
                 try repository.setupSynthesizer()
                 NSLog("🟢VOICEVOX_POC synthesizer ready")
-                // 3 = ずんだもん ノーマル
-                let wav = try await repository.synthesize(text: "こんにちは、ずんだもんなのだ。テスト発話なのだ。", styleId: 3)
+                let wav = try await repository.synthesize(text: "こんにちは、ずんだもんなのだ。テスト発話なのだ。")
                 let header = String(bytes: wav.prefix(4), encoding: .ascii) ?? "----"
                 NSLog("🟢VOICEVOX_POC synthesized bytes=\(wav.count) header=\(header)")
                 guard header == "RIFF", wav.count > 44 else {
