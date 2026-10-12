@@ -67,8 +67,6 @@ export function UserDetail({ userID }: UserDetailProps) {
             <span>{formatDate(data.createdAt)}</span>
             <span className="text-muted-foreground">更新日</span>
             <span>{formatDate(data.updatedAt)}</span>
-            <span className="text-muted-foreground">登録時 IP</span>
-            <span className="font-mono">{data.registeredIPAddress || "-"}</span>
           </div>
         </CardContent>
       </Card>

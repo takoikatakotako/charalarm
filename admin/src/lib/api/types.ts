@@ -11,7 +11,6 @@ export interface User {
   premiumPlan: boolean;
   createdAt: string;
   updatedAt: string;
-  registeredIPAddress: string;
   iosPlatformInfo: IOSPlatformInfo;
 }
 

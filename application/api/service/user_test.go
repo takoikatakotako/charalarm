@@ -17,9 +17,8 @@ func TestInfoUser(t *testing.T) {
 	// ユーザー作成
 	userID := uuid.New().String()
 	authToken := uuid.New().String()
-	ipAddress := "127.0.0.1"
 	platform := "iOS"
-	err := userService.Signup(userID, authToken, platform, ipAddress)
+	err := userService.Signup(userID, authToken, platform)
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
@@ -45,8 +44,7 @@ func TestSignup(t *testing.T) {
 	userID := uuid.New().String()
 	authToken := uuid.New().String()
 	platform := "iOS"
-	ipAddress := "0.0.0.0"
-	err := userService.Signup(userID, authToken, platform, ipAddress)
+	err := userService.Signup(userID, authToken, platform)
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
@@ -73,8 +71,7 @@ func TestUserService_Withdraw(t *testing.T) {
 	userID := uuid.New().String()
 	authToken := uuid.New().String()
 	platform := "iOS"
-	ipAddress := "0.0.0.0"
-	err := userService.Signup(userID, authToken, platform, ipAddress)
+	err := userService.Signup(userID, authToken, platform)
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
@@ -118,8 +115,7 @@ func TestUserService_WithdrawAndCreateSamePushToken(t *testing.T) {
 	userID := uuid.New().String()
 	authToken := uuid.New().String()
 	platform := "iOS"
-	ipAddress := "0.0.0.0"
-	err := userService.Signup(userID, authToken, platform, ipAddress)
+	err := userService.Signup(userID, authToken, platform)
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
@@ -141,8 +137,7 @@ func TestUserService_WithdrawAndCreateSamePushToken(t *testing.T) {
 	newUserID := uuid.New().String()
 	newAuthToken := uuid.New().String()
 	newPlatform := "iOS"
-	newIPAddress := "0.0.0.0"
-	err = userService.Signup(newUserID, newAuthToken, newPlatform, newIPAddress)
+	err = userService.Signup(newUserID, newAuthToken, newPlatform)
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
@@ -165,8 +160,7 @@ func TestUserService_UpdatePremiumPlan(t *testing.T) {
 	userID := uuid.New().String()
 	authToken := uuid.New().String()
 	platform := "iOS"
-	ipAddress := "0.0.0.0"
-	err := userService.Signup(userID, authToken, platform, ipAddress)
+	err := userService.Signup(userID, authToken, platform)
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}

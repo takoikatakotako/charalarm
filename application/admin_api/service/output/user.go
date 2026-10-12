@@ -1,13 +1,12 @@
 package output
 
 type User struct {
-	UserID              string
-	Platform            string
-	PremiumPlan         bool
-	CreatedAt           string
-	UpdatedAt           string
-	RegisteredIPAddress string
-	IOSPlatformInfo     IOSPlatformInfo
+	UserID          string
+	Platform        string
+	PremiumPlan     bool
+	CreatedAt       string
+	UpdatedAt       string
+	IOSPlatformInfo IOSPlatformInfo
 }
 
 type IOSPlatformInfo struct {
