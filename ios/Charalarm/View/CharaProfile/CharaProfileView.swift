@@ -11,14 +11,19 @@ struct CharaProfileView: View {
         GeometryReader { geometory in
             ZStack {
                 ScrollView(.vertical, showsIndicators: false) {
-                    WebImage(url: URL(string: viewState.charaThumbnailUrlString)) { image in
-                        image.resizable()
-                    } placeholder: {
-                        Image(R.image.characterPlaceholder.name)
-                            .resizable()
+                    if let chara = viewState.chara, case .vrm(let modelFileURL) = chara.appearance {
+                        CharaVRMView(charaID: chara.charaID, modelFileURL: modelFileURL)
+                            .frame(width: geometory.size.width, height: geometory.size.width)
+                    } else {
+                        WebImage(url: URL(string: viewState.charaThumbnailUrlString)) { image in
+                            image.resizable()
+                        } placeholder: {
+                            Image(R.image.characterPlaceholder.name)
+                                .resizable()
+                        }
+                        .frame(width: geometory.size.width, height: geometory.size.width)
+                        .scaledToFill()
                     }
-                    .frame(width: geometory.size.width, height: geometory.size.width)
-                    .scaledToFill()
 
                     CharaProfileRow(title: String(localized: "profile-name"), text: viewState.chara?.name ?? "", url: nil)
                     CharaProfileRow(title: String(localized: "profile-profile"), text: viewState.chara?.description ?? "", url: nil)

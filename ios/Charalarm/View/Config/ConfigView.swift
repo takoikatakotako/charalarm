@@ -79,6 +79,14 @@ struct ConfigView: View {
                             Text("[DEBUG] ずんだもんと通話 (Stub)")
                                 .foregroundStyle(Color(R.color.textColor.name))
                         }
+
+                        // 同梱した時守しおりの VRM の表示確認（サーバに登録していなくても見られる）
+                        if let shioriModelURL = URL(string: "\(Variables.resourceEndpoint)/com.charalarm.shiori/shiori.vrm") {
+                            NavigationLink(destination: CharaVRMView(charaID: "com.charalarm.shiori", modelFileURL: shioriModelURL, framing: .full)) {
+                                Text("[DEBUG] VRM プレビュー（時守しおり）")
+                                    .foregroundStyle(Color(R.color.textColor.name))
+                            }
+                        }
                         #endif
                     }
 

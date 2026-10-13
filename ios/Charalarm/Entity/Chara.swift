@@ -12,6 +12,7 @@ struct Chara: Identifiable, Hashable, Equatable {
         resources = charaResponse.resources.map { CharaResource(fileURL: $0.fileURL) }
         expressions = charaResponse.expressions.mapValues { CharaExpression(imageFileURLs: $0.imageFileURLs, voiceFileURLs: $0.voiceFileURLs) }
         calls = charaResponse.calls.map { CharaCall(message: $0.message, voiceFileURL: $0.voiceFileURL)}
+        appearance = CharaAppearance(response: charaResponse.appearance)
         conversation = charaResponse.conversation.flatMap(CharaConversation.init(response:))
     }
 
@@ -41,8 +42,27 @@ struct Chara: Identifiable, Hashable, Equatable {
     let resources: [CharaResource]
     let expressions: [String: CharaExpression]
     let calls: [CharaCall]
+    /// 見た目（立ち絵か 3D モデルか）。
+    let appearance: CharaAppearance
     /// 会話の設定。会話に対応しないキャラは nil。
     let conversation: CharaConversation?
+}
+
+/// キャラの見た目。
+enum CharaAppearance: Hashable, Equatable {
+    /// 表情ごとの立ち絵（expressions の画像）。
+    case illustration
+    /// 3D モデル（VRM）。
+    case vrm(modelFileURL: URL)
+
+    /// 知らないタイプや、VRM なのにモデルがないときは立ち絵として扱う。
+    init(response: CharaAppearanceResponse?) {
+        if response?.type == "vrm", let modelFileURL = response?.modelFileURL {
+            self = .vrm(modelFileURL: modelFileURL)
+        } else {
+            self = .illustration
+        }
+    }
 }
 
 /// キャラとの通話（会話）の設定。

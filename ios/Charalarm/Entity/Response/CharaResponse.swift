@@ -11,8 +11,16 @@ struct CharaResponse: Response {
     let resources: [CharaResourceResponse]
     let expressions: [String: CharaExpressionResponse]
     let calls: [CharaCallResponse]
+    /// 見た目。古いサーバは返さないので省略できる。
+    let appearance: CharaAppearanceResponse?
     /// 会話に対応するキャラだけが持つ。
     let conversation: CharaConversationResponse?
+}
+
+/// 見た目。type が "vrm" のときは modelFileURL に 3D モデルがある。
+struct CharaAppearanceResponse: Response {
+    let type: String
+    let modelFileURL: URL?
 }
 
 /// 会話の設定。キャラの人格プロンプトと Gemini の声はサーバだけが持つ。
