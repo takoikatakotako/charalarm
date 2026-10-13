@@ -26,6 +26,8 @@
 	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>GADApplicationIdentifier</key>
 	<string>${GAD_APPLICATION_IDENTIFER}</string>
 	<key>GADIsAdManagerApp</key>
@@ -38,9 +40,9 @@
 		<true/>
 	</dict>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>ずんだもんとの通話であなたの声を聞き取るためにマイクを使用します。</string>
+	<string>キャラクターとの通話であなたの声を聞き取るためにマイクを使用します。</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
-	<string>ずんだもんとの通話であなたの発話を認識するために音声認識を使用します。</string>
+	<string>キャラクターとの通話であなたの発話を認識するために音声認識を使用します。</string>
 	<key>NSUserTrackingUsageDescription</key>
 	<string>This identifier will be used to deliver personalized ads to you.</string>
 	<key>RESOURCE_ENDPOINT</key>
