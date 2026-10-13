@@ -7,6 +7,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/takoikatakotako/charalarm/admin_api/service"
 	"github.com/takoikatakotako/charalarm/admin_api/service/output"
+	"github.com/takoikatakotako/charalarm/common"
 )
 
 type Chara struct {
@@ -130,6 +131,8 @@ func charaErrorResponse(c echo.Context, code string, err error) error {
 	switch {
 	case errors.Is(err, service.ErrInvalidChara):
 		return c.JSON(http.StatusBadRequest, newErrorResponse("invalid_chara", err.Error()))
+	case err.Error() == common.ItemNotFound:
+		return c.JSON(http.StatusNotFound, newErrorResponse("chara_not_found", err.Error()))
 	case errors.Is(err, service.ErrCharaAlreadyExists):
 		return c.JSON(http.StatusConflict, newErrorResponse("chara_already_exists", err.Error()))
 	default:

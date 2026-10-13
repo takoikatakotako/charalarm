@@ -7,6 +7,10 @@ module "admin_api" {
   image_uri                        = "448049807848.dkr.ecr.ap-northeast-1.amazonaws.com/charalarm-admin-api"
   image_tag                        = "latest"
   origin_secret_ssm_parameter_name = "/charalarm/dev/admin/basic-auth-password"
+  resource_bucket_name             = module.resource.bucket_name
+  resource_bucket_arn              = module.resource.bucket_arn
+  resource_distribution_id         = module.resource.distribution_id
+  resource_distribution_arn        = module.resource.distribution_arn
 }
 
 

@@ -78,6 +78,26 @@ data "aws_iam_policy_document" "admin_api_lambda_function_role_policy_document" 
       "arn:aws:dynamodb:ap-northeast-1:${local.account_id}:table/chara-table"
     ]
   }
+
+  # キャラのリソースの一覧とアップロード (署名付き URL は Lambda のロールの権限で PUT する)
+  statement {
+    effect    = "Allow"
+    actions   = ["s3:ListBucket"]
+    resources = [var.resource_bucket_arn]
+  }
+
+  statement {
+    effect    = "Allow"
+    actions   = ["s3:PutObject"]
+    resources = ["${var.resource_bucket_arn}/*"]
+  }
+
+  # 上書きしたリソースを CloudFront のキャッシュから消す
+  statement {
+    effect    = "Allow"
+    actions   = ["cloudfront:CreateInvalidation"]
+    resources = [var.resource_distribution_arn]
+  }
 }
 
 resource "aws_iam_role_policy_attachment" "admin_api_lambda_function_role_policy_attachment" {

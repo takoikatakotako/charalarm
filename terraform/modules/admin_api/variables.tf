@@ -15,3 +15,20 @@ variable "image_tag" {
 variable "origin_secret_ssm_parameter_name" {
   type = string
 }
+
+# キャラのリソース (S3 + CloudFront)。管理画面からアップロードする
+variable "resource_bucket_name" {
+  type = string
+}
+
+variable "resource_bucket_arn" {
+  type = string
+}
+
+variable "resource_distribution_id" {
+  type = string
+}
+
+variable "resource_distribution_arn" {
+  type = string
+}

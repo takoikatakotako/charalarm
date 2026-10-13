@@ -121,3 +121,20 @@ resource "aws_route53_record" "route53_record" {
     zone_id                = aws_cloudfront_distribution.charalarm_cloudfront_distribution.hosted_zone_id
   }
 }
+
+
+##############################################################
+# CORS (管理画面からのアップロード)
+##############################################################
+# 管理画面は署名付き URL で S3 に直接 PUT する
+resource "aws_s3_bucket_cors_configuration" "s3_bucket_cors" {
+  count  = length(var.cors_allowed_origins) > 0 ? 1 : 0
+  bucket = aws_s3_bucket.s3_bucket.id
+
+  cors_rule {
+    allowed_methods = ["PUT"]
+    allowed_origins = var.cors_allowed_origins
+    allowed_headers = ["Content-Type"]
+    max_age_seconds = 3000
+  }
+}

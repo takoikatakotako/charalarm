@@ -68,6 +68,14 @@ func main() {
 	charaHandler := handler.Chara{
 		Service: charaService,
 	}
+	// キャラのリソースは S3 に置き、CloudFront で配る
+	charaResourceHandler := handler.CharaResource{
+		Service: service.CharaResource{
+			AWS:            awsRepository,
+			Bucket:         os.Getenv("RESOURCE_BUCKET_NAME"),
+			DistributionID: os.Getenv("RESOURCE_DISTRIBUTION_ID"),
+		},
+	}
 
 	e := echo.New()
 	// アクセスログには IP アドレスや User-Agent を出さない (個人情報をサーバに残さないため)
@@ -91,6 +99,10 @@ func main() {
 	e.POST("/chara", charaHandler.CharaPost)
 	e.GET("/chara/:charaID", charaHandler.CharaGet)
 	e.PUT("/chara/:charaID", charaHandler.CharaPut)
+	e.PUT("/chara/:charaID/assets", charaResourceHandler.AssetsPut)
+	e.GET("/chara/:charaID/files", charaResourceHandler.FilesGet)
+	e.POST("/chara/:charaID/files/upload-url", charaResourceHandler.UploadURLPost)
+	e.POST("/chara/:charaID/files/invalidate", charaResourceHandler.InvalidatePost)
 
 	e.Logger.Fatal(e.Start(":8080"))
 }

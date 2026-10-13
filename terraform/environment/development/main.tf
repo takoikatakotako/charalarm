@@ -27,6 +27,8 @@ module "resource" {
   acm_certificate_arn = module.cloudfront_resource_certificate.certificate_arn
   domain              = local.resource_domain
   zone_id             = module.root_domain.zone_id
+  # 管理画面から署名付き URL でアップロードする
+  cors_allowed_origins = ["https://admin.${local.root_domain}"]
 }
 
 
