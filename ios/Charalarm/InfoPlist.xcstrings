@@ -25,6 +25,30 @@
         }
       }
     },
+    "NSMicrophoneUsageDescription" : {
+      "comment" : "Privacy - Microphone Usage Description",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "キャラクターとの通話であなたの声を聞き取るためにマイクを使用します。"
+          }
+        }
+      }
+    },
+    "NSSpeechRecognitionUsageDescription" : {
+      "comment" : "Privacy - Speech Recognition Usage Description",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "キャラクターとの通話であなたの発話を認識するために音声認識を使用します。"
+          }
+        }
+      }
+    },
     "NSUserTrackingUsageDescription" : {
       "comment" : "Privacy - Tracking Usage Description",
       "localizations" : {
