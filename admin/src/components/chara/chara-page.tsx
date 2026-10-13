@@ -12,6 +12,7 @@ import type {
   CharaSettings,
   ConversationType,
 } from "@/lib/api/types";
+import { CharaResources } from "@/components/chara/chara-resources";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -457,6 +458,7 @@ function typeLabel<T extends string>(options: TypeOption<T>[], value: T) {
 
 function CharaCard({ chara, onSaved }: { chara: Chara; onSaved: () => void }) {
   const [open, setOpen] = useState(false);
+  const [tab, setTab] = useState<"settings" | "resources">("settings");
 
   return (
     <Card>
@@ -485,8 +487,33 @@ function CharaCard({ chara, onSaved }: { chara: Chara; onSaved: () => void }) {
         </button>
       </CardHeader>
       {open && (
-        <CardContent>
-          <CharaForm chara={chara} onSaved={onSaved} />
+        <CardContent className="space-y-4">
+          <div className="flex gap-1 border-b">
+            {(
+              [
+                ["settings", "設定"],
+                ["resources", "リソース"],
+              ] as const
+            ).map(([value, label]) => (
+              <button
+                key={value}
+                type="button"
+                onClick={() => setTab(value)}
+                className={`-mb-px border-b-2 px-3 py-1.5 text-sm ${
+                  tab === value
+                    ? "border-primary font-medium"
+                    : "border-transparent text-muted-foreground"
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+          {tab === "settings" ? (
+            <CharaForm chara={chara} onSaved={onSaved} />
+          ) : (
+            <CharaResources chara={chara} onSaved={onSaved} />
+          )}
         </CardContent>
       )}
     </Card>

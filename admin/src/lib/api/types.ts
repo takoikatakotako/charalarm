@@ -113,3 +113,27 @@ export interface CharaCreate extends CharaSettings {
 export interface CharaListResponse {
   charas: Chara[];
 }
+
+/** キャラのリソース（S3 の {charaID}/ にあるファイル） */
+export interface ResourceFile {
+  fileName: string;
+  size: number;
+  lastModified: string;
+}
+
+export interface ResourceFileListResponse {
+  /** {baseURL}/{charaID}/{fileName} でファイルを取れる */
+  baseURL: string;
+  files: ResourceFile[];
+}
+
+export interface UploadURLResponse {
+  uploadURL: string;
+  /** PUT に付ける Content-Type（署名に含まれる） */
+  contentType: string;
+}
+
+export interface CharaAssets {
+  expressions: Record<string, CharaExpression>;
+  calls: CharaCall[];
+}

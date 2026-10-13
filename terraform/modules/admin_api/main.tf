@@ -14,8 +14,10 @@ resource "aws_lambda_function" "admin_api_lambda_function" {
 
   environment {
     variables = {
-      "CHARALARM_AWS_PROFILE" = "",
-      "ADMIN_ORIGIN_SECRET"   = data.aws_ssm_parameter.origin_secret.value,
+      "CHARALARM_AWS_PROFILE"    = "",
+      "ADMIN_ORIGIN_SECRET"      = data.aws_ssm_parameter.origin_secret.value,
+      "RESOURCE_BUCKET_NAME"     = var.resource_bucket_name,
+      "RESOURCE_DISTRIBUTION_ID" = var.resource_distribution_id,
     }
   }
 

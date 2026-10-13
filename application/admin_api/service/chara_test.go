@@ -5,6 +5,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/takoikatakotako/charalarm/admin_api/service/output"
+	"github.com/takoikatakotako/charalarm/infrastructure"
 	"github.com/takoikatakotako/charalarm/infrastructure/database"
 )
 
@@ -74,4 +75,36 @@ func TestApplyCharaSettings(t *testing.T) {
 	assert.Equal(t, "", chara.VoiceProvider)
 	// calls は管理画面のこの項目では変えない
 	assert.Len(t, chara.Calls, 1)
+}
+
+func TestResourceContentType(t *testing.T) {
+	contentType, err := resourceContentType("model.VRM")
+	assert.NoError(t, err)
+	assert.Equal(t, "model/gltf-binary", contentType)
+
+	contentType, err = resourceContentType("call-01.caf")
+	assert.NoError(t, err)
+	assert.Equal(t, "audio/x-caf", contentType)
+
+	for _, fileName := range []string{"../yui/normal.png", "a b.png", ".hidden.png", "script.js", ""} {
+		_, err := resourceContentType(fileName)
+		assert.ErrorIs(t, err, ErrInvalidChara, fileName)
+	}
+}
+
+func TestValidateAssets(t *testing.T) {
+	files := []infrastructure.ResourceFile{{FileName: "normal.png"}, {FileName: "tap-01.caf"}, {FileName: "call-01.caf"}}
+
+	assert.NoError(t, validateAssets(
+		map[string]output.CharaExpression{"normal": {ImageFileNames: []string{"normal.png"}, VoiceFileNames: []string{"tap-01.caf"}}},
+		[]output.CharaCall{{Message: "おはよう", VoiceFileName: "call-01.caf"}},
+		files,
+	))
+
+	// アップロードしていないファイルは指せない
+	assert.ErrorIs(t, validateAssets(
+		map[string]output.CharaExpression{"smile": {ImageFileNames: []string{"smile.png"}}},
+		nil, files,
+	), ErrInvalidChara)
+	assert.ErrorIs(t, validateAssets(nil, []output.CharaCall{{Message: "おはよう"}}, files), ErrInvalidChara)
 }
