@@ -59,7 +59,16 @@ class ConversationViewModel: NSObject {
     // MARK: - Audio Playback
 
     var audioPlayer: AVAudioPlayer?
-    var playbackContinuation: CheckedContinuation<Bool, Never>?
+    /// キャラの声を流すプレーヤー (音声認識と同じエンジンにつなぐ)
+    let voicePlayerNode = AVAudioPlayerNode()
+    var playbackContinuation: CheckedContinuation<Void, Never>?
+    var isAudioEngineReady = false
+    /// キャラが話している最中も聞いていて、話しかけられたら止める
+    var isListeningForBargeIn = false
+    /// 話しかけられて、キャラの声を途中で止めた
+    var isBargedIn = false
+    /// 受け取る準備ができる前に話し終わった発話
+    var pendingRecognizedText: String?
 
     // MARK: - Timers / State
 
@@ -236,7 +245,7 @@ class ConversationViewModel: NSObject {
             guard let self else { return }
             self.stopRingtone()
             self.text = filler
-            fillerTask = Task { try? await self.synthesizeAndPlayVoiceInChunks(from: filler) }
+            fillerTask = Task { try? await self.synthesizeAndPlayVoiceInChunks(from: filler, interruptible: false) }
         }
         // ひとことを話し終えてから返事を話す
         await fillerTask?.value
@@ -253,7 +262,7 @@ class ConversationViewModel: NSObject {
         chatMessages.append(ChatMessage(role: .assistant, content: farewellScript))
         text = farewellScript
 
-        try await synthesizeAndPlayVoiceInChunks(from: farewellScript)
+        try await synthesizeAndPlayVoiceInChunks(from: farewellScript, interruptible: false)
 
         status = .ended
         conversationTimer?.invalidate()
@@ -281,27 +290,46 @@ class ConversationViewModel: NSObject {
         return try await textToSpeechRepository.synthesize(text: script)
     }
 
-    private func synthesizeAndPlayVoiceInChunks(from text: String) async throws {
+    /// キャラの返事をチャンクに分けて、合成しながら流す。
+    /// interruptible なら、流している最中に話しかけられたら止め、会話の履歴をそこまでに縮める。
+    private func synthesizeAndPlayVoiceInChunks(from text: String, interruptible: Bool = true) async throws {
         let chunks = TextChunker.split(text)
         guard !chunks.isEmpty else { return }
 
-        // 最初のチャンクを合成
-        var currentAudioData: Data? = try await synthesizeVoice(from: chunks[0])
+        isBargedIn = false
+        if interruptible {
+            try startListening()
+            isListeningForBargeIn = true
+        }
+        defer { isListeningForBargeIn = false }
 
-        for i in 0..<chunks.count - 1 {
-            guard !shouldDismiss else { return }
+        var playedCount = 0
+        var currentAudioData: Data? = try await synthesizeVoice(from: chunks[0])
+        for i in 0..<chunks.count {
+            guard !shouldDismiss, !isBargedIn else { break }
             // 次のチャンクを並行合成しつつ現在のチャンクを再生（レイテンシ隠蔽）
-            async let nextAudio = synthesizeVoice(from: chunks[i + 1])
+            async let nextAudio: Data? = i + 1 < chunks.count ? synthesizeVoice(from: chunks[i + 1]) : nil
             if let audioData = currentAudioData {
                 try await playVoice(audioData)
+            }
+            if !isBargedIn {
+                playedCount += 1
             }
             currentAudioData = try await nextAudio
         }
 
-        guard !shouldDismiss else { return }
-        if let audioData = currentAudioData {
-            try await playVoice(audioData)
+        if isBargedIn {
+            markInterrupted(playedText: chunks.prefix(playedCount).joined())
         }
+    }
+
+    /// 話しかけられて止めたので、キャラの発言を聞こえたところまでにする (相手に届いていない部分を覚えさせない)
+    private func markInterrupted(playedText: String) {
+        guard let index = chatMessages.lastIndex(where: { $0.role == ChatMessage.Role.assistant.rawValue }) else { return }
+        let note = language == .english
+            ? "(The user started talking here, so I stopped.)"
+            : "（ここでユーザーが話し始めたので、途中で止めました）"
+        chatMessages[index] = ChatMessage(role: .assistant, content: (playedText.isEmpty ? "" : playedText + "…") + note)
     }
 
     // MARK: - Conversation Tracking
@@ -352,24 +380,5 @@ class ConversationViewModel: NSObject {
 
         chatMessages.removeAll()
         textToSpeechRepository?.cleanupSynthesizer()
-    }
-}
-
-// MARK: - AVAudioPlayerDelegate
-
-extension ConversationViewModel: AVAudioPlayerDelegate {
-    nonisolated func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
-        Task { @MainActor in
-            playbackContinuation?.resume(returning: flag)
-            playbackContinuation = nil
-        }
-    }
-
-    nonisolated func audioPlayerDecodeErrorDidOccur(_ player: AVAudioPlayer, error: Error?) {
-        Task { @MainActor in
-            CharalarmLogger.error("音声デコードエラー", error: error)
-            playbackContinuation?.resume(returning: false)
-            playbackContinuation = nil
-        }
     }
 }
