@@ -20,13 +20,55 @@ const (
 	chatMaxMessages       = 30
 	chatMaxMessageLength  = 500
 	chatMaxTimeZoneLength = 64
+	// 道具の結果 (予定の一覧など) は発話より長くなるので別に上限を決める
+	chatMaxToolResultLength = 2000
+	chatMaxToolCalls        = 3
 )
+
+// 端末で使える道具 (capabilities)
+const (
+	// CapabilityCalendarRead は端末のカレンダーを読める (ユーザーが許可している)
+	CapabilityCalendarRead = "calendar.read"
+)
+
+// 端末の道具
+const (
+	// ToolCalendarToday は端末のカレンダーから今日の予定 (タイトルと時刻) を読む
+	ToolCalendarToday = "calendar.today"
+)
+
+// calendarTodayTool は LLM に渡す calendar.today の定義。端末で実行する。
+var calendarTodayTool = llm.Tool{
+	Name: ToolCalendarToday,
+	Description: "ユーザーの端末のカレンダーから、今日の予定のタイトルと時刻を読む。" +
+		"ユーザーに予定を聞かれたとき、今日の予定に触れたいときに使う。予定の場所や参加者は分からない。",
+}
+
+// 予定についての指示。予定は道具でしか分からないので、推測で作らせない
+const (
+	chatCalendarInstruction = "ユーザーの予定は calendar.today の道具で読めます。予定について話すときは、必ず道具で確かめてから話し、推測で予定を作らないでください。" +
+		"道具を使うときは、確かめる前のひとこと（例：ちょっと見てみますね）も一緒に話してください。"
+	chatNoCalendarInstruction = "あなたはユーザーの予定を知りません。予定を作り上げず、必要ならユーザーに聞いてください。"
+)
+
+// 道具を使う前のひとことを LLM が返さなかったときの代わり
+var defaultToolFillers = map[string]string{
+	database.LanguageJapanese: "ちょっと見てみますね。",
+	database.LanguageEnglish:  "Let me check.",
+}
 
 // chatEnglishInstruction は英語で会話するときの指示。人格プロンプトは日本語で書いてあるので、性格はそのまま英語で話してもらう。
 const chatEnglishInstruction = "Reply in natural, spoken English. Your character settings above are written in Japanese; keep the same personality and tone, but always speak English, even if the user writes in another language."
 
 // chatSpeechInstruction は全キャラ共通の話し方の指示。返答は音声で読み上げるため。
 const chatSpeechInstruction = "返答はそのまま音声で読み上げます。絵文字・顔文字・飾りの記号（✨や★など）・箇条書き・マークダウンは使わず、話し言葉の文だけで答えてください。句読点（、。！？）は普通に使ってください。"
+
+// ChatReply は Reply の結果。ToolCalls があれば、端末で道具を実行して結果を足して呼び直してもらう
+// (Text はそのあいだに話すひとこと)。
+type ChatReply struct {
+	Text      string
+	ToolCalls []llm.ToolCall
+}
 
 // Chat はキャラとの会話応答を生成するサービス。
 type Chat struct {
@@ -47,6 +89,8 @@ type ChatInput struct {
 	CharaID string
 	// Language は会話の言語 ("ja" / "en")。空なら日本語。
 	Language string
+	// Capabilities は端末で使える道具 (例: calendar.read)。ユーザーが許可したものだけ送られる。
+	Capabilities []string
 	// Memory は端末に保存してあるキャラごとの記憶。サーバには保存しない。
 	Memory   string
 	Context  *ChatContext
@@ -55,22 +99,22 @@ type ChatInput struct {
 
 // Reply はユーザーを認証したうえで、メッセージ列に対する応答を LLM から生成する。
 // charaID を指定すると、そのキャラの人格プロンプトをサーバ側でメッセージ先頭に付与する。
-func (s *Chat) Reply(ctx context.Context, userID string, authToken string, input ChatInput) (string, error) {
+func (s *Chat) Reply(ctx context.Context, userID string, authToken string, input ChatInput) (ChatReply, error) {
 	// バリデーション
 	if !database.IsValidUUID(userID) || !database.IsValidUUID(authToken) {
-		return "", errors.New(common.ErrorInvalidValue)
+		return ChatReply{}, errors.New(common.ErrorInvalidValue)
 	}
 	if err := validateChatInput(input); err != nil {
-		return "", err
+		return ChatReply{}, err
 	}
 
 	// ユーザー認証 (LLM の踏み台化を防ぐため、実在ユーザーのみ許可)
 	user, err := s.AWS.GetUser(userID)
 	if err != nil {
-		return "", err
+		return ChatReply{}, err
 	}
 	if user.UserID != userID || user.AuthToken != authToken {
-		return "", errors.New(common.ErrorAuthenticationFailure)
+		return ChatReply{}, errors.New(common.ErrorAuthenticationFailure)
 	}
 
 	// キャラの人格プロンプトはサーバ側で管理する (アプリ更新なしで性格を変えられる)
@@ -86,9 +130,55 @@ func (s *Chat) Reply(ctx context.Context, userID string, authToken string, input
 
 	messages, err := buildChatMessages(persona, input)
 	if err != nil {
-		return "", err
+		return ChatReply{}, err
 	}
-	return s.LLMClient.Chat(ctx, messages)
+
+	// 端末の道具を使わせるのは、道具を使える LLM で、このターンでまだ使っていないときだけ (1ターンに1回まで)
+	tools := chatTools(input)
+	toolClient, ok := s.LLMClient.(llm.ToolClient)
+	if len(tools) == 0 || !ok {
+		text, err := s.LLMClient.Chat(ctx, messages)
+		return ChatReply{Text: text}, err
+	}
+
+	result, err := toolClient.ChatWithTools(ctx, messages, tools)
+	if err != nil {
+		return ChatReply{}, err
+	}
+	if len(result.ToolCalls) == 0 {
+		return ChatReply{Text: result.Text}, nil
+	}
+	filler := result.Text
+	if filler == "" {
+		filler = defaultToolFillers[orDefault(input.Language, database.LanguageJapanese)]
+	}
+	return ChatReply{Text: filler, ToolCalls: result.ToolCalls}, nil
+}
+
+// chatTools は LLM に渡す端末の道具を返す。端末が使えると言っていて、
+// 最後のユーザーの発言のあとにまだ道具の結果がないときだけ (頼み返しは1ターンに1回まで)。
+func chatTools(input ChatInput) []llm.Tool {
+	if !hasCapability(input, CapabilityCalendarRead) {
+		return nil
+	}
+	for i := len(input.Messages) - 1; i >= 0; i-- {
+		switch input.Messages[i].Role {
+		case llm.RoleTool:
+			return nil
+		case llm.RoleUser:
+			return []llm.Tool{calendarTodayTool}
+		}
+	}
+	return []llm.Tool{calendarTodayTool}
+}
+
+func hasCapability(input ChatInput, capability string) bool {
+	for _, c := range input.Capabilities {
+		if c == capability {
+			return true
+		}
+	}
+	return false
 }
 
 // validateChatInput は端末から送られた値を検証する。
@@ -97,10 +187,34 @@ func validateChatInput(input ChatInput) error {
 	if len(input.Messages) == 0 || len(input.Messages) > chatMaxMessages {
 		return errors.New(common.ErrorInvalidValue)
 	}
+	for _, c := range input.Capabilities {
+		if c != CapabilityCalendarRead {
+			return errors.New(common.ErrorInvalidValue)
+		}
+	}
 	for _, m := range input.Messages {
 		// system は場面の指示 (電話に出た・会話を終える等) に使う。呼び出し側が場面を知っているため
-		if m.Role != llm.RoleSystem && m.Role != llm.RoleUser && m.Role != llm.RoleAssistant {
+		if m.Role != llm.RoleSystem && m.Role != llm.RoleUser && m.Role != llm.RoleAssistant && m.Role != llm.RoleTool {
 			return errors.New(common.ErrorInvalidValue)
+		}
+		// 道具の結果
+		if m.Role == llm.RoleTool {
+			if m.ToolCallID == "" || utf8.RuneCountInString(m.Content) > chatMaxToolResultLength {
+				return errors.New(common.ErrorInvalidValue)
+			}
+			continue
+		}
+		// 道具の呼び出し (ひとことは空でもよい)
+		if len(m.ToolCalls) > 0 {
+			if m.Role != llm.RoleAssistant || len(m.ToolCalls) > chatMaxToolCalls || utf8.RuneCountInString(m.Content) > chatMaxMessageLength {
+				return errors.New(common.ErrorInvalidValue)
+			}
+			for _, call := range m.ToolCalls {
+				if call.Name != ToolCalendarToday {
+					return errors.New(common.ErrorInvalidValue)
+				}
+			}
+			continue
 		}
 		if m.Content == "" || utf8.RuneCountInString(m.Content) > chatMaxMessageLength {
 			return errors.New(common.ErrorInvalidValue)
@@ -132,6 +246,11 @@ func buildChatMessages(persona string, input ChatInput) ([]llm.Message, error) {
 		messages = append(messages, llm.Message{Role: llm.RoleSystem, Content: persona})
 	}
 	messages = append(messages, llm.Message{Role: llm.RoleSystem, Content: chatSpeechInstruction})
+	if hasCapability(input, CapabilityCalendarRead) {
+		messages = append(messages, llm.Message{Role: llm.RoleSystem, Content: chatCalendarInstruction})
+	} else {
+		messages = append(messages, llm.Message{Role: llm.RoleSystem, Content: chatNoCalendarInstruction})
+	}
 
 	if input.Memory != "" {
 		messages = append(messages, llm.Message{

@@ -184,7 +184,7 @@ sequenceDiagram
 **レスポンス（返答）**
 
 ```json
-{ "type": "message", "text": "今日は10時から歯医者、15時から会議なのだ。" }
+{ "type": "message", "message": "今日は10時から歯医者、15時から会議なのだ。" }
 ```
 
 **レスポンス（端末の道具を頼み返す）**
@@ -192,20 +192,24 @@ sequenceDiagram
 ```json
 {
   "type": "toolCall",
-  "filler": "ちょっと見てみるのだ…",
+  "message": "ちょっと見てみるのだ…",
   "calls": [
-    { "id": "call_1", "name": "calendar.today", "arguments": {} }
+    { "id": "call_1", "name": "calendar.today", "arguments": {}, "signature": "..." }
   ]
 }
 ```
 
-端末は `filler` を再生している間に道具を実行し、結果を `messages` に足して `/chat` を呼び直す。
+端末は `message`（道具を使うあいだのひとこと）を再生している間に道具を実行し、結果を `messages` に足して `/chat` を呼び直す。
+
+- 返答と道具の前のひとことは、どちらも `message` に入れる（`type` を見ない古いアプリも `message` だけ読めば動く。古いアプリは `capabilities` を送らないので `toolCall` は返らない）。
+- `signature` は Gemini 3 の思考の署名（thought signature）。呼び出しを履歴に入れて送り返すとき、そのまま付けないと Gemini がエラーにする。サーバは状態を持たないので、端末に預けて送り返してもらう。
+- 端末がカレンダーを読めない（`capabilities` に `calendar.read` がない）ときは、「予定を知らないので作らない」と LLM に伝える。
 
 ```json
 {
   "messages": [
     { "role": "user", "content": "今日の予定は？" },
-    { "role": "assistant", "toolCalls": [ { "id": "call_1", "name": "calendar.today", "arguments": {} } ] },
+    { "role": "assistant", "content": "ちょっと見てみるのだ…", "toolCalls": [ { "id": "call_1", "name": "calendar.today", "arguments": {}, "signature": "..." } ] },
     { "role": "tool", "toolCallID": "call_1", "content": "[{\"title\":\"歯医者\",\"start\":\"10:00\",\"end\":\"11:00\"}]" }
   ]
 }
