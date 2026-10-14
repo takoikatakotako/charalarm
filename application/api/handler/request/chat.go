@@ -18,7 +18,9 @@ type ChatContext struct {
 // CharaID を指定すると、そのキャラの人格プロンプトをサーバ側で先頭に付与する。
 // Memory は端末に保存してあるキャラごとの記憶 (サーバには保存しない)。
 type Chat struct {
-	CharaID  string        `json:"charaID"`
+	CharaID string `json:"charaID"`
+	// Language はユーザーが選んだ会話の言語 ("ja" / "en")。省略すると日本語。キャラが話せなければキャラの言語になる。
+	Language string        `json:"language"`
 	Memory   string        `json:"memory"`
 	Context  *ChatContext  `json:"context"`
 	Messages []ChatMessage `json:"messages"`

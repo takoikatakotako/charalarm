@@ -19,6 +19,7 @@ func TestConvertToCharaConversation(t *testing.T) {
 		assert.Equal(t, &output.CharaConversation{
 			VoiceProvider:       database.ConversationTypeVoicevox,
 			VoicevoxStyleID:     3,
+			Languages:           []string{database.LanguageJapanese},
 			OpeningPrompt:       defaultCallOpeningPrompt,
 			EndingPrompt:        defaultCallEndingPrompt,
 			NoInputEndingPrompt: defaultCallNoInputEndingPrompt,

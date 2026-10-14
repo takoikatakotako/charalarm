@@ -30,6 +30,7 @@ func convertToCharaConversation(chara database.Chara) *output.CharaConversation 
 	return &output.CharaConversation{
 		VoiceProvider:       chara.ConversationTypeOf(),
 		VoicevoxStyleID:     chara.VoicevoxStyleID,
+		Languages:           chara.ConversationLanguagesOf(),
 		OpeningPrompt:       orDefault(chara.CallOpeningPrompt, defaultCallOpeningPrompt),
 		EndingPrompt:        orDefault(chara.CallEndingPrompt, defaultCallEndingPrompt),
 		NoInputEndingPrompt: orDefault(chara.CallNoInputEndingPrompt, defaultCallNoInputEndingPrompt),

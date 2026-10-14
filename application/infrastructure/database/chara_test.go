@@ -6,6 +6,17 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestConversationLanguages(t *testing.T) {
+	// 未設定なら日本語だけ
+	assert.Equal(t, []string{LanguageJapanese}, Chara{}.ConversationLanguagesOf())
+	assert.Equal(t, LanguageJapanese, Chara{}.ConversationLanguageFor(LanguageEnglish))
+
+	shiori := Chara{ConversationLanguages: []string{LanguageJapanese, LanguageEnglish}}
+	assert.Equal(t, LanguageEnglish, shiori.ConversationLanguageFor(LanguageEnglish))
+	assert.Equal(t, LanguageJapanese, shiori.ConversationLanguageFor(""))
+	assert.Equal(t, LanguageJapanese, shiori.ConversationLanguageFor("fr"))
+}
+
 func TestCharaTypeOf(t *testing.T) {
 	t.Run("見た目は未設定なら立ち絵", func(t *testing.T) {
 		assert.Equal(t, AppearanceTypeIllustration, Chara{}.AppearanceTypeOf())

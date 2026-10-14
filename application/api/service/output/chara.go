@@ -29,11 +29,13 @@ type CharaAppearance struct {
 // CharaConversation は会話の設定。キャラの人格プロンプトと Gemini の声はサーバだけが持つ。
 type CharaConversation struct {
 	// VoiceProvider は "voicevox" (端末内で合成) か "gemini" (/tts で合成)。
-	VoiceProvider       string `json:"voiceProvider"`
-	VoicevoxStyleID     int    `json:"voicevoxStyleID"`
-	OpeningPrompt       string `json:"openingPrompt"`
-	EndingPrompt        string `json:"endingPrompt"`
-	NoInputEndingPrompt string `json:"noInputEndingPrompt"`
+	VoiceProvider   string `json:"voiceProvider"`
+	VoicevoxStyleID int    `json:"voicevoxStyleID"`
+	// Languages は会話できる言語 ("ja" / "en")。先頭がキャラの第一言語。
+	Languages           []string `json:"languages"`
+	OpeningPrompt       string   `json:"openingPrompt"`
+	EndingPrompt        string   `json:"endingPrompt"`
+	NoInputEndingPrompt string   `json:"noInputEndingPrompt"`
 }
 
 type CharaProfile struct {

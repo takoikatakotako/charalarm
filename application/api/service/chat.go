@@ -22,6 +22,9 @@ const (
 	chatMaxTimeZoneLength = 64
 )
 
+// chatEnglishInstruction は英語で会話するときの指示。人格プロンプトは日本語で書いてあるので、性格はそのまま英語で話してもらう。
+const chatEnglishInstruction = "Reply in natural, spoken English. Your character settings above are written in Japanese; keep the same personality and tone, but always speak English, even if the user writes in another language."
+
 // chatSpeechInstruction は全キャラ共通の話し方の指示。返答は音声で読み上げるため。
 const chatSpeechInstruction = "返答はそのまま音声で読み上げます。絵文字・顔文字・飾りの記号（✨や★など）・箇条書き・マークダウンは使わず、話し言葉の文だけで答えてください。句読点（、。！？）は普通に使ってください。"
 
@@ -42,6 +45,8 @@ type ChatContext struct {
 // ChatInput は Reply の入力。
 type ChatInput struct {
 	CharaID string
+	// Language は会話の言語 ("ja" / "en")。空なら日本語。
+	Language string
 	// Memory は端末に保存してあるキャラごとの記憶。サーバには保存しない。
 	Memory   string
 	Context  *ChatContext
@@ -69,11 +74,13 @@ func (s *Chat) Reply(ctx context.Context, userID string, authToken string, input
 	}
 
 	// キャラの人格プロンプトはサーバ側で管理する (アプリ更新なしで性格を変えられる)
+	// 会話の言語は、ユーザーが選んだ言語をキャラが話せればその言語、話せなければキャラの言語にする
 	persona := ""
 	if input.CharaID != "" {
 		chara, err := s.AWS.GetChara(input.CharaID)
 		if err == nil {
 			persona = chara.ConversationPrompt
+			input.Language = chara.ConversationLanguageFor(input.Language)
 		}
 	}
 
@@ -99,6 +106,9 @@ func validateChatInput(input ChatInput) error {
 			return errors.New(common.ErrorInvalidValue)
 		}
 	}
+	if input.Language != "" && !database.IsSupportedLanguage(input.Language) {
+		return errors.New(common.ErrorInvalidValue)
+	}
 	if utf8.RuneCountInString(input.Memory) > chatMaxMemoryLength {
 		return errors.New(common.ErrorInvalidValue)
 	}
@@ -122,6 +132,9 @@ func buildChatMessages(persona string, input ChatInput) ([]llm.Message, error) {
 		messages = append(messages, llm.Message{Role: llm.RoleSystem, Content: persona})
 	}
 	messages = append(messages, llm.Message{Role: llm.RoleSystem, Content: chatSpeechInstruction})
+	if input.Language == database.LanguageEnglish {
+		messages = append(messages, llm.Message{Role: llm.RoleSystem, Content: chatEnglishInstruction})
+	}
 
 	if input.Memory != "" {
 		messages = append(messages, llm.Message{

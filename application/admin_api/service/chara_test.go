@@ -36,13 +36,31 @@ func TestValidateCharaSettings(t *testing.T) {
 		assert.ErrorIs(t, validateCharaSettings(s), ErrInvalidChara)
 	})
 
-	t.Run("会話するキャラには人格プロンプトが要る", func(t *testing.T) {
+	t.Run("会話するキャラには人格プロンプトと言語が要る", func(t *testing.T) {
 		s := valid
 		s.ConversationType = database.ConversationTypeGemini
+		s.ConversationLanguages = []string{"ja", "en"}
 		assert.ErrorIs(t, validateCharaSettings(s), ErrInvalidChara)
 
 		s.ConversationPrompt = "新キャラ"
 		assert.NoError(t, validateCharaSettings(s))
+
+		s.ConversationLanguages = nil
+		assert.ErrorIs(t, validateCharaSettings(s), ErrInvalidChara)
+
+		s.ConversationLanguages = []string{"fr"}
+		assert.ErrorIs(t, validateCharaSettings(s), ErrInvalidChara)
+	})
+
+	t.Run("VOICEVOX は日本語だけ", func(t *testing.T) {
+		s := valid
+		s.ConversationType = database.ConversationTypeVoicevox
+		s.ConversationPrompt = "ずんだもん"
+		s.ConversationLanguages = []string{"ja"}
+		assert.NoError(t, validateCharaSettings(s))
+
+		s.ConversationLanguages = []string{"ja", "en"}
+		assert.ErrorIs(t, validateCharaSettings(s), ErrInvalidChara)
 	})
 
 	t.Run("VRM のキャラは、有効にするときだけ VRM のファイルが要る", func(t *testing.T) {
