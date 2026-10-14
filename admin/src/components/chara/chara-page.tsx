@@ -217,6 +217,51 @@ function ProfilesEditor({
   );
 }
 
+/** 見た目の1つ。そろっているか（アプリで選べるか）と、既定かどうかを出す */
+function AppearanceCard({
+  title,
+  ready,
+  readyText,
+  notReadyText,
+  isDefault,
+  onSelectDefault,
+  children,
+}: {
+  title: string;
+  ready: boolean;
+  readyText: string;
+  notReadyText: string;
+  isDefault: boolean;
+  onSelectDefault: () => void;
+  children?: ReactNode;
+}) {
+  return (
+    <div
+      className={`space-y-2 rounded-md border p-3 ${
+        isDefault ? "border-primary ring-1 ring-primary" : "border-input"
+      }`}
+    >
+      <div className="flex items-center justify-between gap-2">
+        <span className="font-medium">{title}</span>
+        <Badge variant={ready ? "secondary" : "outline"}>
+          {ready ? "アプリで選べる" : "未設定"}
+        </Badge>
+      </div>
+      <p className="text-xs text-muted-foreground">{ready ? readyText : notReadyText}</p>
+      {children}
+      <label className="flex items-center gap-2 text-xs">
+        <input
+          type="radio"
+          checked={isDefault}
+          onChange={onSelectDefault}
+          className="h-3.5 w-3.5"
+        />
+        既定にする
+      </label>
+    </div>
+  );
+}
+
 /** キャラの設定のフォーム。charaID を渡さなければ追加、渡せば編集 */
 function CharaForm({
   chara,
@@ -237,6 +282,10 @@ function CharaForm({
   const { data: files } = useSWR(
     chara ? `/chara/${chara.charaID}/files` : null,
     () => fetchResourceFiles(chara!.charaID),
+  );
+  const expressionImageCount = Object.values(chara?.expressions ?? {}).reduce(
+    (count, e) => count + e.imageFileNames.length,
+    0,
   );
   const vrmFiles = (files?.files ?? [])
     .map((f) => f.fileName)
@@ -329,44 +378,53 @@ function CharaForm({
         />
       </Field>
 
-      <Section title="見た目">
+      <Section title="見た目（複数持てる）">
         <p className="text-xs text-muted-foreground">
-          3D モデル（VRM）と表情の画像の両方があれば、アプリで「3D / イラスト」を切り替えられる。ここでは既定の見た目を選ぶ
+          そろっている見た目は、すべてアプリで切り替えられる。「既定」はユーザーが選ぶ前に出す見た目
         </p>
-        <TypeSelect
-          options={appearanceOptions}
-          value={settings.appearanceType}
-          onChange={(value) => set("appearanceType", value)}
-        />
-        <Field
-          label="3D モデル（VRM）"
-          hint={
-            isNew
-              ? "追加したあと、リソースタブで .vrm をアップロードしてから選ぶ"
-              : "リソースタブでアップロードした .vrm から選ぶ。既定を 3D にして有効にするなら必須"
-          }
-        >
-          <select
-            className={`${inputClass} font-mono`}
-            value={settings.vrmFileName}
-            disabled={isNew}
-            onChange={(e) => set("vrmFileName", e.target.value)}
+        <div className="grid gap-3 sm:grid-cols-2">
+          <AppearanceCard
+            title="3D（VRM）"
+            ready={settings.vrmFileName !== "" && vrmFiles.includes(settings.vrmFileName)}
+            readyText={settings.vrmFileName}
+            notReadyText={
+              isNew
+                ? "追加したあと、リソースタブで .vrm をアップロードして選ぶ"
+                : "リソースタブでアップロードした .vrm を選ぶ"
+            }
+            isDefault={settings.appearanceType === "vrm"}
+            onSelectDefault={() => set("appearanceType", "vrm")}
           >
-            <option value="">なし</option>
-            {/* 今の値がまだアップロードされていなくても選択肢に残す */}
-            {settings.vrmFileName && !vrmFiles.includes(settings.vrmFileName) && (
-              <option value={settings.vrmFileName}>{settings.vrmFileName}（ファイルがありません）</option>
-            )}
-            {vrmFiles.map((name) => (
-              <option key={name} value={name}>
-                {name}
-              </option>
-            ))}
-          </select>
-        </Field>
+            <select
+              className={`${inputClass} font-mono`}
+              value={settings.vrmFileName}
+              disabled={isNew}
+              onChange={(e) => set("vrmFileName", e.target.value)}
+            >
+              <option value="">なし</option>
+              {/* 今の値がまだアップロードされていなくても選択肢に残す */}
+              {settings.vrmFileName && !vrmFiles.includes(settings.vrmFileName) && (
+                <option value={settings.vrmFileName}>{settings.vrmFileName}（ファイルがありません）</option>
+              )}
+              {vrmFiles.map((name) => (
+                <option key={name} value={name}>
+                  {name}
+                </option>
+              ))}
+            </select>
+          </AppearanceCard>
+          <AppearanceCard
+            title="イラスト"
+            ready={expressionImageCount > 0}
+            readyText={`表情の画像 ${expressionImageCount}枚`}
+            notReadyText="リソースタブで画像を上げて、表情に登録する"
+            isDefault={settings.appearanceType === "illustration"}
+            onSelectDefault={() => set("appearanceType", "illustration")}
+          />
+        </div>
       </Section>
 
-      <Section title="会話">
+      <Section title="会話（1つ選ぶ）">
         <TypeSelect
           options={conversationOptions}
           value={settings.conversationType}
@@ -486,6 +544,16 @@ function typeLabel<T extends string>(options: TypeOption<T>[], value: T) {
   return options.find((o) => o.value === value)?.label ?? value;
 }
 
+/** そろっている見た目。VRM のファイル名があれば 3D、表情の画像があれば立ち絵。どちらもなければ既定だけ */
+function availableAppearances(chara: Chara): AppearanceType[] {
+  const types: AppearanceType[] = [];
+  if (chara.vrmFileName) types.push("vrm");
+  if (Object.values(chara.expressions).some((e) => e.imageFileNames.length > 0)) {
+    types.push("illustration");
+  }
+  return types.length > 0 ? types : [chara.appearanceType];
+}
+
 function CharaCard({ chara, onSaved }: { chara: Chara; onSaved: () => void }) {
   const [open, setOpen] = useState(false);
   const [tab, setTab] = useState<"settings" | "resources">("settings");
@@ -506,11 +574,15 @@ function CharaCard({ chara, onSaved }: { chara: Chara; onSaved: () => void }) {
           </div>
           <div className="flex flex-wrap justify-end gap-1.5">
             {!chara.enable && <Badge variant="destructive">無効</Badge>}
+            {/* 見た目はそろっているものをすべて、会話は1つ */}
+            {availableAppearances(chara).map((type) => (
+              <Badge key={type} variant="secondary">
+                {typeLabel(appearanceOptions, type)}
+                {type === chara.appearanceType && availableAppearances(chara).length > 1 && "（既定）"}
+              </Badge>
+            ))}
             <Badge variant="secondary">
-              {typeLabel(appearanceOptions, chara.appearanceType)}
-            </Badge>
-            <Badge variant="secondary">
-              {typeLabel(conversationOptions, chara.conversationType)}
+              会話: {typeLabel(conversationOptions, chara.conversationType)}
             </Badge>
             <Badge variant="outline">順 {chara.displayOrder}</Badge>
           </div>
