@@ -33,4 +33,4 @@ jobs:
     # swiftlintの実行
     - name: Run SwiftLint
       working-directory: ios
-      run: "$RUNNER_TEMP/swiftlint/swiftlint" --strict
+      run: $RUNNER_TEMP/swiftlint/swiftlint --strict
