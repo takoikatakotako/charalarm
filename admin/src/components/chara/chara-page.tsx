@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
+import useSWR from "swr";
 import { toast } from "sonner";
 import { useCharas } from "@/hooks/use-chara";
-import { createChara, updateChara } from "@/lib/api/chara";
+import { createChara, fetchResourceFiles, updateChara } from "@/lib/api/chara";
 import { ApiClientError } from "@/lib/api/client";
 import type {
   AppearanceType,
@@ -232,6 +233,14 @@ function CharaForm({
     chara ? toSettings(chara) : emptySettings,
   );
   const [saving, setSaving] = useState(false);
+  // VRM のファイル名はアップロード済みの .vrm から選ぶ（追加する前のキャラにはファイルがない）
+  const { data: files } = useSWR(
+    chara ? `/chara/${chara.charaID}/files` : null,
+    () => fetchResourceFiles(chara!.charaID),
+  );
+  const vrmFiles = (files?.files ?? [])
+    .map((f) => f.fileName)
+    .filter((name) => name.toLowerCase().endsWith(".vrm"));
 
   const set = <K extends keyof CharaSettings>(key: K, value: CharaSettings[K]) =>
     setSettings((prev) => ({ ...prev, [key]: value }));
@@ -321,24 +330,40 @@ function CharaForm({
       </Field>
 
       <Section title="見た目">
+        <p className="text-xs text-muted-foreground">
+          3D モデル（VRM）と表情の画像の両方があれば、アプリで「3D / イラスト」を切り替えられる。ここでは既定の見た目を選ぶ
+        </p>
         <TypeSelect
           options={appearanceOptions}
           value={settings.appearanceType}
           onChange={(value) => set("appearanceType", value)}
         />
-        {settings.appearanceType === "vrm" && (
-          <Field
-            label="VRM のファイル名"
-            hint={`${charaID || "{charaID}"}/ に置いたファイル。有効にするには必須`}
+        <Field
+          label="3D モデル（VRM）"
+          hint={
+            isNew
+              ? "追加したあと、リソースタブで .vrm をアップロードしてから選ぶ"
+              : "リソースタブでアップロードした .vrm から選ぶ。既定を 3D にして有効にするなら必須"
+          }
+        >
+          <select
+            className={`${inputClass} font-mono`}
+            value={settings.vrmFileName}
+            disabled={isNew}
+            onChange={(e) => set("vrmFileName", e.target.value)}
           >
-            <input
-              className={`${inputClass} font-mono`}
-              value={settings.vrmFileName}
-              placeholder="model.vrm"
-              onChange={(e) => set("vrmFileName", e.target.value.trim())}
-            />
-          </Field>
-        )}
+            <option value="">なし</option>
+            {/* 今の値がまだアップロードされていなくても選択肢に残す */}
+            {settings.vrmFileName && !vrmFiles.includes(settings.vrmFileName) && (
+              <option value={settings.vrmFileName}>{settings.vrmFileName}（ファイルがありません）</option>
+            )}
+            {vrmFiles.map((name) => (
+              <option key={name} value={name}>
+                {name}
+              </option>
+            ))}
+          </select>
+        </Field>
       </Section>
 
       <Section title="会話">
@@ -347,6 +372,11 @@ function CharaForm({
           value={settings.conversationType}
           onChange={(value) => set("conversationType", value)}
         />
+        {!talks && (
+          <p className="text-xs text-muted-foreground">
+            「VOICEVOX」か「Gemini」を選ぶと、人格プロンプトと声の欄が出る
+          </p>
+        )}
 
         {talks && (
           <Field
