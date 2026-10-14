@@ -11,7 +11,9 @@ type Chara struct {
 	Resources   []CharaResource            `json:"resources"`
 	Expression  map[string]CharaExpression `json:"expressions"`
 	Calls       []CharaCall                `json:"calls"`
-	Appearance  CharaAppearance            `json:"appearance"`
+	// Appearance は既定の見た目 (古いアプリ用)。Appearances は選べる見た目で、先頭が既定。
+	Appearance  CharaAppearance   `json:"appearance"`
+	Appearances []CharaAppearance `json:"appearances"`
 	// Conversation は会話に対応するキャラだけが持つ。
 	Conversation *CharaConversation `json:"conversation,omitempty"`
 }

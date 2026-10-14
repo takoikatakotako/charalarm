@@ -149,6 +149,7 @@ export function CharaResources({
 
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
+  const [dragging, setDragging] = useState(false);
   const [expressions, setExpressions] = useState<[string, CharaExpression][]>(
     Object.entries(chara.expressions),
   );
@@ -213,7 +214,25 @@ export function CharaResources({
         <p className="text-xs text-muted-foreground">
           png / jpg / caf / mp3 / m4a / wav / vrm。ファイル名は英数字と . _ - だけ。同じ名前なら上書きする
         </p>
-        <div className="flex items-center gap-2">
+        {/* ここにファイルをドラッグ＆ドロップするか、ボタンから選ぶ */}
+        <div
+          onDragOver={(e) => {
+            e.preventDefault();
+            setDragging(true);
+          }}
+          onDragLeave={() => setDragging(false)}
+          onDrop={(e) => {
+            e.preventDefault();
+            setDragging(false);
+            if (!uploading) handleUpload(e.dataTransfer.files);
+          }}
+          className={`flex flex-col items-center gap-2 rounded-md border-2 border-dashed p-6 text-center transition-colors ${
+            dragging ? "border-primary bg-primary/5" : "border-input"
+          }`}
+        >
+          <p className="text-sm text-muted-foreground">
+            {uploading ? "アップロード中..." : "ここにファイルをドラッグ＆ドロップ"}
+          </p>
           <input
             ref={inputRef}
             type="file"
@@ -223,9 +242,6 @@ export function CharaResources({
             onChange={(e) => handleUpload(e.target.files)}
             className="text-xs file:mr-3 file:rounded-md file:border file:border-input file:bg-background file:px-3 file:py-1.5"
           />
-          {uploading && (
-            <span className="text-xs text-muted-foreground">アップロード中...</span>
-          )}
         </div>
         {isLoading && <p className="text-xs text-muted-foreground">読み込み中...</p>}
         {error && <p className="text-xs text-destructive">ファイルを読めませんでした</p>}

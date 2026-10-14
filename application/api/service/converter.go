@@ -196,8 +196,45 @@ func convertToCharaOutput(databaseChara database.Chara, baseURL string) output.C
 		Expression:   databaseCharaExpressionMapToResponseCharaExpressionMap(databaseChara.Expressions, baseURL, databaseChara.CharaID),
 		Calls:        databaseCharaCallListToResponseCharaCallList(databaseChara.Calls, baseURL, databaseChara.CharaID),
 		Appearance:   convertToCharaAppearance(databaseChara, baseURL),
+		Appearances:  convertToCharaAppearances(databaseChara, baseURL),
 		Conversation: convertToCharaConversation(databaseChara),
 	}
+}
+
+// convertToCharaAppearances はキャラの選べる見た目を返す。そろっているファイルから決める:
+// VRM のファイル名があれば 3D、表情の画像があれば立ち絵。既定の見た目 (appearanceType) を先頭にする。
+func convertToCharaAppearances(databaseChara database.Chara, baseURL string) []output.CharaAppearance {
+	appearances := make([]output.CharaAppearance, 0, 2)
+	if databaseChara.VRMFileName != "" {
+		appearances = append(appearances, output.CharaAppearance{
+			Type:         database.AppearanceTypeVRM,
+			ModelFileURL: createFileURL(baseURL, databaseChara.CharaID, databaseChara.VRMFileName),
+		})
+	}
+	if hasExpressionImage(databaseChara) {
+		appearances = append(appearances, output.CharaAppearance{Type: database.AppearanceTypeIllustration})
+	}
+	if len(appearances) == 0 {
+		return []output.CharaAppearance{convertToCharaAppearance(databaseChara, baseURL)}
+	}
+
+	// 既定の見た目を先頭にする
+	defaultType := databaseChara.AppearanceTypeOf()
+	for i, appearance := range appearances {
+		if appearance.Type == defaultType && i > 0 {
+			appearances[0], appearances[i] = appearances[i], appearances[0]
+		}
+	}
+	return appearances
+}
+
+func hasExpressionImage(databaseChara database.Chara) bool {
+	for _, expression := range databaseChara.Expressions {
+		if len(expression.ImageFileNames) > 0 {
+			return true
+		}
+	}
+	return false
 }
 
 func convertToCharaAppearance(databaseChara database.Chara, baseURL string) output.CharaAppearance {
