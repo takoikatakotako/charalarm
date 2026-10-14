@@ -18,6 +18,15 @@ import SwiftUI
     private let apiRepository = APIRepository()
     private let resourceHandler = CharaUseCase()
     private let fileRepository = FileRepository()
+    private let userDefaultsRepository = UserDefaultsRepository()
+
+    /// ユーザーが選んだ見た目（3D / イラスト）。選んでいなければ nil（既定を使う）
+    var preferredAppearance: CharaAppearanceKind?
+
+    /// 表示する見た目
+    var selectedAppearance: CharaAppearance? {
+        chara?.appearance(preferred: preferredAppearance)
+    }
 
     enum ResourceType: String {
         case image = "image"
@@ -37,11 +46,27 @@ import SwiftUI
 
     init(charaID: String) {
         self.charaID = charaID
+        preferredAppearance = userDefaultsRepository.getPreferredAppearance(charaID: charaID)
     }
 
     init(chara: Chara) {
         charaID = chara.charaID
         self.chara = chara
+        preferredAppearance = userDefaultsRepository.getPreferredAppearance(charaID: charaID)
+    }
+
+    /// 見た目を切り替える。今トップに出しているキャラなら、トップも描き直す
+    func selectAppearance(kind: CharaAppearanceKind) {
+        preferredAppearance = kind
+        userDefaultsRepository.setPreferredAppearance(charaID: charaID, kind: kind)
+        guard userDefaultsRepository.getCharaID() == charaID else {
+            return
+        }
+        NotificationCenter.default.post(
+            name: NSNotification.setChara,
+            object: self,
+            userInfo: [NSNotification.setCharaUserInfoKeyCharaID: charaID]
+        )
     }
 
     func fetchCharacter() {

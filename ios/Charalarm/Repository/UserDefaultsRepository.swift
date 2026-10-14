@@ -17,6 +17,7 @@ struct UserDefaultsRepository: UserDefaultsRepositoryProtocol {
     private let KEY_CHARA_DOMAIN = "CHARA_DOMAIN"
     private let KEY_CHARA_NAME = "CHARA_NAME"
     private let KEY_ENABLE_PREMIUM_PLAN = "ENABLE_PREMIUM_PLAN"
+    private let KEY_PREFERRED_APPEARANCE_PREFIX = "PREFERRED_APPEARANCE_"
 
     // Defaults
     private let DEFAULT_CHARA_DOMAIN = "jp.zunko.zundamon"
@@ -56,6 +57,15 @@ struct UserDefaultsRepository: UserDefaultsRepositoryProtocol {
 
     func setEnablePremiumPlan(enable: Bool) {
         UserDefaults.standard.set(enable, forKey: KEY_ENABLE_PREMIUM_PLAN)
+    }
+
+    /// キャラ詳細でユーザーが選んだ見た目（3D / イラスト）。選んでいなければ nil。
+    func getPreferredAppearance(charaID: String) -> CharaAppearanceKind? {
+        UserDefaults.standard.string(forKey: KEY_PREFERRED_APPEARANCE_PREFIX + charaID).flatMap(CharaAppearanceKind.init(rawValue:))
+    }
+
+    func setPreferredAppearance(charaID: String, kind: CharaAppearanceKind) {
+        UserDefaults.standard.set(kind.rawValue, forKey: KEY_PREFERRED_APPEARANCE_PREFIX + charaID)
     }
 
     func setDefaultCharaDomain() {

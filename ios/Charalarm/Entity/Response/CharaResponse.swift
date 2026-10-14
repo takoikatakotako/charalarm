@@ -13,6 +13,8 @@ struct CharaResponse: Response {
     let calls: [CharaCallResponse]
     /// 見た目。古いサーバは返さないので省略できる。
     let appearance: CharaAppearanceResponse?
+    /// 選べる見た目。先頭が既定。古いサーバは返さないので省略できる。
+    let appearances: [CharaAppearanceResponse]?
     /// 会話に対応するキャラだけが持つ。
     let conversation: CharaConversationResponse?
 }

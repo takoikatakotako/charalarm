@@ -185,8 +185,20 @@ struct TopConversationChara: Identifiable {
         setCharaImage(charaDomain: charaID, resource: resource, key: key)
     }
 
+    /// ユーザーが選んだ見た目（なければ既定）が 3D なら 3D で出す。イラストを選んでも画像がなければ 3D にする
     private func setVRMChara(charaID: String, resource: LocalCharaResource) {
-        vrmChara = resource.modelFileURL.map { TopVRMChara(charaID: charaID, modelFileURL: $0) }
+        guard let modelFileURL = resource.modelFileURL else {
+            vrmChara = nil
+            return
+        }
+        let preferred = userDefaultsRepository.getPreferredAppearance(charaID: charaID)
+            ?? resource.defaultAppearance.flatMap(CharaAppearanceKind.init(rawValue:))
+        let hasImage = resource.expressions.values.contains { !$0.imageFileNames.isEmpty }
+        if preferred == .illustration && hasImage {
+            vrmChara = nil
+        } else {
+            vrmChara = TopVRMChara(charaID: charaID, modelFileURL: modelFileURL)
+        }
     }
 
     private func setCharaImage(charaDomain: String, resource: LocalCharaResource, key: String) {

@@ -1207,6 +1207,40 @@
         }
       }
     },
+    "profile-appearance-3d" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "3D"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "3D"
+          }
+        }
+      }
+    },
+    "profile-appearance-illustration" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Illustration"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "イラスト"
+          }
+        }
+      }
+    },
     "profile-character-selection" : {
       "localizations" : {
         "en" : {

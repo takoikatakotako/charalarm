@@ -29,7 +29,7 @@ import Foundation
                 }
 
                 // VRM のキャラは 3D モデルも用意する（同梱していればダウンロードしない）
-                if case .vrm(let modelFileURL) = chara.appearance {
+                if let modelFileURL = chara.modelFileURL {
                     _ = try await VRMModelRepository().modelFileURL(charaID: charaID, modelFileURL: modelFileURL)
                 }
 
