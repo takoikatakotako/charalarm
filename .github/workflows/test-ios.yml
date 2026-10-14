@@ -5,6 +5,7 @@ on:
   pull_request:
     paths:
       - ios/**
+      - .github/workflows/test-ios.yml
     branches:
       - main
 
