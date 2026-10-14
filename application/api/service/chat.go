@@ -132,9 +132,6 @@ func buildChatMessages(persona string, input ChatInput) ([]llm.Message, error) {
 		messages = append(messages, llm.Message{Role: llm.RoleSystem, Content: persona})
 	}
 	messages = append(messages, llm.Message{Role: llm.RoleSystem, Content: chatSpeechInstruction})
-	if input.Language == database.LanguageEnglish {
-		messages = append(messages, llm.Message{Role: llm.RoleSystem, Content: chatEnglishInstruction})
-	}
 
 	if input.Memory != "" {
 		messages = append(messages, llm.Message{
@@ -156,7 +153,13 @@ func buildChatMessages(persona string, input ChatInput) ([]llm.Message, error) {
 		})
 	}
 
-	return append(messages, input.Messages...), nil
+	messages = append(messages, input.Messages...)
+
+	// 英語の指示は最後に置く。場面の指示 (電話に出た等) やユーザーの発話が日本語でも英語で話すように
+	if input.Language == database.LanguageEnglish {
+		messages = append(messages, llm.Message{Role: llm.RoleSystem, Content: chatEnglishInstruction})
+	}
+	return messages, nil
 }
 
 var japaneseWeekdays = [...]string{"日", "月", "火", "水", "木", "金", "土"}
