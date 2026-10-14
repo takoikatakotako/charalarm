@@ -4,5 +4,6 @@ import Foundation
 /// backend `/chat` 経由で差し替えられるよう抽象化しておく。
 protocol TextGenerationRepository {
     /// charaID を渡すと、そのキャラの人格プロンプトをサーバ側で付与する。
-    func generateResponse(charaID: String, inputs: [ChatMessage]) async throws -> String
+    /// language は会話の言語。
+    func generateResponse(charaID: String, language: ConversationLanguage, inputs: [ChatMessage]) async throws -> String
 }

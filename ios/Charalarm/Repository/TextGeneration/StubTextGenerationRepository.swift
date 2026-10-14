@@ -15,7 +15,7 @@ struct StubTextGenerationRepository: TextGenerationRepository {
         "そろそろお別れなのだ。またねなのだ〜！"
     ]
 
-    func generateResponse(charaID: String, inputs: [ChatMessage]) async throws -> String {
+    func generateResponse(charaID: String, language: ConversationLanguage, inputs: [ChatMessage]) async throws -> String {
         // charaID はスタブでは未使用
         // 生成レイテンシを軽く模擬
         try? await Task.sleep(nanoseconds: 400_000_000)

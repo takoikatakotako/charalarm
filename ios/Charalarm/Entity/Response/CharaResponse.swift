@@ -29,6 +29,8 @@ struct CharaAppearanceResponse: Response {
 struct CharaConversationResponse: Response {
     let voiceProvider: String
     let voicevoxStyleID: Int
+    /// 会話できる言語。古いサーバは返さないので省略できる（日本語だけ）。
+    let languages: [String]?
     let openingPrompt: String
     let endingPrompt: String
     let noInputEndingPrompt: String

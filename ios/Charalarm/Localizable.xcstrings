@@ -558,6 +558,57 @@
         }
       }
     },
+    "config-conversation" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Conversation"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "会話"
+          }
+        }
+      }
+    },
+    "config-conversation-language" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Conversation language"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "会話の言語"
+          }
+        }
+      }
+    },
+    "config-conversation-language-footer" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Characters who can speak this language talk in it. Others talk in their own language."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "キャラが話せる言語なら、その言語で会話します。話せないキャラは、そのキャラの言語で会話します。"
+          }
+        }
+      }
+    },
     "config-inquires-about-the-app" : {
       "extractionState" : "manual",
       "localizations" : {

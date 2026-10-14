@@ -27,6 +27,21 @@ struct ConfigView: View {
 
                     Section(
                         header:
+                            Text(String(localized: "config-conversation"))
+                            .foregroundStyle(Color(.appMainText)),
+                        footer:
+                            Text(String(localized: "config-conversation-language-footer"))
+                    ) {
+                        Picker(String(localized: "config-conversation-language"), selection: $viewState.conversationLanguage) {
+                            ForEach(ConversationLanguage.allCases) { language in
+                                Text(language.displayName).tag(language)
+                            }
+                        }
+                        .foregroundStyle(Color(R.color.textColor.name))
+                    }
+
+                    Section(
+                        header:
                             Text(String(localized: "config-premium-plan"))
                             .foregroundStyle(Color(.appMainText))
                     ) {

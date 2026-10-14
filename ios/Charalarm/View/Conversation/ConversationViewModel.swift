@@ -23,7 +23,6 @@ class ConversationViewModel: NSObject {
         static let silenceDetectionTime: TimeInterval = 2.0
         static let maxConversationDuration: TimeInterval = 120.0
         static let conversationTimerInterval: TimeInterval = 1.0
-        static let locale = Locale(identifier: "ja-JP")
         static let ringtoneAssetName = "ringtone"
     }
 
@@ -40,6 +39,8 @@ class ConversationViewModel: NSObject {
     private let charaID: String
     /// キャラの会話の設定。会話を始めるときにサーバから取得する。
     private var conversation: CharaConversation?
+    /// 会話の言語。設定で選んだ言語をキャラが話せればその言語、話せなければキャラの言語
+    private var language: ConversationLanguage = .japanese
     /// 声はキャラごとに決まるので、会話の設定を取得してから作る。テストでは外から渡せる。
     private var textToSpeechRepository: TextToSpeechRepository?
     private let textGenerationRepository: TextGenerationRepository
@@ -47,7 +48,8 @@ class ConversationViewModel: NSObject {
 
     // MARK: - Speech Recognition
 
-    let recognizer = SFSpeechRecognizer(locale: Constants.locale)
+    /// 音声認識。会話の言語が決まってから作る
+    var recognizer: SFSpeechRecognizer?
     let engine = AVAudioEngine()
     var request: SFSpeechAudioBufferRecognitionRequest?
     var task: SFSpeechRecognitionTask?
@@ -154,6 +156,8 @@ class ConversationViewModel: NSObject {
             throw ConversationError.notConversationChara
         }
         self.conversation = conversation
+        language = conversation.language(preferred: UserDefaultsRepository().getConversationLanguage())
+        recognizer = SFSpeechRecognizer(locale: language.locale)
         charaName = chara.name
         let textToSpeechRepository = self.textToSpeechRepository
             ?? Self.makeTextToSpeechRepository(charaID: charaID, conversation: conversation)
@@ -175,7 +179,7 @@ class ConversationViewModel: NSObject {
         // 初回の応答を生成
         status = .generatingScript
         chatMessages.append(ChatMessage(role: .system, content: conversation.openingPrompt))
-        let initialScript = try await textGenerationRepository.generateResponse(charaID: charaID, inputs: chatMessages)
+        let initialScript = try await textGenerationRepository.generateResponse(charaID: charaID, language: language, inputs: chatMessages)
         guard !shouldDismiss else { return }
 
         stopRingtone()
@@ -209,7 +213,7 @@ class ConversationViewModel: NSObject {
         chatMessages.append(ChatMessage(role: .user, content: userInput))
 
         status = .generatingScript
-        let response = try await textGenerationRepository.generateResponse(charaID: charaID, inputs: chatMessages)
+        let response = try await textGenerationRepository.generateResponse(charaID: charaID, language: language, inputs: chatMessages)
         guard !shouldDismiss else { return }
 
         chatMessages.append(ChatMessage(role: .assistant, content: response))
@@ -227,7 +231,7 @@ class ConversationViewModel: NSObject {
         }
 
         status = .generatingScript
-        let farewellScript = try await textGenerationRepository.generateResponse(charaID: charaID, inputs: chatMessages)
+        let farewellScript = try await textGenerationRepository.generateResponse(charaID: charaID, language: language, inputs: chatMessages)
         chatMessages.append(ChatMessage(role: .assistant, content: farewellScript))
         text = farewellScript
 

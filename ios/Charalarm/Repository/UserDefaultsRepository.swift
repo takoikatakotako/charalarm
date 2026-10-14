@@ -18,6 +18,7 @@ struct UserDefaultsRepository: UserDefaultsRepositoryProtocol {
     private let KEY_CHARA_NAME = "CHARA_NAME"
     private let KEY_ENABLE_PREMIUM_PLAN = "ENABLE_PREMIUM_PLAN"
     private let KEY_PREFERRED_APPEARANCE_PREFIX = "PREFERRED_APPEARANCE_"
+    private let KEY_CONVERSATION_LANGUAGE = "CONVERSATION_LANGUAGE"
 
     // Defaults
     private let DEFAULT_CHARA_DOMAIN = "jp.zunko.zundamon"
@@ -66,6 +67,16 @@ struct UserDefaultsRepository: UserDefaultsRepositoryProtocol {
 
     func setPreferredAppearance(charaID: String, kind: CharaAppearanceKind) {
         UserDefaults.standard.set(kind.rawValue, forKey: KEY_PREFERRED_APPEARANCE_PREFIX + charaID)
+    }
+
+    /// 会話の言語。選んでいなければ端末の言語
+    func getConversationLanguage() -> ConversationLanguage {
+        UserDefaults.standard.string(forKey: KEY_CONVERSATION_LANGUAGE).flatMap(ConversationLanguage.init(rawValue:))
+            ?? .deviceDefault
+    }
+
+    func setConversationLanguage(_ language: ConversationLanguage) {
+        UserDefaults.standard.set(language.rawValue, forKey: KEY_CONVERSATION_LANGUAGE)
     }
 
     func setDefaultCharaDomain() {

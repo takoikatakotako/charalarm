@@ -6,6 +6,12 @@ import SwiftUI
     var alertMessage = ""
     var showingResetAlert = false
     var showingSubscriptionSheet = false
+    /// キャラと会話する言語。キャラが話せなければ、そのキャラの言語で会話する
+    var conversationLanguage: ConversationLanguage = UserDefaultsRepository().getConversationLanguage() {
+        didSet {
+            UserDefaultsRepository().setConversationLanguage(conversationLanguage)
+        }
+    }
 
     private let keychainRepository: KeychainRepository = KeychainRepository()
     private let userDefaultsRepository = UserDefaultsRepository()
