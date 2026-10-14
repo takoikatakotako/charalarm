@@ -5,6 +5,7 @@ on:
   pull_request:
     paths:
       - ios/**
+      - .github/workflows/test-ios.yml
     branches:
       - main
 
@@ -19,17 +20,17 @@ jobs:
     # チェックアウト
     - uses: actions/checkout@v4
 
-    # mintのインストール
-    - name: Install Mint
+    # SwiftLint はビルド済みのバイナリを使う (mint bootstrap は4つのツールをソースからビルドするので15分かかる)
+    # バージョンは Mintfile にそろえる
+    - name: Install SwiftLint
       working-directory: ios
-      run: brew install mint
-
-    # パッケージのインストール
-    - name: Mint Bootstrap
-      working-directory: ios
-      run: mint bootstrap
+      run: |
+        version=$(sed -n 's#^realm/swiftlint@##p' Mintfile)
+        curl -fsSL -o "$RUNNER_TEMP/swiftlint.zip" "https://github.com/realm/SwiftLint/releases/download/${version}/portable_swiftlint.zip"
+        unzip -q "$RUNNER_TEMP/swiftlint.zip" -d "$RUNNER_TEMP/swiftlint"
+        "$RUNNER_TEMP/swiftlint/swiftlint" version
 
     # swiftlintの実行
     - name: Run SwiftLint
       working-directory: ios
-      run: mint run swiftlint --strict
+      run: $RUNNER_TEMP/swiftlint/swiftlint --strict
