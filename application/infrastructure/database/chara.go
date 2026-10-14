@@ -28,6 +28,8 @@ type Chara struct {
 	ConversationType   string `dynamodbav:"conversationType"`
 	ConversationPrompt string `dynamodbav:"conversationPrompt"`
 	VoicevoxStyleID    int    `dynamodbav:"voicevoxStyleID"`
+	// ConversationLanguages は会話できる言語 (例: ["ja", "en"])。空なら日本語だけ。ConversationLanguagesOf で読む。
+	ConversationLanguages []string `dynamodbav:"conversationLanguages"`
 
 	// VoiceProvider は ConversationType より前の項目 ("voicevox" / "gemini")。
 	// ConversationType が空のキャラを読むときだけ使う。
@@ -60,6 +62,44 @@ const (
 	// ConversationTypeGemini はサーバの /tts (Gemini TTS) で合成して会話する。
 	ConversationTypeGemini = "gemini"
 )
+
+// 会話の言語
+const (
+	LanguageJapanese = "ja"
+	LanguageEnglish  = "en"
+)
+
+// SupportedLanguages は会話に使える言語。
+var SupportedLanguages = []string{LanguageJapanese, LanguageEnglish}
+
+// IsSupportedLanguage は会話に使える言語か。
+func IsSupportedLanguage(language string) bool {
+	for _, l := range SupportedLanguages {
+		if l == language {
+			return true
+		}
+	}
+	return false
+}
+
+// ConversationLanguagesOf は会話できる言語を返す。未設定なら日本語だけ。
+func (c Chara) ConversationLanguagesOf() []string {
+	if len(c.ConversationLanguages) == 0 {
+		return []string{LanguageJapanese}
+	}
+	return c.ConversationLanguages
+}
+
+// ConversationLanguageFor はユーザーが選んだ言語で話せればその言語、話せなければキャラの最初の言語を返す。
+func (c Chara) ConversationLanguageFor(preferred string) string {
+	languages := c.ConversationLanguagesOf()
+	for _, l := range languages {
+		if l == preferred {
+			return l
+		}
+	}
+	return languages[0]
+}
 
 // AppearanceTypeOf は見た目のタイプを返す。未設定なら illustration。
 func (c Chara) AppearanceTypeOf() string {

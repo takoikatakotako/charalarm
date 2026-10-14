@@ -44,8 +44,10 @@ type charaSettingsJSON struct {
 	ConversationType   string `json:"conversationType"`
 	ConversationPrompt string `json:"conversationPrompt"`
 	VoicevoxStyleID    int    `json:"voicevoxStyleID"`
-	GeminiVoice        string `json:"geminiVoice"`
-	GeminiVoiceStyle   string `json:"geminiVoiceStyle"`
+	// 会話できる言語: "ja" / "en"。先頭が第一言語
+	ConversationLanguages []string `json:"conversationLanguages"`
+	GeminiVoice           string   `json:"geminiVoice"`
+	GeminiVoiceStyle      string   `json:"geminiVoiceStyle"`
 	// 通話の場面のプロンプト。空なら API がサーバの既定を使う。
 	CallOpeningPrompt       string `json:"callOpeningPrompt"`
 	CallEndingPrompt        string `json:"callEndingPrompt"`
@@ -156,6 +158,7 @@ func toCharaSettings(req charaSettingsJSON) output.CharaSettings {
 		ConversationType:        req.ConversationType,
 		ConversationPrompt:      req.ConversationPrompt,
 		VoicevoxStyleID:         req.VoicevoxStyleID,
+		ConversationLanguages:   req.ConversationLanguages,
 		GeminiVoice:             req.GeminiVoice,
 		GeminiVoiceStyle:        req.GeminiVoiceStyle,
 		CallOpeningPrompt:       req.CallOpeningPrompt,
@@ -201,6 +204,7 @@ func toCharaResponse(c output.Chara) charaResponse {
 			ConversationType:        s.ConversationType,
 			ConversationPrompt:      s.ConversationPrompt,
 			VoicevoxStyleID:         s.VoicevoxStyleID,
+			ConversationLanguages:   s.ConversationLanguages,
 			GeminiVoice:             s.GeminiVoice,
 			GeminiVoiceStyle:        s.GeminiVoiceStyle,
 			CallOpeningPrompt:       s.CallOpeningPrompt,

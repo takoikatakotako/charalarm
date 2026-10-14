@@ -57,6 +57,12 @@ const conversationOptions: TypeOption<ConversationType>[] = [
   },
 ];
 
+/** 会話に使える言語。並びは第一言語の優先順 */
+const languageOptions = [
+  { value: "ja", label: "日本語" },
+  { value: "en", label: "English" },
+];
+
 const emptySettings: CharaSettings = {
   enable: false,
   name: "",
@@ -68,6 +74,7 @@ const emptySettings: CharaSettings = {
   conversationType: "none",
   conversationPrompt: "",
   voicevoxStyleID: 0,
+  conversationLanguages: ["ja"],
   geminiVoice: "",
   geminiVoiceStyle: "",
   callOpeningPrompt: "",
@@ -87,6 +94,7 @@ function toSettings(chara: Chara): CharaSettings {
     conversationType: chara.conversationType,
     conversationPrompt: chara.conversationPrompt,
     voicevoxStyleID: chara.voicevoxStyleID,
+    conversationLanguages: chara.conversationLanguages,
     geminiVoice: chara.geminiVoice,
     geminiVoiceStyle: chara.geminiVoiceStyle,
     callOpeningPrompt: chara.callOpeningPrompt,
@@ -428,7 +436,10 @@ function CharaForm({
         <TypeSelect
           options={conversationOptions}
           value={settings.conversationType}
-          onChange={(value) => set("conversationType", value)}
+          onChange={(value) => {
+            set("conversationType", value);
+            if (value === "voicevox") set("conversationLanguages", ["ja"]);
+          }}
         />
         {!talks && (
           <p className="text-xs text-muted-foreground">
@@ -447,6 +458,46 @@ function CharaForm({
               onChange={(e) => set("conversationPrompt", e.target.value)}
               placeholder="例: あなたはずんだの妖精のずんだもんです。語尾に「なのだ」をつけて…"
             />
+          </Field>
+        )}
+
+        {talks && (
+          <Field
+            label="会話できる言語"
+            hint="アプリで選んだ言語にキャラが対応していれば、その言語で話す。対応していなければ日本語で話す。VOICEVOX は日本語だけ"
+          >
+            <div className="flex gap-4">
+              {languageOptions.map((option) => {
+                const checked = settings.conversationLanguages.includes(option.value);
+                const disabled = settings.conversationType === "voicevox" && option.value !== "ja";
+                return (
+                  <label
+                    key={option.value}
+                    className={`flex items-center gap-2 ${disabled ? "text-muted-foreground" : ""}`}
+                  >
+                    <input
+                      type="checkbox"
+                      className="h-4 w-4"
+                      checked={checked && !disabled}
+                      disabled={disabled}
+                      onChange={(e) =>
+                        set(
+                          "conversationLanguages",
+                          languageOptions
+                            .map((o) => o.value)
+                            .filter((value) =>
+                              value === option.value
+                                ? e.target.checked
+                                : settings.conversationLanguages.includes(value),
+                            ),
+                        )
+                      }
+                    />
+                    {option.label}
+                  </label>
+                );
+              })}
+            </div>
           </Field>
         )}
 

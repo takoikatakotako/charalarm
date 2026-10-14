@@ -90,6 +90,8 @@ export interface CharaSettings {
   conversationType: ConversationType;
   conversationPrompt: string;
   voicevoxStyleID: number;
+  /** 会話できる言語（"ja" / "en"）。先頭が第一言語 */
+  conversationLanguages: string[];
   geminiVoice: string;
   geminiVoiceStyle: string;
   /** 通話の場面のプロンプト。空ならサーバの既定 */

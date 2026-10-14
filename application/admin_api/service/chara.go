@@ -132,6 +132,18 @@ func validateCharaSettings(settings output.CharaSettings) error {
 		if settings.ConversationType == database.ConversationTypeVoicevox && settings.VoicevoxStyleID < 0 {
 			return fmt.Errorf("%w: VOICEVOX のスタイル ID は 0 以上にしてください", ErrInvalidChara)
 		}
+		if len(settings.ConversationLanguages) == 0 {
+			return fmt.Errorf("%w: 会話できる言語を1つ以上選んでください", ErrInvalidChara)
+		}
+		for _, language := range settings.ConversationLanguages {
+			if !database.IsSupportedLanguage(language) {
+				return fmt.Errorf("%w: 会話の言語 %q はありません", ErrInvalidChara, language)
+			}
+			// VOICEVOX は日本語しか話せない
+			if settings.ConversationType == database.ConversationTypeVoicevox && language != database.LanguageJapanese {
+				return fmt.Errorf("%w: VOICEVOX のキャラは日本語でしか会話できません", ErrInvalidChara)
+			}
+		}
 	default:
 		return fmt.Errorf("%w: 会話のタイプ %q はありません", ErrInvalidChara, settings.ConversationType)
 	}
@@ -155,6 +167,7 @@ func applyCharaSettings(chara *database.Chara, settings output.CharaSettings) {
 	chara.VoiceProvider = ""
 	chara.ConversationPrompt = settings.ConversationPrompt
 	chara.VoicevoxStyleID = settings.VoicevoxStyleID
+	chara.ConversationLanguages = settings.ConversationLanguages
 	chara.GeminiVoice = settings.GeminiVoice
 	chara.GeminiVoiceStyle = settings.GeminiVoiceStyle
 	chara.CallOpeningPrompt = settings.CallOpeningPrompt
@@ -198,6 +211,7 @@ func toCharaOutput(c database.Chara) output.Chara {
 			ConversationType:        c.ConversationTypeOf(),
 			ConversationPrompt:      c.ConversationPrompt,
 			VoicevoxStyleID:         c.VoicevoxStyleID,
+			ConversationLanguages:   c.ConversationLanguagesOf(),
 			GeminiVoice:             c.GeminiVoice,
 			GeminiVoiceStyle:        c.GeminiVoiceStyle,
 			CallOpeningPrompt:       c.CallOpeningPrompt,

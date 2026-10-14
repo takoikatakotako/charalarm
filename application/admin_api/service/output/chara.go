@@ -42,8 +42,10 @@ type CharaSettings struct {
 	ConversationType   string
 	ConversationPrompt string
 	VoicevoxStyleID    int
-	GeminiVoice        string
-	GeminiVoiceStyle   string
+	// ConversationLanguages は会話できる言語 ("ja" / "en")。先頭が第一言語
+	ConversationLanguages []string
+	GeminiVoice           string
+	GeminiVoiceStyle      string
 	// 通話の場面のプロンプト。空なら API がサーバの既定を使う。
 	CallOpeningPrompt       string
 	CallEndingPrompt        string

@@ -23,6 +23,8 @@ func TestValidateChatInput(t *testing.T) {
 			Context:  &ChatContext{Now: "2026-10-11T07:00:00+09:00", TimeZone: "Asia/Tokyo"},
 			Messages: []llm.Message{user},
 		}, false},
+		{"英語", ChatInput{Language: "en", Messages: []llm.Message{user}}, false},
+		{"知らない言語", ChatInput{Language: "fr", Messages: []llm.Message{user}}, true},
 		{"メッセージなし", ChatInput{}, true},
 		{"メッセージが多すぎる", ChatInput{Messages: repeatMessage(user, chatMaxMessages+1)}, true},
 		{"メッセージが上限ちょうど", ChatInput{Messages: repeatMessage(user, chatMaxMessages)}, false},
@@ -72,6 +74,17 @@ func TestBuildChatMessages(t *testing.T) {
 		assert.Equal(t, llm.Message{Role: llm.RoleSystem, Content: "現在の日時: 2026年10月11日(日) 07:05（Asia/Tokyo）"}, messages[3])
 
 		assert.Equal(t, user, messages[4])
+	})
+
+	t.Run("英語のときは、話し方の指示のあとに英語で話す指示を入れる", func(t *testing.T) {
+		messages, err := buildChatMessages("あなたは時守しおりです。", ChatInput{Language: "en", Messages: []llm.Message{user}})
+		assert.NoError(t, err)
+		assert.Equal(t, []llm.Message{
+			{Role: llm.RoleSystem, Content: "あなたは時守しおりです。"},
+			{Role: llm.RoleSystem, Content: chatSpeechInstruction},
+			{Role: llm.RoleSystem, Content: chatEnglishInstruction},
+			user,
+		}, messages)
 	})
 
 	t.Run("省略したものは入れない（話し方の指示は常に入る）", func(t *testing.T) {
