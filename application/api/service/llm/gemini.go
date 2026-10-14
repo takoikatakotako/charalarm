@@ -42,8 +42,31 @@ func NewGeminiClient(project string, model string, thinkingLevel string, httpCli
 }
 
 type geminiPart struct {
-	Text    string `json:"text,omitempty"`
-	Thought bool   `json:"thought,omitempty"`
+	Text             string                  `json:"text,omitempty"`
+	Thought          bool                    `json:"thought,omitempty"`
+	ThoughtSignature string                  `json:"thoughtSignature,omitempty"`
+	FunctionCall     *geminiFunctionCall     `json:"functionCall,omitempty"`
+	FunctionResponse *geminiFunctionResponse `json:"functionResponse,omitempty"`
+}
+
+type geminiFunctionCall struct {
+	Name string         `json:"name"`
+	Args map[string]any `json:"args,omitempty"`
+}
+
+type geminiFunctionResponse struct {
+	Name     string         `json:"name"`
+	Response map[string]any `json:"response"`
+}
+
+type geminiFunctionDeclaration struct {
+	Name        string         `json:"name"`
+	Description string         `json:"description"`
+	Parameters  map[string]any `json:"parameters,omitempty"`
+}
+
+type geminiTool struct {
+	FunctionDeclarations []geminiFunctionDeclaration `json:"functionDeclarations"`
 }
 
 type geminiContent struct {
@@ -62,6 +85,7 @@ type geminiGenerationConfig struct {
 type geminiRequest struct {
 	SystemInstruction *geminiContent         `json:"systemInstruction,omitempty"`
 	Contents          []geminiContent        `json:"contents"`
+	Tools             []geminiTool           `json:"tools,omitempty"`
 	GenerationConfig  geminiGenerationConfig `json:"generationConfig"`
 }
 
@@ -76,63 +100,94 @@ type geminiResponse struct {
 
 // Chat はメッセージ列を Gemini に送り、モデルの応答テキストを返す。
 func (c *GeminiClient) Chat(ctx context.Context, messages []Message) (string, error) {
+	result, err := c.ChatWithTools(ctx, messages, nil)
+	if err != nil {
+		return "", err
+	}
+	if result.Text == "" {
+		return "", errors.New("gemini returned no text")
+	}
+	return result.Text, nil
+}
+
+// ChatWithTools は道具の定義つきで問い合わせる。モデルが道具を呼びたければ Result.ToolCalls に入る。
+func (c *GeminiClient) ChatWithTools(ctx context.Context, messages []Message, tools []Tool) (Result, error) {
 	systemInstruction, contents := toGeminiContents(messages)
 	if len(contents) == 0 {
-		return "", errors.New("gemini requires at least one message")
+		return Result{}, errors.New("gemini requires at least one message")
 	}
 
 	reqBody := geminiRequest{SystemInstruction: systemInstruction, Contents: contents}
+	if len(tools) > 0 {
+		declarations := make([]geminiFunctionDeclaration, 0, len(tools))
+		for _, tool := range tools {
+			declarations = append(declarations, geminiFunctionDeclaration{
+				Name: tool.Name, Description: tool.Description, Parameters: tool.Parameters,
+			})
+		}
+		reqBody.Tools = []geminiTool{{FunctionDeclarations: declarations}}
+	}
 	if c.ThinkingLevel != "" {
 		reqBody.GenerationConfig.ThinkingConfig = &geminiThinkingConfig{ThinkingLevel: c.ThinkingLevel}
 	}
 	b, err := json.Marshal(reqBody)
 	if err != nil {
-		return "", err
+		return Result{}, err
 	}
 
 	url := fmt.Sprintf("%s/v1/projects/%s/locations/global/publishers/google/models/%s:generateContent",
 		c.Endpoint, c.Project, c.Model)
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, url, bytes.NewReader(b))
 	if err != nil {
-		return "", err
+		return Result{}, err
 	}
 	req.Header.Set("Content-Type", "application/json")
 
 	resp, err := c.HTTPClient.Do(req)
 	if err != nil {
-		return "", err
+		return Result{}, err
 	}
 	defer resp.Body.Close()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return "", err
+		return Result{}, err
 	}
 
 	var out geminiResponse
 	if err := json.Unmarshal(body, &out); err != nil {
-		return "", fmt.Errorf("failed to decode gemini response: status %d", resp.StatusCode)
+		return Result{}, fmt.Errorf("failed to decode gemini response: status %d", resp.StatusCode)
 	}
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		if out.Error != nil {
-			return "", fmt.Errorf("gemini error: %s", out.Error.Message)
+			return Result{}, fmt.Errorf("gemini error: %s", out.Error.Message)
 		}
-		return "", fmt.Errorf("gemini request failed: status %d", resp.StatusCode)
+		return Result{}, fmt.Errorf("gemini request failed: status %d", resp.StatusCode)
 	}
 	if len(out.Candidates) == 0 {
-		return "", errors.New("gemini returned no candidates")
+		return Result{}, errors.New("gemini returned no candidates")
 	}
 
+	var result Result
 	var text strings.Builder
 	for _, p := range out.Candidates[0].Content.Parts {
-		if !p.Thought {
+		switch {
+		case p.FunctionCall != nil:
+			result.ToolCalls = append(result.ToolCalls, ToolCall{
+				ID:        fmt.Sprintf("call_%d", len(result.ToolCalls)+1),
+				Name:      p.FunctionCall.Name,
+				Arguments: p.FunctionCall.Args,
+				Signature: p.ThoughtSignature,
+			})
+		case !p.Thought:
 			text.WriteString(p.Text)
 		}
 	}
-	if text.Len() == 0 {
-		return "", errors.New("gemini returned no text")
+	result.Text = strings.TrimSpace(text.String())
+	if result.Text == "" && len(result.ToolCalls) == 0 {
+		return Result{}, errors.New("gemini returned no text")
 	}
-	return strings.TrimSpace(text.String()), nil
+	return result, nil
 }
 
 // toGeminiContents はメッセージ列を Gemini の形に変える。
@@ -159,18 +214,55 @@ func toGeminiContents(messages []Message) (*geminiContent, []geminiContent) {
 		}
 	}
 
+	// tool の結果は、呼び出しの名前と一緒に返す必要があるので、ID から名前を引く
+	toolNames := map[string]string{}
+	for _, m := range messages {
+		for _, call := range m.ToolCalls {
+			toolNames[call.ID] = call.Name
+		}
+	}
+
 	var contents []geminiContent
 	for _, m := range messages[leading:] {
 		role := "user"
 		if m.Role == RoleAssistant {
 			role = "model"
 		}
-		part := geminiPart{Text: m.Content}
-		if n := len(contents); n > 0 && contents[n-1].Role == role {
-			contents[n-1].Parts = append(contents[n-1].Parts, part)
-			continue
+		for _, part := range toGeminiParts(m, toolNames) {
+			if n := len(contents); n > 0 && contents[n-1].Role == role {
+				contents[n-1].Parts = append(contents[n-1].Parts, part)
+				continue
+			}
+			contents = append(contents, geminiContent{Role: role, Parts: []geminiPart{part}})
 		}
-		contents = append(contents, geminiContent{Role: role, Parts: []geminiPart{part}})
 	}
 	return systemInstruction, contents
+}
+
+// toGeminiParts は1つのメッセージを Gemini の parts にする。
+//   - assistant の道具の呼び出しは functionCall (思考の署名を付けて返す)
+//   - tool の結果は functionResponse
+//   - それ以外は text
+func toGeminiParts(m Message, toolNames map[string]string) []geminiPart {
+	switch {
+	case m.Role == RoleTool:
+		return []geminiPart{{FunctionResponse: &geminiFunctionResponse{
+			Name:     toolNames[m.ToolCallID],
+			Response: map[string]any{"content": m.Content},
+		}}}
+	case len(m.ToolCalls) > 0:
+		parts := make([]geminiPart, 0, len(m.ToolCalls)+1)
+		if m.Content != "" {
+			parts = append(parts, geminiPart{Text: m.Content})
+		}
+		for _, call := range m.ToolCalls {
+			parts = append(parts, geminiPart{
+				FunctionCall:     &geminiFunctionCall{Name: call.Name, Args: call.Arguments},
+				ThoughtSignature: call.Signature,
+			})
+		}
+		return parts
+	default:
+		return []geminiPart{{Text: m.Content}}
+	}
 }

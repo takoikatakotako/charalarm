@@ -39,8 +39,15 @@ func (h *Chat) ChatPost(c echo.Context) error {
 	if req.Context != nil {
 		input.Context = &service.ChatContext{Now: req.Context.Now, TimeZone: req.Context.TimeZone}
 	}
+	input.Capabilities = req.Capabilities
 	for _, m := range req.Messages {
-		input.Messages = append(input.Messages, llm.Message{Role: llm.Role(m.Role), Content: m.Content})
+		message := llm.Message{Role: llm.Role(m.Role), Content: m.Content, ToolCallID: m.ToolCallID}
+		for _, call := range m.ToolCalls {
+			message.ToolCalls = append(message.ToolCalls, llm.ToolCall{
+				ID: call.ID, Name: call.Name, Arguments: call.Arguments, Signature: call.Signature,
+			})
+		}
+		input.Messages = append(input.Messages, message)
 	}
 
 	reply, err := h.Service.Reply(c.Request().Context(), userID, authToken, input)
@@ -54,5 +61,16 @@ func (h *Chat) ChatPost(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, response.Message{Message: "Error!"})
 	}
 
-	return c.JSON(http.StatusOK, response.Chat{Message: reply})
+	if len(reply.ToolCalls) == 0 {
+		return c.JSON(http.StatusOK, response.Chat{Type: "message", Message: reply.Text})
+	}
+	calls := make([]response.ChatToolCall, 0, len(reply.ToolCalls))
+	for _, call := range reply.ToolCalls {
+		arguments := call.Arguments
+		if arguments == nil {
+			arguments = map[string]any{}
+		}
+		calls = append(calls, response.ChatToolCall{ID: call.ID, Name: call.Name, Arguments: arguments, Signature: call.Signature})
+	}
+	return c.JSON(http.StatusOK, response.Chat{Type: "toolCall", Message: reply.Text, Calls: calls})
 }
