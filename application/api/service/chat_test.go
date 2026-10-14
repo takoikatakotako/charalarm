@@ -76,14 +76,14 @@ func TestBuildChatMessages(t *testing.T) {
 		assert.Equal(t, user, messages[4])
 	})
 
-	t.Run("英語のときは、話し方の指示のあとに英語で話す指示を入れる", func(t *testing.T) {
+	t.Run("英語のときは、会話のあと (最後) に英語で話す指示を入れる", func(t *testing.T) {
 		messages, err := buildChatMessages("あなたは時守しおりです。", ChatInput{Language: "en", Messages: []llm.Message{user}})
 		assert.NoError(t, err)
 		assert.Equal(t, []llm.Message{
 			{Role: llm.RoleSystem, Content: "あなたは時守しおりです。"},
 			{Role: llm.RoleSystem, Content: chatSpeechInstruction},
-			{Role: llm.RoleSystem, Content: chatEnglishInstruction},
 			user,
+			{Role: llm.RoleSystem, Content: chatEnglishInstruction},
 		}, messages)
 	})
 
