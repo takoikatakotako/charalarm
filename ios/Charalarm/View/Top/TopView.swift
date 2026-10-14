@@ -17,11 +17,17 @@ struct TopView: View {
                 .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity)
 
             VStack(spacing: 0) {
-                Image(uiImage: viewState.charaImage)
-                    .resizable()
-                    .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity)
-                    .scaledToFit()
-                    .padding(.top, 60)
+                if let vrmChara = viewState.vrmChara {
+                    CharaVRMView(charaID: vrmChara.charaID, modelFileURL: vrmChara.modelFileURL, framing: .full)
+                        .id(vrmChara.charaID)
+                        .padding(.top, 60)
+                } else {
+                    Image(uiImage: viewState.charaImage)
+                        .resizable()
+                        .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity)
+                        .scaledToFit()
+                        .padding(.top, 60)
+                }
             }
 
             Button(action: {

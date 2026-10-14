@@ -39,6 +39,12 @@ enum TopViewModelSheet: Identifiable {
     }
 }
 
+/// トップに 3D で出すキャラ（見た目が VRM のキャラ）。
+struct TopVRMChara: Equatable {
+    let charaID: String
+    let modelFileURL: URL
+}
+
 /// 電話ボタンで通話するキャラ（fullScreenCover 用）。
 struct TopConversationChara: Identifiable {
     let charaID: String
@@ -47,6 +53,8 @@ struct TopConversationChara: Identifiable {
 
 @Observable class TopViewState {
     var charaImage = UIImage()
+    /// VRM のキャラを選んでいれば、立ち絵の代わりに 3D で出す
+    var vrmChara: TopVRMChara?
     var showingAlert = false
     var alert: TopViewModelAlert? {
         didSet {
@@ -82,6 +90,7 @@ struct TopConversationChara: Identifiable {
             self.alert = .failedToGetCharactersResources
             return
         }
+        setVRMChara(charaID: charaID, resource: resource)
 
         guard let key = resource.expressions.keys.randomElement() else {
             return
@@ -167,12 +176,17 @@ struct TopConversationChara: Identifiable {
             }
             return
         }
+        setVRMChara(charaID: charaID, resource: resource)
 
         guard let key = resource.expressions.keys.randomElement() else {
             return
         }
 
         setCharaImage(charaDomain: charaID, resource: resource, key: key)
+    }
+
+    private func setVRMChara(charaID: String, resource: LocalCharaResource) {
+        vrmChara = resource.modelFileURL.map { TopVRMChara(charaID: charaID, modelFileURL: $0) }
     }
 
     private func setCharaImage(charaDomain: String, resource: LocalCharaResource, key: String) {
