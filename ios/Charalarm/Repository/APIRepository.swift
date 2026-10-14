@@ -160,13 +160,12 @@ extension APIRepository {
 
 extension APIRepository {
     /// キャラとの会話応答を backend `/chat` から取得する。
-    func postChat(userID: String, authToken: String, charaID: String, language: ConversationLanguage, messages: [ChatMessage], context: ChatContext) async throws -> String {
+    func postChat(userID: String, authToken: String, charaID: String, language: ConversationLanguage, capabilities: [String], messages: [ChatMessage], context: ChatContext) async throws -> ChatResponse {
         let path = "/chat"
         let url = try createURL(path: path)
         let requestHeader: [String: String] = APIHeader.createAuthorizationRequestHeader(userID: userID, authToken: authToken)
-        let requestBody: Encodable? = ChatRequest(charaID: charaID, language: language.rawValue, messages: messages, context: context)
-        let chatResponse: ChatResponse = try await APIClient().request(url: url, httpMethod: .post, requestHeader: requestHeader, requestBody: requestBody)
-        return chatResponse.message
+        let requestBody: Encodable? = ChatRequest(charaID: charaID, language: language.rawValue, capabilities: capabilities, messages: messages, context: context)
+        return try await APIClient().request(url: url, httpMethod: .post, requestHeader: requestHeader, requestBody: requestBody)
     }
 
     /// キャラの発話を backend `/tts`（Gemini TTS）で音声（WAV）にする。

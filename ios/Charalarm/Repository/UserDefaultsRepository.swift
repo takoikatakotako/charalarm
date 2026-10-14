@@ -19,6 +19,7 @@ struct UserDefaultsRepository: UserDefaultsRepositoryProtocol {
     private let KEY_ENABLE_PREMIUM_PLAN = "ENABLE_PREMIUM_PLAN"
     private let KEY_PREFERRED_APPEARANCE_PREFIX = "PREFERRED_APPEARANCE_"
     private let KEY_CONVERSATION_LANGUAGE = "CONVERSATION_LANGUAGE"
+    private let KEY_USE_CALENDAR_IN_CONVERSATION = "USE_CALENDAR_IN_CONVERSATION"
 
     // Defaults
     private let DEFAULT_CHARA_DOMAIN = "jp.zunko.zundamon"
@@ -77,6 +78,15 @@ struct UserDefaultsRepository: UserDefaultsRepositoryProtocol {
 
     func setConversationLanguage(_ language: ConversationLanguage) {
         UserDefaults.standard.set(language.rawValue, forKey: KEY_CONVERSATION_LANGUAGE)
+    }
+
+    /// 会話で今日の予定を使う（予定のタイトルと時刻を /chat に送る）。最初はオフ
+    func getUseCalendarInConversation() -> Bool {
+        UserDefaults.standard.bool(forKey: KEY_USE_CALENDAR_IN_CONVERSATION)
+    }
+
+    func setUseCalendarInConversation(_ use: Bool) {
+        UserDefaults.standard.set(use, forKey: KEY_USE_CALENDAR_IN_CONVERSATION)
     }
 
     func setDefaultCharaDomain() {

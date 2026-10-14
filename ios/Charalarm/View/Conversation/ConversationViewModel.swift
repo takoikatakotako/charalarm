@@ -58,8 +58,8 @@ class ConversationViewModel: NSObject {
 
     // MARK: - Audio Playback
 
-    private var audioPlayer: AVAudioPlayer?
-    private var playbackContinuation: CheckedContinuation<Bool, Never>?
+    var audioPlayer: AVAudioPlayer?
+    var playbackContinuation: CheckedContinuation<Bool, Never>?
 
     // MARK: - Timers / State
 
@@ -179,7 +179,7 @@ class ConversationViewModel: NSObject {
         // 初回の応答を生成
         status = .generatingScript
         chatMessages.append(ChatMessage(role: .system, content: conversation.openingPrompt))
-        let initialScript = try await textGenerationRepository.generateResponse(charaID: charaID, language: language, inputs: chatMessages)
+        let initialScript = try await generateResponse()
         guard !shouldDismiss else { return }
 
         stopRingtone()
@@ -213,7 +213,7 @@ class ConversationViewModel: NSObject {
         chatMessages.append(ChatMessage(role: .user, content: userInput))
 
         status = .generatingScript
-        let response = try await textGenerationRepository.generateResponse(charaID: charaID, language: language, inputs: chatMessages)
+        let response = try await generateResponse()
         guard !shouldDismiss else { return }
 
         chatMessages.append(ChatMessage(role: .assistant, content: response))
@@ -225,13 +225,31 @@ class ConversationViewModel: NSObject {
         try await conversationLoop()
     }
 
+    /// キャラの返事を作る。キャラがカレンダーを見るあいだは、そのひとこと（「ちょっと見てみますね」）を先に話す
+    private func generateResponse() async throws -> String {
+        var fillerTask: Task<Void, Never>?
+        let response = try await textGenerationRepository.generateResponse(
+            charaID: charaID,
+            language: language,
+            inputs: chatMessages
+        ) { [weak self] filler in
+            guard let self else { return }
+            self.stopRingtone()
+            self.text = filler
+            fillerTask = Task { try? await self.synthesizeAndPlayVoiceInChunks(from: filler) }
+        }
+        // ひとことを話し終えてから返事を話す
+        await fillerTask?.value
+        return response
+    }
+
     private func endConversation(prompt: String? = nil) async throws {
         if let prompt = prompt ?? conversation?.endingPrompt {
             chatMessages.append(ChatMessage(role: .system, content: prompt))
         }
 
         status = .generatingScript
-        let farewellScript = try await textGenerationRepository.generateResponse(charaID: charaID, language: language, inputs: chatMessages)
+        let farewellScript = try await generateResponse()
         chatMessages.append(ChatMessage(role: .assistant, content: farewellScript))
         text = farewellScript
 
@@ -283,43 +301,6 @@ class ConversationViewModel: NSObject {
         guard !shouldDismiss else { return }
         if let audioData = currentAudioData {
             try await playVoice(audioData)
-        }
-    }
-
-    // MARK: - Audio Playback
-
-    private func playRingtone() {
-        guard let asset = NSDataAsset(name: Constants.ringtoneAssetName) else {
-            CharalarmLogger.error("着信音アセットが見つかりません", error: ConversationError.ringtoneNotFound)
-            return
-        }
-        audioPlayer = try? AVAudioPlayer(data: asset.data)
-        audioPlayer?.numberOfLoops = -1
-        audioPlayer?.prepareToPlay()
-        audioPlayer?.play()
-    }
-
-    private func stopRingtone() {
-        audioPlayer?.stop()
-    }
-
-    private func playVoice(_ audioData: Data) async throws {
-        status = .playingVoice
-
-        let audioSession = AVAudioSession.sharedInstance()
-        try audioSession.setCategory(.playback, mode: .default, options: [])
-        try audioSession.setActive(true)
-
-        audioPlayer = try AVAudioPlayer(data: audioData)
-        audioPlayer?.delegate = self
-        audioPlayer?.prepareToPlay()
-        audioPlayer?.play()
-
-        let success = await withCheckedContinuation { continuation in
-            playbackContinuation = continuation
-        }
-        if !success {
-            throw ConversationError.audioPlaybackFailed
         }
     }
 
