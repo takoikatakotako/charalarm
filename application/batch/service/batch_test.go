@@ -363,10 +363,11 @@ func TestBatchService_QueryDynamoDBAndSendMessage_CharaWithoutVoice(t *testing.T
 	err := repo.UpsertChara(database.Chara{CharaID: charaID, Enable: true, Name: "ボイスなし", Calls: []database.CharaCall{}})
 	require.NoError(t, err)
 	defer func() {
-		_ = repo.UpsertChara(database.Chara{CharaID: charaID, Enable: false, Name: "ボイスなし"})
+		_ = repo.DeleteChara(charaID)
 	}()
 
-	const hour = 3
+	// ほかのテストのアラームと重ならない時刻にする
+	const hour = 4
 	const minute = 0
 	alarmIDs := map[string]bool{}
 	for i := 0; i < 2; i++ {

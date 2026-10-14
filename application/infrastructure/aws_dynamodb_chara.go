@@ -90,6 +90,22 @@ func (a *AWS) CreateChara(chara database.Chara) error {
 	return err
 }
 
+// DeleteChara キャラを消す
+func (a *AWS) DeleteChara(charaID string) error {
+	client, err := a.createDynamoDBClient()
+	if err != nil {
+		return err
+	}
+
+	_, err = client.DeleteItem(context.Background(), &dynamodb.DeleteItemInput{
+		TableName: aws.String(database.CharaTableName),
+		Key: map[string]types.AttributeValue{
+			database.CharaTableCharaID: &types.AttributeValueMemberS{Value: charaID},
+		},
+	})
+	return err
+}
+
 // GetCharaList キャラ一覧を取得
 func (a *AWS) GetCharaList() ([]database.Chara, error) {
 	// クライアント作成
