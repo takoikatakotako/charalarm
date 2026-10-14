@@ -349,3 +349,64 @@ func receiveMessage() ([]types.Message, error) {
 	repo := infrastructure.AWS{Profile: "local"}
 	return repo.ReceiveAlarmInfoMessage()
 }
+
+func TestBatchService_QueryDynamoDBAndSendMessage_CharaWithoutVoice(t *testing.T) {
+	// アラームのボイスがまだないキャラを指定したアラームは、ランダムなキャラで鳴らす。
+	// 同じキャラのアラームが2件あっても、2件目 (メモ化を使う) も正しいキャラとボイスになる。
+
+	repo := infrastructure.AWS{Profile: "local"}
+	_ = repo.PurgeQueue()
+	batchService := Batch{AWS: repo}
+
+	// ボイスのない有効なキャラ (ランダムにも選ばれないこと)
+	const charaID = "com.example.novoice"
+	err := repo.UpsertChara(database.Chara{CharaID: charaID, Enable: true, Name: "ボイスなし", Calls: []database.CharaCall{}})
+	require.NoError(t, err)
+	defer func() {
+		_ = repo.UpsertChara(database.Chara{CharaID: charaID, Enable: false, Name: "ボイスなし"})
+	}()
+
+	const hour = 3
+	const minute = 0
+	alarmIDs := map[string]bool{}
+	for i := 0; i < 2; i++ {
+		userID := uuid.New().String()
+		require.NoError(t, createUser(userID, uuid.New().String(), "iOS"))
+		require.NoError(t, createPlatformEndpoint(userID, uuid.New().String()))
+		user, err := getUser(userID)
+		require.NoError(t, err)
+
+		alarmID := uuid.New().String()
+		alarmIDs[alarmID] = true
+		require.NoError(t, createAlarm(database.Alarm{
+			AlarmID:        alarmID,
+			UserID:         userID,
+			Type:           "IOS_VOIP_PUSH_NOTIFICATION",
+			Target:         user.IOSPlatformInfo.VoIPPushTokenSNSEndpoint,
+			Enable:         true,
+			Name:           "Alarm Name",
+			Hour:           hour,
+			Minute:         minute,
+			Time:           fmt.Sprintf("%02d-%02d", hour, minute),
+			TimeDifference: 0,
+			CharaID:        charaID,
+			CharaName:      "ボイスなし",
+			VoiceFileName:  "",
+			Sunday:         true,
+		}))
+	}
+
+	require.NoError(t, batchService.QueryDynamoDBAndSendMessage(hour, minute, time.Sunday))
+
+	messages, err := receiveMessage()
+	require.NoError(t, err)
+	require.Equal(t, 2, len(messages))
+	for _, message := range messages {
+		alarmInfo := queue.IOSVoIPPushAlarmInfoSQSMessage{}
+		require.NoError(t, json.Unmarshal([]byte(*message.Body), &alarmInfo))
+		assert.True(t, alarmIDs[alarmInfo.AlarmID])
+		assert.NotEqual(t, "", alarmInfo.CharaID)
+		assert.NotEqual(t, charaID, alarmInfo.CharaID)
+		assert.Contains(t, alarmInfo.VoiceFileURL, "/"+alarmInfo.CharaID+"/")
+	}
+}
