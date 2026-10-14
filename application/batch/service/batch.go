@@ -1,7 +1,6 @@
 package service
 
 import (
-	"errors"
 	"fmt"
 	"github.com/takoikatakotako/charalarm/environment"
 	"github.com/takoikatakotako/charalarm/infrastructure"
@@ -45,16 +44,8 @@ func (b *Batch) QueryDynamoDBAndSendMessage(hour int, minute int, weekday time.W
 	if err != nil {
 		return err
 	}
-	randomCharaCallVoicesCount := len(randomChara.Calls)
-	if randomCharaCallVoicesCount == 0 {
-		// ボイスが見つからない
-		pc, fileName, _, _ := runtime.Caller(1)
-		funcName := runtime.FuncForPC(pc).Name()
-		slog.Error(err.Error(), slog.String("file", fileName), slog.String("func", funcName))
-
-		return errors.New("ボイスがないぞ")
-	}
-	randomCharaVoiceIndex := rand.Intn(randomCharaCallVoicesCount)
+	// GetRandomChara はボイスがあるキャラだけを返す
+	randomCharaVoiceIndex := rand.Intn(len(randomChara.Calls))
 	randomVoiceFileName := randomChara.Calls[randomCharaVoiceIndex].VoiceFileName
 
 	// ランダム用のメモを作成
@@ -124,16 +115,24 @@ func (b *Batch) forIOSVoIPPushNotification(resourceBaseURL string, alarm databas
 			}
 			charaCallVoicesCount := len(chara.Calls)
 			if charaCallVoicesCount == 0 {
-				return errors.New("error can not find voice")
+				// アラームのボイスがまだないキャラは、鳴らさないよりはランダムなキャラで鳴らす
+				slog.Warn("chara has no call voice, use random chara", slog.String("charaID", alarm.CharaID))
+				b.randomCharaNameAndVoiceFileURL[alarm.CharaID] = b.randomCharaNameAndVoiceFileURL["RANDOM"]
+			} else {
+				charaCallVoiceIndex := rand.Intn(charaCallVoicesCount)
+				charaCallVoiceFileName := chara.Calls[charaCallVoiceIndex].VoiceFileName
+				b.randomCharaNameAndVoiceFileURL[alarm.CharaID] = CharaNameAndVoiceFilePath{
+					CharaID:       chara.CharaID,
+					CharaName:     chara.Name,
+					VoiceFilePath: b.createVoiceFileURL(resourceBaseURL, chara.CharaID, charaCallVoiceFileName),
+				}
 			}
-			charaCallVoiceIndex := rand.Intn(charaCallVoicesCount)
-			charaCallVoiceFileName := chara.Calls[charaCallVoiceIndex].VoiceFileName
-			b.randomCharaNameAndVoiceFileURL[alarm.CharaID] = CharaNameAndVoiceFilePath{CharaName: chara.Name, VoiceFilePath: charaCallVoiceFileName}
 
 			// 設定
-			alarmInfo.CharaID = chara.CharaID
-			alarmInfo.CharaName = chara.Name
-			alarmInfo.VoiceFileURL = b.createVoiceFileURL(resourceBaseURL, chara.CharaID, charaCallVoiceFileName)
+			memo := b.randomCharaNameAndVoiceFileURL[alarm.CharaID]
+			alarmInfo.CharaID = memo.CharaID
+			alarmInfo.CharaName = memo.CharaName
+			alarmInfo.VoiceFileURL = memo.VoiceFilePath
 		}
 	}
 

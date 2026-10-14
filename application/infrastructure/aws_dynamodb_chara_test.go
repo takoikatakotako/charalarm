@@ -57,8 +57,13 @@ func TestGetCharaList(t *testing.T) {
 		t.Errorf("unexpected error: %v", err)
 	}
 
-	// Assert (yui / momiji / zundamon の3体)
-	assert.Equal(t, len(charaList), 3)
+	// Assert (最初から入っている yui / momiji / zundamon の3体がいる。
+	// ほかのテストが一時的にキャラを足すことがあるので、件数は決め打ちしない)
+	charaIDs := make([]string, 0, len(charaList))
+	for _, chara := range charaList {
+		charaIDs = append(charaIDs, chara.CharaID)
+	}
+	assert.Subset(t, charaIDs, []string{"com.charalarm.yui", "com.senpu-ki-soft.momiji", "jp.zunko.zundamon"})
 }
 
 func TestGetRandomChara(t *testing.T) {
