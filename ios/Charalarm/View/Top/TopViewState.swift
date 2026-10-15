@@ -119,6 +119,21 @@ struct TopConversationChara: Identifiable {
         sheet = .config
     }
 
+    /// タップで会話を始める。会話できると分かっていればすぐ、分からなければサーバに聞いてから
+    @MainActor
+    private func startConversationIfPossible(charaID: String, knownToTalk: Bool) async {
+        guard !isPreparingCall else { return }
+        if knownToTalk {
+            conversationChara = TopConversationChara(charaID: charaID)
+            return
+        }
+        isPreparingCall = true
+        defer { isPreparingCall = false }
+        if let chara = try? await apiRepository.fetchCharacter(charaID: charaID), chara.conversation != nil {
+            conversationChara = TopConversationChara(charaID: charaID)
+        }
+    }
+
     /// 電話ボタン。選んでいるキャラが会話に対応していれば、そのキャラと通話する。
     @MainActor
     func callButtonTapped() async {
@@ -143,7 +158,9 @@ struct TopConversationChara: Identifiable {
         }
     }
 
-    func tapped() {
+    /// キャラをタップした。会話できるキャラならお話しを始め、そうでなければタップのボイスを流す
+    @MainActor
+    func tapped() async {
         guard let charaDomain = userDefaultsRepository.getCharaID() else {
             self.alert = .failedToGetCharacterSelectionInformation
             return
@@ -152,6 +169,14 @@ struct TopConversationChara: Identifiable {
         guard let resource = try? localCharaResourceUseCase.loadCharaResource(charaID: charaDomain) else {
             self.alert = .failedToGetCharactersResources
             return
+        }
+
+        // 会話できるか分からない (前のバージョンで保存した) ときは、電話ボタンと同じくサーバに聞く
+        if resource.hasConversation != false {
+            await startConversationIfPossible(charaID: charaDomain, knownToTalk: resource.hasConversation == true)
+            if conversationChara != nil || resource.hasConversation == true {
+                return
+            }
         }
 
         guard let key = resource.expressions.keys.randomElement() else {

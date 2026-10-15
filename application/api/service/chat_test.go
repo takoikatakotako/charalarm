@@ -181,3 +181,25 @@ func TestChatTools(t *testing.T) {
 		{Role: llm.RoleUser, Content: "明日は？"},
 	}}))
 }
+
+func TestTodayEvents(t *testing.T) {
+	opening := llm.Message{Role: llm.RoleSystem, Content: "電話に出たところ"}
+	events := `[{"title":"歯医者","start":"10:00","end":"11:00","allDay":false}]`
+	input := ChatInput{Capabilities: []string{CapabilityCalendarRead}, TodayEvents: events, Messages: []llm.Message{opening}}
+
+	// 今日の予定を渡したら、最初のあいさつで触れるよう伝え、会話の直前に置く
+	messages, err := buildChatMessages("", input)
+	assert.NoError(t, err)
+	last := messages[len(messages)-2]
+	assert.Equal(t, llm.RoleSystem, last.Role)
+	assert.Contains(t, last.Content, chatTodayEventsInstruction)
+	assert.Contains(t, last.Content, "<events>\n"+events+"\n</events>")
+	assert.Equal(t, opening, messages[len(messages)-1])
+
+	// 予定はもう分かっているので、道具は渡さない
+	assert.Nil(t, chatTools(input))
+
+	// 長すぎる予定は受け付けない
+	input.TodayEvents = strings.Repeat("a", chatMaxToolResultLength+1)
+	assert.Error(t, validateChatInput(input))
+}

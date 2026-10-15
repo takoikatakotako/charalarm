@@ -30,7 +30,7 @@ struct ConfigView: View {
                             Text(String(localized: "config-conversation"))
                             .foregroundStyle(Color(.appMainText)),
                         footer:
-                            Text(String(localized: "config-conversation-language-footer") + "\n" + String(localized: "config-use-calendar-footer"))
+                            Text(String(localized: "config-conversation-language-footer") + "\n" + String(localized: "config-use-calendar-footer") + "\n" + String(localized: "config-mention-schedule-on-call-footer"))
                     ) {
                         Picker(String(localized: "config-conversation-language"), selection: $viewState.conversationLanguage) {
                             ForEach(ConversationLanguage.allCases) { language in
@@ -42,6 +42,12 @@ struct ConfigView: View {
                         Toggle(String(localized: "config-use-calendar"), isOn: Binding(
                             get: { viewState.useCalendarInConversation },
                             set: { viewState.setUseCalendarInConversation($0) }
+                        ))
+                        .foregroundStyle(Color(R.color.textColor.name))
+
+                        Toggle(String(localized: "config-mention-schedule-on-call"), isOn: Binding(
+                            get: { viewState.mentionScheduleOnCall },
+                            set: { viewState.setMentionScheduleOnCall($0) }
                         ))
                         .foregroundStyle(Color(R.color.textColor.name))
                     }

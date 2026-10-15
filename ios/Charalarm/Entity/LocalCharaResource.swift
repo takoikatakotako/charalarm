@@ -8,12 +8,15 @@ struct LocalCharaResource: Codable {
     var modelFileURL: URL?
     /// 既定の見た目。これより前に保存したものは nil
     var defaultAppearance: String?
+    /// 会話できるキャラか。これより前に保存したものは nil（そのときはサーバに聞く）
+    var hasConversation: Bool?
 
     init(chara: Chara) {
         self.charaID = chara.charaID
         self.updatedAt = chara.updatedAt
         self.modelFileURL = chara.modelFileURL
         self.defaultAppearance = chara.appearances.first?.kind.rawValue
+        self.hasConversation = chara.conversation != nil
 
         var expressions: [String: CharaLocalExpression] = [:]
         chara.expressions.forEach { touple in

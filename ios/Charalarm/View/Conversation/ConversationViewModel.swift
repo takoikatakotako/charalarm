@@ -16,6 +16,8 @@ class ConversationViewModel: NSObject {
     var status: ConversationStatus = .idle
     var conversationDuration: TimeInterval = 0
     var shouldDismiss = false
+    /// 3D で出すキャラのモデル（見た目が 3D のとき）
+    var vrmModelFileURL: URL?
 
     // MARK: - Constants
 
@@ -36,7 +38,7 @@ class ConversationViewModel: NSObject {
     // MARK: - Repositories
 
     /// 会話するキャラ。人格プロンプトはサーバ側（chara-table）が持つ。
-    private let charaID: String
+    let charaID: String
     /// キャラの会話の設定。会話を始めるときにサーバから取得する。
     private var conversation: CharaConversation?
     /// 会話の言語。設定で選んだ言語をキャラが話せればその言語、話せなければキャラの言語
@@ -173,6 +175,10 @@ class ConversationViewModel: NSObject {
         language = conversation.language(preferred: UserDefaultsRepository().getConversationLanguage())
         recognizer = SFSpeechRecognizer(locale: language.locale)
         charaName = chara.name
+        // ユーザーがキャラ詳細で選んだ見た目（なければ既定）が 3D なら、会話の画面にも出す
+        if case .vrm(let modelFileURL) = chara.appearance(preferred: UserDefaultsRepository().getPreferredAppearance(charaID: charaID)) {
+            vrmModelFileURL = modelFileURL
+        }
         let textToSpeechRepository = self.textToSpeechRepository
             ?? Self.makeTextToSpeechRepository(charaID: charaID, conversation: conversation)
         self.textToSpeechRepository = textToSpeechRepository
@@ -196,7 +202,8 @@ class ConversationViewModel: NSObject {
         // 初回の応答を生成
         status = .generatingScript
         chatMessages.append(ChatMessage(role: .system, content: conversation.openingPrompt))
-        let initialScript = try await generateResponse()
+        // 最初のひとことは、設定でオンにしていれば今日の予定に触れる
+        let initialScript = try await generateResponse(includeTodayEvents: true)
         guard !shouldDismiss else { return }
 
         stopRingtone()
@@ -243,12 +250,13 @@ class ConversationViewModel: NSObject {
     }
 
     /// キャラの返事を作る。キャラがカレンダーを見るあいだは、そのひとこと（「ちょっと見てみますね」）を先に話す
-    private func generateResponse() async throws -> String {
+    private func generateResponse(includeTodayEvents: Bool = false) async throws -> String {
         var fillerTask: Task<Void, Never>?
         let response = try await textGenerationRepository.generateResponse(
             charaID: charaID,
             language: language,
-            inputs: chatMessages
+            inputs: chatMessages,
+            includeTodayEvents: includeTodayEvents
         ) { [weak self] filler in
             guard let self else { return }
             self.stopRingtone()

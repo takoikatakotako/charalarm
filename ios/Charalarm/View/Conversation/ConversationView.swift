@@ -20,7 +20,14 @@ struct ConversationView: View {
 
     var body: some View {
         VStack(spacing: 24) {
-            Spacer()
+            if let vrmModelFileURL = viewModel.vrmModelFileURL {
+                // 話している相手を胸から上で出す
+                CharaVRMView(charaID: viewModel.charaID, modelFileURL: vrmModelFileURL, framing: .bust)
+                    .frame(maxWidth: .infinity)
+                    .frame(maxHeight: 360)
+            } else {
+                Spacer()
+            }
 
             Text(viewModel.charaName)
                 .font(.title2)

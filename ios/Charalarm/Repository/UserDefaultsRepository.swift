@@ -20,6 +20,7 @@ struct UserDefaultsRepository: UserDefaultsRepositoryProtocol {
     private let KEY_PREFERRED_APPEARANCE_PREFIX = "PREFERRED_APPEARANCE_"
     private let KEY_CONVERSATION_LANGUAGE = "CONVERSATION_LANGUAGE"
     private let KEY_USE_CALENDAR_IN_CONVERSATION = "USE_CALENDAR_IN_CONVERSATION"
+    private let KEY_MENTION_SCHEDULE_ON_CALL = "MENTION_SCHEDULE_ON_CALL"
 
     // Defaults
     private let DEFAULT_CHARA_DOMAIN = "jp.zunko.zundamon"
@@ -87,6 +88,15 @@ struct UserDefaultsRepository: UserDefaultsRepositoryProtocol {
 
     func setUseCalendarInConversation(_ use: Bool) {
         UserDefaults.standard.set(use, forKey: KEY_USE_CALENDAR_IN_CONVERSATION)
+    }
+
+    /// 電話の最初に、キャラのほうから今日の予定に触れる（毎回、予定のタイトルと時刻を送る）。最初はオフ
+    func getMentionScheduleOnCall() -> Bool {
+        UserDefaults.standard.bool(forKey: KEY_MENTION_SCHEDULE_ON_CALL)
+    }
+
+    func setMentionScheduleOnCall(_ mention: Bool) {
+        UserDefaults.standard.set(mention, forKey: KEY_MENTION_SCHEDULE_ON_CALL)
     }
 
     func setDefaultCharaDomain() {

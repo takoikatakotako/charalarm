@@ -18,7 +18,7 @@ struct TopView: View {
 
             VStack(spacing: 0) {
                 if let vrmChara = viewState.vrmChara {
-                    CharaVRMView(charaID: vrmChara.charaID, modelFileURL: vrmChara.modelFileURL, framing: .full)
+                    CharaVRMView(charaID: vrmChara.charaID, modelFileURL: vrmChara.modelFileURL, framing: .bust)
                         .id(vrmChara.charaID)
                         .padding(.top, 60)
                 } else {
@@ -31,7 +31,9 @@ struct TopView: View {
             }
 
             Button(action: {
-                viewState.tapped()
+                Task {
+                    await viewState.tapped()
+                }
             }) {
                 Text("")
                     .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity)
