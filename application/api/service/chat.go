@@ -50,6 +50,9 @@ const (
 		"道具を使うときは、確かめる前のひとこと（例：ちょっと見てみますね）も一緒に話してください。" +
 		"「確かめますね」「見てみますね」と言うのは、実際に道具を使うときだけにしてください。"
 	chatNoCalendarInstruction = "あなたはユーザーの予定を知りません。予定を作り上げず、必要ならユーザーに聞いてください。"
+	// chatNoScheduleOnOpeningInstruction は電話の最初に予定を渡さなかったときの指示。
+	// ユーザーが「電話の最初に今日の予定を話す」をオフにしているので、あいさつで予定の話をしない
+	chatNoScheduleOnOpeningInstruction = "最初のあいさつでは、予定の話や「予定を確かめますね」という話はしないでください。"
 	// chatTodayEventsInstruction は電話の最初に今日の予定を渡したときの指示。予定は <events> で囲んで続ける
 	chatTodayEventsInstruction = "以下は、ユーザーの端末のカレンダーにある今日の予定です（タイトルと時刻だけ）。" +
 		"最初のあいさつで、この予定に自然に触れてください。予定がなければ、予定には触れなくてかまいません。" +
@@ -180,6 +183,16 @@ func chatTools(input ChatInput) []llm.Tool {
 	return []llm.Tool{calendarTodayTool}
 }
 
+// hasUserMessage はユーザーがもう話したか (電話の最初のひとことでないか)。
+func hasUserMessage(input ChatInput) bool {
+	for _, m := range input.Messages {
+		if m.Role == llm.RoleUser {
+			return true
+		}
+	}
+	return false
+}
+
 func hasCapability(input ChatInput, capability string) bool {
 	for _, c := range input.Capabilities {
 		if c == capability {
@@ -283,6 +296,9 @@ func buildChatMessages(persona string, input ChatInput) ([]llm.Message, error) {
 		})
 	}
 
+	if input.TodayEvents == "" && hasCapability(input, CapabilityCalendarRead) && !hasUserMessage(input) {
+		messages = append(messages, llm.Message{Role: llm.RoleSystem, Content: chatNoScheduleOnOpeningInstruction})
+	}
 	if input.TodayEvents != "" {
 		messages = append(messages, llm.Message{
 			Role:    llm.RoleSystem,

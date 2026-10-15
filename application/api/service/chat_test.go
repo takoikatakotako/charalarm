@@ -203,3 +203,28 @@ func TestTodayEvents(t *testing.T) {
 	input.TodayEvents = strings.Repeat("a", chatMaxToolResultLength+1)
 	assert.Error(t, validateChatInput(input))
 }
+
+func TestNoScheduleOnOpening(t *testing.T) {
+	opening := llm.Message{Role: llm.RoleSystem, Content: "電話に出たところ"}
+	calendar := []string{CapabilityCalendarRead}
+	contains := func(messages []llm.Message) bool {
+		for _, m := range messages {
+			if m.Content == chatNoScheduleOnOpeningInstruction {
+				return true
+			}
+		}
+		return false
+	}
+
+	// 電話の最初に予定を渡さなかったら、あいさつで予定の話をしない
+	messages, _ := buildChatMessages("", ChatInput{Capabilities: calendar, Messages: []llm.Message{opening}})
+	assert.True(t, contains(messages))
+
+	// ユーザーが話したあとは、道具で予定を確かめてよい
+	messages, _ = buildChatMessages("", ChatInput{Capabilities: calendar, Messages: []llm.Message{opening, {Role: llm.RoleUser, Content: "今日の予定は？"}}})
+	assert.False(t, contains(messages))
+
+	// 予定を渡したときは、予定に触れる
+	messages, _ = buildChatMessages("", ChatInput{Capabilities: calendar, TodayEvents: "[]", Messages: []llm.Message{opening}})
+	assert.False(t, contains(messages))
+}
