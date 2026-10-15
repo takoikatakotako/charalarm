@@ -6,6 +6,8 @@ struct ChatRequest: Encodable {
     let charaID: String
     /// 会話の言語（"ja" / "en"）。キャラが話せなければサーバがキャラの言語にする。
     let language: String
+    /// 端末で使える道具（例: calendar.read）。許可がないものは入れない
+    let capabilities: [String]
     let messages: [ChatMessage]
     let context: ChatContext
 }
