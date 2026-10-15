@@ -6,6 +6,33 @@ import SwiftUI
     var alertMessage = ""
     var showingResetAlert = false
     var showingSubscriptionSheet = false
+    /// 会話で今日の予定を使う。オンにするときにカレンダーの許可を求める
+    private(set) var useCalendarInConversation = UserDefaultsRepository().getUseCalendarInConversation()
+        && CalendarRepository().isAuthorized
+
+    func setUseCalendarInConversation(_ use: Bool) {
+        guard use else {
+            useCalendarInConversation = false
+            UserDefaultsRepository().setUseCalendarInConversation(false)
+            return
+        }
+        Task { @MainActor in
+            let granted = await CalendarRepository().requestAccess()
+            useCalendarInConversation = granted
+            UserDefaultsRepository().setUseCalendarInConversation(granted)
+            if !granted {
+                alertMessage = String(localized: "config-calendar-access-denied")
+                showingAlert = true
+            }
+        }
+    }
+
+    /// キャラと会話する言語。キャラが話せなければ、そのキャラの言語で会話する
+    var conversationLanguage: ConversationLanguage = UserDefaultsRepository().getConversationLanguage() {
+        didSet {
+            UserDefaultsRepository().setConversationLanguage(conversationLanguage)
+        }
+    }
 
     private let keychainRepository: KeychainRepository = KeychainRepository()
     private let userDefaultsRepository = UserDefaultsRepository()

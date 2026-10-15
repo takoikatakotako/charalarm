@@ -121,10 +121,17 @@ struct CharaConversation: Hashable, Equatable {
 
     let voiceProvider: VoiceProvider
     let voicevoxStyleID: Int
+    /// 会話できる言語。先頭が第一言語。
+    let languages: [ConversationLanguage]
     /// 通話の場面の指示。/chat に system として送る。
     let openingPrompt: String
     let endingPrompt: String
     let noInputEndingPrompt: String
+
+    /// ユーザーが選んだ言語で話せればその言語、話せなければキャラの第一言語。
+    func language(preferred: ConversationLanguage) -> ConversationLanguage {
+        languages.contains(preferred) ? preferred : (languages.first ?? .japanese)
+    }
 
     /// 知らない声の出し方なら nil（古いアプリでは会話しない）。
     init?(response: CharaConversationResponse) {
@@ -133,6 +140,8 @@ struct CharaConversation: Hashable, Equatable {
         }
         self.voiceProvider = voiceProvider
         voicevoxStyleID = response.voicevoxStyleID
+        let languages = (response.languages ?? []).compactMap(ConversationLanguage.init(rawValue:))
+        self.languages = languages.isEmpty ? [.japanese] : languages
         openingPrompt = response.openingPrompt
         endingPrompt = response.endingPrompt
         noInputEndingPrompt = response.noInputEndingPrompt
