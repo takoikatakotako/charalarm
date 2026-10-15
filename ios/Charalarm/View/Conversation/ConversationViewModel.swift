@@ -63,6 +63,8 @@ class ConversationViewModel: NSObject {
     let voicePlayerNode = AVAudioPlayerNode()
     var playbackContinuation: CheckedContinuation<Void, Never>?
     var isAudioEngineReady = false
+    /// エンジンの設定が変わった (止まった) ことの通知
+    var engineConfigurationObserver: NSObjectProtocol?
     /// キャラが話している最中も聞いていて、話しかけられたら止める
     var isListeningForBargeIn = false
     /// 話しかけられて、キャラの声を途中で止めた
@@ -98,6 +100,9 @@ class ConversationViewModel: NSObject {
         mainTask = Task {
             do {
                 try await startConversation()
+            } catch let error as ConversationError where error.isPermissionDenied {
+                // ユーザーが自分で直せるので、何をすればよいかを出す
+                text = error.localizedDescription
             } catch {
                 CharalarmLogger.error("会話エラー", error: error)
                 text = "ごめんなさい、うまくつながりませんでした。少し時間をあけて、またかけてみてください。"
@@ -174,9 +179,12 @@ class ConversationViewModel: NSObject {
         try textToSpeechRepository.setupSynthesizer()
         guard !shouldDismiss else { return }
 
-        // 音声認識の許可
+        // 音声認識とマイクの許可。会話の最初からマイクを開くので、録音を始める前に確かめる
         guard await requestSpeechRecognitionPermission() else {
             throw ConversationError.speechRecognitionPermissionDenied
+        }
+        guard await AVAudioApplication.requestRecordPermission() else {
+            throw ConversationError.microphonePermissionDenied
         }
         guard !shouldDismiss else { return }
 
@@ -358,6 +366,11 @@ class ConversationViewModel: NSObject {
     private func cleanupResources() {
         mainTask?.cancel()
         mainTask = nil
+
+        if let engineConfigurationObserver {
+            NotificationCenter.default.removeObserver(engineConfigurationObserver)
+            self.engineConfigurationObserver = nil
+        }
 
         silenceTimer?.invalidate()
         silenceTimer = nil

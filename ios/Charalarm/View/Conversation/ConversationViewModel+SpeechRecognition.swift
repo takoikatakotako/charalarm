@@ -82,11 +82,7 @@ extension ConversationViewModel {
         request.shouldReportPartialResults = true
         self.request = request
 
-        let input = engine.inputNode
-        input.removeTap(onBus: 0)
-        input.installTap(onBus: 0, bufferSize: 1024, format: input.outputFormat(forBus: 0)) { [weak self] buffer, _ in
-            self?.request?.append(buffer)
-        }
+        installInputTap()
 
         task = recognizer?.recognitionTask(with: request) { [weak self] result, error in
             Task { @MainActor in
@@ -98,6 +94,15 @@ extension ConversationViewModel {
                 guard let result, !result.isFinal else { return }
                 self.didRecognize(result.bestTranscription.formattedString)
             }
+        }
+    }
+
+    /// マイクの音を音声認識に流す。エンジンの設定が変わったら (形が変わることがあるので) 付け直す
+    func installInputTap() {
+        let input = engine.inputNode
+        input.removeTap(onBus: 0)
+        input.installTap(onBus: 0, bufferSize: 1024, format: input.outputFormat(forBus: 0)) { [weak self] buffer, _ in
+            self?.request?.append(buffer)
         }
     }
 
