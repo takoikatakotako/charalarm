@@ -39,6 +39,12 @@ enum TopViewModelSheet: Identifiable {
     }
 }
 
+/// トップに 3D で出すキャラ（見た目が VRM のキャラ）。
+struct TopVRMChara: Equatable {
+    let charaID: String
+    let modelFileURL: URL
+}
+
 /// 電話ボタンで通話するキャラ（fullScreenCover 用）。
 struct TopConversationChara: Identifiable {
     let charaID: String
@@ -47,6 +53,8 @@ struct TopConversationChara: Identifiable {
 
 @Observable class TopViewState {
     var charaImage = UIImage()
+    /// VRM のキャラを選んでいれば、立ち絵の代わりに 3D で出す
+    var vrmChara: TopVRMChara?
     var showingAlert = false
     var alert: TopViewModelAlert? {
         didSet {
@@ -82,6 +90,7 @@ struct TopConversationChara: Identifiable {
             self.alert = .failedToGetCharactersResources
             return
         }
+        setVRMChara(charaID: charaID, resource: resource)
 
         guard let key = resource.expressions.keys.randomElement() else {
             return
@@ -167,12 +176,29 @@ struct TopConversationChara: Identifiable {
             }
             return
         }
+        setVRMChara(charaID: charaID, resource: resource)
 
         guard let key = resource.expressions.keys.randomElement() else {
             return
         }
 
         setCharaImage(charaDomain: charaID, resource: resource, key: key)
+    }
+
+    /// ユーザーが選んだ見た目（なければ既定）が 3D なら 3D で出す。イラストを選んでも画像がなければ 3D にする
+    private func setVRMChara(charaID: String, resource: LocalCharaResource) {
+        guard let modelFileURL = resource.modelFileURL else {
+            vrmChara = nil
+            return
+        }
+        let preferred = userDefaultsRepository.getPreferredAppearance(charaID: charaID)
+            ?? resource.defaultAppearance.flatMap(CharaAppearanceKind.init(rawValue:))
+        let hasImage = resource.expressions.values.contains { !$0.imageFileNames.isEmpty }
+        if preferred == .illustration && hasImage {
+            vrmChara = nil
+        } else {
+            vrmChara = TopVRMChara(charaID: charaID, modelFileURL: modelFileURL)
+        }
     }
 
     private func setCharaImage(charaDomain: String, resource: LocalCharaResource, key: String) {

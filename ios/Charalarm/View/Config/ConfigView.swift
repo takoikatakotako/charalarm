@@ -27,6 +27,27 @@ struct ConfigView: View {
 
                     Section(
                         header:
+                            Text(String(localized: "config-conversation"))
+                            .foregroundStyle(Color(.appMainText)),
+                        footer:
+                            Text(String(localized: "config-conversation-language-footer") + "\n" + String(localized: "config-use-calendar-footer"))
+                    ) {
+                        Picker(String(localized: "config-conversation-language"), selection: $viewState.conversationLanguage) {
+                            ForEach(ConversationLanguage.allCases) { language in
+                                Text(language.displayName).tag(language)
+                            }
+                        }
+                        .foregroundStyle(Color(R.color.textColor.name))
+
+                        Toggle(String(localized: "config-use-calendar"), isOn: Binding(
+                            get: { viewState.useCalendarInConversation },
+                            set: { viewState.setUseCalendarInConversation($0) }
+                        ))
+                        .foregroundStyle(Color(R.color.textColor.name))
+                    }
+
+                    Section(
+                        header:
                             Text(String(localized: "config-premium-plan"))
                             .foregroundStyle(Color(.appMainText))
                     ) {
@@ -80,6 +101,15 @@ struct ConfigView: View {
                                 .foregroundStyle(Color(R.color.textColor.name))
                         }
                         #endif
+
+                        // 同梱した時守しおりの VRM の表示確認（サーバに登録していなくても見られる）。
+                        // TestFlight で試すため Release ビルドでも出す。5.0.0 のリリース前に外す
+                        if let shioriModelURL = URL(string: "\(Variables.resourceEndpoint)/com.charalarm.shiori/shiori.vrm") {
+                            NavigationLink(destination: CharaVRMView(charaID: "com.charalarm.shiori", modelFileURL: shioriModelURL, framing: .full)) {
+                                Text("[試作] VRM プレビュー（時守しおり）")
+                                    .foregroundStyle(Color(R.color.textColor.name))
+                            }
+                        }
                     }
 
                     Section(

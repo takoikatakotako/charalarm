@@ -12,6 +12,9 @@ struct Chara: Identifiable, Hashable, Equatable {
         resources = charaResponse.resources.map { CharaResource(fileURL: $0.fileURL) }
         expressions = charaResponse.expressions.mapValues { CharaExpression(imageFileURLs: $0.imageFileURLs, voiceFileURLs: $0.voiceFileURLs) }
         calls = charaResponse.calls.map { CharaCall(message: $0.message, voiceFileURL: $0.voiceFileURL)}
+        appearance = CharaAppearance(response: charaResponse.appearance)
+        let appearances = (charaResponse.appearances ?? []).compactMap(CharaAppearance.init(listItem:))
+        self.appearances = appearances.isEmpty ? [appearance] : appearances
         conversation = charaResponse.conversation.flatMap(CharaConversation.init(response:))
     }
 
@@ -41,8 +44,70 @@ struct Chara: Identifiable, Hashable, Equatable {
     let resources: [CharaResource]
     let expressions: [String: CharaExpression]
     let calls: [CharaCall]
+    /// 既定の見た目（立ち絵か 3D モデルか）。
+    let appearance: CharaAppearance
+    /// 選べる見た目。先頭が既定。3D と立ち絵の両方があれば、ユーザーが選べる。
+    let appearances: [CharaAppearance]
+
+    /// ユーザーが選んだ見た目。選んでいないか、選んだものがなければ既定。
+    func appearance(preferred: CharaAppearanceKind?) -> CharaAppearance {
+        appearances.first { $0.kind == preferred } ?? appearances.first ?? appearance
+    }
+
+    /// 3D モデルの URL（3D の見た目があれば）。
+    var modelFileURL: URL? {
+        for appearance in appearances {
+            if case .vrm(let modelFileURL) = appearance {
+                return modelFileURL
+            }
+        }
+        return nil
+    }
     /// 会話の設定。会話に対応しないキャラは nil。
     let conversation: CharaConversation?
+}
+
+/// 見た目の種類。ユーザーが選んだものを端末に保存する。
+enum CharaAppearanceKind: String {
+    case illustration
+    case vrm
+}
+
+/// キャラの見た目。
+enum CharaAppearance: Hashable, Equatable {
+    /// 表情ごとの立ち絵（expressions の画像）。
+    case illustration
+    /// 3D モデル（VRM）。
+    case vrm(modelFileURL: URL)
+
+    var kind: CharaAppearanceKind {
+        switch self {
+        case .illustration: return .illustration
+        case .vrm: return .vrm
+        }
+    }
+
+    /// 知らないタイプや、VRM なのにモデルがないときは立ち絵として扱う。
+    init(response: CharaAppearanceResponse?) {
+        if response?.type == "vrm", let modelFileURL = response?.modelFileURL {
+            self = .vrm(modelFileURL: modelFileURL)
+        } else {
+            self = .illustration
+        }
+    }
+
+    /// 選べる見た目の一覧の1つ。知らないタイプは選べないので nil。
+    init?(listItem response: CharaAppearanceResponse) {
+        switch response.type {
+        case "vrm":
+            guard let modelFileURL = response.modelFileURL else { return nil }
+            self = .vrm(modelFileURL: modelFileURL)
+        case "illustration":
+            self = .illustration
+        default:
+            return nil
+        }
+    }
 }
 
 /// キャラとの通話（会話）の設定。
@@ -56,10 +121,17 @@ struct CharaConversation: Hashable, Equatable {
 
     let voiceProvider: VoiceProvider
     let voicevoxStyleID: Int
+    /// 会話できる言語。先頭が第一言語。
+    let languages: [ConversationLanguage]
     /// 通話の場面の指示。/chat に system として送る。
     let openingPrompt: String
     let endingPrompt: String
     let noInputEndingPrompt: String
+
+    /// ユーザーが選んだ言語で話せればその言語、話せなければキャラの第一言語。
+    func language(preferred: ConversationLanguage) -> ConversationLanguage {
+        languages.contains(preferred) ? preferred : (languages.first ?? .japanese)
+    }
 
     /// 知らない声の出し方なら nil（古いアプリでは会話しない）。
     init?(response: CharaConversationResponse) {
@@ -68,6 +140,8 @@ struct CharaConversation: Hashable, Equatable {
         }
         self.voiceProvider = voiceProvider
         voicevoxStyleID = response.voicevoxStyleID
+        let languages = (response.languages ?? []).compactMap(ConversationLanguage.init(rawValue:))
+        self.languages = languages.isEmpty ? [.japanese] : languages
         openingPrompt = response.openingPrompt
         endingPrompt = response.endingPrompt
         noInputEndingPrompt = response.noInputEndingPrompt

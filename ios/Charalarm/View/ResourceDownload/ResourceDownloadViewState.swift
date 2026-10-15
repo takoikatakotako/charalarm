@@ -28,6 +28,11 @@ import Foundation
                     try fileRepository.saveFile(directoryName: charaID, fileName: fileName, data: fileData)
                 }
 
+                // VRM のキャラは 3D モデルも用意する（同梱していればダウンロードしない）
+                if let modelFileURL = chara.modelFileURL {
+                    _ = try await VRMModelRepository().modelFileURL(charaID: charaID, modelFileURL: modelFileURL)
+                }
+
                 // Chara を CharaLocalResource に変換する
                 let localCharaResource = LocalCharaResource(chara: chara)
                 try localCharaResourceUseCase.saveCharaResource(charaID: chara.charaID, localCharaResource: localCharaResource)
