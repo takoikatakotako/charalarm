@@ -34,10 +34,8 @@ extension ConversationViewModel {
         task = nil
         request = nil
         recognitionContinuation = nil
-        if engine.isRunning {
-            engine.stop()
-            engine.inputNode.removeTap(onBus: 0)
-        }
+        pendingRecognizedText = nil
+        engine.inputNode.removeTap(onBus: 0)
     }
 
     func requestSpeechRecognitionPermission() async -> Bool {
@@ -59,68 +57,94 @@ extension ConversationViewModel {
         }
     }
 
+    /// ユーザーの発話を受け取る。キャラが話している最中から聞いているので、話しかけて止めた発話もここで受け取る
     private func recognizeUserSpeech() async throws -> String {
         status = .recognizingSpeech
-        text = ""
-
-        let audioSession = AVAudioSession.sharedInstance()
-        try audioSession.setCategory(.playAndRecord, mode: .voiceChat, options: [.defaultToSpeaker, .mixWithOthers])
-        try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
-
-        request = SFSpeechAudioBufferRecognitionRequest()
-        request?.shouldReportPartialResults = true
-
-        let input = engine.inputNode
-        let format = input.outputFormat(forBus: 0)
-
-        input.removeTap(onBus: 0)
-        input.installTap(onBus: 0, bufferSize: 1024, format: format) { [weak self] buffer, _ in
-            self?.request?.append(buffer)
+        if let pending = pendingRecognizedText {
+            pendingRecognizedText = nil
+            return pending
         }
-
-        task = recognizer?.recognitionTask(with: request!) { [weak self] result, error in
-            guard let self = self else { return }
-
-            if let error = error {
-                Task { @MainActor in
-                    self.recognitionContinuation?.resume(throwing: ConversationError.speechRecognitionFailed(error))
-                    self.recognitionContinuation = nil
-                }
-                return
-            }
-
-            guard let result = result, !result.isFinal else { return }
-
-            let recognizedText = result.bestTranscription.formattedString
-            DispatchQueue.main.async {
-                self.text = recognizedText
-            }
-
-            self.silenceTimer?.invalidate()
-            self.silenceTimer = Timer.scheduledTimer(
-                withTimeInterval: Constants.silenceDetectionTime,
-                repeats: false
-            ) { _ in
-                Task { @MainActor in
-                    self.stopRecognition()
-                }
-            }
+        if request == nil {
+            text = ""
+            try startListening()
         }
-
-        try engine.start()
-
         return try await withCheckedThrowingContinuation { continuation in
             recognitionContinuation = continuation
         }
     }
 
+    /// 音声認識を始める。キャラが話している最中に呼ぶと、言葉が聞こえたところで再生を止める
+    func startListening() throws {
+        guard request == nil else { return }
+        try prepareAudioEngine()
+
+        let request = SFSpeechAudioBufferRecognitionRequest()
+        request.shouldReportPartialResults = true
+        self.request = request
+
+        let input = engine.inputNode
+        input.removeTap(onBus: 0)
+        input.installTap(onBus: 0, bufferSize: 1024, format: input.outputFormat(forBus: 0)) { [weak self] buffer, _ in
+            self?.request?.append(buffer)
+        }
+
+        task = recognizer?.recognitionTask(with: request) { [weak self] result, error in
+            Task { @MainActor in
+                guard let self else { return }
+                if let error {
+                    self.failRecognition(error)
+                    return
+                }
+                guard let result, !result.isFinal else { return }
+                self.didRecognize(result.bestTranscription.formattedString)
+            }
+        }
+    }
+
+    private func didRecognize(_ recognizedText: String) {
+        let trimmed = recognizedText.trimmingCharacters(in: .whitespacesAndNewlines)
+        // キャラが話している最中に言葉が聞こえたら止める (物音で止まらないよう2文字から)
+        if isListeningForBargeIn && !isBargedIn {
+            guard trimmed.count >= 2 else { return }
+            interruptPlayback()
+        }
+
+        text = recognizedText
+        silenceTimer?.invalidate()
+        silenceTimer = Timer.scheduledTimer(withTimeInterval: Constants.silenceDetectionTime, repeats: false) { [weak self] _ in
+            Task { @MainActor in
+                self?.stopRecognition()
+            }
+        }
+    }
+
+    private func failRecognition(_ error: Error) {
+        if let continuation = recognitionContinuation {
+            continuation.resume(throwing: ConversationError.speechRecognitionFailed(error))
+            recognitionContinuation = nil
+        }
+        // 受け取る前のエラーは、次に聞くときに聞き直す
+        engine.inputNode.removeTap(onBus: 0)
+        request = nil
+        task = nil
+    }
+
+    /// 話し終わった (無音が続いた)。エンジンは会話のあいだ動かし続けるので止めない
     private func stopRecognition() {
-        engine.stop()
+        silenceTimer?.invalidate()
+        silenceTimer = nil
         engine.inputNode.removeTap(onBus: 0)
         request?.endAudio()
         task?.finish()
+        request = nil
+        task = nil
 
-        recognitionContinuation?.resume(returning: text)
-        recognitionContinuation = nil
+        if let continuation = recognitionContinuation {
+            continuation.resume(returning: text)
+            recognitionContinuation = nil
+        } else {
+            // まだ受け取る準備ができていない (キャラの声を止めた直後など)。次に受け取る
+            pendingRecognizedText = text
+        }
     }
 }
