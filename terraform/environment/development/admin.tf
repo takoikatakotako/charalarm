@@ -11,6 +11,10 @@ module "admin_api" {
   resource_bucket_arn              = module.resource.bucket_arn
   resource_distribution_id         = module.resource.distribution_id
   resource_distribution_arn        = module.resource.distribution_arn
+  # タップのセリフの下書きとボイスは、API と同じ sandbox の Vertex AI を使う (gcp-iac で管理 API のロールも信頼する)
+  gcp_project           = "sandbox-492513"
+  gcp_credential_config = local.gcp_credential_config
+  llm_model             = "gemini-3.1-flash-lite"
 }
 
 

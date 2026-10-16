@@ -106,6 +106,34 @@ export interface Chara extends CharaSettings {
   updatedAt: string;
   calls: CharaCall[];
   expressions: Record<string, CharaExpression>;
+  tapLines: TapLine[];
+}
+
+/** タップのセリフを流す条件。空の項目は条件にしない */
+export interface TapLineWhen {
+  /** 日付（"MM-DD"） */
+  dates: string[];
+  /** 時間帯 [開始, 終了)。開始 > 終了なら日をまたぐ */
+  hours: number[];
+  /** 曜日（0 = 日曜） */
+  weekdays: number[];
+}
+
+/** トップでキャラをタップしたときのセリフ */
+export interface TapLine {
+  /** 保存する前の案は空（サーバが付ける） */
+  id: string;
+  text: string;
+  /** ボイスのファイル名。まだなら空 */
+  voiceFileName: string;
+  theme: string;
+  when: TapLineWhen;
+}
+
+export interface TapLineTheme {
+  key: string;
+  label: string;
+  when: TapLineWhen;
 }
 
 export interface CharaCreate extends CharaSettings {

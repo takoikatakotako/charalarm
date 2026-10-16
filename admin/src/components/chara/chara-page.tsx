@@ -14,6 +14,7 @@ import type {
   ConversationType,
 } from "@/lib/api/types";
 import { CharaResources } from "@/components/chara/chara-resources";
+import { CharaTapLines } from "@/components/chara/chara-tap-lines";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -607,7 +608,7 @@ function availableAppearances(chara: Chara): AppearanceType[] {
 
 function CharaCard({ chara, onSaved }: { chara: Chara; onSaved: () => void }) {
   const [open, setOpen] = useState(false);
-  const [tab, setTab] = useState<"settings" | "resources">("settings");
+  const [tab, setTab] = useState<"settings" | "resources" | "tapLines">("settings");
 
   return (
     <Card>
@@ -646,6 +647,7 @@ function CharaCard({ chara, onSaved }: { chara: Chara; onSaved: () => void }) {
               [
                 ["settings", "設定"],
                 ["resources", "リソース"],
+                ["tapLines", "タップのセリフ"],
               ] as const
             ).map(([value, label]) => (
               <button
@@ -662,11 +664,9 @@ function CharaCard({ chara, onSaved }: { chara: Chara; onSaved: () => void }) {
               </button>
             ))}
           </div>
-          {tab === "settings" ? (
-            <CharaForm chara={chara} onSaved={onSaved} />
-          ) : (
-            <CharaResources chara={chara} onSaved={onSaved} />
-          )}
+          {tab === "settings" && <CharaForm chara={chara} onSaved={onSaved} />}
+          {tab === "resources" && <CharaResources chara={chara} onSaved={onSaved} />}
+          {tab === "tapLines" && <CharaTapLines chara={chara} onSaved={onSaved} />}
         </CardContent>
       )}
     </Card>

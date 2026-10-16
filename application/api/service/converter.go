@@ -197,8 +197,43 @@ func convertToCharaOutput(databaseChara database.Chara, baseURL string) output.C
 		Calls:        databaseCharaCallListToResponseCharaCallList(databaseChara.Calls, baseURL, databaseChara.CharaID),
 		Appearance:   convertToCharaAppearance(databaseChara, baseURL),
 		Appearances:  convertToCharaAppearances(databaseChara, baseURL),
+		TapLines:     convertToCharaTapLines(databaseChara, baseURL),
 		Conversation: convertToCharaConversation(databaseChara),
 	}
+}
+
+// convertToCharaTapLines はボイスができているタップのセリフを返す。
+func convertToCharaTapLines(databaseChara database.Chara, baseURL string) []output.CharaTapLine {
+	lines := make([]output.CharaTapLine, 0, len(databaseChara.TapLines))
+	for _, line := range databaseChara.TapLines {
+		if line.VoiceFileName == "" {
+			continue
+		}
+		lines = append(lines, output.CharaTapLine{
+			Text:         line.Text,
+			VoiceFileURL: createFileURL(baseURL, databaseChara.CharaID, line.VoiceFileName),
+			When: output.CharaTapLineWhen{
+				Dates:    nonNilStrings(line.When.Dates),
+				Hours:    nonNilInts(line.When.Hours),
+				Weekdays: nonNilInts(line.When.Weekdays),
+			},
+		})
+	}
+	return lines
+}
+
+func nonNilStrings(s []string) []string {
+	if s == nil {
+		return []string{}
+	}
+	return s
+}
+
+func nonNilInts(s []int) []int {
+	if s == nil {
+		return []int{}
+	}
+	return s
 }
 
 // convertToCharaAppearances はキャラの選べる見た目を返す。そろっているファイルから決める:
@@ -277,6 +312,15 @@ func databaseCharaToResponseCharaResourceList(databaseChara database.Chara, reso
 		for _, voiceFileName := range databaseCharaExpression.VoiceFileNames {
 			responseCharaResources = append(responseCharaResources, output.CharaResource{
 				FileURL: createFileURL(resourceBaseURL, databaseChara.CharaID, voiceFileName),
+			})
+		}
+	}
+
+	// タップのセリフのボイス (キャラを選んだときに端末にダウンロードする)
+	for _, line := range databaseChara.TapLines {
+		if line.VoiceFileName != "" {
+			responseCharaResources = append(responseCharaResources, output.CharaResource{
+				FileURL: createFileURL(resourceBaseURL, databaseChara.CharaID, line.VoiceFileName),
 			})
 		}
 	}

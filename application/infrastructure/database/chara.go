@@ -39,6 +39,9 @@ type Chara struct {
 	// GeminiVoiceStyle は Gemini TTS の話し方の指示 (省略可)。
 	GeminiVoiceStyle string `dynamodbav:"geminiVoiceStyle"`
 
+	// TapLines はトップでキャラをタップしたときのセリフ。日付や時間帯の条件で出し分ける。
+	TapLines []CharaTapLine `dynamodbav:"tapLines"`
+
 	// 通話の場面のプロンプト。空ならサーバの既定を使う。
 	CallOpeningPrompt       string `dynamodbav:"callOpeningPrompt"`
 	CallEndingPrompt        string `dynamodbav:"callEndingPrompt"`
@@ -122,6 +125,27 @@ func (c Chara) ConversationTypeOf() string {
 		return ConversationTypeVoicevox
 	}
 	return c.VoiceProvider
+}
+
+// CharaTapLine はタップしたときのセリフ。ボイスは事前に作り、リソース (公開の S3 + CloudFront) に置く。
+type CharaTapLine struct {
+	ID   string `dynamodbav:"id"`
+	Text string `dynamodbav:"text"`
+	// VoiceFileName はボイスのファイル名 (tap-<ID>.wav)。まだ作っていなければ空
+	VoiceFileName string `dynamodbav:"voiceFileName"`
+	// Theme は作ったときのテーマ (morning / christmas など)。空ならいつでも
+	Theme string           `dynamodbav:"theme"`
+	When  CharaTapLineWhen `dynamodbav:"when"`
+}
+
+// CharaTapLineWhen はセリフを流す条件。空の項目は条件にしない (全部空ならいつでも)。
+type CharaTapLineWhen struct {
+	// Dates は日付 ("MM-DD")。どれかに当たれば流す
+	Dates []string `dynamodbav:"dates"`
+	// Hours は時間帯 [開始, 終了) (0〜24)。開始 > 終了なら日をまたぐ (例: [22, 5])
+	Hours []int `dynamodbav:"hours"`
+	// Weekdays は曜日 (0 = 日曜)
+	Weekdays []int `dynamodbav:"weekdays"`
 }
 
 type CharaProfile struct {

@@ -72,6 +72,11 @@ struct TopConversationChara: Identifiable {
     private let apiRepository = APIRepository()
 
     var audioPlayer: AVAudioPlayer?
+    /// タップで流したセリフ（吹き出しに少しのあいだ出す）
+    var tapLineText: String?
+    /// 最近流したセリフ（続けて同じものを流さない）
+    private var recentTapLines: [TapLine] = []
+    private var hideTapLineTask: Task<Void, Never>?
 
     func onAppear() {
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, _ in
@@ -119,21 +124,6 @@ struct TopConversationChara: Identifiable {
         sheet = .config
     }
 
-    /// タップで会話を始める。会話できると分かっていればすぐ、分からなければサーバに聞いてから
-    @MainActor
-    private func startConversationIfPossible(charaID: String, knownToTalk: Bool) async {
-        guard !isPreparingCall else { return }
-        if knownToTalk {
-            conversationChara = TopConversationChara(charaID: charaID)
-            return
-        }
-        isPreparingCall = true
-        defer { isPreparingCall = false }
-        if let chara = try? await apiRepository.fetchCharacter(charaID: charaID), chara.conversation != nil {
-            conversationChara = TopConversationChara(charaID: charaID)
-        }
-    }
-
     /// 電話ボタン。選んでいるキャラが会話に対応していれば、そのキャラと通話する。
     @MainActor
     func callButtonTapped() async {
@@ -158,9 +148,8 @@ struct TopConversationChara: Identifiable {
         }
     }
 
-    /// キャラをタップした。会話できるキャラならお話しを始め、そうでなければタップのボイスを流す
-    @MainActor
-    func tapped() async {
+    /// キャラをタップした。タップのセリフがあれば今の日時に合うものを、なければ表情のボイスを流す
+    func tapped() {
         guard let charaDomain = userDefaultsRepository.getCharaID() else {
             self.alert = .failedToGetCharacterSelectionInformation
             return
@@ -171,12 +160,9 @@ struct TopConversationChara: Identifiable {
             return
         }
 
-        // 会話できるか分からない (前のバージョンで保存した) ときは、電話ボタンと同じくサーバに聞く
-        if resource.hasConversation != false {
-            await startConversationIfPossible(charaID: charaDomain, knownToTalk: resource.hasConversation == true)
-            if conversationChara != nil || resource.hasConversation == true {
-                return
-            }
+        if let tapLines = resource.tapLines, !tapLines.isEmpty {
+            playTapLine(charaDomain: charaDomain, lines: tapLines)
+            return
         }
 
         guard let key = resource.expressions.keys.randomElement() else {
@@ -244,6 +230,30 @@ struct TopConversationChara: Identifiable {
             DispatchQueue.main.async {
                 self.alert = .failedToSetCharacterImage
             }
+        }
+    }
+
+    /// 今の日時に合うタップのセリフを流す（クリスマスなど条件つきを優先、最近流したものは避ける）
+    private func playTapLine(charaDomain: String, lines: [TapLine]) {
+        guard let line = TapLineSelector.select(from: lines, recent: recentTapLines) else {
+            return
+        }
+        recentTapLines = Array((recentTapLines + [line]).suffix(min(5, max(lines.count - 1, 0))))
+
+        do {
+            let data = try fileHandler.loadData(directoryName: charaDomain, fileName: line.voiceFileName)
+            audioPlayer = try? AVAudioPlayer(data: data)
+            audioPlayer?.play()
+        } catch {
+            CharalarmLogger.error("タップのセリフのボイスを読めませんでした", error: error)
+        }
+
+        tapLineText = line.text
+        hideTapLineTask?.cancel()
+        hideTapLineTask = Task { @MainActor [weak self] in
+            try? await Task.sleep(for: .seconds(5))
+            guard !Task.isCancelled else { return }
+            self?.tapLineText = nil
         }
     }
 

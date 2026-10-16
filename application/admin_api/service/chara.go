@@ -200,6 +200,7 @@ func toCharaOutput(c database.Chara) output.Chara {
 		UpdatedAt:   c.UpdatedAd,
 		Calls:       calls,
 		Expressions: expressions,
+		TapLines:    c.TapLines,
 		Settings: output.CharaSettings{
 			Enable:                  c.Enable,
 			Name:                    c.Name,

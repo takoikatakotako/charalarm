@@ -6,6 +6,8 @@ import type {
   CharaCreate,
   CharaSettings,
   ResourceFileListResponse,
+  TapLine,
+  TapLineTheme,
   UploadURLResponse,
 } from "@/lib/api/types";
 
@@ -70,4 +72,26 @@ export async function updateCharaAssets(
   assets: CharaAssets,
 ): Promise<Chara> {
   return apiPut<Chara>(`${charaPath(charaID)}/assets`, assets);
+}
+
+export async function fetchTapLineThemes(): Promise<{ themes: TapLineTheme[] }> {
+  return apiGet<{ themes: TapLineTheme[] }>("/tap-line-themes");
+}
+
+/** テーマに合わせたセリフの案を LLM に作らせる（保存はしない） */
+export async function createTapLineDrafts(
+  charaID: string,
+  theme: string,
+  count: number,
+): Promise<{ drafts: TapLine[] }> {
+  return apiPost<{ drafts: TapLine[] }>(`${charaPath(charaID)}/tap-lines/drafts`, { theme, count });
+}
+
+export async function saveTapLines(charaID: string, tapLines: TapLine[]): Promise<Chara> {
+  return apiPut<Chara>(`${charaPath(charaID)}/tap-lines`, { tapLines });
+}
+
+/** セリフのボイスを Gemini TTS で作り、公開のリソースに置く（一度に8個まで） */
+export async function createTapLineVoices(charaID: string, ids: string[]): Promise<Chara> {
+  return apiPost<Chara>(`${charaPath(charaID)}/tap-lines/voices`, { ids });
 }

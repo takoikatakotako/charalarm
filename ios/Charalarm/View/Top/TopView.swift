@@ -30,10 +30,25 @@ struct TopView: View {
                 }
             }
 
-            Button(action: {
-                Task {
-                    await viewState.tapped()
+            // タップで流したセリフの吹き出し（タップのじゃまをしない）
+            if let tapLineText = viewState.tapLineText {
+                VStack {
+                    Text(tapLineText)
+                        .font(.callout)
+                        .foregroundStyle(Color.black)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 10)
+                        .background(Color.white.opacity(0.9), in: RoundedRectangle(cornerRadius: 16))
+                        .padding(.horizontal, 32)
+                        .padding(.top, 150)
+                    Spacer()
                 }
+                .allowsHitTesting(false)
+                .transition(.opacity)
+            }
+
+            Button(action: {
+                viewState.tapped()
             }) {
                 Text("")
                     .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity)
@@ -105,6 +120,7 @@ struct TopView: View {
             }
         }
         .ignoresSafeArea(.container, edges: [.top, .bottom])
+        .animation(.easeInOut(duration: 0.2), value: viewState.tapLineText)
         .task {
             for await notification in NotificationCenter.default.notifications(named: NSNotification.setChara) {
                 let charaID: String? = notification.userInfo?[NSNotification.setCharaUserInfoKeyCharaID] as? String
