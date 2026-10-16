@@ -41,7 +41,7 @@ type TapLineTheme struct {
 
 // TapLineThemes は選べるテーマ。季節のイベントは日付の条件つき。
 var TapLineThemes = []TapLineTheme{
-	{Key: "anytime", Label: "いつでも", Prompt: "いつ言ってもおかしくない、日常のひとこと"},
+	{Key: "anytime", Label: "いつでも", Prompt: "時間帯や季節に関係なく、いつ言ってもおかしくない日常のひとこと"},
 	{Key: "morning", Label: "朝", Prompt: "朝（5時〜11時）のひとこと。起きた人へのあいさつや、一日の始まり", When: database.CharaTapLineWhen{Hours: []int{5, 11}}},
 	{Key: "daytime", Label: "昼", Prompt: "昼（11時〜17時）のひとこと。お昼ごはんや、午後のひと息", When: database.CharaTapLineWhen{Hours: []int{11, 17}}},
 	{Key: "evening", Label: "夜", Prompt: "夜（17時〜23時）のひとこと。一日の終わりのねぎらい", When: database.CharaTapLineWhen{Hours: []int{17, 23}}},
@@ -67,6 +67,7 @@ const tapLineDraftInstruction = `あなたはキャラクターのセリフを�
 - ユーザーの名前、実在の人名・会社名・地名、電話番号、メールアドレス、URL、数字の羅列は入れない
 - ユーザーの予定・体調・個人的な事情を知っている前提で話さない
 - 暴力的・性的・政治的・宗教的・差別的な内容や、不安をあおる内容は入れない
+- テーマが朝・昼・夜・深夜のとき以外は、時間帯のあいさつ（おはよう・こんにちは・こんばんは・おやすみ）や、朝・夜の話を入れない（何時に流しても変にならないように）
 - 同じ言い回しを繰り返さず、それぞれ違うセリフにする
 
 出力は、セリフの文字列だけを並べた JSON の配列にしてください（例: ["セリフ1", "セリフ2"]）。説明は書かないでください。`
