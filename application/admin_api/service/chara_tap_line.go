@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"regexp"
 	"strings"
+	"unicode"
 	"unicode/utf8"
 
 	"github.com/takoikatakotako/charalarm/api/service/llm"
@@ -64,6 +65,7 @@ const tapLineDraftInstruction = `あなたはキャラクターのセリフを�
 - 絵文字・顔文字・記号（✨★など）・かっこ書き・ト書きは使わない
 - ユーザーの名前、実在の人名・会社名・地名、電話番号、メールアドレス、URL、数字の羅列は入れない
 - ユーザーの予定・体調・個人的な事情を知っている前提で話さない
+- 天気や気温、季節の様子（晴れ・雨・雪・暑い・寒い・紅葉など）を決めつけない（いろいろな国と季節で流れるため）
 - 暴力的・性的・政治的・宗教的・差別的な内容や、不安をあおる内容は入れない
 - テーマが朝・昼・夜・深夜のとき以外は、時間帯のあいさつ（おはよう・こんにちは・こんばんは・おやすみ）や、朝・夜の話を入れない（何時に流しても変にならないように）
 - 同じ言い回しを繰り返さず、それぞれ違うセリフにする
@@ -104,9 +106,35 @@ type TapLineDraft struct {
 // tapLineLanguageInstruction は日本語以外のセリフを作るときの指示 (キャラの設定は日本語で書いてある)
 func tapLineLanguageInstruction(language string) string {
 	name := database.LanguageNames[language]
-	return "Write every line in natural, spoken " + name + ". The character settings above are written in Japanese; " +
-		"keep the same personality and tone in " + name + ". Each line should be one or two short sentences. " +
-		"Output only a JSON array of strings."
+	return "IMPORTANT: Write every line in natural, spoken " + name + ", not in Japanese. " +
+		"The character settings and this request are written in Japanese; keep the same personality and tone in " + name + ". " +
+		"Each line should be one or two short sentences. Output only a JSON array of strings."
+}
+
+// isTapLineInLanguage はセリフがその言語で書かれていそうか (日本語で書いてしまった案を外すため)。
+// 日本語以外ではかなを含まないこと、韓国語はハングル、中国語は漢字、ヨーロッパの言語は漢字・かな・ハングルを含まないことを見る。
+func isTapLineInLanguage(text string, language string) bool {
+	var kana, hangul, han bool
+	for _, r := range text {
+		switch {
+		case unicode.In(r, unicode.Hiragana, unicode.Katakana) && r != 'ー' && r != '・':
+			kana = true
+		case unicode.Is(unicode.Hangul, r):
+			hangul = true
+		case unicode.Is(unicode.Han, r):
+			han = true
+		}
+	}
+	switch language {
+	case database.LanguageJapanese:
+		return true
+	case database.LanguageKorean:
+		return hangul && !kana
+	case database.LanguageChineseSimplified, database.LanguageChineseTraditional:
+		return han && !kana && !hangul
+	default:
+		return !kana && !hangul && !han
+	}
 }
 
 // Drafts はテーマに合わせたセリフの案を LLM に作らせる。
@@ -153,14 +181,15 @@ func (s *CharaTapLine) Drafts(ctx context.Context, charaID string, themeKey stri
 	if persona == "" {
 		persona = "キャラクターの名前: " + chara.Name + "\n" + chara.Description
 	}
+	// 言語の指示は依頼の最後に置く (システムの指示に置くと、日本語の設定と依頼に引っぱられて日本語で書いてしまう)
+	if language != database.LanguageJapanese {
+		request += "\n\n" + tapLineLanguageInstruction(language)
+	}
 	messages := []llm.Message{
 		{Role: llm.RoleSystem, Content: persona},
 		{Role: llm.RoleSystem, Content: tapLineDraftInstruction},
+		{Role: llm.RoleUser, Content: request},
 	}
-	if language != database.LanguageJapanese {
-		messages = append(messages, llm.Message{Role: llm.RoleSystem, Content: tapLineLanguageInstruction(language)})
-	}
-	messages = append(messages, llm.Message{Role: llm.RoleUser, Content: request})
 	reply, err := s.LLMClient.Chat(ctx, messages)
 	if err != nil {
 		return nil, err
@@ -173,7 +202,8 @@ func (s *CharaTapLine) Drafts(ctx context.Context, charaID string, themeKey stri
 	drafts := make([]TapLineDraft, 0, len(texts))
 	for _, text := range texts {
 		// 長すぎるものや、個人情報に見えるものは案から外す
-		if text == "" || utf8.RuneCountInString(text) > tapLineMaxLength || checkTapLineSensitive(text) != nil {
+		// 言語が違うものも外す
+		if text == "" || utf8.RuneCountInString(text) > tapLineMaxLength || checkTapLineSensitive(text) != nil || !isTapLineInLanguage(text, language) {
 			continue
 		}
 		drafts = append(drafts, TapLineDraft{Text: text, Theme: theme.Key, When: theme.When, Language: language})

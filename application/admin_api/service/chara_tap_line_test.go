@@ -62,3 +62,15 @@ func TestTapLineThemes(t *testing.T) {
 	assert.True(t, ok)
 	assert.Equal(t, []string{"12-24", "12-25"}, christmas.When.Dates)
 }
+
+func TestIsTapLineInLanguage(t *testing.T) {
+	assert.True(t, isTapLineInLanguage("おはようございます。", "ja"))
+	assert.True(t, isTapLineInLanguage("Guten Morgen! Hast du gut geschlafen?", "de"))
+	assert.False(t, isTapLineInLanguage("おはようございます。", "de"))
+	assert.True(t, isTapLineInLanguage("早上好，昨晚睡得好吗？", "zh-Hans"))
+	assert.False(t, isTapLineInLanguage("夜風が冷えてきましたね。", "zh-Hans"))
+	assert.True(t, isTapLineInLanguage("좋은 아침이에요.", "ko"))
+	assert.False(t, isTapLineInLanguage("おはよう。", "ko"))
+	assert.True(t, isTapLineInLanguage("¡Buenos días! ¿Dormiste bien?", "es"))
+	assert.True(t, isTapLineInLanguage("Joyeux Noël !", "fr"))
+}
