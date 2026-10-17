@@ -9,11 +9,13 @@ struct ConversationView: View {
     init(
         charaID: String,
         mode: ConversationMode = .standalone,
+        topic: ConversationTopic = .call,
         textGenerationRepository: TextGenerationRepository = BackendTextGenerationRepository()
     ) {
         _viewModel = State(initialValue: ConversationViewModel(
             charaID: charaID,
             mode: mode,
+            topic: topic,
             textGenerationRepository: textGenerationRepository
         ))
     }

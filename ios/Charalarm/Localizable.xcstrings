@@ -1018,6 +1018,23 @@
         }
       }
     },
+    "error-calendar-not-authorized" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "To hear today's schedule, allow full access to your calendar in Settings."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "今日の予定を聞くには、設定アプリでカレンダーへのフルアクセスを許可してください。"
+          }
+        }
+      }
+    },
     "error-failed-to-find-purchase-history" : {
       "localizations" : {
         "en" : {
@@ -1720,6 +1737,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "プレミアムプランにアップデート"
+          }
+        }
+      }
+    },
+    "top-today-schedule" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Today"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "今日の予定"
           }
         }
       }

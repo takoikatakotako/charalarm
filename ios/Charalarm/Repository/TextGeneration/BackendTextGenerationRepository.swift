@@ -16,7 +16,7 @@ struct BackendTextGenerationRepository: TextGenerationRepository {
         charaID: String,
         language: ConversationLanguage,
         inputs: [ChatMessage],
-        includeTodayEvents: Bool,
+        todayEvents todayEventsPolicy: TodayEventsPolicy,
         onFiller: @escaping @MainActor (String) -> Void
     ) async throws -> String {
         guard let userID = keychainRepository.getUserID(),
@@ -30,9 +30,15 @@ struct BackendTextGenerationRepository: TextGenerationRepository {
             capabilities.append("calendar.read")
         }
 
-        // 電話の最初のひとことで、キャラのほうから今日の予定に触れてもらう（設定でオンにした人だけ）
+        // 電話の最初のひとことで、キャラのほうから今日の予定に触れてもらう（設定でオンにした人と、「今日の予定」ボタン）
         var todayEvents: String?
-        if includeTodayEvents && userDefaultsRepository.getMentionScheduleOnCall() && calendarRepository.isAuthorized {
+        let sendsTodayEvents: Bool
+        switch todayEventsPolicy {
+        case .none: sendsTodayEvents = false
+        case .ifEnabled: sendsTodayEvents = userDefaultsRepository.getMentionScheduleOnCall()
+        case .always: sendsTodayEvents = true
+        }
+        if sendsTodayEvents && calendarRepository.isAuthorized {
             todayEvents = calendarRepository.todayEventsJSON()
         }
 

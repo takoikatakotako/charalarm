@@ -32,6 +32,7 @@ class ConversationViewModel: NSObject {
 
     /// 起動モード（アプリ内単体 or CallKit 着信フロー）。
     private let mode: ConversationMode
+    private let topic: ConversationTopic
 
     private let callController = CXCallController()
 
@@ -86,11 +87,13 @@ class ConversationViewModel: NSObject {
     init(
         charaID: String,
         mode: ConversationMode = .standalone,
+        topic: ConversationTopic = .call,
         textToSpeechRepository: TextToSpeechRepository? = nil,
         textGenerationRepository: TextGenerationRepository = BackendTextGenerationRepository()
     ) {
         self.charaID = charaID
         self.mode = mode
+        self.topic = topic
         self.textToSpeechRepository = textToSpeechRepository
         self.textGenerationRepository = textGenerationRepository
     }
@@ -194,16 +197,23 @@ class ConversationViewModel: NSObject {
         }
         guard !shouldDismiss else { return }
 
-        // 着信音を再生（CallKit モードでは着信音はシステムが鳴らすのでスキップ）
-        if case .standalone = mode {
+        // 着信音を再生（CallKit モードでは着信音はシステムが鳴らすのでスキップ。「今日の予定」は電話ではないので鳴らさない）
+        if case .standalone = mode, topic == .call {
             playRingtone()
         }
 
         // 初回の応答を生成
         status = .generatingScript
-        chatMessages.append(ChatMessage(role: .system, content: conversation.openingPrompt))
-        // 最初のひとことは、設定でオンにしていれば今日の予定に触れる
-        let initialScript = try await generateResponse(includeTodayEvents: true)
+        let initialScript: String
+        switch topic {
+        case .call:
+            chatMessages.append(ChatMessage(role: .system, content: conversation.openingPrompt))
+            // 最初のひとことは、設定でオンにしていれば今日の予定に触れる
+            initialScript = try await generateResponse(todayEvents: .ifEnabled)
+        case .todaySchedule:
+            chatMessages.append(ChatMessage(role: .system, content: ConversationTopic.todaySchedulePrompt))
+            initialScript = try await generateResponse(todayEvents: .always)
+        }
         guard !shouldDismiss else { return }
 
         stopRingtone()
@@ -250,13 +260,13 @@ class ConversationViewModel: NSObject {
     }
 
     /// キャラの返事を作る。キャラがカレンダーを見るあいだは、そのひとこと（「ちょっと見てみますね」）を先に話す
-    private func generateResponse(includeTodayEvents: Bool = false) async throws -> String {
+    private func generateResponse(todayEvents: TodayEventsPolicy = .none) async throws -> String {
         var fillerTask: Task<Void, Never>?
         let response = try await textGenerationRepository.generateResponse(
             charaID: charaID,
             language: language,
             inputs: chatMessages,
-            includeTodayEvents: includeTodayEvents
+            todayEvents: todayEvents
         ) { [weak self] filler in
             guard let self else { return }
             self.stopRingtone()

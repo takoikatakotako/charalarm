@@ -56,7 +56,28 @@ struct TopView: View {
 
             VStack(spacing: 0) {
                 VStack(spacing: 0) {
-                    HStack {
+                    HStack(alignment: .center) {
+                        // 会話とタップのセリフの言語
+                        Menu {
+                            Picker(String(localized: "config-conversation-language"), selection: $viewState.conversationLanguage) {
+                                ForEach(ConversationLanguage.allCases) { language in
+                                    Text(language.displayName).tag(language)
+                                }
+                            }
+                        } label: {
+                            TopPillLabel(systemImageName: "globe", text: viewState.conversationLanguage.displayName)
+                        }
+
+                        // キャラが今日の予定を読み上げる
+                        Button(action: {
+                            Task {
+                                await viewState.todayScheduleButtonTapped()
+                            }
+                        }) {
+                            TopPillLabel(systemImageName: "calendar", text: String(localized: "top-today-schedule"))
+                        }
+                        .disabled(viewState.isPreparingCall)
+
                         Spacer()
 
                         Button(action: {
@@ -64,9 +85,10 @@ struct TopView: View {
                         }) {
                             Image(R.image.topNews.name)
                         }
-                        .padding()
-                        .padding(.top, 8)
                     }
+                    .padding(.horizontal)
+                    .padding(.top, 60)
+                    .frame(maxHeight: .infinity, alignment: .top)
                     .frame(height: 140)
                     .background(LinearGradient(gradient: Gradient(colors: [.gray, .clear]), startPoint: UnitPoint(x: 0.5, y: 0), endPoint: UnitPoint(x: 0.5, y: 1)))
                 }
@@ -141,7 +163,7 @@ struct TopView: View {
             Text(item.message)
         }
         .fullScreenCover(item: $viewState.conversationChara) { chara in
-            ConversationView(charaID: chara.charaID)
+            ConversationView(charaID: chara.charaID, topic: chara.topic)
         }
         .sheet(item: $viewState.sheet) {
             // On Dissmiss

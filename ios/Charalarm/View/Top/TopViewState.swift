@@ -10,6 +10,7 @@ enum TopViewModelAlert {
     case failedToSetCharacterImage
     case thisFeatureIsNotAvailableInYourRegion
     case thisCharacterCannotTalkYet
+    case calendarNotAuthorized
 
     var message: String {
         switch self {
@@ -25,6 +26,8 @@ enum TopViewModelAlert {
             return String(localized: "error-this-feature-is-not-available-in-your-region")
         case .thisCharacterCannotTalkYet:
             return String(localized: "error-this-character-cannot-talk-yet")
+        case .calendarNotAuthorized:
+            return String(localized: "error-calendar-not-authorized")
         }
     }
 }
@@ -45,9 +48,10 @@ struct TopVRMChara: Equatable {
     let modelFileURL: URL
 }
 
-/// 電話ボタンで通話するキャラ（fullScreenCover 用）。
+/// 電話ボタン・「今日の予定」ボタンで話すキャラ（fullScreenCover 用）。
 struct TopConversationChara: Identifiable {
     let charaID: String
+    var topic: ConversationTopic = .call
     var id: String { charaID }
 }
 
@@ -65,6 +69,12 @@ struct TopConversationChara: Identifiable {
     /// 電話ボタンで通話するキャラ。nil でなければ会話画面を出す。
     var conversationChara: TopConversationChara?
     var isPreparingCall = false
+    /// 会話とタップのセリフの言語（トップと設定のどちらでも変えられる）
+    var conversationLanguage: ConversationLanguage = UserDefaultsRepository().getConversationLanguage() {
+        didSet {
+            userDefaultsRepository.setConversationLanguage(conversationLanguage)
+        }
+    }
     private let userDefaultsRepository: UserDefaultsRepository = UserDefaultsRepository()
     private let fileHandler: FileRepositoryProtocol = FileRepository()
 
@@ -85,6 +95,9 @@ struct TopConversationChara: Identifiable {
                 UIApplication.shared.registerForRemoteNotifications()
             }
         }
+
+        // 設定の画面で変えたかもしれないので読み直す
+        conversationLanguage = userDefaultsRepository.getConversationLanguage()
 
         guard let charaID = userDefaultsRepository.getCharaID() else {
             self.alert = .failedToGetCharacterSelectionInformation
@@ -127,6 +140,26 @@ struct TopConversationChara: Identifiable {
     /// 電話ボタン。選んでいるキャラが会話に対応していれば、そのキャラと通話する。
     @MainActor
     func callButtonTapped() async {
+        await startConversation(topic: .call)
+    }
+
+    /// 「今日の予定」ボタン。キャラが今日の予定を読み上げる（カレンダーの許可がなければ求める）。
+    @MainActor
+    func todayScheduleButtonTapped() async {
+        let calendarRepository = CalendarRepository()
+        guard calendarRepository.isAuthorized else {
+            if await calendarRepository.requestAccess() {
+                await startConversation(topic: .todaySchedule)
+            } else {
+                alert = .calendarNotAuthorized
+            }
+            return
+        }
+        await startConversation(topic: .todaySchedule)
+    }
+
+    @MainActor
+    private func startConversation(topic: ConversationTopic) async {
         guard !isPreparingCall else { return }
         guard let charaID = userDefaultsRepository.getCharaID() else {
             alert = .failedToGetCharacterSelectionInformation
@@ -141,7 +174,7 @@ struct TopConversationChara: Identifiable {
                 alert = .thisCharacterCannotTalkYet
                 return
             }
-            conversationChara = TopConversationChara(charaID: charaID)
+            conversationChara = TopConversationChara(charaID: charaID, topic: topic)
         } catch {
             CharalarmLogger.error("キャラ情報の取得に失敗", error: error)
             alert = .failedToGetCharacterInformation
