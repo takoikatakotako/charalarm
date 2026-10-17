@@ -34,6 +34,7 @@ enum TopViewModelAlert {
 
 enum TopViewModelSheet: Identifiable {
     case newsList
+    case trendNews
     case characterList
     case alarmList
     case config
@@ -119,6 +120,16 @@ struct TopConversationChara: Identifiable {
 
     func newsButtonTapped() {
         sheet = .newsList
+    }
+
+    func trendNewsButtonTapped() {
+        sheet = .trendNews
+    }
+
+    /// 話題のニュースを、キャラに読んでもらう
+    @MainActor
+    func readTrendNews(_ news: [TrendNews]) async {
+        await startConversation(topic: .trendNews(news))
     }
 
     func characterListButtonTapped() {

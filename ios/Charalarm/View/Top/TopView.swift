@@ -78,6 +78,14 @@ struct TopView: View {
                         }
                         .disabled(viewState.isPreparingCall)
 
+                        // 話題のニュース（キャラが紹介する）
+                        Button(action: {
+                            viewState.trendNewsButtonTapped()
+                        }) {
+                            TopPillLabel(systemImageName: "sparkles", text: String(localized: "top-trend-news"))
+                        }
+                        .disabled(viewState.isPreparingCall)
+
                         Spacer()
 
                         Button(action: {
@@ -171,6 +179,12 @@ struct TopView: View {
             switch item {
             case .newsList:
                 NewsListView()
+            case .trendNews:
+                TrendNewsView(repository: DummyTrendNewsRepository()) { news in
+                    Task {
+                        await viewState.readTrendNews(news)
+                    }
+                }
             case .characterList:
                 CharaListView(viewState: CharacterListViewState())
             case .alarmList:

@@ -198,7 +198,7 @@ class ConversationViewModel: NSObject {
         guard !shouldDismiss else { return }
 
         // 着信音を再生（CallKit モードでは着信音はシステムが鳴らすのでスキップ。「今日の予定」は電話ではないので鳴らさない）
-        if case .standalone = mode, topic == .call {
+        if case .standalone = mode, topic.isCall {
             playRingtone()
         }
 
@@ -213,6 +213,9 @@ class ConversationViewModel: NSObject {
         case .todaySchedule:
             chatMessages.append(ChatMessage(role: .system, content: ConversationTopic.todaySchedulePrompt))
             initialScript = try await generateResponse(todayEvents: .always)
+        case .trendNews(let news):
+            chatMessages.append(ChatMessage(role: .system, content: ConversationTopic.trendNewsPrompt(news)))
+            initialScript = try await generateResponse()
         }
         guard !shouldDismiss else { return }
 
