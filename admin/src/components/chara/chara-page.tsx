@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { useCharas } from "@/hooks/use-chara";
 import { createChara, fetchResourceFiles, updateChara } from "@/lib/api/chara";
 import { ApiClientError } from "@/lib/api/client";
+import { LANGUAGES } from "@/lib/api/types";
 import type {
   AppearanceType,
   Chara,
@@ -59,10 +60,7 @@ const conversationOptions: TypeOption<ConversationType>[] = [
 ];
 
 /** 会話に使える言語。並びは第一言語の優先順 */
-const languageOptions = [
-  { value: "ja", label: "日本語" },
-  { value: "en", label: "English" },
-];
+const languageOptions = LANGUAGES;
 
 const emptySettings: CharaSettings = {
   enable: false,
@@ -467,7 +465,7 @@ function CharaForm({
             label="会話できる言語"
             hint="アプリで選んだ言語にキャラが対応していれば、その言語で話す。対応していなければ日本語で話す。VOICEVOX は日本語だけ"
           >
-            <div className="flex gap-4">
+            <div className="flex flex-wrap gap-x-4 gap-y-2">
               {languageOptions.map((option) => {
                 const checked = settings.conversationLanguages.includes(option.value);
                 const disabled = settings.conversationType === "voicevox" && option.value !== "ja";

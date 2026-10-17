@@ -60,7 +60,6 @@ type charaResponse struct {
 	UpdatedAt   string                             `json:"updatedAt"`
 	Calls       []charaCallResponse                `json:"calls"`
 	Expressions map[string]charaExpressionResponse `json:"expressions"`
-	TapLines    []tapLineJSON                      `json:"tapLines"`
 	charaSettingsJSON
 }
 
@@ -188,15 +187,7 @@ func toCharaResponse(c output.Chara) charaResponse {
 		}
 	}
 
-	tapLines := make([]tapLineJSON, 0, len(c.TapLines))
-	for _, line := range c.TapLines {
-		tapLines = append(tapLines, tapLineJSON{
-			ID: line.ID, Language: line.LanguageOf(), Text: line.Text, VoiceFileName: line.VoiceFileName, Theme: line.Theme, When: toTapLineWhenJSON(line.When),
-		})
-	}
-
 	return charaResponse{
-		TapLines:    tapLines,
 		CharaID:     c.CharaID,
 		CreatedAt:   c.CreatedAt,
 		UpdatedAt:   c.UpdatedAt,

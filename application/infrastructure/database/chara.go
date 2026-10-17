@@ -39,9 +39,6 @@ type Chara struct {
 	// GeminiVoiceStyle は Gemini TTS の話し方の指示 (省略可)。
 	GeminiVoiceStyle string `dynamodbav:"geminiVoiceStyle"`
 
-	// TapLines はトップでキャラをタップしたときのセリフ。日付や時間帯の条件で出し分ける。
-	TapLines []CharaTapLine `dynamodbav:"tapLines"`
-
 	// 通話の場面のプロンプト。空ならサーバの既定を使う。
 	CallOpeningPrompt       string `dynamodbav:"callOpeningPrompt"`
 	CallEndingPrompt        string `dynamodbav:"callEndingPrompt"`
@@ -66,14 +63,35 @@ const (
 	ConversationTypeGemini = "gemini"
 )
 
-// 会話の言語
+// 会話の言語 (BCP 47)
 const (
-	LanguageJapanese = "ja"
-	LanguageEnglish  = "en"
+	LanguageJapanese           = "ja"
+	LanguageEnglish            = "en"
+	LanguageChineseSimplified  = "zh-Hans"
+	LanguageChineseTraditional = "zh-Hant"
+	LanguageKorean             = "ko"
+	LanguageSpanish            = "es"
+	LanguageFrench             = "fr"
+	LanguageGerman             = "de"
 )
 
 // SupportedLanguages は会話に使える言語。
-var SupportedLanguages = []string{LanguageJapanese, LanguageEnglish}
+var SupportedLanguages = []string{
+	LanguageJapanese, LanguageEnglish, LanguageChineseSimplified, LanguageChineseTraditional,
+	LanguageKorean, LanguageSpanish, LanguageFrench, LanguageGerman,
+}
+
+// LanguageNames は LLM への指示に使う言語の名前 (英語)。
+var LanguageNames = map[string]string{
+	LanguageJapanese:           "Japanese",
+	LanguageEnglish:            "English",
+	LanguageChineseSimplified:  "Simplified Chinese (Mandarin)",
+	LanguageChineseTraditional: "Traditional Chinese (Mandarin, as used in Taiwan)",
+	LanguageKorean:             "Korean",
+	LanguageSpanish:            "Spanish",
+	LanguageFrench:             "French",
+	LanguageGerman:             "German",
+}
 
 // IsSupportedLanguage は会話に使える言語か。
 func IsSupportedLanguage(language string) bool {
@@ -127,16 +145,25 @@ func (c Chara) ConversationTypeOf() string {
 	return c.VoiceProvider
 }
 
-// CharaTapLine はタップしたときのセリフ。ボイスは事前に作り、リソース (公開の S3 + CloudFront) に置く。
+const (
+	CharaTapLineTableName    = "chara-tap-line-table"
+	CharaTapLineTableCharaID = "charaID"
+	CharaTapLineTableLineID  = "lineID"
+)
+
+// CharaTapLine はトップでキャラをタップしたときのセリフ。chara-tap-line-table に1行ずつ置く
+// (キャラの項目に入れると、言語とセリフが増えたときに項目が大きくなりすぎるため)。
+// ボイスは事前に作り、リソース (公開の S3 + CloudFront) に置く。
 type CharaTapLine struct {
-	ID   string `dynamodbav:"id"`
-	Text string `dynamodbav:"text"`
+	CharaID string `dynamodbav:"charaID"`
+	ID      string `dynamodbav:"lineID"`
+	Text    string `dynamodbav:"text"`
 	// VoiceFileName はボイスのファイル名 (tap-<ID>.wav)。まだ作っていなければ空
 	VoiceFileName string `dynamodbav:"voiceFileName"`
 	// Theme は作ったときのテーマ (morning / christmas など)。空ならいつでも
 	Theme string           `dynamodbav:"theme"`
 	When  CharaTapLineWhen `dynamodbav:"when"`
-	// Language はセリフの言語 ("ja" / "en")。空なら日本語。LanguageOf で読む
+	// Language はセリフの言語 (SupportedLanguages のどれか)。空なら日本語。LanguageOf で読む
 	Language string `dynamodbav:"language"`
 }
 

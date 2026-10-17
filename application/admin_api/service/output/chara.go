@@ -1,7 +1,5 @@
 package output
 
-import "github.com/takoikatakotako/charalarm/infrastructure/database"
-
 type CharaProfile struct {
 	Title string
 	Name  string
@@ -24,9 +22,7 @@ type Chara struct {
 	UpdatedAt   string
 	Calls       []CharaCall
 	Expressions map[string]CharaExpression
-	// TapLines はタップのセリフ (ボイスがまだのものも含む)
-	TapLines []database.CharaTapLine
-	Settings CharaSettings
+	Settings    CharaSettings
 }
 
 // CharaSettings は管理画面で編集する項目。キャラの追加と編集で同じものを使う。

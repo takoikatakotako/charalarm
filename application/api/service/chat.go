@@ -65,8 +65,12 @@ var defaultToolFillers = map[string]string{
 	database.LanguageEnglish:  "Let me check.",
 }
 
-// chatEnglishInstruction は英語で会話するときの指示。人格プロンプトは日本語で書いてあるので、性格はそのまま英語で話してもらう。
-const chatEnglishInstruction = "Reply in natural, spoken English. Your character settings above are written in Japanese; keep the same personality and tone, but always speak English, even if the user writes in another language."
+// chatLanguageInstruction は日本語以外で会話するときの指示。人格プロンプトは日本語で書いてあるので、性格はそのままその言語で話してもらう。
+func chatLanguageInstruction(language string) string {
+	name := database.LanguageNames[language]
+	return "Reply in natural, spoken " + name + ". Your character settings above are written in Japanese; " +
+		"keep the same personality and tone, but always speak " + name + ", even if the user writes in another language."
+}
 
 // chatSpeechInstruction は全キャラ共通の話し方の指示。返答は音声で読み上げるため。
 const chatSpeechInstruction = "返答はそのまま音声で読み上げます。絵文字・顔文字・飾りの記号（✨や★など）・箇条書き・マークダウンは使わず、話し言葉の文だけで答えてください。句読点（、。！？）は普通に使ってください。"
@@ -308,9 +312,9 @@ func buildChatMessages(persona string, input ChatInput) ([]llm.Message, error) {
 
 	messages = append(messages, input.Messages...)
 
-	// 英語の指示は最後に置く。場面の指示 (電話に出た等) やユーザーの発話が日本語でも英語で話すように
-	if input.Language == database.LanguageEnglish {
-		messages = append(messages, llm.Message{Role: llm.RoleSystem, Content: chatEnglishInstruction})
+	// 言語の指示は最後に置く。場面の指示 (電話に出た等) やユーザーの発話が日本語でも、その言語で話すように
+	if input.Language != "" && input.Language != database.LanguageJapanese {
+		messages = append(messages, llm.Message{Role: llm.RoleSystem, Content: chatLanguageInstruction(input.Language)})
 	}
 	return messages, nil
 }

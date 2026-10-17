@@ -78,16 +78,34 @@ resource "aws_dynamodb_table" "alarm_table" {
   }
 }
 
+# キャラの数は少ないが項目が大きくなりやすい (設定・リソース) ので、容量を気にしなくてよいオンデマンドにする
 resource "aws_dynamodb_table" "chara_table" {
   name           = "chara-table"
   hash_key       = "charaID"
-  billing_mode   = "PROVISIONED"
-  read_capacity  = 1
-  write_capacity = 1
+  billing_mode   = "PAY_PER_REQUEST"
   stream_enabled = false
 
   attribute {
     name = "charaID"
+    type = "S"
+  }
+}
+
+# トップでキャラをタップしたときのセリフ。言語 × テーマで数が増えるので、キャラの項目ではなく1行ずつ置く
+resource "aws_dynamodb_table" "chara_tap_line_table" {
+  name           = "chara-tap-line-table"
+  hash_key       = "charaID"
+  range_key      = "lineID"
+  billing_mode   = "PAY_PER_REQUEST"
+  stream_enabled = false
+
+  attribute {
+    name = "charaID"
+    type = "S"
+  }
+
+  attribute {
+    name = "lineID"
     type = "S"
   }
 }

@@ -53,6 +53,10 @@ type tapLinesRequest struct {
 	TapLines []tapLineJSON `json:"tapLines"`
 }
 
+type tapLinesResponse struct {
+	TapLines []tapLineJSON `json:"tapLines"`
+}
+
 type tapLineVoicesRequest struct {
 	IDs []string `json:"ids"`
 }
@@ -98,11 +102,11 @@ func (h *CharaTapLine) LinesPut(c echo.Context) error {
 			},
 		})
 	}
-	updated, err := h.Service.SaveLines(c.Param("charaID"), lines)
+	saved, err := h.Service.SaveLines(c.Param("charaID"), lines)
 	if err != nil {
 		return tapLineErrorResponse(c, "save_tap_lines_failed", err)
 	}
-	return c.JSON(http.StatusOK, toCharaResponse(updated))
+	return c.JSON(http.StatusOK, toTapLinesResponse(saved))
 }
 
 func (h *CharaTapLine) VoicesPost(c echo.Context) error {
@@ -110,11 +114,30 @@ func (h *CharaTapLine) VoicesPost(c echo.Context) error {
 	if err := c.Bind(req); err != nil {
 		return c.JSON(http.StatusBadRequest, newErrorResponse("invalid_request", err.Error()))
 	}
-	updated, err := h.Service.MakeVoices(c.Request().Context(), c.Param("charaID"), req.IDs)
+	lines, err := h.Service.MakeVoices(c.Request().Context(), c.Param("charaID"), req.IDs)
 	if err != nil {
 		return tapLineErrorResponse(c, "make_voices_failed", err)
 	}
-	return c.JSON(http.StatusOK, toCharaResponse(updated))
+	return c.JSON(http.StatusOK, toTapLinesResponse(lines))
+}
+
+func (h *CharaTapLine) LinesGet(c echo.Context) error {
+	lines, err := h.Service.ListLines(c.Param("charaID"))
+	if err != nil {
+		return tapLineErrorResponse(c, "list_tap_lines_failed", err)
+	}
+	return c.JSON(http.StatusOK, toTapLinesResponse(lines))
+}
+
+func toTapLinesResponse(lines []database.CharaTapLine) tapLinesResponse {
+	res := make([]tapLineJSON, 0, len(lines))
+	for _, line := range lines {
+		res = append(res, tapLineJSON{
+			ID: line.ID, Language: line.LanguageOf(), Text: line.Text, VoiceFileName: line.VoiceFileName,
+			Theme: line.Theme, When: toTapLineWhenJSON(line.When),
+		})
+	}
+	return tapLinesResponse{TapLines: res}
 }
 
 func tapLineErrorResponse(c echo.Context, code string, err error) error {

@@ -125,6 +125,7 @@ func main() {
 	e.PUT("/chara/:charaID", charaHandler.CharaPut)
 	e.PUT("/chara/:charaID/assets", charaResourceHandler.AssetsPut)
 	e.GET("/tap-line-themes", tapLineHandler.ThemesGet)
+	e.GET("/chara/:charaID/tap-lines", tapLineHandler.LinesGet)
 	e.PUT("/chara/:charaID/tap-lines", tapLineHandler.LinesPut)
 	e.POST("/chara/:charaID/tap-lines/drafts", tapLineHandler.DraftsPost)
 	e.POST("/chara/:charaID/tap-lines/voices", tapLineHandler.VoicesPost)

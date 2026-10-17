@@ -7,11 +7,12 @@ import {
   createTapLineDrafts,
   createTapLineVoices,
   fetchResourceFiles,
+  fetchTapLines,
   fetchTapLineThemes,
   saveTapLines,
 } from "@/lib/api/chara";
 import { ApiClientError } from "@/lib/api/client";
-import type { Chara, TapLine, TapLineTheme, TapLineWhen } from "@/lib/api/types";
+import { LANGUAGES, languageLabel, type Chara, type TapLine, type TapLineTheme, type TapLineWhen } from "@/lib/api/types";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
@@ -133,8 +134,14 @@ export function CharaTapLines({ chara, onSaved }: { chara: Chara; onSaved: () =>
   const themes: TapLineTheme[] = themesData?.themes ?? [];
   const { data: files } = useSWR(`/chara/${chara.charaID}/files`, () => fetchResourceFiles(chara.charaID));
 
-  const [lines, setLines] = useState<TapLine[]>(chara.tapLines ?? []);
+  const [lines, setLines] = useState<TapLine[]>([]);
   const [dirty, setDirty] = useState(false);
+  // セリフは専用のテーブルにあるので、タブを開いたときに読む
+  const { isLoading: loadingLines } = useSWR(
+    `/chara/${chara.charaID}/tap-lines`,
+    () => fetchTapLines(chara.charaID),
+    { revalidateOnFocus: false, onSuccess: (data) => { if (!dirty) setLines(data.tapLines); } },
+  );
   const [theme, setTheme] = useState("anytime");
   const [count, setCount] = useState(10);
   const [language, setLanguage] = useState("ja");
@@ -178,8 +185,8 @@ export function CharaTapLines({ chara, onSaved }: { chara: Chara; onSaved: () =>
   const handleSave = async () => {
     setBusy("save");
     try {
-      const updated = await saveTapLines(chara.charaID, lines);
-      setLines(updated.tapLines);
+      const saved = await saveTapLines(chara.charaID, lines);
+      setLines(saved.tapLines);
       setDirty(false);
       toast.success("セリフを保存しました");
       onSaved();
@@ -232,8 +239,11 @@ export function CharaTapLines({ chara, onSaved }: { chara: Chara; onSaved: () =>
           <label className="space-y-1">
             <span className="block text-xs text-muted-foreground">言語</span>
             <select className={inputClass} value={language} onChange={(e) => setLanguage(e.target.value)}>
-              <option value="ja">日本語</option>
-              <option value="en">English</option>
+              {LANGUAGES.map((l) => (
+                <option key={l.value} value={l.value}>
+                  {l.label}
+                </option>
+              ))}
             </select>
           </label>
           <label className="space-y-1">
@@ -285,7 +295,8 @@ export function CharaTapLines({ chara, onSaved }: { chara: Chara; onSaved: () =>
       </Section>
 
       <Section title={`セリフ（${lines.length}個、ボイスあり ${lines.filter((l) => l.voiceFileName).length}個）`}>
-        {lines.length === 0 && <p className="text-xs text-muted-foreground">まだセリフがありません</p>}
+        {loadingLines && <p className="text-xs text-muted-foreground">読み込み中...</p>}
+        {!loadingLines && lines.length === 0 && <p className="text-xs text-muted-foreground">まだセリフがありません</p>}
         <ul className="space-y-2">
           {lines.map((line, index) => (
             <li key={line.id || `new-${index}`} className="space-y-2 rounded-md border p-2">
@@ -310,7 +321,7 @@ export function CharaTapLines({ chara, onSaved }: { chara: Chara; onSaved: () =>
                 </Button>
               </div>
               <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                <Badge variant="outline">{line.language === "en" ? "English" : "日本語"}</Badge>
+                <Badge variant="outline">{languageLabel(line.language || "ja")}</Badge>
                 <Badge variant="outline">{themeLabel(line.theme)}</Badge>
                 <span>{describeWhen(line.when)}</span>
                 {line.voiceFileName && files ? (

@@ -106,7 +106,22 @@ export interface Chara extends CharaSettings {
   updatedAt: string;
   calls: CharaCall[];
   expressions: Record<string, CharaExpression>;
-  tapLines: TapLine[];
+}
+
+/** 会話・タップのセリフに使える言語（BCP 47） */
+export const LANGUAGES = [
+  { value: "ja", label: "日本語" },
+  { value: "en", label: "English" },
+  { value: "zh-Hans", label: "简体中文" },
+  { value: "zh-Hant", label: "繁體中文" },
+  { value: "ko", label: "한국어" },
+  { value: "es", label: "Español" },
+  { value: "fr", label: "Français" },
+  { value: "de", label: "Deutsch" },
+] as const;
+
+export function languageLabel(value: string): string {
+  return LANGUAGES.find((l) => l.value === value)?.label ?? value;
 }
 
 /** タップのセリフを流す条件。空の項目は条件にしない */
@@ -123,7 +138,7 @@ export interface TapLineWhen {
 export interface TapLine {
   /** 保存する前の案は空（サーバが付ける） */
   id: string;
-  /** セリフの言語（"ja" / "en"） */
+  /** セリフの言語（LANGUAGES のどれか） */
   language: string;
   text: string;
   /** ボイスのファイル名。まだなら空 */

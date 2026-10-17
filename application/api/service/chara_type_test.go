@@ -72,10 +72,10 @@ func TestConvertToCharaAppearances(t *testing.T) {
 }
 
 func TestConvertToCharaTapLines(t *testing.T) {
-	chara := database.Chara{CharaID: "com.charalarm.shiori", TapLines: []database.CharaTapLine{
-		{ID: "a", Text: "おはようございます。", VoiceFileName: "tap-a.wav", Theme: "morning", When: database.CharaTapLineWhen{Hours: []int{5, 11}}},
-		{ID: "b", Text: "まだボイスがない", Theme: ""},
-	}}
+	lines := []database.CharaTapLine{
+		{CharaID: "com.charalarm.shiori", ID: "a", Text: "おはようございます。", VoiceFileName: "tap-a.wav", Theme: "morning", When: database.CharaTapLineWhen{Hours: []int{5, 11}}},
+		{CharaID: "com.charalarm.shiori", ID: "b", Text: "まだボイスがない", Theme: ""},
+	}
 
 	// ボイスができているものだけを返す
 	assert.Equal(t, []output.CharaTapLine{{
@@ -83,5 +83,5 @@ func TestConvertToCharaTapLines(t *testing.T) {
 		Text:         "おはようございます。",
 		VoiceFileURL: "https://resource.example.com/com.charalarm.shiori/tap-a.wav",
 		When:         output.CharaTapLineWhen{Dates: []string{}, Hours: []int{5, 11}, Weekdays: []int{}},
-	}}, convertToCharaTapLines(chara, "https://resource.example.com"))
+	}}, convertToCharaTapLines("com.charalarm.shiori", lines, "https://resource.example.com"))
 }

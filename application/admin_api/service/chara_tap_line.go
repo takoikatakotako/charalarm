@@ -9,10 +9,8 @@ import (
 	"fmt"
 	"regexp"
 	"strings"
-	"time"
 	"unicode/utf8"
 
-	"github.com/takoikatakotako/charalarm/admin_api/service/output"
 	"github.com/takoikatakotako/charalarm/api/service/llm"
 	"github.com/takoikatakotako/charalarm/api/service/tts"
 	"github.com/takoikatakotako/charalarm/infrastructure"
@@ -103,8 +101,13 @@ type TapLineDraft struct {
 	Language string
 }
 
-// tapLineEnglishInstruction は英語のセリフを作るときの指示 (キャラの設定は日本語で書いてある)
-const tapLineEnglishInstruction = "セリフは自然な話し言葉の英語で書いてください。キャラクター設定は日本語ですが、性格と口調はそのまま英語にしてください。1つのセリフは1〜2文、20語くらいまで。"
+// tapLineLanguageInstruction は日本語以外のセリフを作るときの指示 (キャラの設定は日本語で書いてある)
+func tapLineLanguageInstruction(language string) string {
+	name := database.LanguageNames[language]
+	return "Write every line in natural, spoken " + name + ". The character settings above are written in Japanese; " +
+		"keep the same personality and tone in " + name + ". Each line should be one or two short sentences. " +
+		"Output only a JSON array of strings."
+}
 
 // Drafts はテーマに合わせたセリフの案を LLM に作らせる。
 func (s *CharaTapLine) Drafts(ctx context.Context, charaID string, themeKey string, count int, language string) ([]TapLineDraft, error) {
@@ -128,10 +131,14 @@ func (s *CharaTapLine) Drafts(ctx context.Context, charaID string, themeKey stri
 	if err != nil {
 		return nil, err
 	}
+	current, err := s.AWS.ListCharaTapLines(charaID)
+	if err != nil {
+		return nil, err
+	}
 
 	// 同じテーマのいまのセリフと重ならないようにする
 	existing := make([]string, 0)
-	for _, line := range chara.TapLines {
+	for _, line := range current {
 		if line.Theme == theme.Key && line.LanguageOf() == language {
 			existing = append(existing, line.Text)
 		}
@@ -150,8 +157,8 @@ func (s *CharaTapLine) Drafts(ctx context.Context, charaID string, themeKey stri
 		{Role: llm.RoleSystem, Content: persona},
 		{Role: llm.RoleSystem, Content: tapLineDraftInstruction},
 	}
-	if language == database.LanguageEnglish {
-		messages = append(messages, llm.Message{Role: llm.RoleSystem, Content: tapLineEnglishInstruction})
+	if language != database.LanguageJapanese {
+		messages = append(messages, llm.Message{Role: llm.RoleSystem, Content: tapLineLanguageInstruction(language)})
 	}
 	messages = append(messages, llm.Message{Role: llm.RoleUser, Content: request})
 	reply, err := s.LLMClient.Chat(ctx, messages)
@@ -174,66 +181,96 @@ func (s *CharaTapLine) Drafts(ctx context.Context, charaID string, themeKey stri
 	return drafts, nil
 }
 
-// SaveLines はセリフの一覧を保存する。文を変えたセリフは、ボイスを作り直すまでボイスなしにする。
-func (s *CharaTapLine) SaveLines(charaID string, lines []database.CharaTapLine) (output.Chara, error) {
-	if len(lines) > tapLineMaxCount {
-		return output.Chara{}, fmt.Errorf("%w: セリフは%d個までです", ErrInvalidChara, tapLineMaxCount)
+// ListLines はキャラのタップのセリフを返す。
+func (s *CharaTapLine) ListLines(charaID string) ([]database.CharaTapLine, error) {
+	if _, err := s.AWS.GetChara(charaID); err != nil {
+		return nil, err
 	}
-	chara, err := s.AWS.GetChara(charaID)
+	return s.AWS.ListCharaTapLines(charaID)
+}
+
+// SaveLines はセリフの一覧を保存する。消したセリフは消し、変わったセリフと新しいセリフだけを書く。
+// 文を変えたセリフは、ボイスを作り直すまでボイスなしにする。
+func (s *CharaTapLine) SaveLines(charaID string, lines []database.CharaTapLine) ([]database.CharaTapLine, error) {
+	if len(lines) > tapLineMaxCount {
+		return nil, fmt.Errorf("%w: セリフは%d個までです", ErrInvalidChara, tapLineMaxCount)
+	}
+	if _, err := s.AWS.GetChara(charaID); err != nil {
+		return nil, err
+	}
+	current, err := s.AWS.ListCharaTapLines(charaID)
 	if err != nil {
-		return output.Chara{}, err
+		return nil, err
+	}
+	currentByID := make(map[string]database.CharaTapLine, len(current))
+	for _, line := range current {
+		currentByID[line.ID] = line
 	}
 
-	current := make(map[string]database.CharaTapLine, len(chara.TapLines))
-	for _, line := range chara.TapLines {
-		current[line.ID] = line
-	}
 	saved := make([]database.CharaTapLine, 0, len(lines))
 	seen := map[string]bool{}
 	for _, line := range lines {
 		if line.ID == "" {
 			line.ID = newTapLineID()
 		}
+		line.CharaID = charaID
 		line.Text = strings.TrimSpace(line.Text)
 		if err := validateTapLine(line); err != nil {
-			return output.Chara{}, err
+			return nil, err
 		}
 		if seen[line.ID] {
-			return output.Chara{}, fmt.Errorf("%w: セリフの ID %q が重なっています", ErrInvalidChara, line.ID)
+			return nil, fmt.Errorf("%w: セリフの ID %q が重なっています", ErrInvalidChara, line.ID)
 		}
 		seen[line.ID] = true
 
 		// ボイスはサーバが作ったものだけ。文が変わっていればボイスを外す
 		line.VoiceFileName = ""
-		if before, ok := current[line.ID]; ok && before.Text == line.Text {
+		before, ok := currentByID[line.ID]
+		if ok && before.Text == line.Text {
 			line.VoiceFileName = before.VoiceFileName
 		}
 		saved = append(saved, line)
 	}
 
-	chara.TapLines = saved
-	chara.UpdatedAd = time.Now().Format("2006-01-02")
-	if err := s.AWS.UpsertChara(chara); err != nil {
-		return output.Chara{}, err
+	// 変わったセリフと新しいセリフだけを書く
+	for _, line := range saved {
+		if before, ok := currentByID[line.ID]; ok && sameTapLine(before, line) {
+			continue
+		}
+		if err := s.AWS.PutCharaTapLine(line); err != nil {
+			return nil, err
+		}
 	}
-	return toCharaOutput(chara), nil
+	// 一覧から外したセリフは消す
+	for _, line := range current {
+		if !seen[line.ID] {
+			if err := s.AWS.DeleteCharaTapLine(charaID, line.ID); err != nil {
+				return nil, err
+			}
+		}
+	}
+	return saved, nil
 }
 
 // MakeVoices は指定したセリフのボイスを Gemini TTS で作り、リソース (公開の S3 + CloudFront) に置く。
 // 公開する前に、個人情報に見えるものがないかを確かめる。
-func (s *CharaTapLine) MakeVoices(ctx context.Context, charaID string, lineIDs []string) (output.Chara, error) {
+func (s *CharaTapLine) MakeVoices(ctx context.Context, charaID string, lineIDs []string) ([]database.CharaTapLine, error) {
 	if s.TTSClient == nil {
-		return output.Chara{}, ErrVertexNotConfigured
+		return nil, ErrVertexNotConfigured
 	}
 	if len(lineIDs) == 0 || len(lineIDs) > tapLineMaxVoicesPerCall {
-		return output.Chara{}, fmt.Errorf("%w: 一度に作れるボイスは1〜%d個です", ErrInvalidChara, tapLineMaxVoicesPerCall)
+		return nil, fmt.Errorf("%w: 一度に作れるボイスは1〜%d個です", ErrInvalidChara, tapLineMaxVoicesPerCall)
 	}
 	chara, err := s.AWS.GetChara(charaID)
 	if err != nil {
-		return output.Chara{}, err
+		return nil, err
 	}
 	if chara.ConversationTypeOf() != database.ConversationTypeGemini {
-		return output.Chara{}, fmt.Errorf("%w: ボイスを作れるのは、会話が Gemini のキャラだけです", ErrInvalidChara)
+		return nil, fmt.Errorf("%w: ボイスを作れるのは、会話が Gemini のキャラだけです", ErrInvalidChara)
+	}
+	lines, err := s.AWS.ListCharaTapLines(charaID)
+	if err != nil {
+		return nil, err
 	}
 
 	targets := map[string]bool{}
@@ -242,37 +279,42 @@ func (s *CharaTapLine) MakeVoices(ctx context.Context, charaID string, lineIDs [
 	}
 	voice := tapLineVoice(chara, s.DefaultVoice)
 	made := make([]string, 0, len(lineIDs))
-	for i, line := range chara.TapLines {
+	for i, line := range lines {
 		if !targets[line.ID] {
 			continue
 		}
 		if err := checkTapLineSensitive(line.Text); err != nil {
-			return output.Chara{}, err
+			return nil, err
 		}
 		audio, err := s.TTSClient.Synthesize(ctx, line.Text, voice)
 		if err != nil {
-			return output.Chara{}, err
+			return nil, err
 		}
 		fileName := "tap-" + line.ID + ".wav"
 		if err := s.AWS.PutResourceFile(s.Bucket, charaID, fileName, "audio/wav", audio.WAV); err != nil {
-			return output.Chara{}, err
+			return nil, err
 		}
-		chara.TapLines[i].VoiceFileName = fileName
+		lines[i].VoiceFileName = fileName
+		if err := s.AWS.PutCharaTapLine(lines[i]); err != nil {
+			return nil, err
+		}
 		made = append(made, fileName)
 	}
 	if len(made) == 0 {
-		return output.Chara{}, fmt.Errorf("%w: 指定したセリフがありません", ErrInvalidChara)
-	}
-
-	chara.UpdatedAd = time.Now().Format("2006-01-02")
-	if err := s.AWS.UpsertChara(chara); err != nil {
-		return output.Chara{}, err
+		return nil, fmt.Errorf("%w: 指定したセリフがありません", ErrInvalidChara)
 	}
 	// 作り直したときのために、CloudFront のキャッシュを消す
 	if err := s.AWS.InvalidateResourceFiles(s.DistributionID, charaID, made); err != nil {
-		return output.Chara{}, err
+		return nil, err
 	}
-	return toCharaOutput(chara), nil
+	return lines, nil
+}
+
+// sameTapLine は書き直す必要がないか (中身が同じか)。
+func sameTapLine(a, b database.CharaTapLine) bool {
+	return a.Text == b.Text && a.VoiceFileName == b.VoiceFileName && a.Theme == b.Theme &&
+		a.LanguageOf() == b.LanguageOf() && strings.Join(a.When.Dates, ",") == strings.Join(b.When.Dates, ",") &&
+		fmt.Sprint(a.When.Hours) == fmt.Sprint(b.When.Hours) && fmt.Sprint(a.When.Weekdays) == fmt.Sprint(b.When.Weekdays)
 }
 
 func findTapLineTheme(key string) (TapLineTheme, bool) {
