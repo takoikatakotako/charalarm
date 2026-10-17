@@ -21,7 +21,7 @@ import (
 // タップのセリフの上限
 const (
 	tapLineMaxLength        = 160
-	tapLineMaxCount         = 300
+	tapLineMaxCount         = 1600
 	tapLineMaxDraftCount    = 20
 	tapLineMaxVoicesPerCall = 4
 )
