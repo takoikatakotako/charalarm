@@ -191,7 +191,7 @@ func toCharaResponse(c output.Chara) charaResponse {
 	tapLines := make([]tapLineJSON, 0, len(c.TapLines))
 	for _, line := range c.TapLines {
 		tapLines = append(tapLines, tapLineJSON{
-			ID: line.ID, Text: line.Text, VoiceFileName: line.VoiceFileName, Theme: line.Theme, When: toTapLineWhenJSON(line.When),
+			ID: line.ID, Language: line.LanguageOf(), Text: line.Text, VoiceFileName: line.VoiceFileName, Theme: line.Theme, When: toTapLineWhenJSON(line.When),
 		})
 	}
 

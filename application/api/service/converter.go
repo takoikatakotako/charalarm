@@ -210,6 +210,7 @@ func convertToCharaTapLines(databaseChara database.Chara, baseURL string) []outp
 			continue
 		}
 		lines = append(lines, output.CharaTapLine{
+			Language:     line.LanguageOf(),
 			Text:         line.Text,
 			VoiceFileURL: createFileURL(baseURL, databaseChara.CharaID, line.VoiceFileName),
 			When: output.CharaTapLineWhen{

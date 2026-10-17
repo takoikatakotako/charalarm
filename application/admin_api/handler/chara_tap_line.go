@@ -20,7 +20,9 @@ type tapLineWhenJSON struct {
 }
 
 type tapLineJSON struct {
-	ID            string          `json:"id"`
+	ID string `json:"id"`
+	// Language は "ja" / "en"
+	Language      string          `json:"language"`
 	Text          string          `json:"text"`
 	VoiceFileName string          `json:"voiceFileName"`
 	Theme         string          `json:"theme"`
@@ -38,8 +40,9 @@ type tapLineThemesResponse struct {
 }
 
 type tapLineDraftsRequest struct {
-	Theme string `json:"theme"`
-	Count int    `json:"count"`
+	Theme    string `json:"theme"`
+	Count    int    `json:"count"`
+	Language string `json:"language"`
 }
 
 type tapLineDraftsResponse struct {
@@ -67,13 +70,13 @@ func (h *CharaTapLine) DraftsPost(c echo.Context) error {
 	if err := c.Bind(req); err != nil {
 		return c.JSON(http.StatusBadRequest, newErrorResponse("invalid_request", err.Error()))
 	}
-	drafts, err := h.Service.Drafts(c.Request().Context(), c.Param("charaID"), req.Theme, req.Count)
+	drafts, err := h.Service.Drafts(c.Request().Context(), c.Param("charaID"), req.Theme, req.Count, req.Language)
 	if err != nil {
 		return tapLineErrorResponse(c, "make_drafts_failed", err)
 	}
 	res := make([]tapLineJSON, 0, len(drafts))
 	for _, draft := range drafts {
-		res = append(res, tapLineJSON{Text: draft.Text, Theme: draft.Theme, When: toTapLineWhenJSON(draft.When)})
+		res = append(res, tapLineJSON{Text: draft.Text, Theme: draft.Theme, When: toTapLineWhenJSON(draft.When), Language: draft.Language})
 	}
 	return c.JSON(http.StatusOK, tapLineDraftsResponse{Drafts: res})
 }
@@ -86,9 +89,10 @@ func (h *CharaTapLine) LinesPut(c echo.Context) error {
 	lines := make([]database.CharaTapLine, 0, len(req.TapLines))
 	for _, line := range req.TapLines {
 		lines = append(lines, database.CharaTapLine{
-			ID:    line.ID,
-			Text:  line.Text,
-			Theme: line.Theme,
+			ID:       line.ID,
+			Language: line.Language,
+			Text:     line.Text,
+			Theme:    line.Theme,
 			When: database.CharaTapLineWhen{
 				Dates: line.When.Dates, Hours: line.When.Hours, Weekdays: line.When.Weekdays,
 			},

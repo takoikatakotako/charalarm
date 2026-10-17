@@ -16,7 +16,7 @@ struct Chara: Identifiable, Hashable, Equatable {
         let appearances = (charaResponse.appearances ?? []).compactMap(CharaAppearance.init(listItem:))
         self.appearances = appearances.isEmpty ? [appearance] : appearances
         tapLines = (charaResponse.tapLines ?? []).map {
-            TapLine(text: $0.text, voiceFileName: $0.voiceFileURL.lastPathComponent, when: $0.when)
+            TapLine(language: $0.language, text: $0.text, voiceFileName: $0.voiceFileURL.lastPathComponent, when: $0.when)
         }
         conversation = charaResponse.conversation.flatMap(CharaConversation.init(response:))
     }

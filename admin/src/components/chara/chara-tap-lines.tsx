@@ -19,8 +19,8 @@ const inputClass =
   "w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2";
 
 const weekdayLabels = ["日", "月", "火", "水", "木", "金", "土"];
-/** 一度に作るボイスの数（管理 API の上限） */
-const voicesPerCall = 8;
+/** 一度に作るボイスの数（管理 API の上限。Lambda と CloudFront の時間の上限 30 秒に収める） */
+const voicesPerCall = 4;
 
 function errorMessage(err: unknown, fallback: string): string {
   if (err instanceof ApiClientError || err instanceof Error) return err.message;
@@ -137,6 +137,7 @@ export function CharaTapLines({ chara, onSaved }: { chara: Chara; onSaved: () =>
   const [dirty, setDirty] = useState(false);
   const [theme, setTheme] = useState("anytime");
   const [count, setCount] = useState(10);
+  const [language, setLanguage] = useState("ja");
   const [drafts, setDrafts] = useState<TapLine[]>([]);
   const [picked, setPicked] = useState<Set<number>>(new Set());
   const [busy, setBusy] = useState<"" | "drafts" | "save" | "voices">("");
@@ -154,7 +155,7 @@ export function CharaTapLines({ chara, onSaved }: { chara: Chara; onSaved: () =>
   const handleDrafts = async () => {
     setBusy("drafts");
     try {
-      const { drafts } = await createTapLineDrafts(chara.charaID, theme, count);
+      const { drafts } = await createTapLineDrafts(chara.charaID, theme, count, language);
       setDrafts(drafts);
       setPicked(new Set(drafts.map((_, i) => i)));
       if (drafts.length === 0) toast.error("使える案がありませんでした。もう一度作ってください");
@@ -226,6 +227,13 @@ export function CharaTapLines({ chara, onSaved }: { chara: Chara; onSaved: () =>
                   {t.label}（{describeWhen(t.when)}）
                 </option>
               ))}
+            </select>
+          </label>
+          <label className="space-y-1">
+            <span className="block text-xs text-muted-foreground">言語</span>
+            <select className={inputClass} value={language} onChange={(e) => setLanguage(e.target.value)}>
+              <option value="ja">日本語</option>
+              <option value="en">English</option>
             </select>
           </label>
           <label className="space-y-1">
@@ -302,6 +310,7 @@ export function CharaTapLines({ chara, onSaved }: { chara: Chara; onSaved: () =>
                 </Button>
               </div>
               <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                <Badge variant="outline">{line.language === "en" ? "English" : "日本語"}</Badge>
                 <Badge variant="outline">{themeLabel(line.theme)}</Badge>
                 <span>{describeWhen(line.when)}</span>
                 {line.voiceFileName && files ? (

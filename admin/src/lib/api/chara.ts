@@ -83,15 +83,16 @@ export async function createTapLineDrafts(
   charaID: string,
   theme: string,
   count: number,
+  language: string,
 ): Promise<{ drafts: TapLine[] }> {
-  return apiPost<{ drafts: TapLine[] }>(`${charaPath(charaID)}/tap-lines/drafts`, { theme, count });
+  return apiPost<{ drafts: TapLine[] }>(`${charaPath(charaID)}/tap-lines/drafts`, { theme, count, language });
 }
 
 export async function saveTapLines(charaID: string, tapLines: TapLine[]): Promise<Chara> {
   return apiPut<Chara>(`${charaPath(charaID)}/tap-lines`, { tapLines });
 }
 
-/** セリフのボイスを Gemini TTS で作り、公開のリソースに置く（一度に8個まで） */
+/** セリフのボイスを Gemini TTS で作り、公開のリソースに置く（一度に4個まで） */
 export async function createTapLineVoices(charaID: string, ids: string[]): Promise<Chara> {
   return apiPost<Chara>(`${charaPath(charaID)}/tap-lines/voices`, { ids });
 }

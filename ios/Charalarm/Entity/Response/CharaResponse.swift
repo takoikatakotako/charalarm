@@ -22,6 +22,7 @@ struct CharaResponse: Response {
 }
 
 struct CharaTapLineResponse: Response {
+    let language: String?
     let text: String
     let voiceFileURL: URL
     let when: TapLineWhen

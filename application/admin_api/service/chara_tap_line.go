@@ -21,10 +21,10 @@ import (
 
 // タップのセリフの上限
 const (
-	tapLineMaxLength        = 80
+	tapLineMaxLength        = 160
 	tapLineMaxCount         = 300
 	tapLineMaxDraftCount    = 20
-	tapLineMaxVoicesPerCall = 8
+	tapLineMaxVoicesPerCall = 4
 )
 
 // ErrVertexNotConfigured は Vertex AI (Gemini の LLM・TTS) を使えないときのエラー。
@@ -97,19 +97,29 @@ type CharaTapLine struct {
 
 // TapLineDraft は下書きのセリフ。保存はしない。
 type TapLineDraft struct {
-	Text  string
-	Theme string
-	When  database.CharaTapLineWhen
+	Text     string
+	Theme    string
+	When     database.CharaTapLineWhen
+	Language string
 }
 
+// tapLineEnglishInstruction は英語のセリフを作るときの指示 (キャラの設定は日本語で書いてある)
+const tapLineEnglishInstruction = "セリフは自然な話し言葉の英語で書いてください。キャラクター設定は日本語ですが、性格と口調はそのまま英語にしてください。1つのセリフは1〜2文、20語くらいまで。"
+
 // Drafts はテーマに合わせたセリフの案を LLM に作らせる。
-func (s *CharaTapLine) Drafts(ctx context.Context, charaID string, themeKey string, count int) ([]TapLineDraft, error) {
+func (s *CharaTapLine) Drafts(ctx context.Context, charaID string, themeKey string, count int, language string) ([]TapLineDraft, error) {
 	if s.LLMClient == nil {
 		return nil, ErrVertexNotConfigured
 	}
 	theme, ok := findTapLineTheme(themeKey)
 	if !ok {
 		return nil, fmt.Errorf("%w: テーマ %q はありません", ErrInvalidChara, themeKey)
+	}
+	if language == "" {
+		language = database.LanguageJapanese
+	}
+	if !database.IsSupportedLanguage(language) {
+		return nil, fmt.Errorf("%w: 言語 %q はありません", ErrInvalidChara, language)
 	}
 	if count < 1 || count > tapLineMaxDraftCount {
 		return nil, fmt.Errorf("%w: 一度に作れるのは1〜%d個です", ErrInvalidChara, tapLineMaxDraftCount)
@@ -122,7 +132,7 @@ func (s *CharaTapLine) Drafts(ctx context.Context, charaID string, themeKey stri
 	// 同じテーマのいまのセリフと重ならないようにする
 	existing := make([]string, 0)
 	for _, line := range chara.TapLines {
-		if line.Theme == theme.Key {
+		if line.Theme == theme.Key && line.LanguageOf() == language {
 			existing = append(existing, line.Text)
 		}
 	}
@@ -136,11 +146,15 @@ func (s *CharaTapLine) Drafts(ctx context.Context, charaID string, themeKey stri
 	if persona == "" {
 		persona = "キャラクターの名前: " + chara.Name + "\n" + chara.Description
 	}
-	reply, err := s.LLMClient.Chat(ctx, []llm.Message{
+	messages := []llm.Message{
 		{Role: llm.RoleSystem, Content: persona},
 		{Role: llm.RoleSystem, Content: tapLineDraftInstruction},
-		{Role: llm.RoleUser, Content: request},
-	})
+	}
+	if language == database.LanguageEnglish {
+		messages = append(messages, llm.Message{Role: llm.RoleSystem, Content: tapLineEnglishInstruction})
+	}
+	messages = append(messages, llm.Message{Role: llm.RoleUser, Content: request})
+	reply, err := s.LLMClient.Chat(ctx, messages)
 	if err != nil {
 		return nil, err
 	}
@@ -155,7 +169,7 @@ func (s *CharaTapLine) Drafts(ctx context.Context, charaID string, themeKey stri
 		if text == "" || utf8.RuneCountInString(text) > tapLineMaxLength || checkTapLineSensitive(text) != nil {
 			continue
 		}
-		drafts = append(drafts, TapLineDraft{Text: text, Theme: theme.Key, When: theme.When})
+		drafts = append(drafts, TapLineDraft{Text: text, Theme: theme.Key, When: theme.When, Language: language})
 	}
 	return drafts, nil
 }
@@ -304,6 +318,9 @@ func validateTapLine(line database.CharaTapLine) error {
 	}
 	if line.Text == "" || utf8.RuneCountInString(line.Text) > tapLineMaxLength {
 		return fmt.Errorf("%w: セリフは1〜%d字にしてください", ErrInvalidChara, tapLineMaxLength)
+	}
+	if line.Language != "" && !database.IsSupportedLanguage(line.Language) {
+		return fmt.Errorf("%w: 言語 %q はありません", ErrInvalidChara, line.Language)
 	}
 	if line.Theme != "" {
 		if _, ok := findTapLineTheme(line.Theme); !ok {

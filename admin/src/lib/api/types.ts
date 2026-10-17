@@ -123,6 +123,8 @@ export interface TapLineWhen {
 export interface TapLine {
   /** 保存する前の案は空（サーバが付ける） */
   id: string;
+  /** セリフの言語（"ja" / "en"） */
+  language: string;
   text: string;
   /** ボイスのファイル名。まだなら空 */
   voiceFileName: string;

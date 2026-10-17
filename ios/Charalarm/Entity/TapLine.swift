@@ -2,6 +2,8 @@ import Foundation
 
 /// トップでキャラをタップしたときのセリフ。ボイスはキャラを選んだときに端末にダウンロードしてある。
 struct TapLine: Codable, Hashable {
+    /// セリフの言語（"ja" / "en"）。古いデータは nil（日本語）
+    let language: String?
     let text: String
     /// 端末に保存したボイスのファイル名
     let voiceFileName: String
@@ -43,6 +45,15 @@ struct TapLineWhen: Codable, Hashable {
 
 /// 今の日時に合うセリフを選ぶ。クリスマスなど条件つきのセリフに当たれば優先し、最近流したものは避ける。
 enum TapLineSelector {
+    /// 会話の言語のセリフ。その言語のセリフがなければ日本語のセリフ（キャラの言語）
+    static func lines(_ lines: [TapLine], in language: ConversationLanguage) -> [TapLine] {
+        let matched = lines.filter { ($0.language ?? ConversationLanguage.japanese.rawValue) == language.rawValue }
+        if !matched.isEmpty {
+            return matched
+        }
+        return lines.filter { ($0.language ?? ConversationLanguage.japanese.rawValue) == ConversationLanguage.japanese.rawValue }
+    }
+
     /// 条件つきのセリフに当たったとき、それを流す割合
     static let conditionalRate = 0.7
 

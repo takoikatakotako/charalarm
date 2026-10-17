@@ -22,6 +22,8 @@ type Chara struct {
 
 // CharaTapLine はタップしたときのセリフ。端末が When を見て、今の日時に合うものを選んで流す。
 type CharaTapLine struct {
+	// Language はセリフの言語 ("ja" / "en")。端末は会話の言語に合うセリフを流す
+	Language     string           `json:"language"`
 	Text         string           `json:"text"`
 	VoiceFileURL string           `json:"voiceFileURL"`
 	When         CharaTapLineWhen `json:"when"`

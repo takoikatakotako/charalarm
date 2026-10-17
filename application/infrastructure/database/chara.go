@@ -136,6 +136,16 @@ type CharaTapLine struct {
 	// Theme は作ったときのテーマ (morning / christmas など)。空ならいつでも
 	Theme string           `dynamodbav:"theme"`
 	When  CharaTapLineWhen `dynamodbav:"when"`
+	// Language はセリフの言語 ("ja" / "en")。空なら日本語。LanguageOf で読む
+	Language string `dynamodbav:"language"`
+}
+
+// LanguageOf はセリフの言語を返す。未設定なら日本語。
+func (l CharaTapLine) LanguageOf() string {
+	if l.Language == "" {
+		return LanguageJapanese
+	}
+	return l.Language
 }
 
 // CharaTapLineWhen はセリフを流す条件。空の項目は条件にしない (全部空ならいつでも)。

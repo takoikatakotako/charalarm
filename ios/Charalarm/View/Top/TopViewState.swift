@@ -235,6 +235,8 @@ struct TopConversationChara: Identifiable {
 
     /// 今の日時に合うタップのセリフを流す（クリスマスなど条件つきを優先、最近流したものは避ける）
     private func playTapLine(charaDomain: String, lines: [TapLine]) {
+        // 会話の言語のセリフを流す（そのキャラに英語のセリフがなければ日本語）
+        let lines = TapLineSelector.lines(lines, in: userDefaultsRepository.getConversationLanguage())
         guard let line = TapLineSelector.select(from: lines, recent: recentTapLines) else {
             return
         }

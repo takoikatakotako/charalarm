@@ -79,6 +79,7 @@ func TestConvertToCharaTapLines(t *testing.T) {
 
 	// ボイスができているものだけを返す
 	assert.Equal(t, []output.CharaTapLine{{
+		Language:     "ja",
 		Text:         "おはようございます。",
 		VoiceFileURL: "https://resource.example.com/com.charalarm.shiori/tap-a.wav",
 		When:         output.CharaTapLineWhen{Dates: []string{}, Hours: []int{5, 11}, Weekdays: []int{}},
