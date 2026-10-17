@@ -75,7 +75,8 @@ data "aws_iam_policy_document" "admin_api_lambda_function_role_policy_document" 
     ]
     resources = [
       "arn:aws:dynamodb:ap-northeast-1:${local.account_id}:table/news-table",
-      "arn:aws:dynamodb:ap-northeast-1:${local.account_id}:table/chara-table"
+      "arn:aws:dynamodb:ap-northeast-1:${local.account_id}:table/chara-table",
+      "arn:aws:dynamodb:ap-northeast-1:${local.account_id}:table/chara-tap-line-table"
     ]
   }
 

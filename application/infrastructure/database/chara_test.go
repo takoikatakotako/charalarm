@@ -14,7 +14,7 @@ func TestConversationLanguages(t *testing.T) {
 	shiori := Chara{ConversationLanguages: []string{LanguageJapanese, LanguageEnglish}}
 	assert.Equal(t, LanguageEnglish, shiori.ConversationLanguageFor(LanguageEnglish))
 	assert.Equal(t, LanguageJapanese, shiori.ConversationLanguageFor(""))
-	assert.Equal(t, LanguageJapanese, shiori.ConversationLanguageFor("fr"))
+	assert.Equal(t, LanguageJapanese, shiori.ConversationLanguageFor("xx"))
 }
 
 func TestCharaTypeOf(t *testing.T) {

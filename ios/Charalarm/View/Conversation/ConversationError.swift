@@ -3,6 +3,7 @@ import Foundation
 enum ConversationError: LocalizedError {
     case ringtoneNotFound
     case speechRecognitionPermissionDenied
+    case microphonePermissionDenied
     case audioPlaybackFailed
     case speechRecognitionFailed(Error)
     case notAuthenticated
@@ -17,11 +18,25 @@ enum ConversationError: LocalizedError {
         case .ringtoneNotFound:
             return "着信音ファイルが見つかりません"
         case .speechRecognitionPermissionDenied:
-            return "音声認識の許可が得られませんでした"
+            return "音声認識の許可が得られませんでした。設定アプリから許可してください"
+        case .microphonePermissionDenied:
+            return "マイクの許可が得られませんでした。設定アプリから許可してください"
         case .audioPlaybackFailed:
             return "音声の再生に失敗しました"
         case .speechRecognitionFailed(let error):
             return "音声認識に失敗しました: \(error.localizedDescription)"
+        }
+    }
+}
+
+extension ConversationError {
+    /// 許可がないエラー（ユーザーが設定アプリで直せる）
+    var isPermissionDenied: Bool {
+        switch self {
+        case .speechRecognitionPermissionDenied, .microphonePermissionDenied:
+            return true
+        default:
+            return false
         }
     }
 }

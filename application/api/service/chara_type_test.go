@@ -70,3 +70,18 @@ func TestConvertToCharaAppearances(t *testing.T) {
 			convertToCharaAppearances(database.Chara{CharaID: "com.charalarm.shiori", AppearanceType: database.AppearanceTypeVRM, VRMFileName: "shiori.vrm"}, baseURL))
 	})
 }
+
+func TestConvertToCharaTapLines(t *testing.T) {
+	lines := []database.CharaTapLine{
+		{CharaID: "com.charalarm.shiori", ID: "a", Text: "おはようございます。", VoiceFileName: "tap-a.wav", Theme: "morning", When: database.CharaTapLineWhen{Hours: []int{5, 11}}},
+		{CharaID: "com.charalarm.shiori", ID: "b", Text: "まだボイスがない", Theme: ""},
+	}
+
+	// ボイスができているものだけを返す
+	assert.Equal(t, []output.CharaTapLine{{
+		Language:     "ja",
+		Text:         "おはようございます。",
+		VoiceFileURL: "https://resource.example.com/com.charalarm.shiori/tap-a.wav",
+		When:         output.CharaTapLineWhen{Dates: []string{}, Hours: []int{5, 11}, Weekdays: []int{}},
+	}}, convertToCharaTapLines("com.charalarm.shiori", lines, "https://resource.example.com"))
+}

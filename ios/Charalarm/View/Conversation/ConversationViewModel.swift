@@ -16,6 +16,8 @@ class ConversationViewModel: NSObject {
     var status: ConversationStatus = .idle
     var conversationDuration: TimeInterval = 0
     var shouldDismiss = false
+    /// 3D で出すキャラのモデル（見た目が 3D のとき）
+    var vrmModelFileURL: URL?
 
     // MARK: - Constants
 
@@ -30,13 +32,14 @@ class ConversationViewModel: NSObject {
 
     /// 起動モード（アプリ内単体 or CallKit 着信フロー）。
     private let mode: ConversationMode
+    private let topic: ConversationTopic
 
     private let callController = CXCallController()
 
     // MARK: - Repositories
 
     /// 会話するキャラ。人格プロンプトはサーバ側（chara-table）が持つ。
-    private let charaID: String
+    let charaID: String
     /// キャラの会話の設定。会話を始めるときにサーバから取得する。
     private var conversation: CharaConversation?
     /// 会話の言語。設定で選んだ言語をキャラが話せればその言語、話せなければキャラの言語
@@ -63,6 +66,8 @@ class ConversationViewModel: NSObject {
     let voicePlayerNode = AVAudioPlayerNode()
     var playbackContinuation: CheckedContinuation<Void, Never>?
     var isAudioEngineReady = false
+    /// エンジンの設定が変わった (止まった) ことの通知
+    var engineConfigurationObserver: NSObjectProtocol?
     /// キャラが話している最中も聞いていて、話しかけられたら止める
     var isListeningForBargeIn = false
     /// 話しかけられて、キャラの声を途中で止めた
@@ -82,11 +87,13 @@ class ConversationViewModel: NSObject {
     init(
         charaID: String,
         mode: ConversationMode = .standalone,
+        topic: ConversationTopic = .call,
         textToSpeechRepository: TextToSpeechRepository? = nil,
         textGenerationRepository: TextGenerationRepository = BackendTextGenerationRepository()
     ) {
         self.charaID = charaID
         self.mode = mode
+        self.topic = topic
         self.textToSpeechRepository = textToSpeechRepository
         self.textGenerationRepository = textGenerationRepository
     }
@@ -98,6 +105,9 @@ class ConversationViewModel: NSObject {
         mainTask = Task {
             do {
                 try await startConversation()
+            } catch let error as ConversationError where error.isPermissionDenied {
+                // ユーザーが自分で直せるので、何をすればよいかを出す
+                text = error.localizedDescription
             } catch {
                 CharalarmLogger.error("会話エラー", error: error)
                 text = "ごめんなさい、うまくつながりませんでした。少し時間をあけて、またかけてみてください。"
@@ -168,27 +178,45 @@ class ConversationViewModel: NSObject {
         language = conversation.language(preferred: UserDefaultsRepository().getConversationLanguage())
         recognizer = SFSpeechRecognizer(locale: language.locale)
         charaName = chara.name
+        // ユーザーがキャラ詳細で選んだ見た目（なければ既定）が 3D なら、会話の画面にも出す
+        if case .vrm(let modelFileURL) = chara.appearance(preferred: UserDefaultsRepository().getPreferredAppearance(charaID: charaID)) {
+            vrmModelFileURL = modelFileURL
+        }
         let textToSpeechRepository = self.textToSpeechRepository
             ?? Self.makeTextToSpeechRepository(charaID: charaID, conversation: conversation)
         self.textToSpeechRepository = textToSpeechRepository
         try textToSpeechRepository.setupSynthesizer()
         guard !shouldDismiss else { return }
 
-        // 音声認識の許可
+        // 音声認識とマイクの許可。会話の最初からマイクを開くので、録音を始める前に確かめる
         guard await requestSpeechRecognitionPermission() else {
             throw ConversationError.speechRecognitionPermissionDenied
         }
+        guard await AVAudioApplication.requestRecordPermission() else {
+            throw ConversationError.microphonePermissionDenied
+        }
         guard !shouldDismiss else { return }
 
-        // 着信音を再生（CallKit モードでは着信音はシステムが鳴らすのでスキップ）
-        if case .standalone = mode {
+        // 着信音を再生（CallKit モードでは着信音はシステムが鳴らすのでスキップ。「今日の予定」は電話ではないので鳴らさない）
+        if case .standalone = mode, topic.isCall {
             playRingtone()
         }
 
         // 初回の応答を生成
         status = .generatingScript
-        chatMessages.append(ChatMessage(role: .system, content: conversation.openingPrompt))
-        let initialScript = try await generateResponse()
+        let initialScript: String
+        switch topic {
+        case .call:
+            chatMessages.append(ChatMessage(role: .system, content: conversation.openingPrompt))
+            // 最初のひとことは、設定でオンにしていれば今日の予定に触れる
+            initialScript = try await generateResponse(todayEvents: .ifEnabled)
+        case .todaySchedule:
+            chatMessages.append(ChatMessage(role: .system, content: ConversationTopic.todaySchedulePrompt))
+            initialScript = try await generateResponse(todayEvents: .always)
+        case .trendNews(let news):
+            chatMessages.append(ChatMessage(role: .system, content: ConversationTopic.trendNewsPrompt(news)))
+            initialScript = try await generateResponse()
+        }
         guard !shouldDismiss else { return }
 
         stopRingtone()
@@ -235,12 +263,13 @@ class ConversationViewModel: NSObject {
     }
 
     /// キャラの返事を作る。キャラがカレンダーを見るあいだは、そのひとこと（「ちょっと見てみますね」）を先に話す
-    private func generateResponse() async throws -> String {
+    private func generateResponse(todayEvents: TodayEventsPolicy = .none) async throws -> String {
         var fillerTask: Task<Void, Never>?
         let response = try await textGenerationRepository.generateResponse(
             charaID: charaID,
             language: language,
-            inputs: chatMessages
+            inputs: chatMessages,
+            todayEvents: todayEvents
         ) { [weak self] filler in
             guard let self else { return }
             self.stopRingtone()
@@ -358,6 +387,11 @@ class ConversationViewModel: NSObject {
     private func cleanupResources() {
         mainTask?.cancel()
         mainTask = nil
+
+        if let engineConfigurationObserver {
+            NotificationCenter.default.removeObserver(engineConfigurationObserver)
+            self.engineConfigurationObserver = nil
+        }
 
         silenceTimer?.invalidate()
         silenceTimer = nil

@@ -177,13 +177,15 @@ func convertToAlarmOutput(alarm database.Alarm) output.Alarm {
 func convertToCharaOutputs(databaseCharas []database.Chara, baseURL string) []output.Chara {
 	charaOutputs := make([]output.Chara, 0)
 	for i := 0; i < len(databaseCharas); i++ {
-		charaOutput := convertToCharaOutput(databaseCharas[i], baseURL)
+		// 一覧にはタップのセリフを含めない (キャラを選んだときの取得で返す)
+		charaOutput := convertToCharaOutput(databaseCharas[i], baseURL, nil)
 		charaOutputs = append(charaOutputs, charaOutput)
 	}
 	return charaOutputs
 }
 
-func convertToCharaOutput(databaseChara database.Chara, baseURL string) output.Chara {
+// convertToCharaOutput はキャラを返す形にする。tapLines はキャラを選んだときの取得だけで渡す (一覧は nil)。
+func convertToCharaOutput(databaseChara database.Chara, baseURL string, tapLines []database.CharaTapLine) output.Chara {
 	return output.Chara{
 		CharaID:      databaseChara.CharaID,
 		Enable:       databaseChara.Enable,
@@ -192,13 +194,49 @@ func convertToCharaOutput(databaseChara database.Chara, baseURL string) output.C
 		UpdatedAt:    databaseChara.UpdatedAd,
 		Description:  databaseChara.Description,
 		Profiles:     databaseCharaProfileListToResponseCharaProfileList(databaseChara.Profiles),
-		Resources:    databaseCharaToResponseCharaResourceList(databaseChara, baseURL),
+		Resources:    databaseCharaToResponseCharaResourceList(databaseChara, baseURL, tapLines),
 		Expression:   databaseCharaExpressionMapToResponseCharaExpressionMap(databaseChara.Expressions, baseURL, databaseChara.CharaID),
 		Calls:        databaseCharaCallListToResponseCharaCallList(databaseChara.Calls, baseURL, databaseChara.CharaID),
 		Appearance:   convertToCharaAppearance(databaseChara, baseURL),
 		Appearances:  convertToCharaAppearances(databaseChara, baseURL),
+		TapLines:     convertToCharaTapLines(databaseChara.CharaID, tapLines, baseURL),
 		Conversation: convertToCharaConversation(databaseChara),
 	}
+}
+
+// convertToCharaTapLines はボイスができているタップのセリフを返す。
+func convertToCharaTapLines(charaID string, tapLines []database.CharaTapLine, baseURL string) []output.CharaTapLine {
+	lines := make([]output.CharaTapLine, 0, len(tapLines))
+	for _, line := range tapLines {
+		if line.VoiceFileName == "" {
+			continue
+		}
+		lines = append(lines, output.CharaTapLine{
+			Language:     line.LanguageOf(),
+			Text:         line.Text,
+			VoiceFileURL: createFileURL(baseURL, charaID, line.VoiceFileName),
+			When: output.CharaTapLineWhen{
+				Dates:    nonNilStrings(line.When.Dates),
+				Hours:    nonNilInts(line.When.Hours),
+				Weekdays: nonNilInts(line.When.Weekdays),
+			},
+		})
+	}
+	return lines
+}
+
+func nonNilStrings(s []string) []string {
+	if s == nil {
+		return []string{}
+	}
+	return s
+}
+
+func nonNilInts(s []int) []int {
+	if s == nil {
+		return []int{}
+	}
+	return s
 }
 
 // convertToCharaAppearances はキャラの選べる見た目を返す。そろっているファイルから決める:
@@ -262,7 +300,7 @@ func databaseCharaProfileToResponseCharaProfile(databaseCharaProfile database.Ch
 	}
 }
 
-func databaseCharaToResponseCharaResourceList(databaseChara database.Chara, resourceBaseURL string) []output.CharaResource {
+func databaseCharaToResponseCharaResourceList(databaseChara database.Chara, resourceBaseURL string, tapLines []database.CharaTapLine) []output.CharaResource {
 	// response2.CharaResourcesを作成
 	responseCharaResources := make([]output.CharaResource, 0)
 
@@ -277,6 +315,15 @@ func databaseCharaToResponseCharaResourceList(databaseChara database.Chara, reso
 		for _, voiceFileName := range databaseCharaExpression.VoiceFileNames {
 			responseCharaResources = append(responseCharaResources, output.CharaResource{
 				FileURL: createFileURL(resourceBaseURL, databaseChara.CharaID, voiceFileName),
+			})
+		}
+	}
+
+	// タップのセリフのボイス (キャラを選んだときに端末にダウンロードする)
+	for _, line := range tapLines {
+		if line.VoiceFileName != "" {
+			responseCharaResources = append(responseCharaResources, output.CharaResource{
+				FileURL: createFileURL(resourceBaseURL, databaseChara.CharaID, line.VoiceFileName),
 			})
 		}
 	}

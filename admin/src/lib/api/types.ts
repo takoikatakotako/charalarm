@@ -108,6 +108,51 @@ export interface Chara extends CharaSettings {
   expressions: Record<string, CharaExpression>;
 }
 
+/** 会話・タップのセリフに使える言語（BCP 47） */
+export const LANGUAGES = [
+  { value: "ja", label: "日本語" },
+  { value: "en", label: "英語（English）" },
+  { value: "zh-Hans", label: "中国語・簡体字（简体中文）" },
+  { value: "zh-Hant", label: "中国語・繁体字（繁體中文）" },
+  { value: "ko", label: "韓国語（한국어）" },
+  { value: "es", label: "スペイン語（Español）" },
+  { value: "fr", label: "フランス語（Français）" },
+  { value: "de", label: "ドイツ語（Deutsch）" },
+] as const;
+
+export function languageLabel(value: string): string {
+  return LANGUAGES.find((l) => l.value === value)?.label ?? value;
+}
+
+/** タップのセリフを流す条件。空の項目は条件にしない */
+export interface TapLineWhen {
+  /** 日付（"MM-DD"） */
+  dates: string[];
+  /** 時間帯 [開始, 終了)。開始 > 終了なら日をまたぐ */
+  hours: number[];
+  /** 曜日（0 = 日曜） */
+  weekdays: number[];
+}
+
+/** トップでキャラをタップしたときのセリフ */
+export interface TapLine {
+  /** 保存する前の案は空（サーバが付ける） */
+  id: string;
+  /** セリフの言語（LANGUAGES のどれか） */
+  language: string;
+  text: string;
+  /** ボイスのファイル名。まだなら空 */
+  voiceFileName: string;
+  theme: string;
+  when: TapLineWhen;
+}
+
+export interface TapLineTheme {
+  key: string;
+  label: string;
+  when: TapLineWhen;
+}
+
 export interface CharaCreate extends CharaSettings {
   charaID: string;
 }

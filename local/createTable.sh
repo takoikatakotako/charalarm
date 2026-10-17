@@ -71,6 +71,16 @@ aws dynamodb create-table \
     --region ap-northeast-1
 
 
+# chara-tap-line-table (トップでキャラをタップしたときのセリフ)
+aws dynamodb create-table \
+    --endpoint-url $ENDPOINT_URL \
+    --table-name chara-tap-line-table \
+    --attribute-definitions AttributeName=charaID,AttributeType=S AttributeName=lineID,AttributeType=S \
+    --key-schema AttributeName=charaID,KeyType=HASH AttributeName=lineID,KeyType=RANGE \
+    --billing-mode PAY_PER_REQUEST \
+    --region ap-northeast-1
+
+
 ## Add Chara
 aws dynamodb put-item \
     --endpoint-url $ENDPOINT_URL \

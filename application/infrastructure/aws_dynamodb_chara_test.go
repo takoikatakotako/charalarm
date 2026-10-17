@@ -3,6 +3,7 @@ package infrastructure
 import (
 	"fmt"
 	"github.com/stretchr/testify/assert"
+	"github.com/takoikatakotako/charalarm/infrastructure/database"
 	"testing"
 )
 
@@ -76,4 +77,27 @@ func TestGetRandomChara(t *testing.T) {
 
 	// Assert
 	assert.NotEqual(t, len(chara.CharaID), 0)
+}
+
+func TestCharaTapLines(t *testing.T) {
+	repository := AWS{Profile: "local"}
+	const charaID = "com.example.taplines"
+
+	line := database.CharaTapLine{
+		CharaID: charaID, ID: "a1b2c3d4e5f6", Text: "おはようございます。", Theme: "morning", Language: "ja",
+		When: database.CharaTapLineWhen{Hours: []int{5, 11}},
+	}
+	assert.NoError(t, repository.PutCharaTapLine(line))
+	assert.NoError(t, repository.PutCharaTapLine(database.CharaTapLine{CharaID: charaID, ID: "b1b2c3d4e5f6", Text: "Hello.", Language: "en"}))
+
+	lines, err := repository.ListCharaTapLines(charaID)
+	assert.NoError(t, err)
+	assert.Len(t, lines, 2)
+	assert.Equal(t, line, lines[0])
+
+	assert.NoError(t, repository.DeleteCharaTapLine(charaID, "a1b2c3d4e5f6"))
+	assert.NoError(t, repository.DeleteCharaTapLine(charaID, "b1b2c3d4e5f6"))
+	lines, err = repository.ListCharaTapLines(charaID)
+	assert.NoError(t, err)
+	assert.Empty(t, lines)
 }

@@ -29,7 +29,11 @@ extension ConversationViewModel {
 
     /// 会話のあいだ動かし続けるオーディオエンジンを用意する。音声セッションも会話のあいだは切り替えない
     func prepareAudioEngine() throws {
-        guard !isAudioEngineReady else { return }
+        guard !isAudioEngineReady else {
+            // 音声の経路が変わるなどしてエンジンが止まっていたら、起動し直す
+            try startAudioEngineIfNeeded()
+            return
+        }
         let audioSession = AVAudioSession.sharedInstance()
         try audioSession.setCategory(.playAndRecord, mode: .voiceChat, options: [.defaultToSpeaker, .allowBluetoothHFP])
         try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
@@ -41,12 +45,46 @@ extension ConversationViewModel {
         engine.prepare()
         try engine.start()
         isAudioEngineReady = true
+
+        // エンジンは音声の経路や設定が変わると自分で止まる (エコーキャンセルを有効にした直後など)。止まったら起動し直す
+        engineConfigurationObserver = NotificationCenter.default.addObserver(
+            forName: .AVAudioEngineConfigurationChange,
+            object: engine,
+            queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor in
+                self?.restartAudioEngineAfterConfigurationChange()
+            }
+        }
+    }
+
+    func startAudioEngineIfNeeded() throws {
+        guard !engine.isRunning else { return }
+        engine.prepare()
+        try engine.start()
+    }
+
+    private func restartAudioEngineAfterConfigurationChange() {
+        guard isAudioEngineReady, !shouldDismiss else { return }
+        // 流している途中で止まると、終わったという知らせが来ないことがある。待ったままにならないよう終わったことにする
+        finishPlayback()
+        // 聞いている途中なら、マイクの受け取りも付け直す
+        if request != nil {
+            installInputTap()
+        }
+        do {
+            try startAudioEngineIfNeeded()
+        } catch {
+            CharalarmLogger.error("オーディオエンジンを起動し直せませんでした", error: error)
+        }
     }
 
     func playVoice(_ audioData: Data) async throws {
         status = .playingVoice
         try prepareAudioEngine()
         let buffer = try Self.makeVoiceBuffer(from: audioData)
+        // 合成を待っているあいだにエンジンが止まっていることがあるので、流す直前にも確かめる
+        try startAudioEngineIfNeeded()
 
         await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
             playbackContinuation = continuation

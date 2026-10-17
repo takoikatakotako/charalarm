@@ -676,6 +676,40 @@
         }
       }
     },
+    "config-mention-schedule-on-call" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Talk about today's schedule when calling"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "電話の最初に今日の予定を話す"
+          }
+        }
+      }
+    },
+    "config-mention-schedule-on-call-footer" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "When on, today's event titles and times are sent with every call so the character can mention them first."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "オンにすると、電話のたびに今日の予定のタイトルと時刻を送り、キャラのほうから予定に触れます。"
+          }
+        }
+      }
+    },
     "config-official-discord" : {
       "localizations" : {
         "en" : {
@@ -980,6 +1014,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "不明なエラーが発生しました。"
+          }
+        }
+      }
+    },
+    "error-calendar-not-authorized" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "To hear today's schedule, allow full access to your calendar in Settings."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "今日の予定を聞くには、設定アプリでカレンダーへのフルアクセスを許可してください。"
           }
         }
       }
@@ -1686,6 +1737,108 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "プレミアムプランにアップデート"
+          }
+        }
+      }
+    },
+    "top-today-schedule" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Today"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "今日の予定"
+          }
+        }
+      }
+    },
+    "top-trend-news" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trends"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "話題"
+          }
+        }
+      }
+    },
+    "trend-news-failed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't load the news."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ニュースを読み込めませんでした。"
+          }
+        }
+      }
+    },
+    "trend-news-read" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Read to me"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "読んでもらう"
+          }
+        }
+      }
+    },
+    "trend-news-sample-notice" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "These are sample news items for testing."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "いまは試しのサンプルのニュースです。"
+          }
+        }
+      }
+    },
+    "trend-news-title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trending News"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "話題のニュース"
           }
         }
       }

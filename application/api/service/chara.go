@@ -1,6 +1,7 @@
 package service
 
 import (
+	"log"
 	"sort"
 
 	"github.com/takoikatakotako/charalarm/api/service/output"
@@ -20,9 +21,16 @@ func (c *Chara) GetChara(charaID string) (output.Chara, error) {
 		return output.Chara{}, err
 	}
 
+	// タップのセリフはキャラを選んだときにだけ返す。読めなくてもキャラは返す (セリフがないだけ)
+	tapLines, err := c.AWS.ListCharaTapLines(charaID)
+	if err != nil {
+		log.Printf("failed to list tap lines: chara=%s err=%v", charaID, err)
+		tapLines = nil
+	}
+
 	// BaseURLを取得
 	baseURL := c.ResourceBaseURL
-	return convertToCharaOutput(chara, baseURL), nil
+	return convertToCharaOutput(chara, baseURL, tapLines), nil
 }
 
 // GetCharaList キャラクター一覧を取得

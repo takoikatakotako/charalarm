@@ -10,6 +10,7 @@ enum TopViewModelAlert {
     case failedToSetCharacterImage
     case thisFeatureIsNotAvailableInYourRegion
     case thisCharacterCannotTalkYet
+    case calendarNotAuthorized
 
     var message: String {
         switch self {
@@ -25,12 +26,15 @@ enum TopViewModelAlert {
             return String(localized: "error-this-feature-is-not-available-in-your-region")
         case .thisCharacterCannotTalkYet:
             return String(localized: "error-this-character-cannot-talk-yet")
+        case .calendarNotAuthorized:
+            return String(localized: "error-calendar-not-authorized")
         }
     }
 }
 
 enum TopViewModelSheet: Identifiable {
     case newsList
+    case trendNews
     case characterList
     case alarmList
     case config
@@ -45,9 +49,10 @@ struct TopVRMChara: Equatable {
     let modelFileURL: URL
 }
 
-/// 電話ボタンで通話するキャラ（fullScreenCover 用）。
+/// 電話ボタン・「今日の予定」ボタンで話すキャラ（fullScreenCover 用）。
 struct TopConversationChara: Identifiable {
     let charaID: String
+    var topic: ConversationTopic = .call
     var id: String { charaID }
 }
 
@@ -65,6 +70,12 @@ struct TopConversationChara: Identifiable {
     /// 電話ボタンで通話するキャラ。nil でなければ会話画面を出す。
     var conversationChara: TopConversationChara?
     var isPreparingCall = false
+    /// 会話とタップのセリフの言語（トップと設定のどちらでも変えられる）
+    var conversationLanguage: ConversationLanguage = UserDefaultsRepository().getConversationLanguage() {
+        didSet {
+            userDefaultsRepository.setConversationLanguage(conversationLanguage)
+        }
+    }
     private let userDefaultsRepository: UserDefaultsRepository = UserDefaultsRepository()
     private let fileHandler: FileRepositoryProtocol = FileRepository()
 
@@ -72,6 +83,11 @@ struct TopConversationChara: Identifiable {
     private let apiRepository = APIRepository()
 
     var audioPlayer: AVAudioPlayer?
+    /// タップで流したセリフ（吹き出しに少しのあいだ出す）
+    var tapLineText: String?
+    /// 最近流したセリフ（続けて同じものを流さない）
+    private var recentTapLines: [TapLine] = []
+    private var hideTapLineTask: Task<Void, Never>?
 
     func onAppear() {
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, _ in
@@ -80,6 +96,9 @@ struct TopConversationChara: Identifiable {
                 UIApplication.shared.registerForRemoteNotifications()
             }
         }
+
+        // 設定の画面で変えたかもしれないので読み直す
+        conversationLanguage = userDefaultsRepository.getConversationLanguage()
 
         guard let charaID = userDefaultsRepository.getCharaID() else {
             self.alert = .failedToGetCharacterSelectionInformation
@@ -103,6 +122,16 @@ struct TopConversationChara: Identifiable {
         sheet = .newsList
     }
 
+    func trendNewsButtonTapped() {
+        sheet = .trendNews
+    }
+
+    /// 話題のニュースを、キャラに読んでもらう
+    @MainActor
+    func readTrendNews(_ news: [TrendNews]) async {
+        await startConversation(topic: .trendNews(news))
+    }
+
     func characterListButtonTapped() {
         sheet = .characterList
     }
@@ -122,6 +151,26 @@ struct TopConversationChara: Identifiable {
     /// 電話ボタン。選んでいるキャラが会話に対応していれば、そのキャラと通話する。
     @MainActor
     func callButtonTapped() async {
+        await startConversation(topic: .call)
+    }
+
+    /// 「今日の予定」ボタン。キャラが今日の予定を読み上げる（カレンダーの許可がなければ求める）。
+    @MainActor
+    func todayScheduleButtonTapped() async {
+        let calendarRepository = CalendarRepository()
+        guard calendarRepository.isAuthorized else {
+            if await calendarRepository.requestAccess() {
+                await startConversation(topic: .todaySchedule)
+            } else {
+                alert = .calendarNotAuthorized
+            }
+            return
+        }
+        await startConversation(topic: .todaySchedule)
+    }
+
+    @MainActor
+    private func startConversation(topic: ConversationTopic) async {
         guard !isPreparingCall else { return }
         guard let charaID = userDefaultsRepository.getCharaID() else {
             alert = .failedToGetCharacterSelectionInformation
@@ -136,13 +185,14 @@ struct TopConversationChara: Identifiable {
                 alert = .thisCharacterCannotTalkYet
                 return
             }
-            conversationChara = TopConversationChara(charaID: charaID)
+            conversationChara = TopConversationChara(charaID: charaID, topic: topic)
         } catch {
             CharalarmLogger.error("キャラ情報の取得に失敗", error: error)
             alert = .failedToGetCharacterInformation
         }
     }
 
+    /// キャラをタップした。タップのセリフがあれば今の日時に合うものを、なければ表情のボイスを流す
     func tapped() {
         guard let charaDomain = userDefaultsRepository.getCharaID() else {
             self.alert = .failedToGetCharacterSelectionInformation
@@ -151,6 +201,11 @@ struct TopConversationChara: Identifiable {
 
         guard let resource = try? localCharaResourceUseCase.loadCharaResource(charaID: charaDomain) else {
             self.alert = .failedToGetCharactersResources
+            return
+        }
+
+        if let tapLines = resource.tapLines, !tapLines.isEmpty {
+            playTapLine(charaDomain: charaDomain, lines: tapLines)
             return
         }
 
@@ -219,6 +274,32 @@ struct TopConversationChara: Identifiable {
             DispatchQueue.main.async {
                 self.alert = .failedToSetCharacterImage
             }
+        }
+    }
+
+    /// 今の日時に合うタップのセリフを流す（クリスマスなど条件つきを優先、最近流したものは避ける）
+    private func playTapLine(charaDomain: String, lines: [TapLine]) {
+        // 会話の言語のセリフを流す（そのキャラに英語のセリフがなければ日本語）
+        let lines = TapLineSelector.lines(lines, in: userDefaultsRepository.getConversationLanguage())
+        guard let line = TapLineSelector.select(from: lines, recent: recentTapLines) else {
+            return
+        }
+        recentTapLines = Array((recentTapLines + [line]).suffix(min(5, max(lines.count - 1, 0))))
+
+        do {
+            let data = try fileHandler.loadData(directoryName: charaDomain, fileName: line.voiceFileName)
+            audioPlayer = try? AVAudioPlayer(data: data)
+            audioPlayer?.play()
+        } catch {
+            CharalarmLogger.error("タップのセリフのボイスを読めませんでした", error: error)
+        }
+
+        tapLineText = line.text
+        hideTapLineTask?.cancel()
+        hideTapLineTask = Task { @MainActor [weak self] in
+            try? await Task.sleep(for: .seconds(5))
+            guard !Task.isCancelled else { return }
+            self?.tapLineText = nil
         }
     }
 

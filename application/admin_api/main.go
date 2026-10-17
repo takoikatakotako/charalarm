@@ -1,6 +1,8 @@
 package main
 
 import (
+	"context"
+	"log"
 	"net/http"
 	"os"
 
@@ -8,6 +10,9 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/takoikatakotako/charalarm/admin_api/handler"
 	"github.com/takoikatakotako/charalarm/admin_api/service"
+	"github.com/takoikatakotako/charalarm/api/service/llm"
+	"github.com/takoikatakotako/charalarm/api/service/tts"
+	"github.com/takoikatakotako/charalarm/api/service/vertex"
 	"github.com/takoikatakotako/charalarm/environment"
 	"github.com/takoikatakotako/charalarm/infrastructure"
 )
@@ -69,6 +74,25 @@ func main() {
 		Service: charaService,
 	}
 	// キャラのリソースは S3 に置き、CloudFront で配る
+	// タップのセリフの下書き (Gemini の LLM) とボイス (Gemini TTS)。Vertex AI の設定がなければ作れない
+	tapLineService := service.CharaTapLine{
+		AWS:            awsRepository,
+		Bucket:         os.Getenv("RESOURCE_BUCKET_NAME"),
+		DistributionID: os.Getenv("RESOURCE_DISTRIBUTION_ID"),
+	}
+	gcpEnv := environment.LoadGCPEnvironment()
+	if gcpEnv.Project != "" {
+		gcpHTTPClient, err := vertex.NewHTTPClient(context.Background(), gcpEnv.CredentialConfig)
+		if err != nil {
+			log.Fatalf("failed to create vertex client: %v", err)
+		}
+		ttsEnv := environment.LoadTTSEnvironment()
+		tapLineService.LLMClient = llm.NewGeminiClient(gcpEnv.Project, os.Getenv("CHARALARM_LLM_MODEL"), "", gcpHTTPClient)
+		tapLineService.TTSClient = tts.NewGeminiClient(gcpEnv.Project, gcpHTTPClient)
+		tapLineService.DefaultVoice = tts.Voice{Model: ttsEnv.Model, Name: ttsEnv.Voice}
+	}
+	tapLineHandler := handler.CharaTapLine{Service: tapLineService}
+
 	charaResourceHandler := handler.CharaResource{
 		Service: service.CharaResource{
 			AWS:            awsRepository,
@@ -100,6 +124,11 @@ func main() {
 	e.GET("/chara/:charaID", charaHandler.CharaGet)
 	e.PUT("/chara/:charaID", charaHandler.CharaPut)
 	e.PUT("/chara/:charaID/assets", charaResourceHandler.AssetsPut)
+	e.GET("/tap-line-themes", tapLineHandler.ThemesGet)
+	e.GET("/chara/:charaID/tap-lines", tapLineHandler.LinesGet)
+	e.PUT("/chara/:charaID/tap-lines", tapLineHandler.LinesPut)
+	e.POST("/chara/:charaID/tap-lines/drafts", tapLineHandler.DraftsPost)
+	e.POST("/chara/:charaID/tap-lines/voices", tapLineHandler.VoicesPost)
 	e.GET("/chara/:charaID/files", charaResourceHandler.FilesGet)
 	e.POST("/chara/:charaID/files/upload-url", charaResourceHandler.UploadURLPost)
 	e.POST("/chara/:charaID/files/invalidate", charaResourceHandler.InvalidatePost)

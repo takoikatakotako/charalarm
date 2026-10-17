@@ -19,6 +19,7 @@ struct StubTextGenerationRepository: TextGenerationRepository {
         charaID: String,
         language: ConversationLanguage,
         inputs: [ChatMessage],
+        todayEvents: TodayEventsPolicy,
         onFiller: @escaping @MainActor (String) -> Void
     ) async throws -> String {
         // charaID はスタブでは未使用
