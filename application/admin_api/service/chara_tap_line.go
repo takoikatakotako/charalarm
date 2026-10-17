@@ -108,6 +108,9 @@ func tapLineLanguageInstruction(language string) string {
 	name := database.LanguageNames[language]
 	return "IMPORTANT: Write every line in natural, spoken " + name + ", not in Japanese. " +
 		"The character settings and this request are written in Japanese; keep the same personality and tone in " + name + ". " +
+		"Do not assume the user's gender: avoid gendered words about the user (for example cansado/cansada, fatigué/fatiguée, 妳). " +
+		"Address the user in one consistent way in every line (in French always use vous). " +
+		"Use correct punctuation, including apostrophes and question marks. " +
 		"Each line should be one or two short sentences. Output only a JSON array of strings."
 }
 
