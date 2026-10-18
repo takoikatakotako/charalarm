@@ -1,8 +1,4 @@
 import SwiftUI
-import AVFoundation
-import CallKit
-import PushKit
-import AVKit
 import GoogleMobileAds
 
 struct TopView: View {
@@ -31,7 +27,7 @@ struct TopView: View {
             }
 
             // タップで流したセリフの吹き出し（タップのじゃまをしない）
-            if let tapLineText = viewState.tapLineText {
+            if let tapLineText = viewState.tapLinePlayer.text {
                 VStack {
                     Text(tapLineText)
                         .font(.callout)
@@ -151,7 +147,7 @@ struct TopView: View {
             }
         }
         .ignoresSafeArea(.container, edges: [.top, .bottom])
-        .animation(.easeInOut(duration: 0.2), value: viewState.tapLineText)
+        .animation(.easeInOut(duration: 0.2), value: viewState.tapLinePlayer.text)
         .task {
             for await notification in NotificationCenter.default.notifications(named: NSNotification.setChara) {
                 let charaID: String? = notification.userInfo?[NSNotification.setCharaUserInfoKeyCharaID] as? String
