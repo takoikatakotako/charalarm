@@ -52,6 +52,8 @@ struct TopView: View {
             }) {
                 Text("")
                     .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity)
+                    // 何も描いていないところもタップできるようにする
+                    .contentShape(Rectangle())
             }
 
             VStack(spacing: 0) {

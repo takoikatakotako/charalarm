@@ -87,6 +87,10 @@ struct TopConversationChara: Identifiable {
     var tapLineText: String?
     /// 最近流したセリフ（続けて同じものを流さない）
     private var recentTapLines: [TapLine] = []
+    /// 選んでいるキャラのタップのセリフ（トップを開いたときに API から取り直す）
+    private var tapLines: [TapLine] = []
+    private var tapLinesCharaID: String?
+    private let tapLineRepository = TapLineRepository()
     private var hideTapLineTask: Task<Void, Never>?
 
     func onAppear() {
@@ -110,6 +114,7 @@ struct TopConversationChara: Identifiable {
             return
         }
         setVRMChara(charaID: charaID, resource: resource)
+        loadTapLines(charaID: charaID)
 
         guard let key = resource.expressions.keys.randomElement() else {
             return
@@ -204,8 +209,13 @@ struct TopConversationChara: Identifiable {
             return
         }
 
+        if tapLinesCharaID == charaDomain, !tapLines.isEmpty {
+            playTapLine(charaID: charaDomain, lines: tapLines)
+            return
+        }
+        // 古いデータ: キャラを選んだときにボイスをダウンロードしてあるセリフ
         if let tapLines = resource.tapLines, !tapLines.isEmpty {
-            playTapLine(charaDomain: charaDomain, lines: tapLines)
+            playLocalTapLine(charaDomain: charaDomain, lines: tapLines)
             return
         }
 
@@ -232,6 +242,7 @@ struct TopConversationChara: Identifiable {
             return
         }
         setVRMChara(charaID: charaID, resource: resource)
+        loadTapLines(charaID: charaID)
 
         guard let key = resource.expressions.keys.randomElement() else {
             return
@@ -277,10 +288,84 @@ struct TopConversationChara: Identifiable {
         }
     }
 
-    /// 今の日時に合うタップのセリフを流す（クリスマスなど条件つきを優先、最近流したものは避ける）
-    private func playTapLine(charaDomain: String, lines: [TapLine]) {
+    /// タップのセリフを、端末に取っておいたもの → API の順に読み、次に流しそうなボイスを先にダウンロードしておく
+    private func loadTapLines(charaID: String) {
+        if tapLinesCharaID != charaID {
+            tapLinesCharaID = charaID
+            tapLines = tapLineRepository.cachedLines(charaID: charaID)
+        }
+        Task { @MainActor [weak self] in
+            guard let self else { return }
+            do {
+                let lines = try await tapLineRepository.fetchLines(charaID: charaID)
+                guard tapLinesCharaID == charaID else { return }
+                tapLines = lines
+            } catch {
+                CharalarmLogger.error("タップのセリフを取れませんでした", error: error)
+            }
+            await tapLineRepository.prefetch(charaID: charaID, lines: nextTapLineCandidates(count: 3))
+        }
+    }
+
+    /// 次に流しそうなセリフ（今の言語・日時に合うもの）
+    private func nextTapLineCandidates(count: Int) -> [TapLine] {
+        let lines = TapLineSelector.lines(tapLines, in: conversationLanguage)
+        var picked: [TapLine] = []
+        for _ in 0..<count {
+            guard let line = TapLineSelector.select(from: lines, recent: recentTapLines + picked) else { break }
+            if !picked.contains(line) {
+                picked.append(line)
+            }
+        }
+        return picked
+    }
+
+    /// 今の日時に合うタップのセリフを流す。ボイスがなければダウンロードし、
+    /// 通信できなければ端末に取ってあるセリフから選ぶ
+    private func playTapLine(charaID: String, lines: [TapLine]) {
+        let lines = TapLineSelector.lines(lines, in: conversationLanguage)
+        guard let line = TapLineSelector.select(from: lines, recent: recentTapLines) else {
+            return
+        }
+        recentTapLines = Array((recentTapLines + [line]).suffix(min(5, max(lines.count - 1, 0))))
+
+        Task { @MainActor [weak self] in
+            guard let self else { return }
+            var playing = line
+            var data = try? await tapLineRepository.voice(charaID: charaID, line: line)
+            if data == nil {
+                let cached = lines.filter { self.tapLineRepository.hasCachedVoice(charaID: charaID, line: $0) }
+                if let fallback = TapLineSelector.select(from: cached, recent: recentTapLines) {
+                    playing = fallback
+                    data = try? await tapLineRepository.voice(charaID: charaID, line: fallback)
+                }
+            }
+            guard let data else {
+                CharalarmLogger.error("タップのセリフのボイスを読めませんでした")
+                return
+            }
+            audioPlayer = try? AVAudioPlayer(data: data)
+            audioPlayer?.play()
+            showTapLineText(playing.text)
+            // 次の分を先にダウンロードしておく
+            await tapLineRepository.prefetch(charaID: charaID, lines: nextTapLineCandidates(count: 2))
+        }
+    }
+
+    private func showTapLineText(_ text: String) {
+        tapLineText = text
+        hideTapLineTask?.cancel()
+        hideTapLineTask = Task { @MainActor [weak self] in
+            try? await Task.sleep(for: .seconds(5))
+            guard !Task.isCancelled else { return }
+            self?.tapLineText = nil
+        }
+    }
+
+    /// 古いデータ: キャラを選んだときに端末にダウンロードしたボイスで流す
+    private func playLocalTapLine(charaDomain: String, lines: [TapLine]) {
         // 会話の言語のセリフを流す（そのキャラに英語のセリフがなければ日本語）
-        let lines = TapLineSelector.lines(lines, in: userDefaultsRepository.getConversationLanguage())
+        let lines = TapLineSelector.lines(lines, in: conversationLanguage)
         guard let line = TapLineSelector.select(from: lines, recent: recentTapLines) else {
             return
         }
@@ -294,13 +379,7 @@ struct TopConversationChara: Identifiable {
             CharalarmLogger.error("タップのセリフのボイスを読めませんでした", error: error)
         }
 
-        tapLineText = line.text
-        hideTapLineTask?.cancel()
-        hideTapLineTask = Task { @MainActor [weak self] in
-            try? await Task.sleep(for: .seconds(5))
-            guard !Task.isCancelled else { return }
-            self?.tapLineText = nil
-        }
+        showTapLineText(line.text)
     }
 
     private func playCharaVoice(charaDomain: String, resource: LocalCharaResource, key: String) {

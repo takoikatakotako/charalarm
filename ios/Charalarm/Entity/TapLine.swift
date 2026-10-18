@@ -1,12 +1,14 @@
 import Foundation
 
-/// トップでキャラをタップしたときのセリフ。ボイスはキャラを選んだときに端末にダウンロードしてある。
+/// トップでキャラをタップしたときのセリフ。ボイスは流すときにダウンロードして、端末に取っておく（TapLineRepository）。
 struct TapLine: Codable, Hashable {
-    /// セリフの言語（"ja" / "en"）。古いデータは nil（日本語）
+    /// セリフの言語（ConversationLanguage の rawValue）。古いデータは nil（日本語）
     let language: String?
     let text: String
-    /// 端末に保存したボイスのファイル名
+    /// ボイスのファイル名（端末に取っておくときの名前）
     let voiceFileName: String
+    /// ボイスの URL。キャラを選んだときにダウンロードしていた古いデータは nil
+    var voiceFileURL: URL?
     let when: TapLineWhen
 
     /// 条件がなければ、いつでも流せるセリフ

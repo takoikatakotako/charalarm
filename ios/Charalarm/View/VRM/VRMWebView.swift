@@ -31,6 +31,8 @@ struct VRMWebView: UIViewRepresentable {
         webView.backgroundColor = .clear
         webView.scrollView.backgroundColor = .clear
         webView.scrollView.isScrollEnabled = false
+        // safe area の分だけ中身を寄せない（寄せると、画面の下の端の手前で体が切れる）
+        webView.scrollView.contentInsetAdjustmentBehavior = .never
         #if DEBUG
         webView.isInspectable = true
         #endif

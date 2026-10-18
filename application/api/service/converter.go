@@ -194,7 +194,7 @@ func convertToCharaOutput(databaseChara database.Chara, baseURL string, tapLines
 		UpdatedAt:    databaseChara.UpdatedAd,
 		Description:  databaseChara.Description,
 		Profiles:     databaseCharaProfileListToResponseCharaProfileList(databaseChara.Profiles),
-		Resources:    databaseCharaToResponseCharaResourceList(databaseChara, baseURL, tapLines),
+		Resources:    databaseCharaToResponseCharaResourceList(databaseChara, baseURL),
 		Expression:   databaseCharaExpressionMapToResponseCharaExpressionMap(databaseChara.Expressions, baseURL, databaseChara.CharaID),
 		Calls:        databaseCharaCallListToResponseCharaCallList(databaseChara.Calls, baseURL, databaseChara.CharaID),
 		Appearance:   convertToCharaAppearance(databaseChara, baseURL),
@@ -300,7 +300,7 @@ func databaseCharaProfileToResponseCharaProfile(databaseCharaProfile database.Ch
 	}
 }
 
-func databaseCharaToResponseCharaResourceList(databaseChara database.Chara, resourceBaseURL string, tapLines []database.CharaTapLine) []output.CharaResource {
+func databaseCharaToResponseCharaResourceList(databaseChara database.Chara, resourceBaseURL string) []output.CharaResource {
 	// response2.CharaResourcesを作成
 	responseCharaResources := make([]output.CharaResource, 0)
 
@@ -319,14 +319,7 @@ func databaseCharaToResponseCharaResourceList(databaseChara database.Chara, reso
 		}
 	}
 
-	// タップのセリフのボイス (キャラを選んだときに端末にダウンロードする)
-	for _, line := range tapLines {
-		if line.VoiceFileName != "" {
-			responseCharaResources = append(responseCharaResources, output.CharaResource{
-				FileURL: createFileURL(resourceBaseURL, databaseChara.CharaID, line.VoiceFileName),
-			})
-		}
-	}
+	// タップのセリフのボイスは入れない (数百個あるので、アプリが流すときにダウンロードする)
 
 	// callsのリソースを生成
 	for _, databaseCharaCall := range databaseChara.Calls {

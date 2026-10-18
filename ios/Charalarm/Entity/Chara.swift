@@ -16,7 +16,7 @@ struct Chara: Identifiable, Hashable, Equatable {
         let appearances = (charaResponse.appearances ?? []).compactMap(CharaAppearance.init(listItem:))
         self.appearances = appearances.isEmpty ? [appearance] : appearances
         tapLines = (charaResponse.tapLines ?? []).map {
-            TapLine(language: $0.language, text: $0.text, voiceFileName: $0.voiceFileURL.lastPathComponent, when: $0.when)
+            TapLine(language: $0.language, text: $0.text, voiceFileName: $0.voiceFileURL.lastPathComponent, voiceFileURL: $0.voiceFileURL, when: $0.when)
         }
         conversation = charaResponse.conversation.flatMap(CharaConversation.init(response:))
     }
@@ -51,7 +51,7 @@ struct Chara: Identifiable, Hashable, Equatable {
     let appearance: CharaAppearance
     /// 選べる見た目。先頭が既定。3D と立ち絵の両方があれば、ユーザーが選べる。
     let appearances: [CharaAppearance]
-    /// トップでタップしたときのセリフ（ボイスは resources に入っていて、キャラを選んだときにダウンロードする）
+    /// トップでタップしたときのセリフ（ボイスは流すときにダウンロードする）
     let tapLines: [TapLine]
 
     /// ユーザーが選んだ見た目。選んでいないか、選んだものがなければ既定。
