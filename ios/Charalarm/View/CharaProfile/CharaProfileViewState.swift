@@ -2,7 +2,7 @@ import Foundation
 import CallKit
 import SwiftUI
 
-@Observable class CharaProfileViewState {
+@MainActor @Observable final class CharaProfileViewState {
     let charaID: String
     var chara: Chara?
     var showCallView: Bool = false

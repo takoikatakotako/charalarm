@@ -1,6 +1,6 @@
 import StoreKit
 
-@Observable class SubscriptionViewState {
+@MainActor @Observable final class SubscriptionViewState {
     var product: Product?
     var enableDisplayLock: Bool = false
     var showingAlert: Bool = false

@@ -1,7 +1,7 @@
 import Foundation
 import SwiftUI
 
-@Observable class AlarmDetailViewState {
+@MainActor @Observable final class AlarmDetailViewState {
     var alarm: Alarm
     var characters: [Chara] = []
     var showingAlert = false

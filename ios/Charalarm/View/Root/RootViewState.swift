@@ -1,7 +1,7 @@
 import SwiftUI
 import FirebaseAuth
 
-@Observable class RootViewState {
+@MainActor @Observable final class RootViewState {
     var type: RootViewType = .loading
 
     var charaID: String?
@@ -74,7 +74,7 @@ import FirebaseAuth
                     }
                 }
             } catch {
-                print(error)
+                CharalarmLogger.error("起動時の確認に失敗", error: error)
                 withAnimation(.linear(duration: 1)) {
                     type = .error
                 }

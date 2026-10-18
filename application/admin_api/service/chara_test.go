@@ -48,7 +48,7 @@ func TestValidateCharaSettings(t *testing.T) {
 		s.ConversationLanguages = nil
 		assert.ErrorIs(t, validateCharaSettings(s), ErrInvalidChara)
 
-		s.ConversationLanguages = []string{"fr"}
+		s.ConversationLanguages = []string{"xx"}
 		assert.ErrorIs(t, validateCharaSettings(s), ErrInvalidChara)
 	})
 

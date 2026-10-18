@@ -1,27 +1,28 @@
 import SwiftUI
 
+/// 曜日のボタン。オンなら緑で塗る
 struct AlarmDetailWeekdayButton: View {
     @Binding var enable: Bool
     let title: String
 
     var body: some View {
-        Button(action: {
+        Button {
             enable.toggle()
-        }) {
+        } label: {
             Text(title)
-                .font(Font.system(size: 16).bold())
-                .foregroundStyle(enable ? Color.white : Color.black)
-                .frame(width: 40, height: 40)
-                .background(enable ? Color(R.color.alarmCardBackgroundGreen.name) : Color.white)
-                .clipShape(RoundedRectangle(cornerRadius: 20))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 20)
-                        .stroke(Color(R.color.alarmCardBackgroundGreen.name), lineWidth: 2)
-                )
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(enable ? Color.white : Color.primary)
+                .frame(width: 38, height: 38)
+                .background(enable ? Color.brand : Color(.tertiarySystemFill), in: Circle())
         }
+        .buttonStyle(.plain)
+        .accessibilityAddTraits(enable ? .isSelected : [])
     }
 }
 
 #Preview {
-    AlarmDetailWeekdayButton(enable: .constant(true), title: String(localized: "day-of-week-monday"))
+    HStack {
+        AlarmDetailWeekdayButton(enable: .constant(true), title: "月")
+        AlarmDetailWeekdayButton(enable: .constant(false), title: "火")
+    }
 }

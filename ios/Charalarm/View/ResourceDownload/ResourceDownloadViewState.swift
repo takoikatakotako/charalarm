@@ -1,6 +1,6 @@
 import Foundation
 
-@Observable class ResourceDownloadViewState {
+@MainActor @Observable final class ResourceDownloadViewState {
     private let charaID: String
     private let apiRepository = APIRepository()
     private let fileRepository = FileRepository()

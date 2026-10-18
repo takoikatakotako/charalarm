@@ -1,6 +1,6 @@
 import SwiftUI
 
-@Observable class ConfigViewState {
+@MainActor @Observable final class ConfigViewState {
     var character: Chara?
     var showingAlert = false
     var alertMessage = ""
@@ -20,6 +20,27 @@ import SwiftUI
             let granted = await CalendarRepository().requestAccess()
             useCalendarInConversation = granted
             UserDefaultsRepository().setUseCalendarInConversation(granted)
+            if !granted {
+                alertMessage = String(localized: "config-calendar-access-denied")
+                showingAlert = true
+            }
+        }
+    }
+
+    /// 電話の最初に、キャラのほうから今日の予定に触れる。オンにするときにカレンダーの許可を求める
+    private(set) var mentionScheduleOnCall = UserDefaultsRepository().getMentionScheduleOnCall()
+        && CalendarRepository().isAuthorized
+
+    func setMentionScheduleOnCall(_ mention: Bool) {
+        guard mention else {
+            mentionScheduleOnCall = false
+            UserDefaultsRepository().setMentionScheduleOnCall(false)
+            return
+        }
+        Task { @MainActor in
+            let granted = await CalendarRepository().requestAccess()
+            mentionScheduleOnCall = granted
+            UserDefaultsRepository().setMentionScheduleOnCall(granted)
             if !granted {
                 alertMessage = String(localized: "config-calendar-access-denied")
                 showingAlert = true

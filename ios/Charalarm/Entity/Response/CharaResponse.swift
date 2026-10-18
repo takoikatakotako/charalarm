@@ -15,8 +15,17 @@ struct CharaResponse: Response {
     let appearance: CharaAppearanceResponse?
     /// 選べる見た目。先頭が既定。古いサーバは返さないので省略できる。
     let appearances: [CharaAppearanceResponse]?
+    /// トップでタップしたときのセリフ。古いサーバは返さないので省略できる。
+    let tapLines: [CharaTapLineResponse]?
     /// 会話に対応するキャラだけが持つ。
     let conversation: CharaConversationResponse?
+}
+
+struct CharaTapLineResponse: Response {
+    let language: String?
+    let text: String
+    let voiceFileURL: URL
+    let when: TapLineWhen
 }
 
 /// 見た目。type が "vrm" のときは modelFileURL に 3D モデルがある。

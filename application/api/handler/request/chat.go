@@ -34,8 +34,10 @@ type Chat struct {
 	// Language はユーザーが選んだ会話の言語 ("ja" / "en")。省略すると日本語。キャラが話せなければキャラの言語になる。
 	Language string `json:"language"`
 	// Capabilities は端末で使える道具 (例: calendar.read)。許可がないものは含めない。
-	Capabilities []string      `json:"capabilities"`
-	Memory       string        `json:"memory"`
-	Context      *ChatContext  `json:"context"`
-	Messages     []ChatMessage `json:"messages"`
+	Capabilities []string `json:"capabilities"`
+	// TodayEvents は今日の予定 (タイトルと時刻の JSON)。電話の最初のひとことで、ユーザーが設定でオンにしているときだけ送られる
+	TodayEvents string        `json:"todayEvents"`
+	Memory      string        `json:"memory"`
+	Context     *ChatContext  `json:"context"`
+	Messages    []ChatMessage `json:"messages"`
 }

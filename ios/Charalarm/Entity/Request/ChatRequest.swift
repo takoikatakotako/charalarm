@@ -8,6 +8,8 @@ struct ChatRequest: Encodable {
     let language: String
     /// 端末で使える道具（例: calendar.read）。許可がないものは入れない
     let capabilities: [String]
+    /// 今日の予定（JSON）。電話の最初のひとことで、設定でオンにしているときだけ送る
+    let todayEvents: String?
     let messages: [ChatMessage]
     let context: ChatContext
 }

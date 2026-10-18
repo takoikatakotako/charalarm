@@ -1,43 +1,38 @@
 import SwiftUI
 
+/// キャラの紹介の1行（見出しと中身。URL があれば開ける）
 struct CharaProfileRow: View {
-    @Environment(\.openURL) private var openURL
     let title: String
     let text: String
     let url: URL?
-    var body: some View {
-        HStack {
-            VStack(alignment: .leading) {
-                Text(title)
-                    .font(Font.headline)
-                    .foregroundStyle(Color.gray)
-                    .padding(.top, 8)
-                    .padding(.bottom, 8)
-                Text(text)
-                    .foregroundStyle(Color.gray)
-                    .lineLimit(nil)
-                    .fixedSize(horizontal: false, vertical: true)
-                Divider()
-            }
 
-            if let url = url {
-                Button(action: {
-                    openURL(url)
-                }, label: {
-                    Image(R.image.profileOpenUrl.name)
-                        .resizable()
-                        .renderingMode(.template)
-                        .foregroundStyle(Color(R.color.charalarmDefaultGray.name))
-                        .frame(width: 24, height: 24, alignment: .center)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 16)
-                })
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(title)
+                .font(.footnote.weight(.semibold))
+                .foregroundStyle(.secondary)
+            if let url {
+                Link(destination: url) {
+                    HStack(spacing: 4) {
+                        Text(text)
+                        Image(systemName: "arrow.up.right.square")
+                            .font(.footnote)
+                    }
+                }
+            } else {
+                Text(text)
+                    .fixedSize(horizontal: false, vertical: true)
             }
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.horizontal, 16)
+        .padding(.vertical, 10)
     }
 }
 
 #Preview {
-    CharaProfileRow(title: "名前", text: "井上結衣", url: URL(string: "https://swiswiswift.com/")!)
+    VStack {
+        CharaProfileRow(title: "名前", text: "井上結衣", url: nil)
+        CharaProfileRow(title: "イラスト", text: "さいもん", url: URL(string: "https://swiswiswift.com/"))
+    }
 }

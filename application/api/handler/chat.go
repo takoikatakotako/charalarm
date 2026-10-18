@@ -40,6 +40,7 @@ func (h *Chat) ChatPost(c echo.Context) error {
 		input.Context = &service.ChatContext{Now: req.Context.Now, TimeZone: req.Context.TimeZone}
 	}
 	input.Capabilities = req.Capabilities
+	input.TodayEvents = req.TodayEvents
 	for _, m := range req.Messages {
 		message := llm.Message{Role: llm.Role(m.Role), Content: m.Content, ToolCallID: m.ToolCallID}
 		for _, call := range m.ToolCalls {

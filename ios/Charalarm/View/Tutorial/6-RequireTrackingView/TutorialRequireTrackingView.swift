@@ -1,50 +1,32 @@
 import SwiftUI
-import AdSupport
 import AppTrackingTransparency
 
 struct TutorialRequireTrackingView: View {
-    @State var goNextView = false
+    @State private var goNextView = false
+
     var body: some View {
-        VStack(alignment: .center, spacing: 12) {
-            Spacer()
-
-            Text(String(localized: "tutorial-customize-your-ads"))
-                .font(Font.system(size: 18).bold())
-
-            Text(String(localized: "tutorial-charalarm-development-is-supported-by-advertising-revenue"))
-                .font(Font.system(size: 18))
-                .padding(.horizontal, 12)
-
-            Image(R.image.zundamonNormal.name)
-                .resizable()
-                .scaledToFit()
-                .frame(width: 300, height: 300)
-
-            Spacer()
-
-            Button(action: {
-                requestTrackingAuthorization()
-            }, label: {
+        TutorialPage(
+            image: .zundamonNormal,
+            title: String(localized: "tutorial-customize-your-ads"),
+            messages: [String(localized: "tutorial-charalarm-development-is-supported-by-advertising-revenue")]
+        ) {
+            Button {
+                Task {
+                    _ = await ATTrackingManager.requestTrackingAuthorization()
+                    goNextView = true
+                }
+            } label: {
                 TutorialButtonContent(text: String(localized: "common-next"))
-                    .padding(.horizontal, 16)
-            })
-            .padding(.bottom, 28)
+            }
         }
-        .ignoresSafeArea(.container, edges: .bottom)
-        .navigationTitle("")
-        .toolbar(.hidden, for: .navigationBar)
         .navigationDestination(isPresented: $goNextView) {
             TutorialFinallyView()
-        }
-    }
-
-    func requestTrackingAuthorization() {
-        ATTrackingManager.requestTrackingAuthorization { _ in
-            goNextView = true
         }
     }
 }
 
 #Preview {
-    TutorialRequireTrackingView()
+    NavigationStack {
+        TutorialRequireTrackingView()
+    }
 }

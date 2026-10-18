@@ -15,6 +15,9 @@ struct Chara: Identifiable, Hashable, Equatable {
         appearance = CharaAppearance(response: charaResponse.appearance)
         let appearances = (charaResponse.appearances ?? []).compactMap(CharaAppearance.init(listItem:))
         self.appearances = appearances.isEmpty ? [appearance] : appearances
+        tapLines = (charaResponse.tapLines ?? []).map {
+            TapLine(language: $0.language, text: $0.text, voiceFileName: $0.voiceFileURL.lastPathComponent, voiceFileURL: $0.voiceFileURL, when: $0.when)
+        }
         conversation = charaResponse.conversation.flatMap(CharaConversation.init(response:))
     }
 
@@ -48,6 +51,8 @@ struct Chara: Identifiable, Hashable, Equatable {
     let appearance: CharaAppearance
     /// 選べる見た目。先頭が既定。3D と立ち絵の両方があれば、ユーザーが選べる。
     let appearances: [CharaAppearance]
+    /// トップでタップしたときのセリフ（ボイスは流すときにダウンロードする）
+    let tapLines: [TapLine]
 
     /// ユーザーが選んだ見た目。選んでいないか、選んだものがなければ既定。
     func appearance(preferred: CharaAppearanceKind?) -> CharaAppearance {

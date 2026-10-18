@@ -18,6 +18,10 @@ resource "aws_lambda_function" "admin_api_lambda_function" {
       "ADMIN_ORIGIN_SECRET"      = data.aws_ssm_parameter.origin_secret.value,
       "RESOURCE_BUCKET_NAME"     = var.resource_bucket_name,
       "RESOURCE_DISTRIBUTION_ID" = var.resource_distribution_id,
+      # タップのセリフの下書きとボイスに使う Vertex AI
+      "CHARALARM_GCP_PROJECT"           = var.gcp_project,
+      "CHARALARM_GCP_CREDENTIAL_CONFIG" = var.gcp_credential_config,
+      "CHARALARM_LLM_MODEL"             = var.llm_model,
     }
   }
 

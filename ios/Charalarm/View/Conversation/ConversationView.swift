@@ -3,64 +3,69 @@ import SwiftUI
 /// キャラとのリアルタイム音声会話画面。
 /// ホーム画面の電話ボタン（standalone）と CallKit 着信フローの両方から使う。
 struct ConversationView: View {
-    @State private var viewModel: ConversationViewModel
+    @State private var viewState: ConversationViewState
     @Environment(\.dismiss) private var dismiss
 
     init(
         charaID: String,
         mode: ConversationMode = .standalone,
+        topic: ConversationTopic = .call,
         textGenerationRepository: TextGenerationRepository = BackendTextGenerationRepository()
     ) {
-        _viewModel = State(initialValue: ConversationViewModel(
+        _viewState = State(initialValue: ConversationViewState(
             charaID: charaID,
             mode: mode,
+            topic: topic,
             textGenerationRepository: textGenerationRepository
         ))
     }
 
     var body: some View {
-        VStack(spacing: 24) {
-            Spacer()
+        ZStack {
+            CallBackground()
 
-            Text(viewModel.charaName)
-                .font(.title2)
-                .bold()
+            VStack(spacing: 16) {
+                if let vrmModelFileURL = viewState.vrmModelFileURL {
+                    // 話している相手を胸から上で出す
+                    CharaVRMView(charaID: viewState.charaID, modelFileURL: vrmModelFileURL, framing: .bust)
+                        .frame(maxWidth: .infinity)
+                        .frame(maxHeight: 360)
+                } else {
+                    Spacer()
+                }
 
-            Text(statusLabel)
-                .font(.footnote)
-                .foregroundStyle(.secondary)
+                CallerNameText(name: viewState.charaName, status: statusLabel)
 
-            Text(viewModel.text)
-                .font(.body)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, 24)
+                ScrollView {
+                    Text(viewState.text)
+                        .font(.body)
+                        .multilineTextAlignment(.center)
+                        .frame(maxWidth: .infinity)
+                        .padding(.horizontal, 24)
+                }
+                .foregroundStyle(.white.opacity(0.9))
 
-            Spacer()
+                Text(String(format: "%02d:%02d",
+                            Int(viewState.conversationDuration) / 60,
+                            Int(viewState.conversationDuration) % 60))
+                    .font(.callout)
+                    .monospacedDigit()
+                    .foregroundStyle(.white.opacity(0.7))
 
-            Text(String(format: "%02d:%02d",
-                        Int(viewModel.conversationDuration) / 60,
-                        Int(viewModel.conversationDuration) % 60))
-                .font(.caption)
-                .monospacedDigit()
-                .foregroundStyle(.secondary)
-
-            Button(role: .destructive) {
-                viewModel.endButtonTapped()
-            } label: {
-                Text("通話を終了")
-                    .frame(maxWidth: .infinity)
+                CallActionButton(kind: .decline) {
+                    viewState.endButtonTapped()
+                }
+                .accessibilityLabel(String(localized: "conversation-end"))
+                .padding(.bottom, 32)
             }
-            .buttonStyle(.borderedProminent)
-            .padding(.horizontal, 24)
-            .padding(.bottom, 32)
         }
         .onAppear {
-            viewModel.onAppear()
+            viewState.onAppear()
         }
         .onDisappear {
-            viewModel.teardown()
+            viewState.teardown()
         }
-        .onChange(of: viewModel.shouldDismiss) { _, shouldDismiss in
+        .onChange(of: viewState.shouldDismiss) { _, shouldDismiss in
             if shouldDismiss {
                 dismiss()
             }
@@ -68,15 +73,14 @@ struct ConversationView: View {
     }
 
     private var statusLabel: String {
-        switch viewModel.status {
-        case .idle: return "準備中…"
-        case .preparing: return "準備中…"
-        case .requestingPermission: return "マイクの許可を確認中…"
-        case .generatingScript: return "考え中…"
-        case .synthesizingVoice: return "音声を準備中…"
-        case .playingVoice: return "話しています…"
-        case .recognizingSpeech: return "聞いています…"
-        case .ended: return "通話終了"
+        switch viewState.status {
+        case .idle, .preparing: return String(localized: "conversation-status-preparing")
+        case .requestingPermission: return String(localized: "conversation-status-permission")
+        case .generatingScript: return String(localized: "conversation-status-thinking")
+        case .synthesizingVoice: return String(localized: "conversation-status-voice")
+        case .playingVoice: return String(localized: "conversation-status-speaking")
+        case .recognizingSpeech: return String(localized: "conversation-status-listening")
+        case .ended: return String(localized: "conversation-status-ended")
         }
     }
 }

@@ -1,6 +1,6 @@
 import SwiftUI
 
-@Observable class UserInfoViewState {
+@MainActor @Observable final class UserInfoViewState {
     private var tapCount: Int = 0
     var userInfo: UserInfo?
     var showingAlert = false
@@ -10,7 +10,6 @@ import SwiftUI
         }
     }
 
-//    private let appDelegate = UIApplication.shared.delegate as? AppDelegate
     private let apiRepository = APIRepository()
     private let keychainRepository = KeychainRepository()
     private let userDefaultsRepository = UserDefaultsRepository()

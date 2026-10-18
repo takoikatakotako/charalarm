@@ -1,6 +1,7 @@
 package infrastructure
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"strconv"
@@ -85,6 +86,21 @@ func (a *AWS) PresignResourceUpload(bucket string, charaID string, fileName stri
 		return "", err
 	}
 	return req.URL, nil
+}
+
+// PutResourceFile は bucket の {charaID}/{fileName} にファイルを置く (サーバで作ったタップのセリフのボイスなど)。
+func (a *AWS) PutResourceFile(bucket string, charaID string, fileName string, contentType string, data []byte) error {
+	client, err := a.createS3Client()
+	if err != nil {
+		return err
+	}
+	_, err = client.PutObject(context.Background(), &s3.PutObjectInput{
+		Bucket:      aws.String(bucket),
+		Key:         aws.String(charaID + "/" + fileName),
+		Body:        bytes.NewReader(data),
+		ContentType: aws.String(contentType),
+	})
+	return err
 }
 
 // InvalidateResourceFiles は CloudFront のキャッシュから {charaID}/{fileName} を消す (同じ名前で上書きしたとき用)。

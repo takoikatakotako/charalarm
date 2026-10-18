@@ -6,6 +6,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/takoikatakotako/charalarm/api/service/llm"
+	"github.com/takoikatakotako/charalarm/infrastructure/database"
 )
 
 func TestValidateChatInput(t *testing.T) {
@@ -24,7 +25,9 @@ func TestValidateChatInput(t *testing.T) {
 			Messages: []llm.Message{user},
 		}, false},
 		{"英語", ChatInput{Language: "en", Messages: []llm.Message{user}}, false},
-		{"知らない言語", ChatInput{Language: "fr", Messages: []llm.Message{user}}, true},
+		{"ドイツ語", ChatInput{Language: "de", Messages: []llm.Message{user}}, false},
+		{"中国語 (繁体字)", ChatInput{Language: "zh-Hant", Messages: []llm.Message{user}}, false},
+		{"知らない言語", ChatInput{Language: "xx", Messages: []llm.Message{user}}, true},
 		{"カレンダーを読める", ChatInput{Capabilities: []string{CapabilityCalendarRead}, Messages: []llm.Message{user}}, false},
 		{"知らない道具", ChatInput{Capabilities: []string{"contacts.read"}, Messages: []llm.Message{user}}, true},
 		{"道具の呼び出しと結果", ChatInput{Messages: []llm.Message{
@@ -104,7 +107,7 @@ func TestBuildChatMessages(t *testing.T) {
 			{Role: llm.RoleSystem, Content: chatSpeechInstruction},
 			{Role: llm.RoleSystem, Content: chatNoCalendarInstruction},
 			user,
-			{Role: llm.RoleSystem, Content: chatEnglishInstruction},
+			{Role: llm.RoleSystem, Content: chatLanguageInstruction("en")},
 		}, messages)
 	})
 
@@ -180,4 +183,60 @@ func TestChatTools(t *testing.T) {
 		{Role: llm.RoleAssistant, Content: "10時から歯医者ですよ。"},
 		{Role: llm.RoleUser, Content: "明日は？"},
 	}}))
+}
+
+func TestTodayEvents(t *testing.T) {
+	opening := llm.Message{Role: llm.RoleSystem, Content: "電話に出たところ"}
+	events := `[{"title":"歯医者","start":"10:00","end":"11:00","allDay":false}]`
+	input := ChatInput{Capabilities: []string{CapabilityCalendarRead}, TodayEvents: events, Messages: []llm.Message{opening}}
+
+	// 今日の予定を渡したら、最初のあいさつで触れるよう伝え、会話の直前に置く
+	messages, err := buildChatMessages("", input)
+	assert.NoError(t, err)
+	last := messages[len(messages)-2]
+	assert.Equal(t, llm.RoleSystem, last.Role)
+	assert.Contains(t, last.Content, chatTodayEventsInstruction)
+	assert.Contains(t, last.Content, "<events>\n"+events+"\n</events>")
+	assert.Equal(t, opening, messages[len(messages)-1])
+
+	// 予定はもう分かっているので、道具は渡さない
+	assert.Nil(t, chatTools(input))
+
+	// 長すぎる予定は受け付けない
+	input.TodayEvents = strings.Repeat("a", chatMaxToolResultLength+1)
+	assert.Error(t, validateChatInput(input))
+}
+
+func TestNoScheduleOnOpening(t *testing.T) {
+	opening := llm.Message{Role: llm.RoleSystem, Content: "電話に出たところ"}
+	calendar := []string{CapabilityCalendarRead}
+	contains := func(messages []llm.Message) bool {
+		for _, m := range messages {
+			if m.Content == chatNoScheduleOnOpeningInstruction {
+				return true
+			}
+		}
+		return false
+	}
+
+	// 電話の最初に予定を渡さなかったら、あいさつで予定の話をしない
+	messages, _ := buildChatMessages("", ChatInput{Capabilities: calendar, Messages: []llm.Message{opening}})
+	assert.True(t, contains(messages))
+
+	// ユーザーが話したあとは、道具で予定を確かめてよい
+	messages, _ = buildChatMessages("", ChatInput{Capabilities: calendar, Messages: []llm.Message{opening, {Role: llm.RoleUser, Content: "今日の予定は？"}}})
+	assert.False(t, contains(messages))
+
+	// 予定を渡したときは、予定に触れる
+	messages, _ = buildChatMessages("", ChatInput{Capabilities: calendar, TodayEvents: "[]", Messages: []llm.Message{opening}})
+	assert.False(t, contains(messages))
+}
+
+func TestChatLanguageInstruction(t *testing.T) {
+	assert.Contains(t, chatLanguageInstruction("de"), "spoken German")
+	assert.Contains(t, chatLanguageInstruction("zh-Hans"), "Simplified Chinese")
+	// すべての言語に名前がある
+	for _, language := range database.SupportedLanguages {
+		assert.NotEmpty(t, database.LanguageNames[language], language)
+	}
 }

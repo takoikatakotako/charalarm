@@ -137,7 +137,7 @@ class AppDelegateModel {
                 let requestBody = UserUpdatePremiumPlanRequest(enablePremiumPlan: enable)
                 try await apiRepository.postUserUpdatePremium(userID: userID, authToken: authToken, requestBody: requestBody)
             } catch {
-                print(error)
+                CharalarmLogger.error("プレミアムプランの更新に失敗", error: error)
             }
         }
     }

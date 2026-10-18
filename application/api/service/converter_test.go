@@ -279,7 +279,7 @@ func TestDatabaseCharaToResponseChara(t *testing.T) {
 		},
 	}
 
-	responseChara := convertToCharaOutput(databaseChara, baseURL)
+	responseChara := convertToCharaOutput(databaseChara, baseURL, nil)
 	assert.Equal(t, databaseChara.CharaID, responseChara.CharaID)
 	assert.Equal(t, "https://swiswiswift.com/com.example.chara/normal1.png", responseChara.Expression["normal"].ImageFileURLs[0])
 	assert.Equal(t, "https://swiswiswift.com/com.example.chara/normal2.png", responseChara.Expression["normal"].ImageFileURLs[1])

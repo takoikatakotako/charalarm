@@ -3,7 +3,7 @@ import CallKit
 import UIKit
 import AVFoundation
 
-@Observable class CallingViewState {
+@MainActor @Observable final class CallingViewState {
     let charaID: String?
     let charaName: String?
     let callUUID: UUID?

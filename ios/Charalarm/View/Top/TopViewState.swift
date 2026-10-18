@@ -3,13 +3,14 @@ import AVFoundation
 import AdSupport
 import AppTrackingTransparency
 
-enum TopViewModelAlert {
+enum TopViewAlert {
     case failedToGetCharacterInformation
     case failedToGetCharacterSelectionInformation
     case failedToGetCharactersResources
     case failedToSetCharacterImage
     case thisFeatureIsNotAvailableInYourRegion
     case thisCharacterCannotTalkYet
+    case calendarNotAuthorized
 
     var message: String {
         switch self {
@@ -25,12 +26,15 @@ enum TopViewModelAlert {
             return String(localized: "error-this-feature-is-not-available-in-your-region")
         case .thisCharacterCannotTalkYet:
             return String(localized: "error-this-character-cannot-talk-yet")
+        case .calendarNotAuthorized:
+            return String(localized: "error-calendar-not-authorized")
         }
     }
 }
 
-enum TopViewModelSheet: Identifiable {
+enum TopViewSheet: Identifiable {
     case newsList
+    case trendNews
     case characterList
     case alarmList
     case config
@@ -45,41 +49,52 @@ struct TopVRMChara: Equatable {
     let modelFileURL: URL
 }
 
-/// 電話ボタンで通話するキャラ（fullScreenCover 用）。
+/// 電話ボタン・「今日の予定」ボタンで話すキャラ（fullScreenCover 用）。
 struct TopConversationChara: Identifiable {
     let charaID: String
+    var topic: ConversationTopic = .call
     var id: String { charaID }
 }
 
-@Observable class TopViewState {
+@MainActor @Observable final class TopViewState {
     var charaImage = UIImage()
     /// VRM のキャラを選んでいれば、立ち絵の代わりに 3D で出す
     var vrmChara: TopVRMChara?
     var showingAlert = false
-    var alert: TopViewModelAlert? {
+    var alert: TopViewAlert? {
         didSet {
             showingAlert = alert != nil
         }
     }
-    var sheet: TopViewModelSheet?
+    var sheet: TopViewSheet?
     /// 電話ボタンで通話するキャラ。nil でなければ会話画面を出す。
     var conversationChara: TopConversationChara?
     var isPreparingCall = false
+    /// 会話とタップのセリフの言語（トップと設定のどちらでも変えられる）
+    var conversationLanguage: ConversationLanguage = UserDefaultsRepository().getConversationLanguage() {
+        didSet {
+            userDefaultsRepository.setConversationLanguage(conversationLanguage)
+        }
+    }
     private let userDefaultsRepository: UserDefaultsRepository = UserDefaultsRepository()
     private let fileHandler: FileRepositoryProtocol = FileRepository()
 
     private let localCharaResourceUseCase = LocalCharaResourceUseCase()
     private let apiRepository = APIRepository()
 
-    var audioPlayer: AVAudioPlayer?
+    /// タップしたときのセリフ（吹き出しは tapLinePlayer.text）
+    let tapLinePlayer = TapLinePlayer()
 
     func onAppear() {
-        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, _ in
-            guard granted else { return }
-            DispatchQueue.main.async {
+        Task {
+            let granted = (try? await UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge])) ?? false
+            if granted {
                 UIApplication.shared.registerForRemoteNotifications()
             }
         }
+
+        // 設定の画面で変えたかもしれないので読み直す
+        conversationLanguage = userDefaultsRepository.getConversationLanguage()
 
         guard let charaID = userDefaultsRepository.getCharaID() else {
             self.alert = .failedToGetCharacterSelectionInformation
@@ -91,6 +106,7 @@ struct TopConversationChara: Identifiable {
             return
         }
         setVRMChara(charaID: charaID, resource: resource)
+        tapLinePlayer.load(charaID: charaID, language: conversationLanguage)
 
         guard let key = resource.expressions.keys.randomElement() else {
             return
@@ -101,6 +117,16 @@ struct TopConversationChara: Identifiable {
 
     func newsButtonTapped() {
         sheet = .newsList
+    }
+
+    func trendNewsButtonTapped() {
+        sheet = .trendNews
+    }
+
+    /// 話題のニュースを、キャラに読んでもらう
+    @MainActor
+    func readTrendNews(_ news: [TrendNews]) async {
+        await startConversation(topic: .trendNews(news))
     }
 
     func characterListButtonTapped() {
@@ -122,6 +148,26 @@ struct TopConversationChara: Identifiable {
     /// 電話ボタン。選んでいるキャラが会話に対応していれば、そのキャラと通話する。
     @MainActor
     func callButtonTapped() async {
+        await startConversation(topic: .call)
+    }
+
+    /// 「今日の予定」ボタン。キャラが今日の予定を読み上げる（カレンダーの許可がなければ求める）。
+    @MainActor
+    func todayScheduleButtonTapped() async {
+        let calendarRepository = CalendarRepository()
+        guard calendarRepository.isAuthorized else {
+            if await calendarRepository.requestAccess() {
+                await startConversation(topic: .todaySchedule)
+            } else {
+                alert = .calendarNotAuthorized
+            }
+            return
+        }
+        await startConversation(topic: .todaySchedule)
+    }
+
+    @MainActor
+    private func startConversation(topic: ConversationTopic) async {
         guard !isPreparingCall else { return }
         guard let charaID = userDefaultsRepository.getCharaID() else {
             alert = .failedToGetCharacterSelectionInformation
@@ -136,13 +182,14 @@ struct TopConversationChara: Identifiable {
                 alert = .thisCharacterCannotTalkYet
                 return
             }
-            conversationChara = TopConversationChara(charaID: charaID)
+            conversationChara = TopConversationChara(charaID: charaID, topic: topic)
         } catch {
             CharalarmLogger.error("キャラ情報の取得に失敗", error: error)
             alert = .failedToGetCharacterInformation
         }
     }
 
+    /// キャラをタップした。タップのセリフがあれば今の日時に合うものを、なければ表情のボイスを流す
     func tapped() {
         guard let charaDomain = userDefaultsRepository.getCharaID() else {
             self.alert = .failedToGetCharacterSelectionInformation
@@ -151,6 +198,16 @@ struct TopConversationChara: Identifiable {
 
         guard let resource = try? localCharaResourceUseCase.loadCharaResource(charaID: charaDomain) else {
             self.alert = .failedToGetCharactersResources
+            return
+        }
+
+        if tapLinePlayer.hasLines(charaID: charaDomain) {
+            tapLinePlayer.play(charaID: charaDomain, language: conversationLanguage)
+            return
+        }
+        // 古いデータ: キャラを選んだときにボイスをダウンロードしてあるセリフ
+        if let tapLines = resource.tapLines, !tapLines.isEmpty {
+            tapLinePlayer.playDownloaded(charaID: charaDomain, lines: tapLines, language: conversationLanguage)
             return
         }
 
@@ -164,19 +221,16 @@ struct TopConversationChara: Identifiable {
 
     func updateChara(charaID: String?) {
         guard let charaID = charaID else {
-            DispatchQueue.main.async {
-                self.alert = .failedToGetCharacterSelectionInformation
-            }
+            alert = .failedToGetCharacterSelectionInformation
             return
         }
 
         guard let resource = try? localCharaResourceUseCase.loadCharaResource(charaID: charaID) else {
-            DispatchQueue.main.async {
-                self.alert = .failedToGetCharactersResources
-            }
+            alert = .failedToGetCharactersResources
             return
         }
         setVRMChara(charaID: charaID, resource: resource)
+        tapLinePlayer.load(charaID: charaID, language: conversationLanguage)
 
         guard let key = resource.expressions.keys.randomElement() else {
             return
@@ -209,16 +263,12 @@ struct TopConversationChara: Identifiable {
         do {
             let data = try fileHandler.loadData(directoryName: charaDomain, fileName: imageName)
             guard let image = UIImage(data: data) else {
-                DispatchQueue.main.async {
-                    self.alert = .failedToSetCharacterImage
-                }
+                alert = .failedToSetCharacterImage
                 return
             }
             charaImage = image
         } catch {
-            DispatchQueue.main.async {
-                self.alert = .failedToSetCharacterImage
-            }
+            alert = .failedToSetCharacterImage
         }
     }
 
@@ -228,11 +278,9 @@ struct TopConversationChara: Identifiable {
         }
 
         do {
-            let data = try fileHandler.loadData(directoryName: charaDomain, fileName: voiceName)
-            audioPlayer = try? AVAudioPlayer(data: data)
-            audioPlayer?.play()
+            tapLinePlayer.playVoice(try fileHandler.loadData(directoryName: charaDomain, fileName: voiceName))
         } catch {
-            print(error)
+            CharalarmLogger.error("表情のボイスを読めませんでした", error: error)
         }
     }
 }

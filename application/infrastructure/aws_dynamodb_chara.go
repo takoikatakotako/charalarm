@@ -160,3 +160,70 @@ func (a *AWS) GetRandomChara() (database.Chara, error) {
 	}
 	return enableCharas[rand.Intn(len(enableCharas))], nil
 }
+
+// ListCharaTapLines はキャラのタップのセリフを返す。
+func (a *AWS) ListCharaTapLines(charaID string) ([]database.CharaTapLine, error) {
+	client, err := a.createDynamoDBClient()
+	if err != nil {
+		return nil, err
+	}
+
+	lines := make([]database.CharaTapLine, 0)
+	paginator := dynamodb.NewQueryPaginator(client, &dynamodb.QueryInput{
+		TableName:              aws.String(database.CharaTapLineTableName),
+		KeyConditionExpression: aws.String("#charaID = :charaID"),
+		ExpressionAttributeNames: map[string]string{
+			"#charaID": database.CharaTapLineTableCharaID,
+		},
+		ExpressionAttributeValues: map[string]types.AttributeValue{
+			":charaID": &types.AttributeValueMemberS{Value: charaID},
+		},
+	})
+	for paginator.HasMorePages() {
+		page, err := paginator.NextPage(context.Background())
+		if err != nil {
+			return nil, err
+		}
+		for _, item := range page.Items {
+			line := database.CharaTapLine{}
+			if err := attributevalue.UnmarshalMap(item, &line); err != nil {
+				return nil, err
+			}
+			lines = append(lines, line)
+		}
+	}
+	return lines, nil
+}
+
+// PutCharaTapLine はタップのセリフを1つ置く (作る・置き換える)。
+func (a *AWS) PutCharaTapLine(line database.CharaTapLine) error {
+	client, err := a.createDynamoDBClient()
+	if err != nil {
+		return err
+	}
+	item, err := attributevalue.MarshalMap(line)
+	if err != nil {
+		return err
+	}
+	_, err = client.PutItem(context.Background(), &dynamodb.PutItemInput{
+		TableName: aws.String(database.CharaTapLineTableName),
+		Item:      item,
+	})
+	return err
+}
+
+// DeleteCharaTapLine はタップのセリフを1つ消す。
+func (a *AWS) DeleteCharaTapLine(charaID string, lineID string) error {
+	client, err := a.createDynamoDBClient()
+	if err != nil {
+		return err
+	}
+	_, err = client.DeleteItem(context.Background(), &dynamodb.DeleteItemInput{
+		TableName: aws.String(database.CharaTapLineTableName),
+		Key: map[string]types.AttributeValue{
+			database.CharaTapLineTableCharaID: &types.AttributeValueMemberS{Value: charaID},
+			database.CharaTapLineTableLineID:  &types.AttributeValueMemberS{Value: lineID},
+		},
+	})
+	return err
+}

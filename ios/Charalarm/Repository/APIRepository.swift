@@ -160,11 +160,11 @@ extension APIRepository {
 
 extension APIRepository {
     /// キャラとの会話応答を backend `/chat` から取得する。
-    func postChat(userID: String, authToken: String, charaID: String, language: ConversationLanguage, capabilities: [String], messages: [ChatMessage], context: ChatContext) async throws -> ChatResponse {
+    func postChat(userID: String, authToken: String, charaID: String, language: ConversationLanguage, capabilities: [String], todayEvents: String? = nil, messages: [ChatMessage], context: ChatContext) async throws -> ChatResponse {
         let path = "/chat"
         let url = try createURL(path: path)
         let requestHeader: [String: String] = APIHeader.createAuthorizationRequestHeader(userID: userID, authToken: authToken)
-        let requestBody: Encodable? = ChatRequest(charaID: charaID, language: language.rawValue, capabilities: capabilities, messages: messages, context: context)
+        let requestBody: Encodable? = ChatRequest(charaID: charaID, language: language.rawValue, capabilities: capabilities, todayEvents: todayEvents, messages: messages, context: context)
         return try await APIClient().request(url: url, httpMethod: .post, requestHeader: requestHeader, requestBody: requestBody)
     }
 
