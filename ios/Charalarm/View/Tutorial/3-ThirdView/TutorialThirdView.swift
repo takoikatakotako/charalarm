@@ -2,39 +2,23 @@ import SwiftUI
 
 struct TutorialThirdView: View {
     var body: some View {
-        VStack(alignment: .center, spacing: 12) {
-            Spacer()
-
-            Image(.tutorialAlarmScreenShot)
-                .resizable()
-                .scaledToFit()
-                .frame(width: 320, height: 400)
-                .padding(.bottom, 36)
-
-            Text(String(localized: "tutorial-did-you-get-a-call"))
-                .font(Font.system(size: 20))
-                .padding(.horizontal, 12)
-
-            Text(String(localized: "tutorial-you-can-set-multiple-alarms"))
-                .font(Font.system(size: 20))
-                .padding(.horizontal, 12)
-
-            Spacer()
-
-            NavigationLink(
-                destination: TutorialCharaListView(),
-                label: {
-                    TutorialButtonContent(text: String(localized: "common-next"))
-                        .padding(.horizontal, 16)
-                })
-                .padding(.bottom, 28)
+        TutorialPage(
+            image: .tutorialAlarmScreenShot,
+            imageHeight: 360,
+            title: String(localized: "tutorial-did-you-get-a-call"),
+            messages: [String(localized: "tutorial-you-can-set-multiple-alarms")]
+        ) {
+            NavigationLink {
+                TutorialCharaListView()
+            } label: {
+                TutorialButtonContent(text: String(localized: "common-next"))
+            }
         }
-        .ignoresSafeArea(.container, edges: .bottom)
-        .navigationTitle("")
-        .toolbar(.hidden, for: .navigationBar)
     }
 }
 
 #Preview {
-    TutorialThirdView()
+    NavigationStack {
+        TutorialThirdView()
+    }
 }

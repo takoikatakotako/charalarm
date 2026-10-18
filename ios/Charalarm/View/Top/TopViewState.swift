@@ -3,7 +3,7 @@ import AVFoundation
 import AdSupport
 import AppTrackingTransparency
 
-enum TopViewModelAlert {
+enum TopViewAlert {
     case failedToGetCharacterInformation
     case failedToGetCharacterSelectionInformation
     case failedToGetCharactersResources
@@ -32,7 +32,7 @@ enum TopViewModelAlert {
     }
 }
 
-enum TopViewModelSheet: Identifiable {
+enum TopViewSheet: Identifiable {
     case newsList
     case trendNews
     case characterList
@@ -56,17 +56,17 @@ struct TopConversationChara: Identifiable {
     var id: String { charaID }
 }
 
-@Observable class TopViewState {
+@MainActor @Observable final class TopViewState {
     var charaImage = UIImage()
     /// VRM のキャラを選んでいれば、立ち絵の代わりに 3D で出す
     var vrmChara: TopVRMChara?
     var showingAlert = false
-    var alert: TopViewModelAlert? {
+    var alert: TopViewAlert? {
         didSet {
             showingAlert = alert != nil
         }
     }
-    var sheet: TopViewModelSheet?
+    var sheet: TopViewSheet?
     /// 電話ボタンで通話するキャラ。nil でなければ会話画面を出す。
     var conversationChara: TopConversationChara?
     var isPreparingCall = false
@@ -82,21 +82,13 @@ struct TopConversationChara: Identifiable {
     private let localCharaResourceUseCase = LocalCharaResourceUseCase()
     private let apiRepository = APIRepository()
 
-    var audioPlayer: AVAudioPlayer?
-    /// タップで流したセリフ（吹き出しに少しのあいだ出す）
-    var tapLineText: String?
-    /// 最近流したセリフ（続けて同じものを流さない）
-    private var recentTapLines: [TapLine] = []
-    /// 選んでいるキャラのタップのセリフ（トップを開いたときに API から取り直す）
-    private var tapLines: [TapLine] = []
-    private var tapLinesCharaID: String?
-    private let tapLineRepository = TapLineRepository()
-    private var hideTapLineTask: Task<Void, Never>?
+    /// タップしたときのセリフ（吹き出しは tapLinePlayer.text）
+    let tapLinePlayer = TapLinePlayer()
 
     func onAppear() {
-        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, _ in
-            guard granted else { return }
-            DispatchQueue.main.async {
+        Task {
+            let granted = (try? await UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge])) ?? false
+            if granted {
                 UIApplication.shared.registerForRemoteNotifications()
             }
         }
@@ -114,7 +106,7 @@ struct TopConversationChara: Identifiable {
             return
         }
         setVRMChara(charaID: charaID, resource: resource)
-        loadTapLines(charaID: charaID)
+        tapLinePlayer.load(charaID: charaID, language: conversationLanguage)
 
         guard let key = resource.expressions.keys.randomElement() else {
             return
@@ -209,13 +201,13 @@ struct TopConversationChara: Identifiable {
             return
         }
 
-        if tapLinesCharaID == charaDomain, !tapLines.isEmpty {
-            playTapLine(charaID: charaDomain, lines: tapLines)
+        if tapLinePlayer.hasLines(charaID: charaDomain) {
+            tapLinePlayer.play(charaID: charaDomain, language: conversationLanguage)
             return
         }
         // 古いデータ: キャラを選んだときにボイスをダウンロードしてあるセリフ
         if let tapLines = resource.tapLines, !tapLines.isEmpty {
-            playLocalTapLine(charaDomain: charaDomain, lines: tapLines)
+            tapLinePlayer.playDownloaded(charaID: charaDomain, lines: tapLines, language: conversationLanguage)
             return
         }
 
@@ -229,20 +221,16 @@ struct TopConversationChara: Identifiable {
 
     func updateChara(charaID: String?) {
         guard let charaID = charaID else {
-            DispatchQueue.main.async {
-                self.alert = .failedToGetCharacterSelectionInformation
-            }
+            alert = .failedToGetCharacterSelectionInformation
             return
         }
 
         guard let resource = try? localCharaResourceUseCase.loadCharaResource(charaID: charaID) else {
-            DispatchQueue.main.async {
-                self.alert = .failedToGetCharactersResources
-            }
+            alert = .failedToGetCharactersResources
             return
         }
         setVRMChara(charaID: charaID, resource: resource)
-        loadTapLines(charaID: charaID)
+        tapLinePlayer.load(charaID: charaID, language: conversationLanguage)
 
         guard let key = resource.expressions.keys.randomElement() else {
             return
@@ -275,111 +263,13 @@ struct TopConversationChara: Identifiable {
         do {
             let data = try fileHandler.loadData(directoryName: charaDomain, fileName: imageName)
             guard let image = UIImage(data: data) else {
-                DispatchQueue.main.async {
-                    self.alert = .failedToSetCharacterImage
-                }
+                alert = .failedToSetCharacterImage
                 return
             }
             charaImage = image
         } catch {
-            DispatchQueue.main.async {
-                self.alert = .failedToSetCharacterImage
-            }
+            alert = .failedToSetCharacterImage
         }
-    }
-
-    /// タップのセリフを、端末に取っておいたもの → API の順に読み、次に流しそうなボイスを先にダウンロードしておく
-    private func loadTapLines(charaID: String) {
-        if tapLinesCharaID != charaID {
-            tapLinesCharaID = charaID
-            tapLines = tapLineRepository.cachedLines(charaID: charaID)
-        }
-        Task { @MainActor [weak self] in
-            guard let self else { return }
-            do {
-                let lines = try await tapLineRepository.fetchLines(charaID: charaID)
-                guard tapLinesCharaID == charaID else { return }
-                tapLines = lines
-            } catch {
-                CharalarmLogger.error("タップのセリフを取れませんでした", error: error)
-            }
-            await tapLineRepository.prefetch(charaID: charaID, lines: nextTapLineCandidates(count: 3))
-        }
-    }
-
-    /// 次に流しそうなセリフ（今の言語・日時に合うもの）
-    private func nextTapLineCandidates(count: Int) -> [TapLine] {
-        let lines = TapLineSelector.lines(tapLines, in: conversationLanguage)
-        var picked: [TapLine] = []
-        for _ in 0..<count {
-            guard let line = TapLineSelector.select(from: lines, recent: recentTapLines + picked) else { break }
-            if !picked.contains(line) {
-                picked.append(line)
-            }
-        }
-        return picked
-    }
-
-    /// 今の日時に合うタップのセリフを流す。ボイスがなければダウンロードし、
-    /// 通信できなければ端末に取ってあるセリフから選ぶ
-    private func playTapLine(charaID: String, lines: [TapLine]) {
-        let lines = TapLineSelector.lines(lines, in: conversationLanguage)
-        guard let line = TapLineSelector.select(from: lines, recent: recentTapLines) else {
-            return
-        }
-        recentTapLines = Array((recentTapLines + [line]).suffix(min(5, max(lines.count - 1, 0))))
-
-        Task { @MainActor [weak self] in
-            guard let self else { return }
-            var playing = line
-            var data = try? await tapLineRepository.voice(charaID: charaID, line: line)
-            if data == nil {
-                let cached = lines.filter { self.tapLineRepository.hasCachedVoice(charaID: charaID, line: $0) }
-                if let fallback = TapLineSelector.select(from: cached, recent: recentTapLines) {
-                    playing = fallback
-                    data = try? await tapLineRepository.voice(charaID: charaID, line: fallback)
-                }
-            }
-            guard let data else {
-                CharalarmLogger.error("タップのセリフのボイスを読めませんでした")
-                return
-            }
-            audioPlayer = try? AVAudioPlayer(data: data)
-            audioPlayer?.play()
-            showTapLineText(playing.text)
-            // 次の分を先にダウンロードしておく
-            await tapLineRepository.prefetch(charaID: charaID, lines: nextTapLineCandidates(count: 2))
-        }
-    }
-
-    private func showTapLineText(_ text: String) {
-        tapLineText = text
-        hideTapLineTask?.cancel()
-        hideTapLineTask = Task { @MainActor [weak self] in
-            try? await Task.sleep(for: .seconds(5))
-            guard !Task.isCancelled else { return }
-            self?.tapLineText = nil
-        }
-    }
-
-    /// 古いデータ: キャラを選んだときに端末にダウンロードしたボイスで流す
-    private func playLocalTapLine(charaDomain: String, lines: [TapLine]) {
-        // 会話の言語のセリフを流す（そのキャラに英語のセリフがなければ日本語）
-        let lines = TapLineSelector.lines(lines, in: conversationLanguage)
-        guard let line = TapLineSelector.select(from: lines, recent: recentTapLines) else {
-            return
-        }
-        recentTapLines = Array((recentTapLines + [line]).suffix(min(5, max(lines.count - 1, 0))))
-
-        do {
-            let data = try fileHandler.loadData(directoryName: charaDomain, fileName: line.voiceFileName)
-            audioPlayer = try? AVAudioPlayer(data: data)
-            audioPlayer?.play()
-        } catch {
-            CharalarmLogger.error("タップのセリフのボイスを読めませんでした", error: error)
-        }
-
-        showTapLineText(line.text)
     }
 
     private func playCharaVoice(charaDomain: String, resource: LocalCharaResource, key: String) {
@@ -388,11 +278,9 @@ struct TopConversationChara: Identifiable {
         }
 
         do {
-            let data = try fileHandler.loadData(directoryName: charaDomain, fileName: voiceName)
-            audioPlayer = try? AVAudioPlayer(data: data)
-            audioPlayer?.play()
+            tapLinePlayer.playVoice(try fileHandler.loadData(directoryName: charaDomain, fileName: voiceName))
         } catch {
-            print(error)
+            CharalarmLogger.error("表情のボイスを読めませんでした", error: error)
         }
     }
 }

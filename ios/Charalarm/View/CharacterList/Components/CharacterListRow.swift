@@ -1,38 +1,32 @@
 import SwiftUI
-import UIKit
 import SDWebImageSwiftUI
 
 struct CharacterListRow: View {
     let chara: Chara
+
     var body: some View {
-        HStack {
+        HStack(spacing: 12) {
             WebImage(url: URL(string: chara.thumbnailUrlString)) { image in
                 image.resizable()
             } placeholder: {
-                Image(R.image.characterPlaceholder.name)
+                Image(.characterPlaceholder)
                     .resizable()
             }
-            .frame(width: 80, height: 80)
             .scaledToFill()
+            .frame(width: 64, height: 64)
+            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
 
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: 4) {
                 Text(chara.name)
-                    .font(Font.system(size: 18.0))
-
+                    .font(.headline)
                 ForEach(chara.profiles.prefix(2), id: \.hashValue) { profile in
                     Text("\(profile.title): \(profile.name)")
-                                       .font(Font.system(size: 16.0))
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
                 }
             }
-
-            Spacer()
         }
+        .padding(.vertical, 4)
     }
 }
-
-// struct CharacterListRow_Previews: PreviewProvider {
-//    static var previews: some View {
-//        CharacterListRow(character: Character(id: "com.charalarm.yui", name: "井上結衣"))
-//            .previewLayout(.sizeThatFits)
-//    }
-// }

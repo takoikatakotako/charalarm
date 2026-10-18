@@ -6,7 +6,7 @@ struct RootView: View {
     var body: some View {
         ZStack {
             if viewState.type == .loading {
-                Image(R.image.launchImage.name)
+                Image(.charalarmLogo)
             } else if viewState.type == .maintenance {
                 MaintenanceView()
             } else if viewState.type == .updateRequire {

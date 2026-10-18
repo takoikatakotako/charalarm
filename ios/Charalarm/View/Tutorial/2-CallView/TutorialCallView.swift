@@ -1,75 +1,63 @@
 import SwiftUI
 
 struct TutorialCallView: View {
-    @State var viewModel = TutorialCallViewModel()
+    @State var viewState = TutorialCallViewState()
 
     var body: some View {
         ZStack(alignment: .bottom) {
             VStack {
                 Spacer()
-                Image(R.image.zundamonSmile.name)
+                Image(.zundamonSmile)
                     .resizable()
                     .scaledToFit()
                     .padding(.top, 60)
                     .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity)
             }
 
-            if viewModel.isCalling {
-                VStack {
-                    Text("ずんだもん")
-                        .foregroundStyle(Color.white)
-                        .font(Font.system(size: 48))
-                        .padding(.top, 156)
-                    Spacer()
-                    HStack {
-                        VStack {
-                            NavigationLink(destination: TutorialThirdView()) {
-                                Image(R.image.profileCallEnd.name)
-                                    .resizable()
-                                    .frame(width: 36, height: 36)
-                                    .padding(16)
-                                    .background(Color.red)
-                                    .clipShape(RoundedRectangle(cornerRadius: 32))
-                            }
-                        }
-
+            if viewState.isCalling {
+                ZStack {
+                    CallBackground()
+                    VStack {
+                        CallerNameText(name: "ずんだもん")
+                            .padding(.top, 120)
                         Spacer()
-
-                        VStack {
-                            Button(action: {
-                                viewModel.callButtonTapped()
-                            }) {
-                                Image(R.image.profileCall.name)
-                                    .resizable()
-                                    .frame(width: 36, height: 36)
-                                    .padding(16)
-                                    .background(Color.green)
-                                    .clipShape(RoundedRectangle(cornerRadius: 32))
+                        HStack {
+                            NavigationLink {
+                                TutorialThirdView()
+                            } label: {
+                                Image(systemName: "phone.down.fill")
+                                    .font(.system(size: 30, weight: .semibold))
+                                    .foregroundStyle(.white)
+                                    .frame(width: 76, height: 76)
+                                    .background(Color(.callRed), in: Circle())
+                            }
+                            Spacer()
+                            CallActionButton(kind: .answer) {
+                                viewState.callButtonTapped()
                             }
                         }
+                        .padding(.horizontal, 56)
+                        .padding(.bottom, 64)
                     }
-                    .padding(.horizontal, 64)
-                    .padding(.bottom, 32)
                 }
-                .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity)
-                .background(Color(R.color.charalarmDefaultGray.name))
+                .transition(.opacity)
             }
 
-            if viewModel.showingNextButton {
+            if viewState.showingNextButton {
                 NavigationLink(
                     destination: TutorialThirdView(),
                     label: {
-                        TutorialButtonContent(text: String(localized: "commo-next"))
+                        TutorialButtonContent(text: String(localized: "common-next"))
                             .padding(.horizontal, 16)
                     })
-                    .padding(.bottom, 28)
+                    .padding(.bottom, 44)
             }
         }
         .onAppear {
-            viewModel.onAppear()
+            viewState.onAppear()
         }
         .onDisappear {
-            viewModel.onDisappear()
+            viewState.onDisappear()
         }
         .ignoresSafeArea()
         .navigationTitle("")

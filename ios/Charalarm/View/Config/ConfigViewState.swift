@@ -1,6 +1,6 @@
 import SwiftUI
 
-@Observable class ConfigViewState {
+@MainActor @Observable final class ConfigViewState {
     var character: Chara?
     var showingAlert = false
     var alertMessage = ""

@@ -2,86 +2,41 @@ import SwiftUI
 
 struct ContactView: View {
     @State var viewState: ContactViewState
-    @Environment(\.dismiss) private var dismiss
 
     var body: some View {
-        ZStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 16) {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("ユーザーID")
-                            .font(.system(size: 16, weight: .semibold))
-                            .foregroundStyle(Color(.appMainText))
-                        Text(viewState.id)
-                            .font(.system(size: 16, weight: .regular))
-                            .foregroundStyle(Color(.appMainText))
-                    }
-
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("メールアドレス")
-                            .font(.system(size: 16, weight: .semibold))
-                            .foregroundStyle(Color(.appMainText))
-                        TextField("", text: $viewState.email)
-                            .font(.system(size: 16, weight: .regular))
-                            .foregroundStyle(Color(.appMainText))
-                            .padding(8)
-                            .background(.white)
-                            .clipShape(RoundedRectangle(cornerRadius: 8))
-                    }
-
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("お問い合わせ内容")
-                            .font(.system(size: 16, weight: .semibold))
-                            .foregroundStyle(Color(.appMainText))
-
-                        ZStack {
-                            TextEditor(text: $viewState.message)
-                                .font(.system(size: 16, weight: .regular))
-                                .foregroundStyle(Color(.appMainText))
-                                .frame(minWidth: 0, maxWidth: .infinity)
-                                .frame(height: 300)
-                                .padding(8)
-                        }
-                        .background(.white)
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
-                    }
-                }
-                .padding(.top, 24)
-                .padding(.horizontal, 16)
+        Form {
+            Section(String(localized: "contact-user-id")) {
+                Text(viewState.id)
+                    .font(.footnote.monospaced())
+                    .textSelection(.enabled)
             }
 
+            Section(String(localized: "contact-email")) {
+                TextField(String(localized: "contact-email"), text: $viewState.email)
+                    .keyboardType(.emailAddress)
+                    .textContentType(.emailAddress)
+                    .textInputAutocapitalization(.never)
+                    .autocorrectionDisabled()
+            }
+
+            Section(String(localized: "contact-message")) {
+                TextEditor(text: $viewState.message)
+                    .frame(minHeight: 240)
+            }
+        }
+        .overlay {
             if viewState.showingIndicator {
                 CharalarmActivityIndicator()
             }
         }
-        .background(Color(.appBackground))
-        .toolbar(.visible, for: .navigationBar)
-        .toolbarBackground(.visible, for: .navigationBar)
-        .toolbarBackground(Color(.appMain), for: .navigationBar)
+        .navigationTitle(String(localized: "config-contact"))
         .navigationBarTitleDisplayMode(.inline)
-        .navigationBarBackButtonHidden()
         .toolbar {
-            ToolbarItem(placement: .topBarLeading) {
-                Button(action: {
-                    dismiss()
-                }) {
-                    Image(systemName: "chevron.backward")
-                        .font(.system(size: 18, weight: .semibold))
-                        .padding(.top, 4)
-                        .padding(.trailing, 4)
-                        .padding(.bottom, 4)
-                        .foregroundStyle(Color.white)
-                }
-            }
             ToolbarItem(placement: .topBarTrailing) {
-                Button(action: {
+                Button(String(localized: "contact-send")) {
                     viewState.sendMessage()
-                }) {
-                    Text("送信")
-                        .font(.system(size: 18, weight: .semibold))
-                        .foregroundStyle(Color.white)
-                        .padding(4)
                 }
+                .fontWeight(.semibold)
             }
         }
         .onAppear {
@@ -92,9 +47,7 @@ struct ContactView: View {
             isPresented: $viewState.showingAlert,
             presenting: viewState.alertEntity
         ) { entity in
-            Button(entity.actionText) {
-                print(entity.actionText)
-            }
+            Button(entity.actionText) {}
         } message: { entity in
             Text(entity.message)
         }

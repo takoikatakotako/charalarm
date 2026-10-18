@@ -1,6 +1,4 @@
 import SwiftUI
-import UIKit
-import SDWebImageSwiftUI
 
 struct CharaListView: View {
     @State var viewState: CharacterListViewState
@@ -9,27 +7,23 @@ struct CharaListView: View {
 
     var body: some View {
         NavigationStack {
-            ZStack {
-                List(viewState.charaList) { chara in
-                    NavigationLink(destination: CharaProfileView(viewState: CharaProfileViewState(chara: chara))) {
-                        CharacterListRow(chara: chara)
-                            .frame(height: 80)
-                            .clipped()
-                    }
+            List(viewState.charaList) { chara in
+                NavigationLink {
+                    CharaProfileView(viewState: CharaProfileViewState(chara: chara))
+                } label: {
+                    CharacterListRow(chara: chara)
                 }
-
-                VStack {
-                    Spacer()
-                    Button(action: {
-                        openURL(viewState.openURLRepository.characterAdditionRequestURL)
-                    }) {
-                        CharacterListBanner()
-                            .padding(.horizontal, 16)
-                    }
-                }
-                .padding(.bottom, 28)
             }
-            .ignoresSafeArea(.container, edges: .bottom)
+            .safeAreaInset(edge: .bottom) {
+                Button {
+                    openURL(viewState.openURLRepository.characterAdditionRequestURL)
+                } label: {
+                    CharacterListBanner()
+                }
+                .buttonStyle(.plain)
+                .padding(.horizontal, 16)
+                .padding(.bottom, 8)
+            }
             .onAppear {
                 viewState.fetchCharacters()
             }

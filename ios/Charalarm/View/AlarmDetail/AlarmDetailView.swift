@@ -1,5 +1,4 @@
 import SwiftUI
-import SDWebImageSwiftUI
 
 struct AlarmDetailView: View {
     @Environment(\.dismiss) private var dismiss
@@ -14,51 +13,67 @@ struct AlarmDetailView: View {
         }
     }
 
+    /// 時と分を時刻の選択につなぐ（日付とタイムゾーンは使わない）
+    private var time: Binding<Date> {
+        Binding(
+            get: {
+                Calendar.current.date(from: DateComponents(hour: viewState.alarm.hour, minute: viewState.alarm.minute)) ?? Date()
+            },
+            set: { date in
+                let components = Calendar.current.dateComponents([.hour, .minute], from: date)
+                viewState.alarm.hour = components.hour ?? 0
+                viewState.alarm.minute = components.minute ?? 0
+            }
+        )
+    }
+
     var body: some View {
         NavigationStack {
-            ZStack {
-                ScrollView {
-                    VStack(alignment: .center) {
-                        AlarmDetailTimePickerTemp(hour: $viewState.alarm.hour, minute: $viewState.alarm.minute)
-
-                        HStack {
-                            Spacer()
-                            Button {
-                                viewState.timeDirrerenceTapped()
-                            } label: {
-                                Text(viewState.timeDefferenceString)
-                            }
-                        }
-                        .padding(.horizontal, 16)
-                        .padding(.bottom, 16)
-
-                        AlarmDetailWeekdaySelector(alarm: $viewState.alarm)
-
-                        VStack(alignment: .leading) {
-                            TextField(String(localized: "alarm-please-enter-the-alarm-name"), text: $viewState.alarm.name)
-                                .textFieldStyle(RoundedBorderTextFieldStyle())
-                        }
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 16)
-
-                        AlarmDetailCharaSelector(delegate: self, selectedChara: $viewState.selectedChara, charas: $viewState.characters)
-                            .padding(.horizontal, 16)
-                            .padding(.bottom, 16)
-
-                        AlarmDetailVoiceText(fileMessage: viewState.selectedCharaCall?.message ?? "ランダム")
-                            .padding(.horizontal, 16)
-                            .padding(.bottom, 16)
-
-                        if viewState.type == .edit {
-                            AlarmDetailDeleteAlarmButton(delegate: self, alarmId: viewState.alarm.alarmID)
-                        }
+            Form {
+                Section {
+                    DatePicker(String(localized: "alarm-time"), selection: time, displayedComponents: .hourAndMinute)
+                        .datePickerStyle(.wheel)
+                        .labelsHidden()
+                        .frame(maxWidth: .infinity)
+                    Button {
+                        viewState.timeDirrerenceTapped()
+                    } label: {
+                        LabeledContent(String(localized: "alarm-time-difference"), value: viewState.timeDefferenceString)
                     }
+                    .foregroundStyle(.primary)
                 }
 
+                Section(String(localized: "alarm-day-of-week")) {
+                    AlarmDetailWeekdaySelector(alarm: $viewState.alarm)
+                        .frame(maxWidth: .infinity)
+                }
+
+                Section(String(localized: "alarm-alarm-name")) {
+                    TextField(String(localized: "alarm-please-enter-the-alarm-name"), text: $viewState.alarm.name)
+                }
+
+                Section(String(localized: "alarm-chara")) {
+                    AlarmDetailCharaSelector(delegate: self, selectedChara: $viewState.selectedChara, charas: $viewState.characters)
+                        .listRowInsets(EdgeInsets(top: 12, leading: 0, bottom: 12, trailing: 0))
+                }
+
+                Section(String(localized: "alarm-voice")) {
+                    Text(viewState.selectedCharaCall?.message ?? String(localized: "alarm-random"))
+                }
+
+                if viewState.type == .edit {
+                    Section {
+                        Button(String(localized: "alarm-delete-alarm"), role: .destructive) {
+                            viewState.deleteAlarm()
+                        }
+                        .frame(maxWidth: .infinity)
+                    }
+                }
+            }
+            .overlay {
                 if viewState.showingIndicator {
                     CharalarmActivityIndicator()
                 }
-
             }
             .onChange(of: viewState.shouldDismiss) { _, shouldDismiss in
                 if shouldDismiss {
@@ -78,28 +93,25 @@ struct AlarmDetailView: View {
                     }
                 }
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button(action: {
+                    Button(String(localized: "common-save")) {
                         viewState.createOrEditAlarm()
-                    }) {
-                        Text(String(localized: "common-save"))
-                            .foregroundStyle(Color(R.color.charalarmDefaultGreen.name))
                     }
+                    .fontWeight(.semibold)
                 }
             }
             .alert("", isPresented: $viewState.showingAlert) {
-                Button("閉じる") {}
+                Button(String(localized: "common-close")) {}
             } message: {
                 Text(viewState.alertMessage)
             }
             .sheet(item: $viewState.sheet) { item in
                 switch item {
                 case let .voiceList(chara):
-                    AlarmDetailVoiceList(delegate: self, viewState: AlarmDetailVoiceListState(chara: chara))
+                    AlarmDetailVoiceList(delegate: self, viewState: AlarmDetailVoiceListViewState(chara: chara))
                 case .timeDifferenceList:
                     AlarmDetailTimeDifferenceSelector(timeDifference: $viewState.alarm.timeDifference)
                 }
             }
-            .toolbar(.visible, for: .navigationBar)
             .navigationTitle(title)
             .navigationBarTitleDisplayMode(.inline)
         }
@@ -121,15 +133,3 @@ extension AlarmDetailView: AlarmDetailVoiceListDelegate {
         viewState.setCharaAndCharaCall(chara: chara, charaCall: charaCall)
     }
 }
-
-extension AlarmDetailView: AlarmDetailDeleteAlarmDelegate {
-    func deleteAlarm(alarmId: UUID) {
-        viewState.deleteAlarm()
-    }
-}
-
-// struct AlarmDetailView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        AlarmDetailView(alarm: Alarm2(id: "2", hour: "1", minute: "3"))
-//    }
-// }

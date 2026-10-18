@@ -37,12 +37,8 @@ struct TrendNewsView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Button(action: {
+                    CloseBarButton {
                         dismiss()
-                    }) {
-                        Image(R.image.commonIconClose.name)
-                            .renderingMode(.template)
-                            .foregroundStyle(Color(R.color.charalarmDefaultGray.name))
                     }
                 }
                 ToolbarItem(placement: .topBarTrailing) {

@@ -1,8 +1,4 @@
 import SwiftUI
-import AVFoundation
-import CallKit
-import PushKit
-import AVKit
 import GoogleMobileAds
 
 struct TopView: View {
@@ -11,7 +7,7 @@ struct TopView: View {
 
     var body: some View {
         ZStack {
-            Image(R.image.background.name)
+            Image(.background)
                 .resizable()
                 .scaledToFill()
                 .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity)
@@ -31,7 +27,7 @@ struct TopView: View {
             }
 
             // タップで流したセリフの吹き出し（タップのじゃまをしない）
-            if let tapLineText = viewState.tapLineText {
+            if let tapLineText = viewState.tapLinePlayer.text {
                 VStack {
                     Text(tapLineText)
                         .font(.callout)
@@ -57,102 +53,101 @@ struct TopView: View {
             }
 
             VStack(spacing: 0) {
-                VStack(spacing: 0) {
-                    HStack(alignment: .center) {
-                        // 会話とタップのセリフの言語
-                        Menu {
-                            Picker(String(localized: "config-conversation-language"), selection: $viewState.conversationLanguage) {
-                                ForEach(ConversationLanguage.allCases) { language in
-                                    Text(language.displayName).tag(language)
+                // 上: 言語・今日の予定・話題・お知らせ
+                HStack(spacing: 8) {
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 8) {
+                            // 会話とタップのセリフの言語
+                            Menu {
+                                Picker(String(localized: "config-conversation-language"), selection: $viewState.conversationLanguage) {
+                                    ForEach(ConversationLanguage.allCases) { language in
+                                        Text(language.displayName).tag(language)
+                                    }
                                 }
+                            } label: {
+                                TopPillLabel(systemImageName: "globe", text: viewState.conversationLanguage.displayName)
                             }
-                        } label: {
-                            TopPillLabel(systemImageName: "globe", text: viewState.conversationLanguage.displayName)
-                        }
 
-                        // キャラが今日の予定を読み上げる
-                        Button(action: {
-                            Task {
-                                await viewState.todayScheduleButtonTapped()
+                            // キャラが今日の予定を読み上げる
+                            Button {
+                                Task {
+                                    await viewState.todayScheduleButtonTapped()
+                                }
+                            } label: {
+                                TopPillLabel(systemImageName: "calendar", text: String(localized: "top-today-schedule"))
                             }
-                        }) {
-                            TopPillLabel(systemImageName: "calendar", text: String(localized: "top-today-schedule"))
-                        }
-                        .disabled(viewState.isPreparingCall)
+                            .disabled(viewState.isPreparingCall)
 
-                        // 話題のニュース（キャラが紹介する）
-                        Button(action: {
-                            viewState.trendNewsButtonTapped()
-                        }) {
-                            TopPillLabel(systemImageName: "sparkles", text: String(localized: "top-trend-news"))
-                        }
-                        .disabled(viewState.isPreparingCall)
-
-                        Spacer()
-
-                        Button(action: {
-                            viewState.newsButtonTapped()
-                        }) {
-                            Image(R.image.topNews.name)
+                            // 話題のニュース（キャラが紹介する）
+                            Button {
+                                viewState.trendNewsButtonTapped()
+                            } label: {
+                                TopPillLabel(systemImageName: "sparkles", text: String(localized: "top-trend-news"))
+                            }
+                            .disabled(viewState.isPreparingCall)
                         }
                     }
-                    .padding(.horizontal)
-                    .padding(.top, 60)
-                    .frame(maxHeight: .infinity, alignment: .top)
-                    .frame(height: 140)
-                    .background(LinearGradient(gradient: Gradient(colors: [.gray, .clear]), startPoint: UnitPoint(x: 0.5, y: 0), endPoint: UnitPoint(x: 0.5, y: 1)))
+
+                    Button {
+                        viewState.newsButtonTapped()
+                    } label: {
+                        Image(systemName: "bell.fill")
+                            .font(.body.weight(.semibold))
+                            .foregroundStyle(.white)
+                            .frame(width: 40, height: 40)
+                            .background(.black.opacity(0.3), in: Circle())
+                    }
+                    .accessibilityLabel(String(localized: "top-news"))
                 }
+                .padding(.horizontal, 16)
+                .padding(.top, 60)
+                .padding(.bottom, 24)
+                .background(LinearGradient(colors: [.black.opacity(0.3), .clear], startPoint: .top, endPoint: .bottom))
 
                 Spacer()
 
-                VStack(spacing: 8) {
+                // 下: 時計と、キャラ・アラーム・電話・設定
+                VStack(spacing: 12) {
                     TopTimeView()
 
-                    HStack {
-                        Spacer()
-                        Button(action: {
+                    HStack(spacing: 0) {
+                        Button {
                             viewState.characterListButtonTapped()
-                        }) {
-                            TopButtonContent(imageName: R.image.topPerson.name)
+                        } label: {
+                            TopButtonContent(systemImageName: "person.2.fill", title: String(localized: "top-chara"))
                         }
 
-                        Spacer()
-
-                        Button(action: {
+                        Button {
                             viewState.alarmButtonTapped()
-                        }) {
-                            TopButtonContent(imageName: R.image.topAlarm.name)
+                        } label: {
+                            TopButtonContent(systemImageName: "alarm.fill", title: String(localized: "top-alarm"))
                         }
 
-                        Spacer()
-
-                        Button(action: {
+                        Button {
                             Task {
                                 await viewState.callButtonTapped()
                             }
-                        }) {
-                            TopButtonContent(systemImageName: "phone.fill")
+                        } label: {
+                            TopButtonContent(systemImageName: "phone.fill", title: String(localized: "top-call"))
                         }
                         .disabled(viewState.isPreparingCall)
 
-                        Spacer()
-
-                        Button(action: {
+                        Button {
                             viewState.configButtonTapped()
-                        }) {
-                            TopButtonContent(imageName: R.image.topConfig.name)
+                        } label: {
+                            TopButtonContent(systemImageName: "gearshape.fill", title: String(localized: "top-config"))
                         }
-
-                        Spacer()
                     }
-                    .padding(.bottom, 32)
+                    .padding(.vertical, 10)
+                    .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+                    .environment(\.colorScheme, .dark)
+                    .padding(.horizontal, 16)
                 }
-                .frame(minWidth: 0, maxWidth: .infinity)
-                .background(LinearGradient(gradient: Gradient(colors: [Color.gray.opacity(0.8), Color.gray.opacity(0.2)]), startPoint: UnitPoint(x: 0.5, y: 0.03), endPoint: UnitPoint(x: 0.5, y: 0)).opacity(0.9))
+                .padding(.bottom, 34)
             }
         }
         .ignoresSafeArea(.container, edges: [.top, .bottom])
-        .animation(.easeInOut(duration: 0.2), value: viewState.tapLineText)
+        .animation(.easeInOut(duration: 0.2), value: viewState.tapLinePlayer.text)
         .task {
             for await notification in NotificationCenter.default.notifications(named: NSNotification.setChara) {
                 let charaID: String? = notification.userInfo?[NSNotification.setCharaUserInfoKeyCharaID] as? String
