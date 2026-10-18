@@ -6,7 +6,7 @@ struct TutorialCharaListView: View {
         VStack(alignment: .center, spacing: 12) {
             Spacer()
 
-            Image(R.image.tutorialCharaListScreenShot.name)
+            Image(.tutorialCharaListScreenShot)
                 .resizable()
                 .scaledToFit()
                 .frame(width: 320, height: 400)

@@ -16,9 +16,9 @@ struct NewsListView: View {
                     Button(action: {
                         dismiss()
                     }) {
-                        Image(R.image.commonIconClose.name)
+                        Image(.commonIconClose)
                             .renderingMode(.template)
-                            .foregroundStyle(Color(R.color.charalarmDefaultGray.name))
+                            .foregroundStyle(Color(.charalarmDefaultGray))
                     }
                 }
             }

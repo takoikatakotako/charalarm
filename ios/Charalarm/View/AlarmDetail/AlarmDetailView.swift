@@ -82,7 +82,7 @@ struct AlarmDetailView: View {
                         viewState.createOrEditAlarm()
                     }) {
                         Text(String(localized: "common-save"))
-                            .foregroundStyle(Color(R.color.charalarmDefaultGreen.name))
+                            .foregroundStyle(Color(.charalarmDefaultGreen))
                     }
                 }
             }

@@ -11,7 +11,7 @@ struct TopView: View {
 
     var body: some View {
         ZStack {
-            Image(R.image.background.name)
+            Image(.background)
                 .resizable()
                 .scaledToFill()
                 .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity)
@@ -93,7 +93,7 @@ struct TopView: View {
                         Button(action: {
                             viewState.newsButtonTapped()
                         }) {
-                            Image(R.image.topNews.name)
+                            Image(.topNews)
                         }
                     }
                     .padding(.horizontal)
@@ -113,7 +113,7 @@ struct TopView: View {
                         Button(action: {
                             viewState.characterListButtonTapped()
                         }) {
-                            TopButtonContent(imageName: R.image.topPerson.name)
+                            TopButtonContent(image: .topPerson)
                         }
 
                         Spacer()
@@ -121,7 +121,7 @@ struct TopView: View {
                         Button(action: {
                             viewState.alarmButtonTapped()
                         }) {
-                            TopButtonContent(imageName: R.image.topAlarm.name)
+                            TopButtonContent(image: .topAlarm)
                         }
 
                         Spacer()
@@ -140,7 +140,7 @@ struct TopView: View {
                         Button(action: {
                             viewState.configButtonTapped()
                         }) {
-                            TopButtonContent(imageName: R.image.topConfig.name)
+                            TopButtonContent(image: .topConfig)
                         }
 
                         Spacer()

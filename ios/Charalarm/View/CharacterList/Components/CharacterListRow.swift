@@ -9,7 +9,7 @@ struct CharacterListRow: View {
             WebImage(url: URL(string: chara.thumbnailUrlString)) { image in
                 image.resizable()
             } placeholder: {
-                Image(R.image.characterPlaceholder.name)
+                Image(.characterPlaceholder)
                     .resizable()
             }
             .frame(width: 80, height: 80)

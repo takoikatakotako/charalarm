@@ -1,24 +1,24 @@
 import SwiftUI
 
 struct TopButtonContent: View {
-    private let imageName: String?
+    private let image: ImageResource?
     private let systemImageName: String?
 
-    init(imageName: String) {
-        self.imageName = imageName
+    init(image: ImageResource) {
+        self.image = image
         self.systemImageName = nil
     }
 
     /// SF Symbols のアイコン。アセットのアイコン（36pt）と大きさをそろえる。
     init(systemImageName: String) {
-        self.imageName = nil
+        self.image = nil
         self.systemImageName = systemImageName
     }
 
     var body: some View {
         Group {
-            if let imageName {
-                Image(imageName)
+            if let image {
+                Image(image)
             } else if let systemImageName {
                 Image(systemName: systemImageName)
                     .font(.system(size: 24))
@@ -37,7 +37,7 @@ struct TopButtonContent: View {
 
 #Preview {
     HStack {
-        TopButtonContent(imageName: "top-news")
+        TopButtonContent(image: .topNews)
         TopButtonContent(systemImageName: "phone.fill")
     }
     .background(.gray)

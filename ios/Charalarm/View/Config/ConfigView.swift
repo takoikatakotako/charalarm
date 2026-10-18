@@ -21,7 +21,7 @@ struct ConfigView: View {
                     ) {
                         NavigationLink(destination: UserInfoView(viewState: UserInfoViewState())) {
                             Text(String(localized: "config-user-info"))
-                                .foregroundStyle(Color(R.color.textColor.name))
+                                .foregroundStyle(Color.primary)
                         }
                     }
 
@@ -37,19 +37,19 @@ struct ConfigView: View {
                                 Text(language.displayName).tag(language)
                             }
                         }
-                        .foregroundStyle(Color(R.color.textColor.name))
+                        .foregroundStyle(Color.primary)
 
                         Toggle(String(localized: "config-use-calendar"), isOn: Binding(
                             get: { viewState.useCalendarInConversation },
                             set: { viewState.setUseCalendarInConversation($0) }
                         ))
-                        .foregroundStyle(Color(R.color.textColor.name))
+                        .foregroundStyle(Color.primary)
 
                         Toggle(String(localized: "config-mention-schedule-on-call"), isOn: Binding(
                             get: { viewState.mentionScheduleOnCall },
                             set: { viewState.setMentionScheduleOnCall($0) }
                         ))
-                        .foregroundStyle(Color(R.color.textColor.name))
+                        .foregroundStyle(Color.primary)
                     }
 
                     Section(
@@ -61,25 +61,25 @@ struct ConfigView: View {
                             viewState.subscriptionButtonTapped()
                         } label: {
                             Text(String(localized: "config-about-premium-plan"))
-                                .foregroundStyle(Color(R.color.textColor.name))
+                                .foregroundStyle(Color.primary)
                         }
                     }
 
                     Section(
                         header:
                             Text("お問い合わせ")
-                            .foregroundStyle(Color(R.color.textColor.name))
+                            .foregroundStyle(Color.primary)
                     ) {
                         NavigationLink(destination: ContactView(viewState: ContactViewState())) {
                             Text("お問い合わせ")
-                                .foregroundStyle(Color(R.color.textColor.name))
+                                .foregroundStyle(Color.primary)
                         }
                     }
 
                     Section(
                         header:
                             Text("開発者情報")
-                            .foregroundStyle(Color(R.color.textColor.name))
+                            .foregroundStyle(Color.primary)
                     ) {
                         Button(action: {
                             if let url = URL(string: OfficialDiscordUrlString) {
@@ -87,7 +87,7 @@ struct ConfigView: View {
                             }
                         }) {
                             Text(String(localized: "config-official-discord"))
-                                .foregroundStyle(Color(R.color.textColor.name))
+                                .foregroundStyle(Color.primary)
                         }
 
                         Button(action: {
@@ -96,7 +96,7 @@ struct ConfigView: View {
                             }
                         }) {
                             Text(String(localized: "config-official-twitter"))
-                                .foregroundStyle(Color(R.color.textColor.name))
+                                .foregroundStyle(Color.primary)
                         }
 
                         #if DEBUG
@@ -104,7 +104,7 @@ struct ConfigView: View {
                         // Stub: 返答はオウム返し（キャラの会話の設定はサーバから取得する）
                         NavigationLink(destination: ConversationView(charaID: Self.debugConversationCharaID, textGenerationRepository: StubTextGenerationRepository())) {
                             Text("[DEBUG] ずんだもんと通話 (Stub)")
-                                .foregroundStyle(Color(R.color.textColor.name))
+                                .foregroundStyle(Color.primary)
                         }
                         #endif
 
@@ -113,7 +113,7 @@ struct ConfigView: View {
                         if let shioriModelURL = URL(string: "\(Variables.resourceEndpoint)/com.charalarm.shiori/shiori.vrm") {
                             NavigationLink(destination: CharaVRMView(charaID: "com.charalarm.shiori", modelFileURL: shioriModelURL, framing: .full)) {
                                 Text("[試作] VRM プレビュー（時守しおり）")
-                                    .foregroundStyle(Color(R.color.textColor.name))
+                                    .foregroundStyle(Color.primary)
                             }
                         }
                     }
@@ -121,15 +121,15 @@ struct ConfigView: View {
                     Section(
                         header:
                             Text(String(localized: "config-application-info"))
-                            .foregroundStyle(Color(R.color.textColor.name))
+                            .foregroundStyle(Color.primary)
                     ) {
                         // バージョン情報
                         HStack {
                             Text(String(localized: "config-version-info"))
-                                .foregroundStyle(Color(R.color.textColor.name))
+                                .foregroundStyle(Color.primary)
                             Spacer()
                             Text(viewState.versionString)
-                                .foregroundStyle(Color(R.color.textColor.name))
+                                .foregroundStyle(Color.primary)
                         }
 
                         // ライセンス
@@ -146,7 +146,7 @@ struct ConfigView: View {
                             }
                         } label: {
                             Text(String(localized: "config-other-app-setting"))
-                                .foregroundStyle(Color(R.color.textColor.name))
+                                .foregroundStyle(Color.primary)
                         }
                     }
 
@@ -159,7 +159,7 @@ struct ConfigView: View {
                             viewState.resetButtonTapped()
                         }) {
                             Text(String(localized: "config-reset"))
-                                .foregroundStyle(Color(R.color.textColor.name))
+                                .foregroundStyle(Color.primary)
                         }
                         .alert(String(localized: "config-reset"), isPresented: $viewState.showingResetAlert) {
                             Button(String(localized: "common-cancel"), role: .cancel) {}

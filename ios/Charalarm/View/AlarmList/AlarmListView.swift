@@ -66,9 +66,9 @@ struct AlarmListView: View {
                     Button(action: {
                         viewState.addAlarmButtonTapped()
                     }) {
-                        Image(R.image.alarmAddIcon.name)
+                        Image(.alarmAddIcon)
                             .renderingMode(.template)
-                            .foregroundStyle(Color(R.color.charalarmDefaultGreen.name))
+                            .foregroundStyle(Color(.charalarmDefaultGreen))
                     }
                 }
             }

@@ -8,7 +8,7 @@ struct TutorialButtonContent: View {
             .font(Font.system(size: 16).bold())
             .frame(height: 46)
             .frame(minWidth: 0, maxWidth: .infinity)
-            .background(Color(R.color.charalarmDefaultGreen.name))
+            .background(Color(.charalarmDefaultGreen))
             .clipShape(RoundedRectangle(cornerRadius: 24))
     }
 }

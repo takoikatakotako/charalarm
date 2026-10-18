@@ -18,7 +18,7 @@ struct AlarmDetailDeleteAlarmButton: View {
                     .font(Font.system(size: 16).bold())
                     .frame(height: 46)
                     .frame(minWidth: 0, maxWidth: .infinity)
-                    .background(Color(R.color.charalarmDefaultPink.name))
+                    .background(Color(.charalarmDefaultPink))
                     .clipShape(RoundedRectangle(cornerRadius: 28))
                     .padding(.horizontal, 24)
             }

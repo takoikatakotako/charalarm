@@ -6,9 +6,9 @@ struct CloseBarButton: View {
         Button(action: {
             action()
         }) {
-            Image(R.image.commonIconClose.name)
+            Image(.commonIconClose)
                 .renderingMode(.template)
-                .foregroundStyle(Color(R.color.charalarmDefaultGray.name))
+                .foregroundStyle(Color(.charalarmDefaultGray))
         }
     }
 }

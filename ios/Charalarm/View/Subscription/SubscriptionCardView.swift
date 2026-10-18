@@ -18,7 +18,7 @@ struct SubscriptionCardView: View {
                 Spacer()
             }
             .padding(.vertical, 24)
-            .background(Color(R.color.charalarmDefaultGray.name))
+            .background(Color(.charalarmDefaultGray))
 
             Text(description)
         }

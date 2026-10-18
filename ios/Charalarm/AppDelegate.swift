@@ -108,7 +108,7 @@ extension AppDelegate: PKPushRegistryDelegate {
 
         // 通話画面を表示
         let config = CXProviderConfiguration()
-        config.iconTemplateImageData = R.image.callAlarm()?.pngData()
+        config.iconTemplateImageData = UIImage(resource: .callAlarm).pngData()
         config.includesCallsInRecents = true
         let provider = CXProvider(configuration: config)
         provider.setDelegate(self, queue: nil)

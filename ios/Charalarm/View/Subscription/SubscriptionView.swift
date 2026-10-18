@@ -79,7 +79,6 @@ struct SubscriptionView: View {
 //                    Button {
 //                        viewState.openAboutCancel()
 //                    } label: {
-//                        Text(R.string.localizable.subscriptionAboutCancellationMethod())
 //                    }
                 }
                 .padding()

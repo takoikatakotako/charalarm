@@ -7,7 +7,7 @@ struct TutorialCallView: View {
         ZStack(alignment: .bottom) {
             VStack {
                 Spacer()
-                Image(R.image.zundamonSmile.name)
+                Image(.zundamonSmile)
                     .resizable()
                     .scaledToFit()
                     .padding(.top, 60)
@@ -24,7 +24,7 @@ struct TutorialCallView: View {
                     HStack {
                         VStack {
                             NavigationLink(destination: TutorialThirdView()) {
-                                Image(R.image.profileCallEnd.name)
+                                Image(.profileCallEnd)
                                     .resizable()
                                     .frame(width: 36, height: 36)
                                     .padding(16)
@@ -39,7 +39,7 @@ struct TutorialCallView: View {
                             Button(action: {
                                 viewModel.callButtonTapped()
                             }) {
-                                Image(R.image.profileCall.name)
+                                Image(.profileCall)
                                     .resizable()
                                     .frame(width: 36, height: 36)
                                     .padding(16)
@@ -52,7 +52,7 @@ struct TutorialCallView: View {
                     .padding(.bottom, 32)
                 }
                 .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity)
-                .background(Color(R.color.charalarmDefaultGray.name))
+                .background(Color(.charalarmDefaultGray))
             }
 
             if viewModel.showingNextButton {

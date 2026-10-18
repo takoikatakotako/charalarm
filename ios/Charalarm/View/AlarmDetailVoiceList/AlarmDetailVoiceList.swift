@@ -14,7 +14,7 @@ struct AlarmDetailVoiceList: View {
                     delegate.selectCharaAndCall(chara: viewState.chara, charaCall: viewState.selectedCharaCall)
                 } label: {
                     HStack {
-                        Image(R.image.alarmVoicePlay.name)
+                        Image(.alarmVoicePlay)
                         Text("ランダム")
                         Spacer()
                     }
@@ -30,7 +30,7 @@ struct AlarmDetailVoiceList: View {
                         dismiss()
                     } label: {
                         HStack {
-                            Image(R.image.alarmVoicePlay.name)
+                            Image(.alarmVoicePlay)
                             Text(charaCall.message)
                             Spacer()
                         }

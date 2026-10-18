@@ -23,9 +23,6 @@ packages:
   Firebase:
     url: https://github.com/firebase/firebase-ios-sdk
     from: 13.0.1
-  Rswift:
-    url: https://github.com/mac-cain13/R.swift
-    from: 7.8.0
   GoogleMobileAds:
     url: https://github.com/googleads/swift-package-manager-google-mobile-ads
     from: 13.11.0
@@ -37,6 +34,10 @@ schemes:
         CharalarmDevelop: all
     run:
       config: Debug
+    test:
+      config: Debug
+      targets:
+        - CharalarmUITests
   Staging:
     build:
       targets:
@@ -69,14 +70,8 @@ _commonDependencies: &commonDependencies
     product: KeychainAccess
   - package: SDWebImageSwiftUI
     product: SDWebImageSwiftUI
-  - package: Rswift
-    product: RswiftLibrary
   - package: GoogleMobileAds
     product: GoogleMobileAds
-
-_commonPlugins: &commonPlugins
-  - plugin: RswiftGenerateInternalResources
-    package: Rswift
 
 # ターゲットテンプレート
 targetTemplates:
@@ -85,7 +80,6 @@ targetTemplates:
     platform: iOS
     destinations: [iPhone]
     dependencies: *commonDependencies
-    buildToolPlugins: *commonPlugins
 
 targets:
   CharalarmDevelop:
@@ -213,3 +207,18 @@ targets:
           ADMOB_ALARM_LIST: ca-app-pub-5587141252700968/8220227024
           ADMOB_CONFIG: ca-app-pub-5587141252700968/1355204268
           SUBSCRIPTION_PRODUCT_ID: charalarm.production.monthly.subscription
+
+  # 主な画面をたどって画面写真を残す UI テスト（デザインの見直し用）
+  CharalarmUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    destinations: [iPhone]
+    sources:
+      - path: CharalarmUITests
+    dependencies:
+      - target: CharalarmDevelop
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.swiswiswift.sandbox.charalarm.uitests
+        GENERATE_INFOPLIST_FILE: YES
+        TEST_TARGET_NAME: CharalarmDevelop

@@ -25,7 +25,7 @@ struct CallingView: View {
                         .frame(width: 40, height: 40)
                 }
                 .frame(width: 80, height: 80)
-                .background(Color(R.color.callRed.name))
+                .background(Color(.callRed))
                 .clipShape(RoundedRectangle(cornerRadius: 40))
                 .padding(.bottom, 48)
             }

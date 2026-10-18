@@ -24,10 +24,10 @@ struct CharaProfileRow: View {
                 Button(action: {
                     openURL(url)
                 }, label: {
-                    Image(R.image.profileOpenUrl.name)
+                    Image(.profileOpenUrl)
                         .resizable()
                         .renderingMode(.template)
-                        .foregroundStyle(Color(R.color.charalarmDefaultGray.name))
+                        .foregroundStyle(Color(.charalarmDefaultGray))
                         .frame(width: 24, height: 24, alignment: .center)
                         .padding(.horizontal, 8)
                         .padding(.vertical, 16)

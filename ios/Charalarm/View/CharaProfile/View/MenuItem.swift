@@ -1,11 +1,11 @@
 import SwiftUI
 
 struct MenuItem: View {
-    var imageName: String
+    var image: ImageResource
 
     var body: some View {
         Group {
-            Image(imageName)
+            Image(image)
                 .resizable()
                 .frame(width: 40, height: 40)
         }.tint(.white)
@@ -18,5 +18,5 @@ struct MenuItem: View {
 }
 
 #Preview {
-    MenuItem(imageName: "profile-call")
+    MenuItem(image: .profileCall)
 }

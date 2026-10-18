@@ -33,11 +33,11 @@ struct AlarmListRow: View {
     }
 
     var backgroundColor: Color {
-        return alarm.enable ? Color(R.color.alarmCardBackgroundGreen.name) : Color(R.color.charalarmDefaultGray.name)
+        return alarm.enable ? Color(.alarmCardBackgroundGreen) : Color(.charalarmDefaultGray)
     }
 
     var toggleThumbColor: Color {
-        return alarm.enable ? Color(R.color.alarmCardBackgroundGreen.name) : Color(R.color.charalarmDefaultGray.name)
+        return alarm.enable ? Color(.alarmCardBackgroundGreen) : Color(.charalarmDefaultGray)
     }
 
     var dayOfWeeksString: String {

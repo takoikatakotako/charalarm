@@ -15,7 +15,7 @@ struct CallView: View {
                     WebImage(url: URL(string: viewState.charaThumbnailUrlString)) { image in
                         image.resizable()
                     } placeholder: {
-                        Image(R.image.characterPlaceholder.name)
+                        Image(.characterPlaceholder)
                             .resizable()
                     }
                     .aspectRatio(1, contentMode: .fit)
@@ -38,7 +38,7 @@ struct CallView: View {
                             .frame(width: 40, height: 40)
                     }
                     .frame(width: 80, height: 80)
-                    .background(Color(R.color.callRed.name))
+                    .background(Color(.callRed))
                     .clipShape(RoundedRectangle(cornerRadius: 40))
                 }                    .padding(.bottom, 60)
 
@@ -65,7 +65,7 @@ struct CallView: View {
                                     .frame(width: 40, height: 40)
                             }
                             .frame(width: 80, height: 80)
-                            .background(Color(R.color.callRed.name))
+                            .background(Color(.callRed))
                             .clipShape(RoundedRectangle(cornerRadius: 40))
 
                             Button(action: {
@@ -80,7 +80,7 @@ struct CallView: View {
                                     .frame(width: 40, height: 40)
                             }
                             .frame(width: 80, height: 80)
-                            .background(Color(R.color.callGreen.name))
+                            .background(Color(.callGreen))
                             .clipShape(RoundedRectangle(cornerRadius: 40))
 
                         }

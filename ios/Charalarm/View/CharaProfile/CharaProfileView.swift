@@ -18,7 +18,7 @@ struct CharaProfileView: View {
                         WebImage(url: URL(string: viewState.charaThumbnailUrlString)) { image in
                             image.resizable()
                         } placeholder: {
-                            Image(R.image.characterPlaceholder.name)
+                            Image(.characterPlaceholder)
                                 .resizable()
                         }
                         .frame(width: geometory.size.width, height: geometory.size.width)
@@ -65,13 +65,13 @@ struct CharaProfileView: View {
                             }
                             viewState.showCallView = true
                         }) {
-                            MenuItem(imageName: R.image.profileCall.name)
+                            MenuItem(image: .profileCall)
                         }
 
                         Button(action: {
                             viewState.showSelectAlert = true
                         }) {
-                            MenuItem(imageName: R.image.profileCheck.name)
+                            MenuItem(image: .profileCheck)
                         }
                     }
                     .padding()
