@@ -57,14 +57,8 @@ struct SubscriptionView: View {
                 .padding(16)
                 .background(.bar)
             }
-            .overlay {
-                if viewState.enableDisplayLock {
-                    ProgressView()
-                        .controlSize(.large)
-                        .padding(32)
-                        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
-                }
-            }
+            // 購入・復元の処理中は、購入・復元・閉じるを含めて画面のすべての操作を止める（StoreKit の処理を重ねて始めたり、途中で閉じたりしないように）
+            .disabled(viewState.enableDisplayLock)
             .navigationTitle(String(localized: "subscription-title"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -72,9 +66,25 @@ struct SubscriptionView: View {
                     CloseBarButton {
                         dismiss()
                     }
+                    .disabled(viewState.enableDisplayLock)
                 }
             }
         }
+        .overlay {
+            if viewState.enableDisplayLock {
+                // 画面全体を覆って、タップを受け止める（ナビゲーションバーも含む）
+                ZStack {
+                    Color.black.opacity(0.35)
+                        .ignoresSafeArea()
+                    ProgressView()
+                        .controlSize(.large)
+                        .tint(.white)
+                }
+                .contentShape(Rectangle())
+                .accessibilityAddTraits(.isModal)
+            }
+        }
+        .interactiveDismissDisabled(viewState.enableDisplayLock)
         .onAppear {
             viewState.onAppear()
         }
