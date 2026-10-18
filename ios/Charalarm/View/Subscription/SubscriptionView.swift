@@ -6,95 +6,73 @@ struct SubscriptionView: View {
     @Environment(\.openURL) private var openURL
     @State var viewState: SubscriptionViewState
     var body: some View {
-        ZStack {
+        NavigationStack {
             ScrollView {
-                HStack {
-                    Button {
-                        dismiss()
-                    } label: {
-                        Image(systemName: "xmark")
-                            .resizable()
-                            .frame(width: 20, height: 20)
-                    }
-                    .buttonStyle(.plain)
-                    .padding(.horizontal, 20)
-
-                    Spacer()
-                }
-
-                VStack(spacing: 20) {
-
+                VStack(spacing: 16) {
                     Text(String(localized: "subscription-message"))
+                        .font(.body)
+                        .multilineTextAlignment(.center)
+                        .padding(.vertical, 8)
 
                     SubscriptionCardView(
                         title: String(localized: "subscription-benefit1-title"),
-                        systemImageName: "calendar",
+                        systemImageName: "alarm.waves.left.and.right",
                         description: String(localized: "subscription-benefit1-description")
                     )
-
                     SubscriptionCardView(
                         title: String(localized: "subscription-benefit2-title"),
                         systemImageName: "nosign",
                         description: String(localized: "subscription-benefit2-description")
                     )
-
+                }
+                .padding(16)
+            }
+            .background(Color(.systemGroupedBackground))
+            .safeAreaInset(edge: .bottom) {
+                VStack(spacing: 12) {
                     Button {
                         viewState.upgradeButtonTapped()
                     } label: {
-                        VStack(spacing: 8) {
+                        VStack(spacing: 2) {
                             Text(String(localized: "subscription-update-premium-plan"))
-                                .font(Font.system(size: 20).bold())
                             Text(viewState.priceMessage)
-                                .font(Font.system(size: 16).bold())
+                                .font(.footnote)
                         }
-                        .frame(minWidth: 0, maxWidth: .infinity)
-                        .padding(.vertical, 16)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 16)
-                                .stroke(Color.gray, lineWidth: 1)
-                                .shadow(color: Color.black, radius: 16, x: 0, y: 0)
-                        )
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(.primary)
 
-                    Button {
-                        viewState.restore()
-                    } label: {
-                        Text(String(localized: "subscription-restore"))
-                    }
-
-                    HStack {
-                        Button {
+                    HStack(spacing: 20) {
+                        Button(String(localized: "subscription-restore")) {
+                            viewState.restore()
+                        }
+                        Button(String(localized: "common-terms")) {
                             openURL(viewState.openURLRepository.terms)
-                        } label: {
-                            Text(String(localized: "common-terms"))
                         }
-                        Button {
+                        Button(String(localized: "common-privacy")) {
                             openURL(viewState.openURLRepository.privacyPolicy)
-                        } label: {
-                            Text(String(localized: "common-privacy"))
                         }
                     }
-//                    
-//                    Button {
-//                        viewState.openAboutCancel()
-//                    } label: {
-//                    }
+                    .font(.footnote)
                 }
-                .padding()
+                .padding(16)
+                .background(.bar)
             }
-
-            if viewState.enableDisplayLock {
-                VStack {
+            .overlay {
+                if viewState.enableDisplayLock {
                     ProgressView()
-                        .progressViewStyle(.circular)
-                        .padding()
-                        .tint(Color.white)
-                        .scaleEffect(3.0)
+                        .controlSize(.large)
+                        .padding(32)
+                        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
                 }
-                    .frame(minWidth: 0, maxWidth: .infinity)
-                    .frame(minHeight: 0, maxHeight: .infinity)
-                    .background(Color.black.opacity(0.6))
+            }
+            .navigationTitle(String(localized: "subscription-title"))
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    CloseBarButton {
+                        dismiss()
+                    }
+                }
             }
         }
         .onAppear {
@@ -114,6 +92,4 @@ struct SubscriptionView: View {
 
 #Preview {
     SubscriptionView(viewState: SubscriptionViewState())
-        .navigationBarTitleDisplayMode(.inline)
-        .navigationTitle("プレミアムプラン")
 }

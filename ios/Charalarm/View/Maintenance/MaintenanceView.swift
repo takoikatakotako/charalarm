@@ -1,27 +1,16 @@
 import SwiftUI
 
 struct MaintenanceView: View {
-    @Environment(\.openURL) private var openURL
     var body: some View {
-        VStack(spacing: 12) {
-            Text("メンテナンス中です")
-                .font(Font.system(size: 28))
-                .padding()
-            VStack(alignment: .leading) {
-                Text("メンテナンス終了までお待ちください。")
-                Text("メンテナンスの状況はTwitterでお知らせしています。")
+        ContentUnavailableView {
+            Label(String(localized: "maintenance-title"), systemImage: "wrench.and.screwdriver")
+        } description: {
+            Text(String(localized: "maintenance-message"))
+        } actions: {
+            if let url = URL(string: OfficialTwitterUrlString) {
+                Link(String(localized: "maintenance-open-x"), destination: url)
+                    .buttonStyle(.borderedProminent)
             }
-            .padding()
-
-            Button(action: {
-                if let url = URL(string: OfficialTwitterUrlString) {
-                    openURL(url)
-                }
-            }) {
-                Text("キャラームのTwitterを開く")
-                    .font(Font.system(size: 20))
-            }
-            .padding()
         }
     }
 }

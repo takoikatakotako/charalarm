@@ -13,12 +13,8 @@ struct NewsListView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Button(action: {
+                    CloseBarButton {
                         dismiss()
-                    }) {
-                        Image(.commonIconClose)
-                            .renderingMode(.template)
-                            .foregroundStyle(Color(.charalarmDefaultGray))
                     }
                 }
             }

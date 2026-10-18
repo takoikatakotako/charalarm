@@ -3,7 +3,7 @@ import SwiftUI
 struct AlarmDetailWeekdaySelector: View {
     @Binding var alarm: Alarm
     var body: some View {
-        HStack {
+        HStack(spacing: 6) {
             AlarmDetailWeekdayButton(enable: $alarm.sunday, title: String(localized: "day-of-week-sunday"))
             AlarmDetailWeekdayButton(enable: $alarm.monday, title: String(localized: "day-of-week-monday"))
             AlarmDetailWeekdayButton(enable: $alarm.tuesday, title: String(localized: "day-of-week-tuesday"))

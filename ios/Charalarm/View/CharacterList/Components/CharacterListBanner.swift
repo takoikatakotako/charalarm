@@ -1,35 +1,31 @@
 import SwiftUI
 
+/// キャラ一覧の下の「キャラのリクエスト」の案内
 struct CharacterListBanner: View {
     var body: some View {
-        ZStack(alignment: .topLeading) {
-            VStack {
-                Text(String(localized: "character-pr"))
-                    .foregroundStyle(Color.white)
-                    .font(.system(size: 14))
-                    .frame(width: 36, height: 20)
-                    .background(Color.gray)
-            }
-            HStack {
-                Spacer()
-                Text(String(localized: "character-request"))
-                    .multilineTextAlignment(.leading)
-                    .font(.system(size: 14))
-                    .foregroundStyle(Color(.charalarmBrown))
-                    .padding(.horizontal, 44)
-                    .padding(.vertical, 8)
-                Spacer()
-            }
+        HStack(alignment: .top, spacing: 10) {
+            Text(String(localized: "character-pr"))
+                .font(.caption2.weight(.bold))
+                .foregroundStyle(.white)
+                .padding(.horizontal, 6)
+                .padding(.vertical, 2)
+                .background(Color.secondary, in: RoundedRectangle(cornerRadius: 4))
+            Text(String(localized: "character-request"))
+                .font(.footnote)
+                .foregroundStyle(.primary)
+                .multilineTextAlignment(.leading)
+            Spacer(minLength: 0)
+            Image(systemName: "chevron.forward")
+                .font(.footnote.weight(.semibold))
+                .foregroundStyle(.tertiary)
         }
-        .background(Color.white)
-        .clipShape(RoundedRectangle(cornerRadius: 4))
-        .overlay(
-              RoundedRectangle(cornerRadius: 4)
-                  .stroke(Color.gray, lineWidth: 1)
-          )
+        .padding(12)
+        .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
 }
 
 #Preview {
     CharacterListBanner()
+        .padding()
+        .background(Color(.systemGroupedBackground))
 }

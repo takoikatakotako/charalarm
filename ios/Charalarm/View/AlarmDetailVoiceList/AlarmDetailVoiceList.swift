@@ -13,14 +13,11 @@ struct AlarmDetailVoiceList: View {
                     viewState.randomPlayAndSelecVoice()
                     delegate.selectCharaAndCall(chara: viewState.chara, charaCall: viewState.selectedCharaCall)
                 } label: {
-                    HStack {
-                        Image(.alarmVoicePlay)
-                        Text("ランダム")
-                        Spacer()
-                    }
-                    .contentShape(Rectangle())
+                    Label(String(localized: "alarm-random"), systemImage: "shuffle")
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .contentShape(Rectangle())
                 }
-                .buttonStyle(PlainButtonStyle())
+                .buttonStyle(.plain)
 
                 // 指定して選択する
                 ForEach(viewState.chara.calls, id: \.voiceFileURL) { charaCall in
@@ -29,17 +26,19 @@ struct AlarmDetailVoiceList: View {
                         delegate.selectCharaAndCall(chara: viewState.chara, charaCall: charaCall)
                         dismiss()
                     } label: {
-                        HStack {
-                            Image(.alarmVoicePlay)
+                        Label {
                             Text(charaCall.message)
-                            Spacer()
+                        } icon: {
+                            Image(systemName: "play.circle.fill")
+                                .foregroundStyle(.brand)
                         }
+                        .frame(maxWidth: .infinity, alignment: .leading)
                         .contentShape(Rectangle())
                     }
-                    .buttonStyle(PlainButtonStyle())
-                 }
+                    .buttonStyle(.plain)
+                }
             }
-            .navigationTitle("\(viewState.chara.name)のボイス")
+            .navigationTitle(String(format: String(localized: "alarm-voice-list-title"), viewState.chara.name))
             .navigationBarTitleDisplayMode(.inline)
         }
     }

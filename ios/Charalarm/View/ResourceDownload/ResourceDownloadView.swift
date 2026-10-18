@@ -5,18 +5,30 @@ struct ResourceDownloadView: View {
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
-        VStack {
+        VStack(spacing: 16) {
+            Spacer()
+            if !viewState.showDismissButton {
+                ProgressView()
+                    .controlSize(.large)
+            }
             Text(viewState.mainMessage)
+                .font(.headline)
             Text(viewState.progressMessage)
-
+                .font(.subheadline)
+                .monospacedDigit()
+                .foregroundStyle(.secondary)
+            Spacer()
             if viewState.showDismissButton {
-                Button {
+                Button(String(localized: "common-close")) {
                     dismiss()
-                } label: {
-                    Text(String(localized: "common-close"))
                 }
+                .buttonStyle(.primary)
+                .padding(.horizontal, 16)
+                .padding(.bottom, 16)
             }
         }
+        .multilineTextAlignment(.center)
+        .padding(.horizontal, 24)
         .onAppear {
             viewState.onAppear()
         }

@@ -62,16 +62,33 @@ final class ScreenTourTests: XCTestCase {
         tapBottomButton("キャラ", at: 0.17)
         sleep(4)
         snap("11-chara-list")
+        if tapIfExists(app.cells.firstMatch, timeout: 3) {
+            sleep(4)
+            snap("11b-chara-profile")
+            app.navigationBars.buttons.firstMatch.tap()
+            sleep(1)
+        }
         dismissSheet()
 
         tapBottomButton("アラーム", at: 0.39)
         sleep(4)
         snap("12-alarm-list")
+        if tapIfExists(app.buttons["アラーム追加"], timeout: 3) {
+            sleep(3)
+            snap("12b-alarm-detail")
+            dismissSheet()
+        }
         dismissSheet()
 
         tapBottomButton("設定", at: 0.83)
         sleep(3)
         snap("13-config")
+        if tapIfExists(app.buttons["プレミアムプランについて"], timeout: 3) {
+            sleep(3)
+            snap("13b-subscription")
+            _ = tapIfExists(app.buttons["閉じる"], timeout: 3)
+            sleep(2)
+        }
         app.swipeUp()
         sleep(1)
         snap("14-config-bottom")
