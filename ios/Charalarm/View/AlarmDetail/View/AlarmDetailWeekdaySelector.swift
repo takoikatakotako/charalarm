@@ -14,18 +14,3 @@ struct AlarmDetailWeekdaySelector: View {
         }
     }
 }
-
-// struct AlarmDetailWeekdaySelector_Previews: PreviewProvider {
-//    struct PreviewWrapper: View {
-//        @State var dayOfWeeks: [DayOfWeek] = [.MON, .WED, .FRI, .SUN]
-//
-//        var body: some View {
-//            AlarmDetailWeekdaySelector(dayOfWeeks: $dayOfWeeks)
-//        }
-//    }
-//
-//    static var previews: some View {
-//        PreviewWrapper()
-//            .previewLayout(.sizeThatFits)
-//    }
-// }

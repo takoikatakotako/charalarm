@@ -4,7 +4,7 @@ import AppTrackingTransparency
 
 struct TutorialAcceptPrivacyPolicyView: View {
     @Environment(\.openURL) private var openURL
-    @State var viewModel = TutorialAcceptPrivacyPolicyViewModel()
+    @State var viewState = TutorialAcceptPrivacyPolicyViewState()
 
     var body: some View {
         ZStack {
@@ -31,7 +31,7 @@ struct TutorialAcceptPrivacyPolicyView: View {
                 Spacer()
 
                 Button(action: {
-                    viewModel.signUp()
+                    viewState.signUp()
                 }, label: {
 
                     TutorialButtonContent(text: String(localized: "tutorial-agree-with-the-privacy-policy"))
@@ -40,7 +40,7 @@ struct TutorialAcceptPrivacyPolicyView: View {
                 .padding(.bottom, 28)
             }
 
-            if viewModel.creatingAccount {
+            if viewState.creatingAccount {
                 ProgressView()
                     .scaleEffect(2.4, anchor: .center)
                     .progressViewStyle(CircularProgressViewStyle(tint: Color.white))
@@ -49,15 +49,15 @@ struct TutorialAcceptPrivacyPolicyView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 16))
             }
         }
-        .alert("", isPresented: $viewModel.showingAlert) {
+        .alert("", isPresented: $viewState.showingAlert) {
             Button("Close") {}
         } message: {
-            Text(viewModel.alertMessage)
+            Text(viewState.alertMessage)
         }
         .ignoresSafeArea(.container, edges: .bottom)
         .navigationTitle("")
         .toolbar(.hidden, for: .navigationBar)
-        .navigationDestination(isPresented: $viewModel.accountCreated) {
+        .navigationDestination(isPresented: $viewState.accountCreated) {
             TutorialRequireTrackingView()
         }
     }

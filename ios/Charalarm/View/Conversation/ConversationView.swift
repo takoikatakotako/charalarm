@@ -3,7 +3,7 @@ import SwiftUI
 /// キャラとのリアルタイム音声会話画面。
 /// ホーム画面の電話ボタン（standalone）と CallKit 着信フローの両方から使う。
 struct ConversationView: View {
-    @State private var viewModel: ConversationViewModel
+    @State private var viewState: ConversationViewState
     @Environment(\.dismiss) private var dismiss
 
     init(
@@ -12,7 +12,7 @@ struct ConversationView: View {
         topic: ConversationTopic = .call,
         textGenerationRepository: TextGenerationRepository = BackendTextGenerationRepository()
     ) {
-        _viewModel = State(initialValue: ConversationViewModel(
+        _viewState = State(initialValue: ConversationViewState(
             charaID: charaID,
             mode: mode,
             topic: topic,
@@ -22,16 +22,16 @@ struct ConversationView: View {
 
     var body: some View {
         VStack(spacing: 24) {
-            if let vrmModelFileURL = viewModel.vrmModelFileURL {
+            if let vrmModelFileURL = viewState.vrmModelFileURL {
                 // 話している相手を胸から上で出す
-                CharaVRMView(charaID: viewModel.charaID, modelFileURL: vrmModelFileURL, framing: .bust)
+                CharaVRMView(charaID: viewState.charaID, modelFileURL: vrmModelFileURL, framing: .bust)
                     .frame(maxWidth: .infinity)
                     .frame(maxHeight: 360)
             } else {
                 Spacer()
             }
 
-            Text(viewModel.charaName)
+            Text(viewState.charaName)
                 .font(.title2)
                 .bold()
 
@@ -39,7 +39,7 @@ struct ConversationView: View {
                 .font(.footnote)
                 .foregroundStyle(.secondary)
 
-            Text(viewModel.text)
+            Text(viewState.text)
                 .font(.body)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 24)
@@ -47,14 +47,14 @@ struct ConversationView: View {
             Spacer()
 
             Text(String(format: "%02d:%02d",
-                        Int(viewModel.conversationDuration) / 60,
-                        Int(viewModel.conversationDuration) % 60))
+                        Int(viewState.conversationDuration) / 60,
+                        Int(viewState.conversationDuration) % 60))
                 .font(.caption)
                 .monospacedDigit()
                 .foregroundStyle(.secondary)
 
             Button(role: .destructive) {
-                viewModel.endButtonTapped()
+                viewState.endButtonTapped()
             } label: {
                 Text("通話を終了")
                     .frame(maxWidth: .infinity)
@@ -64,12 +64,12 @@ struct ConversationView: View {
             .padding(.bottom, 32)
         }
         .onAppear {
-            viewModel.onAppear()
+            viewState.onAppear()
         }
         .onDisappear {
-            viewModel.teardown()
+            viewState.teardown()
         }
-        .onChange(of: viewModel.shouldDismiss) { _, shouldDismiss in
+        .onChange(of: viewState.shouldDismiss) { _, shouldDismiss in
             if shouldDismiss {
                 dismiss()
             }
@@ -77,7 +77,7 @@ struct ConversationView: View {
     }
 
     private var statusLabel: String {
-        switch viewModel.status {
+        switch viewState.status {
         case .idle: return "準備中…"
         case .preparing: return "準備中…"
         case .requestingPermission: return "マイクの許可を確認中…"

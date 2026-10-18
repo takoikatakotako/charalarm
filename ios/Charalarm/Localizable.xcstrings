@@ -359,16 +359,6 @@
         }
       }
     },
-    "commo-next" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "つぎ"
-          }
-        }
-      }
-    },
     "common-cancel" : {
       "localizations" : {
         "en" : {

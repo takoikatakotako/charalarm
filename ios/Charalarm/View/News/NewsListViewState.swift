@@ -1,6 +1,6 @@
 import SwiftUI
 
-@Observable class NewsListViewModel {
+@MainActor @Observable final class NewsListViewState {
     var newsList: [News] = []
     var showingAlert = false
     var alertMessage = ""

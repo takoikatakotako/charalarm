@@ -1,6 +1,6 @@
 import SwiftUI
 
-@Observable class CharacterListViewState {
+@MainActor @Observable final class CharacterListViewState {
     var charaList: [Chara] = []
     var showingAlert = false
     var alertMessage = ""
@@ -12,7 +12,7 @@ import SwiftUI
             do {
                 self.charaList = try await apiRepository.getCharaList()
             } catch {
-                print(error)
+                CharalarmLogger.error("キャラの一覧の取得に失敗", error: error)
                 alertMessage = String(localized: "character-failed-to-get-the-character")
                 self.showingAlert = true
             }

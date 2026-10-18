@@ -2,11 +2,11 @@ import SwiftUI
 
 struct NewsListView: View {
     @Environment(\.dismiss) private var dismiss
-    @State private var viewModel = NewsListViewModel()
+    @State private var viewState = NewsListViewState()
 
     var body: some View {
         NavigationStack {
-            List(viewModel.newsList) { news in
+            List(viewState.newsList) { news in
                 NewsRow(news: news)
             }
             .navigationTitle(String(localized: "news-news"))
@@ -23,11 +23,11 @@ struct NewsListView: View {
                 }
             }
         }.onAppear {
-            viewModel.fetchNews()
-        }.alert("", isPresented: $viewModel.showingAlert) {
+            viewState.fetchNews()
+        }.alert("", isPresented: $viewState.showingAlert) {
             Button(String(localized: "common-close")) {}
         } message: {
-            Text(viewModel.alertMessage)
+            Text(viewState.alertMessage)
         }
     }
 }

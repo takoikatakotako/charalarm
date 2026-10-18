@@ -1,7 +1,7 @@
 import SwiftUI
 import AVFoundation
 
-@Observable class CallViewState {
+@MainActor @Observable final class CallViewState {
     let charaDomain: String
     let charaName: String
     let resourceHandler = CharaUseCase()
@@ -21,12 +21,12 @@ import AVFoundation
 
     func call() {
         incomingAudioPlayer?.setVolume(0, fadeDuration: 1)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
-            let urlString = self.resourceHandler.getSelfIntroductionUrlString(charaID: self.charaDomain)
+        Task {
+            try? await Task.sleep(for: .seconds(0.8))
+            let urlString = resourceHandler.getSelfIntroductionUrlString(charaID: charaDomain)
             guard let url = URL(string: urlString) else { return }
-            let playerItem = AVPlayerItem(url: url)
-            self.voiceAudioPlayer = AVPlayer(playerItem: playerItem)
-            self.voiceAudioPlayer?.play()
+            voiceAudioPlayer = AVPlayer(playerItem: AVPlayerItem(url: url))
+            voiceAudioPlayer?.play()
         }
     }
 

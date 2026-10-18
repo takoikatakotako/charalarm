@@ -6,7 +6,7 @@ import AVFoundation
 
 /// 会話中の音声認識まわり。
 /// 無音時の一時的な失敗で会話を終わらせないためのリトライを含む。
-extension ConversationViewModel {
+extension ConversationViewState {
 
     /// 音声認識を最大3回試みる。無音や一時失敗では聞き直し、全滅時のみ nil。
     func recognizeUserSpeechWithRetry() async -> String? {
@@ -17,9 +17,8 @@ extension ConversationViewModel {
                 if !input.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                     return input
                 }
-                print("音声認識が空でした（\(attempt)回目）")
+                CharalarmLogger.debug("音声認識が空でした（\(attempt)回目）")
             } catch {
-                print("音声認識エラー（\(attempt)回目）: \(error)")
                 CharalarmLogger.error("音声認識エラー", error: error)
             }
             resetRecognition()

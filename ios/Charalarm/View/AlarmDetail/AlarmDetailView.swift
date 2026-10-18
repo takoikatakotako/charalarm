@@ -94,7 +94,7 @@ struct AlarmDetailView: View {
             .sheet(item: $viewState.sheet) { item in
                 switch item {
                 case let .voiceList(chara):
-                    AlarmDetailVoiceList(delegate: self, viewState: AlarmDetailVoiceListState(chara: chara))
+                    AlarmDetailVoiceList(delegate: self, viewState: AlarmDetailVoiceListViewState(chara: chara))
                 case .timeDifferenceList:
                     AlarmDetailTimeDifferenceSelector(timeDifference: $viewState.alarm.timeDifference)
                 }
@@ -127,9 +127,3 @@ extension AlarmDetailView: AlarmDetailDeleteAlarmDelegate {
         viewState.deleteAlarm()
     }
 }
-
-// struct AlarmDetailView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        AlarmDetailView(alarm: Alarm2(id: "2", hour: "1", minute: "3"))
-//    }
-// }

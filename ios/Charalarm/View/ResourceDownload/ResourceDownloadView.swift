@@ -22,9 +22,3 @@ struct ResourceDownloadView: View {
         }
     }
 }
-
-// struct ResourceDownloadView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        ResourceDownloadView(viewState: <#ResourceDownloadViewState#>)
-//    }
-// }

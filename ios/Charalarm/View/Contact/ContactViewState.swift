@@ -1,7 +1,7 @@
 import Foundation
 import SwiftUI
 
-@Observable class ContactViewState {
+@MainActor @Observable final class ContactViewState {
     private let discordRepository = DiscordRepository()
     private let keychainRepository = KeychainRepository()
 

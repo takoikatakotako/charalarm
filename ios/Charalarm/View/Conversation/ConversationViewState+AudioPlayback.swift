@@ -7,7 +7,7 @@ import UIKit
 /// 着信音とキャラの声の再生。
 /// キャラの声は音声認識と同じ AVAudioEngine から流し、エコーキャンセル (voice processing) を効かせる。
 /// こうすると、再生中もマイクを開いておいても、キャラ自身の声を拾わない (話しかけたら止められる)。
-extension ConversationViewModel {
+extension ConversationViewState {
 
     /// キャラの声の形 (Gemini TTS も VOICEVOX も 24kHz・モノラル)。違う形の音声は変換する
     static let voiceFormat = AVAudioFormat(commonFormat: .pcmFormatFloat32, sampleRate: 24_000, channels: 1, interleaved: false)!

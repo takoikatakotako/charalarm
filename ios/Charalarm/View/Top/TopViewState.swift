@@ -56,7 +56,7 @@ struct TopConversationChara: Identifiable {
     var id: String { charaID }
 }
 
-@Observable class TopViewState {
+@MainActor @Observable final class TopViewState {
     var charaImage = UIImage()
     /// VRM のキャラを選んでいれば、立ち絵の代わりに 3D で出す
     var vrmChara: TopVRMChara?
@@ -94,9 +94,9 @@ struct TopConversationChara: Identifiable {
     private var hideTapLineTask: Task<Void, Never>?
 
     func onAppear() {
-        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, _ in
-            guard granted else { return }
-            DispatchQueue.main.async {
+        Task {
+            let granted = (try? await UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge])) ?? false
+            if granted {
                 UIApplication.shared.registerForRemoteNotifications()
             }
         }
@@ -229,16 +229,12 @@ struct TopConversationChara: Identifiable {
 
     func updateChara(charaID: String?) {
         guard let charaID = charaID else {
-            DispatchQueue.main.async {
-                self.alert = .failedToGetCharacterSelectionInformation
-            }
+            alert = .failedToGetCharacterSelectionInformation
             return
         }
 
         guard let resource = try? localCharaResourceUseCase.loadCharaResource(charaID: charaID) else {
-            DispatchQueue.main.async {
-                self.alert = .failedToGetCharactersResources
-            }
+            alert = .failedToGetCharactersResources
             return
         }
         setVRMChara(charaID: charaID, resource: resource)
@@ -275,16 +271,12 @@ struct TopConversationChara: Identifiable {
         do {
             let data = try fileHandler.loadData(directoryName: charaDomain, fileName: imageName)
             guard let image = UIImage(data: data) else {
-                DispatchQueue.main.async {
-                    self.alert = .failedToSetCharacterImage
-                }
+                alert = .failedToSetCharacterImage
                 return
             }
             charaImage = image
         } catch {
-            DispatchQueue.main.async {
-                self.alert = .failedToSetCharacterImage
-            }
+            alert = .failedToSetCharacterImage
         }
     }
 
@@ -392,7 +384,7 @@ struct TopConversationChara: Identifiable {
             audioPlayer = try? AVAudioPlayer(data: data)
             audioPlayer?.play()
         } catch {
-            print(error)
+            CharalarmLogger.error("表情のボイスを読めませんでした", error: error)
         }
     }
 }

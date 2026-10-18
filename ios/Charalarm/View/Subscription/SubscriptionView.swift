@@ -104,10 +104,8 @@ struct SubscriptionView: View {
             viewState.alertMessage ?? "",
             isPresented: $viewState.showingAlert,
             presenting: viewState.alertMessage
-        ) { entity in
-            Button(String(localized: "common-close")) {
-                print(entity)
-            }
+        ) { _ in
+            Button(String(localized: "common-close")) {}
         } message: { entity in
             Text(entity)
         }

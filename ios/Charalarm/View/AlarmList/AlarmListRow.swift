@@ -4,7 +4,7 @@ protocol AlarmListRowDelegate {
     func updateAlarmEnable(alarmId: UUID, isEnable: Bool)
 }
 
-@Observable class AlarmListRowModel {
+@MainActor @Observable final class AlarmListRowModel {
     let alarmID: UUID?
     let delegate: AlarmListRowDelegate?
     var enable: Bool {

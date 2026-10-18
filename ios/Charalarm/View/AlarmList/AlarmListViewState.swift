@@ -1,6 +1,6 @@
 import Foundation
 
-@Observable class AlarmListViewState {
+@MainActor @Observable final class AlarmListViewState {
     var alarms: [Alarm] = []
     var sheet: AlarmListViewSheetItem?
     var showingAlert = false

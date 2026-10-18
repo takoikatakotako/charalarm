@@ -1,11 +1,11 @@
 import SwiftUI
 import AVFoundation
 
-@Observable class TutorialCallViewModel {
+@MainActor @Observable final class TutorialCallViewState {
     var isCalling = true
     var showingNextButton = false
-    var incomingAudioPlayer: AVAudioPlayer!
-    var voiceAudioPlayer: AVAudioPlayer!
+    private var incomingAudioPlayer: AVAudioPlayer?
+    private var voiceAudioPlayer: AVAudioPlayer?
 
     func onAppear() {
         if let sound = NSDataAsset(name: "ringtone") {
@@ -22,20 +22,17 @@ import AVFoundation
             self.isCalling = false
         }
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-            guard let voice = NSDataAsset(name: "jp_zunko_zundamon_call") else {
-                return
+        Task {
+            try? await Task.sleep(for: .seconds(1.5))
+            if let voice = NSDataAsset(name: "jp_zunko_zundamon_call") {
+                voiceAudioPlayer = try? AVAudioPlayer(data: voice.data)
+                voiceAudioPlayer?.play()
             }
-            self.voiceAudioPlayer = try? AVAudioPlayer(data: voice.data)
-            self.voiceAudioPlayer?.play()
-        }
-
-        DispatchQueue.main.asyncAfter(deadline: .now() + 4.5) {
+            try? await Task.sleep(for: .seconds(3))
             withAnimation {
-                self.showingNextButton = true
+                showingNextButton = true
             }
         }
-
     }
 
     func onDisappear() {

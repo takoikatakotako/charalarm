@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct TutorialCallView: View {
-    @State var viewModel = TutorialCallViewModel()
+    @State var viewState = TutorialCallViewState()
 
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -14,7 +14,7 @@ struct TutorialCallView: View {
                     .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity)
             }
 
-            if viewModel.isCalling {
+            if viewState.isCalling {
                 VStack {
                     Text("ずんだもん")
                         .foregroundStyle(Color.white)
@@ -37,7 +37,7 @@ struct TutorialCallView: View {
 
                         VStack {
                             Button(action: {
-                                viewModel.callButtonTapped()
+                                viewState.callButtonTapped()
                             }) {
                                 Image(.profileCall)
                                     .resizable()
@@ -55,21 +55,21 @@ struct TutorialCallView: View {
                 .background(Color(.charalarmDefaultGray))
             }
 
-            if viewModel.showingNextButton {
+            if viewState.showingNextButton {
                 NavigationLink(
                     destination: TutorialThirdView(),
                     label: {
-                        TutorialButtonContent(text: String(localized: "commo-next"))
+                        TutorialButtonContent(text: String(localized: "common-next"))
                             .padding(.horizontal, 16)
                     })
                     .padding(.bottom, 28)
             }
         }
         .onAppear {
-            viewModel.onAppear()
+            viewState.onAppear()
         }
         .onDisappear {
-            viewModel.onDisappear()
+            viewState.onDisappear()
         }
         .ignoresSafeArea()
         .navigationTitle("")

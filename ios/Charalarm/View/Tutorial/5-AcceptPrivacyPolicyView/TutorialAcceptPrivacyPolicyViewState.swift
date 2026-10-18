@@ -2,7 +2,7 @@ import SwiftUI
 import AdSupport
 import AppTrackingTransparency
 
-@Observable class TutorialAcceptPrivacyPolicyViewModel {
+@MainActor @Observable final class TutorialAcceptPrivacyPolicyViewState {
     var accountCreated = false
     var creatingAccount = false
     var showingAlert = false

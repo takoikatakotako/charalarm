@@ -66,22 +66,3 @@ struct AlarmDetailCharaSelector: View {
         }
     }
 }
-
-// struct AlarmDetailCharaSelector_Previews: PreviewProvider {
-//    struct PreviewWrapper: View, AlarmDetailCharaSelectorDelegate {
-//        @State var selectedChara: Character?
-//        @State var charas: [Character] = [Character.mock()]
-//
-//        var body: some View {
-//            AlarmDetailCharaSelector(delegate: self, selectedChara: $selectedChara, charas: $charas)
-//        }
-//
-//        func setRandomChara() {}
-//        func showVoiceList(chara: Character) {}
-//    }
-//
-//    static var previews: some View {
-//        PreviewWrapper()
-//            .previewLayout(.sizeThatFits)
-//    }
-// }

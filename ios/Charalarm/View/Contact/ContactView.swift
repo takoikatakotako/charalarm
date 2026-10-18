@@ -92,9 +92,7 @@ struct ContactView: View {
             isPresented: $viewState.showingAlert,
             presenting: viewState.alertEntity
         ) { entity in
-            Button(entity.actionText) {
-                print(entity.actionText)
-            }
+            Button(entity.actionText) {}
         } message: { entity in
             Text(entity.message)
         }
