@@ -1,8 +1,7 @@
 import SwiftUI
-import UIKit
 import SDWebImageSwiftUI
 
-// TODO: モックであるようなことが伝わる名前にする
+/// キャラの紹介の電話（アプリの中だけで鳴らす。CallKit は使わない）
 struct CallView: View {
     @Environment(\.dismiss) private var dismiss
 
@@ -10,87 +9,43 @@ struct CallView: View {
 
     var body: some View {
         ZStack {
-            ScrollView(.vertical, showsIndicators: false) {
-                VStack {
-                    WebImage(url: URL(string: viewState.charaThumbnailUrlString)) { image in
-                        image.resizable()
-                    } placeholder: {
-                        Image(.characterPlaceholder)
-                            .resizable()
-                    }
-                    .aspectRatio(1, contentMode: .fit)
-                    .frame(maxWidth: .infinity)
-                    .scaledToFill()
+            CallBackground()
 
-                    Text(viewState.charaName)
-                        .font(Font.system(size: 40))
-                        .foregroundStyle(Color.white)
-                        .padding(.top, 100)
-                    Spacer()
+            VStack(spacing: 0) {
+                WebImage(url: URL(string: viewState.charaThumbnailUrlString)) { image in
+                    image.resizable()
+                } placeholder: {
+                    Image(.characterPlaceholder)
+                        .resizable()
+                }
+                .aspectRatio(1, contentMode: .fit)
+                .frame(maxWidth: .infinity)
+                .opacity(viewState.overlay ? 0.25 : 1)
 
-                    Button(action: {
+                CallerNameText(name: viewState.charaName)
+                    .padding(.top, 32)
+
+                Spacer()
+
+                HStack {
+                    CallActionButton(kind: .decline) {
                         viewState.fadeOut()
                         dismiss()
-                    }) {
-                        Image(systemName: "phone.fill.arrow.down.left")
-                            .resizable()
-                            .foregroundStyle(Color.white)
-                            .frame(width: 40, height: 40)
                     }
-                    .frame(width: 80, height: 80)
-                    .background(Color(.callRed))
-                    .clipShape(RoundedRectangle(cornerRadius: 40))
-                }                    .padding(.bottom, 60)
-
-            }
-
-            if viewState.overlay {
-                    VStack {
-                        Text(viewState.charaName)
-                            .font(Font.system(size: 40))
-                            .foregroundStyle(Color.white)
-                            .padding(.top, 100)
-
+                    if viewState.overlay {
                         Spacer()
-
-                        HStack(spacing: 160) {
-                            Button(action: {
-                                viewState.fadeOut()
-                                dismiss()
-                            }) {
-
-                                Image(systemName: "phone.fill.arrow.down.left")
-                                    .resizable()
-                                    .foregroundStyle(Color.white)
-                                    .frame(width: 40, height: 40)
+                        CallActionButton(kind: .answer) {
+                            viewState.call()
+                            withAnimation {
+                                viewState.overlay = false
                             }
-                            .frame(width: 80, height: 80)
-                            .background(Color(.callRed))
-                            .clipShape(RoundedRectangle(cornerRadius: 40))
-
-                            Button(action: {
-                                viewState.call()
-                                withAnimation {
-                                    viewState.overlay = false
-                                }
-                            }) {
-                                Image(systemName: "phone.fill")
-                                    .resizable()
-                                    .foregroundStyle(Color.white)
-                                    .frame(width: 40, height: 40)
-                            }
-                            .frame(width: 80, height: 80)
-                            .background(Color(.callGreen))
-                            .clipShape(RoundedRectangle(cornerRadius: 40))
-
                         }
-                        .padding(.bottom, 60)
                     }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .background(Color.gray)
+                }
+                .padding(.horizontal, 56)
+                .padding(.bottom, 64)
             }
         }
-        .ignoresSafeArea(.container, edges: .bottom)
         .onAppear {
             viewState.incoming()
         }

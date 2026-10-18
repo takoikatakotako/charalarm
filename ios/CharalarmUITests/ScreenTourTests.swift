@@ -26,7 +26,9 @@ final class ScreenTourTests: XCTestCase {
             sleep(3)
             snap("02-tutorial-call")
             // 着信に出る（右下の緑のボタン）
-            app.coordinate(withNormalizedOffset: CGVector(dx: 0.74, dy: 0.92)).tap()
+            if !tapIfExists(app.buttons["answer"], timeout: 2) {
+                app.coordinate(withNormalizedOffset: CGVector(dx: 0.74, dy: 0.92)).tap()
+            }
             sleep(3)
             snap("02b-tutorial-call-answered")
             // 着信の画面が終わり「つぎ」が出るのを待つ
@@ -57,17 +59,17 @@ final class ScreenTourTests: XCTestCase {
         snap("10-top")
 
         // 下のボタン: キャラ一覧・アラーム・電話・設定
-        tapBottomButton(at: 0.17)
+        tapBottomButton("キャラ", at: 0.17)
         sleep(4)
         snap("11-chara-list")
         dismissSheet()
 
-        tapBottomButton(at: 0.39)
+        tapBottomButton("アラーム", at: 0.39)
         sleep(4)
         snap("12-alarm-list")
         dismissSheet()
 
-        tapBottomButton(at: 0.83)
+        tapBottomButton("設定", at: 0.83)
         sleep(3)
         snap("13-config")
         app.swipeUp()
@@ -81,14 +83,19 @@ final class ScreenTourTests: XCTestCase {
             snap("15-trend-news")
             dismissSheet()
         }
-        app.coordinate(withNormalizedOffset: CGVector(dx: 0.92, dy: 0.1)).tap()
+        if !tapIfExists(app.buttons["お知らせ"], timeout: 2) {
+            app.coordinate(withNormalizedOffset: CGVector(dx: 0.92, dy: 0.1)).tap()
+        }
         sleep(3)
         snap("16-news")
         dismissSheet()
     }
 
-    private func tapBottomButton(at x: CGFloat) {
-        app.coordinate(withNormalizedOffset: CGVector(dx: x, dy: 0.9)).tap()
+    /// トップの下のボタン。名前で探し、なければ（古い見た目）位置で押す
+    private func tapBottomButton(_ label: String, at x: CGFloat) {
+        if !tapIfExists(app.buttons[label], timeout: 2) {
+            app.coordinate(withNormalizedOffset: CGVector(dx: x, dy: 0.9)).tap()
+        }
     }
 
     private func dismissSheet() {

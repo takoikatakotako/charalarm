@@ -15,44 +15,32 @@ struct TutorialCallView: View {
             }
 
             if viewState.isCalling {
-                VStack {
-                    Text("ずんだもん")
-                        .foregroundStyle(Color.white)
-                        .font(Font.system(size: 48))
-                        .padding(.top, 156)
-                    Spacer()
-                    HStack {
-                        VStack {
-                            NavigationLink(destination: TutorialThirdView()) {
-                                Image(.profileCallEnd)
-                                    .resizable()
-                                    .frame(width: 36, height: 36)
-                                    .padding(16)
-                                    .background(Color.red)
-                                    .clipShape(RoundedRectangle(cornerRadius: 32))
-                            }
-                        }
-
+                ZStack {
+                    CallBackground()
+                    VStack {
+                        CallerNameText(name: "ずんだもん")
+                            .padding(.top, 120)
                         Spacer()
-
-                        VStack {
-                            Button(action: {
+                        HStack {
+                            NavigationLink {
+                                TutorialThirdView()
+                            } label: {
+                                Image(systemName: "phone.down.fill")
+                                    .font(.system(size: 30, weight: .semibold))
+                                    .foregroundStyle(.white)
+                                    .frame(width: 76, height: 76)
+                                    .background(Color(.callRed), in: Circle())
+                            }
+                            Spacer()
+                            CallActionButton(kind: .answer) {
                                 viewState.callButtonTapped()
-                            }) {
-                                Image(.profileCall)
-                                    .resizable()
-                                    .frame(width: 36, height: 36)
-                                    .padding(16)
-                                    .background(Color.green)
-                                    .clipShape(RoundedRectangle(cornerRadius: 32))
                             }
                         }
+                        .padding(.horizontal, 56)
+                        .padding(.bottom, 64)
                     }
-                    .padding(.horizontal, 64)
-                    .padding(.bottom, 32)
                 }
-                .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity)
-                .background(Color(.charalarmDefaultGray))
+                .transition(.opacity)
             }
 
             if viewState.showingNextButton {
@@ -62,7 +50,7 @@ struct TutorialCallView: View {
                         TutorialButtonContent(text: String(localized: "common-next"))
                             .padding(.horizontal, 16)
                     })
-                    .padding(.bottom, 28)
+                    .padding(.bottom, 44)
             }
         }
         .onAppear {

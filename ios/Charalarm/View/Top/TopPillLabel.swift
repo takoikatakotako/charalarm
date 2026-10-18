@@ -15,7 +15,8 @@ struct TopPillLabel: View {
         .foregroundStyle(Color.white)
         .padding(.horizontal, 12)
         .padding(.vertical, 8)
-        .background(Color.black.opacity(0.35), in: Capsule())
+        .frame(minHeight: 40)
+        .background(.black.opacity(0.3), in: Capsule())
     }
 }
 

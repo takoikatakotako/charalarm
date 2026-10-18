@@ -13,6 +13,7 @@ private struct AdmobBannerViewController: UIViewControllerRepresentable {
         let view = BannerView(adSize: AdSizeBanner)
 
         let viewController = UIViewController()
+        viewController.view.backgroundColor = .clear
         view.adUnitID = adUnitId
         view.rootViewController = viewController
         viewController.view.addSubview(view)

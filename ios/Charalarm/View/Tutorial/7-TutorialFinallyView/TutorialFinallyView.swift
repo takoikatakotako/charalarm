@@ -1,37 +1,22 @@
 import SwiftUI
 
 struct TutorialFinallyView: View {
-
     var body: some View {
-        VStack(alignment: .center, spacing: 12) {
-
-            Spacer()
-
-            Text(String(localized: "tutorial-finally-please-allow-push-notificaion"))
-                .font(Font.system(size: 20))
-                .padding(.horizontal, 12)
-                .padding(.top, 128)
-
-            Image(.zundamonSmile)
-                .resizable()
-                .scaledToFit()
-                .frame(width: 300, height: 300)
-            Spacer()
-
-            Button(action: {
-                NotificationCenter.default.post(name: NSNotification.doneTutorial, object: self, userInfo: nil)
-            }) {
+        TutorialPage(
+            image: .zundamonSmile,
+            messages: [String(localized: "tutorial-finally-please-allow-push-notificaion")]
+        ) {
+            Button {
+                NotificationCenter.default.post(name: NSNotification.doneTutorial, object: nil, userInfo: nil)
+            } label: {
                 TutorialButtonContent(text: String(localized: "tutorial-go-to-home-screen"))
-                    .padding(.horizontal, 16)
             }
-            .padding(.bottom, 28)
         }
-        .ignoresSafeArea(.container, edges: .bottom)
-        .navigationTitle("")
-        .toolbar(.hidden, for: .navigationBar)
     }
 }
 
 #Preview {
-    TutorialFinallyView()
+    NavigationStack {
+        TutorialFinallyView()
+    }
 }

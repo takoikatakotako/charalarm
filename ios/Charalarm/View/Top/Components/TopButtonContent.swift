@@ -1,44 +1,30 @@
 import SwiftUI
 
+/// トップの下に並べるボタンの中身（アイコンと短い名前）
 struct TopButtonContent: View {
-    private let image: ImageResource?
-    private let systemImageName: String?
-
-    init(image: ImageResource) {
-        self.image = image
-        self.systemImageName = nil
-    }
-
-    /// SF Symbols のアイコン。アセットのアイコン（36pt）と大きさをそろえる。
-    init(systemImageName: String) {
-        self.image = nil
-        self.systemImageName = systemImageName
-    }
+    let systemImageName: String
+    let title: String
 
     var body: some View {
-        Group {
-            if let image {
-                Image(image)
-            } else if let systemImageName {
-                Image(systemName: systemImageName)
-                    .font(.system(size: 24))
-                    .frame(width: 36, height: 36)
-            }
+        VStack(spacing: 4) {
+            Image(systemName: systemImageName)
+                .font(.system(size: 22, weight: .semibold))
+                .frame(height: 28)
+            Text(title)
+                .font(.caption2.weight(.semibold))
+                .lineLimit(1)
         }
         .foregroundStyle(.white)
-        .padding(8)
-        .background(Color.clear)
-        .overlay(
-            RoundedRectangle(cornerRadius: 4)
-                .stroke(Color.white, lineWidth: 2)
-        )
+        .frame(maxWidth: .infinity)
+        .contentShape(Rectangle())
     }
 }
 
 #Preview {
     HStack {
-        TopButtonContent(image: .topNews)
-        TopButtonContent(systemImageName: "phone.fill")
+        TopButtonContent(systemImageName: "person.2.fill", title: "キャラ")
+        TopButtonContent(systemImageName: "phone.fill", title: "電話")
     }
+    .padding()
     .background(.gray)
 }

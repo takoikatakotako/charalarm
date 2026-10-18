@@ -1,5 +1,4 @@
 import SwiftUI
-import GoogleMobileAds
 
 struct AlarmListView: View {
     @Environment(\.dismiss) private var dismiss
@@ -8,29 +7,37 @@ struct AlarmListView: View {
 
     var body: some View {
         NavigationStack {
-            ZStack(alignment: .bottom) {
-                ZStack(alignment: .center) {
-                    ScrollView {
-                        LazyVStack(spacing: 0) {
-                            ForEach(viewState.alarms) { alarm in
-                                Button(action: {
-                                    viewState.editAlarm(alarm: alarm)
-                                }) {
-                                    AlarmListRow(delegate: self, alarm: alarm)
-                                }
-                            }
+            ScrollView {
+                LazyVStack(spacing: 12) {
+                    ForEach(viewState.alarms) { alarm in
+                        Button {
+                            viewState.editAlarm(alarm: alarm)
+                        } label: {
+                            AlarmListRow(delegate: self, alarm: alarm)
                         }
-                    }
-
-                    if viewState.showingIndicator {
-                        CharalarmActivityIndicator()
+                        .buttonStyle(.plain)
                     }
                 }
-
-                if viewState.isShowingADs {
-                    AdmobBannerView(adUnitID: Variables.admobAlarmListUnitID)
+                .padding(16)
+            }
+            .background(Color(.systemGroupedBackground))
+            .overlay {
+                if viewState.showingIndicator {
+                    CharalarmActivityIndicator()
+                } else if viewState.alarms.isEmpty {
+                    ContentUnavailableView {
+                        Label(String(localized: "alarm-list-empty-title"), systemImage: "alarm")
+                    } description: {
+                        Text(String(localized: "alarm-list-empty-description"))
+                    } actions: {
+                        Button(String(localized: "alarm-add-alarm")) {
+                            viewState.addAlarmButtonTapped()
+                        }
+                        .buttonStyle(.borderedProminent)
+                    }
                 }
             }
+            .bannerAd(isShowing: viewState.isShowingADs, adUnitID: Variables.admobAlarmListUnitID)
             .onAppear {
                 viewState.onAppear()
             }
@@ -53,8 +60,7 @@ struct AlarmListView: View {
                     AlarmDetailView(viewState: AlarmDetailViewState(alarm: alarm, type: .edit))
                 }
             })
-            .navigationBarBackButtonHidden(true)
-            .navigationTitle("")
+            .navigationTitle(String(localized: "alarm-list-title"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
@@ -63,13 +69,13 @@ struct AlarmListView: View {
                     }
                 }
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button(action: {
+                    Button {
                         viewState.addAlarmButtonTapped()
-                    }) {
-                        Image(.alarmAddIcon)
-                            .renderingMode(.template)
-                            .foregroundStyle(Color(.charalarmDefaultGreen))
+                    } label: {
+                        Image(systemName: "plus")
+                            .fontWeight(.semibold)
                     }
+                    .accessibilityLabel(String(localized: "alarm-add-alarm"))
                 }
             }
         }

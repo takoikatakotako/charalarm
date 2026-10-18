@@ -1,62 +1,38 @@
 import SwiftUI
-import AdSupport
-import AppTrackingTransparency
 
 struct TutorialAcceptPrivacyPolicyView: View {
-    @Environment(\.openURL) private var openURL
     @State var viewState = TutorialAcceptPrivacyPolicyViewState()
 
     var body: some View {
-        ZStack {
-            VStack(alignment: .center, spacing: 12) {
-                Spacer()
-
-                Text(String(localized: "tutorial-please-accept-the-privacy-policy"))
-                    .font(Font.system(size: 20))
-                    .padding(.horizontal, 12)
-
-                Button(action: {
-                    if let url = URL(string: PrivacyPolicyUrlString) {
-                        openURL(url)
-                    }
-                }) {
-                    Text(String(localized: "tutorial-open-the-privacy-policy"))
-                        .font(Font.system(size: 20))
-                }
-
-                Image(.zundamonNormal)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 300, height: 300)
-                Spacer()
-
-                Button(action: {
-                    viewState.signUp()
-                }, label: {
-
-                    TutorialButtonContent(text: String(localized: "tutorial-agree-with-the-privacy-policy"))
-                        .padding(.horizontal, 16)
-                })
-                .padding(.bottom, 28)
+        TutorialPage(
+            image: .zundamonNormal,
+            messages: [String(localized: "tutorial-please-accept-the-privacy-policy")]
+        ) {
+            if let url = URL(string: PrivacyPolicyUrlString) {
+                Link(String(localized: "tutorial-open-the-privacy-policy"), destination: url)
+                    .font(.body.weight(.semibold))
             }
-
+        } footer: {
+            Button {
+                viewState.signUp()
+            } label: {
+                TutorialButtonContent(text: String(localized: "tutorial-agree-with-the-privacy-policy"))
+            }
+            .disabled(viewState.creatingAccount)
+        }
+        .overlay {
             if viewState.creatingAccount {
                 ProgressView()
-                    .scaleEffect(2.4, anchor: .center)
-                    .progressViewStyle(CircularProgressViewStyle(tint: Color.white))
-                    .frame(width: 160, height: 160)
-                    .background(Color.black.opacity(0.3))
-                    .clipShape(RoundedRectangle(cornerRadius: 16))
+                    .controlSize(.large)
+                    .padding(32)
+                    .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
             }
         }
         .alert("", isPresented: $viewState.showingAlert) {
-            Button("Close") {}
+            Button(String(localized: "common-close")) {}
         } message: {
             Text(viewState.alertMessage)
         }
-        .ignoresSafeArea(.container, edges: .bottom)
-        .navigationTitle("")
-        .toolbar(.hidden, for: .navigationBar)
         .navigationDestination(isPresented: $viewState.accountCreated) {
             TutorialRequireTrackingView()
         }
@@ -64,5 +40,7 @@ struct TutorialAcceptPrivacyPolicyView: View {
 }
 
 #Preview {
-    TutorialAcceptPrivacyPolicyView()
+    NavigationStack {
+        TutorialAcceptPrivacyPolicyView()
+    }
 }

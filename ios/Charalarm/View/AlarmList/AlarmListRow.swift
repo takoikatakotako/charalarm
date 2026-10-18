@@ -32,85 +32,47 @@ struct AlarmListRow: View {
         self.alarmListModel = AlarmListRowModel(alarmID: alarm.alarmID, enable: alarm.enable, delegate: delegate)
     }
 
-    var backgroundColor: Color {
-        return alarm.enable ? Color(.alarmCardBackgroundGreen) : Color(.charalarmDefaultGray)
-    }
-
-    var toggleThumbColor: Color {
-        return alarm.enable ? Color(.alarmCardBackgroundGreen) : Color(.charalarmDefaultGray)
-    }
-
     var dayOfWeeksString: String {
-        var text = ""
-        text += alarm.sunday ? "\(String(localized: "day-of-week-sunday")) " : ""
-        text += alarm.monday ? "\(String(localized: "day-of-week-monday")) " : ""
-        text += alarm.tuesday ? "\(String(localized: "day-of-week-tuesday")) " : ""
-        text += alarm.wednesday ? "\(String(localized: "day-of-week-wednesday")) " : ""
-        text += alarm.thursday ? "\(String(localized: "day-of-week-thursday")) " : ""
-        text += alarm.friday ? "\(String(localized: "day-of-week-friday")) " : ""
-        text += alarm.saturday ? "\(String(localized: "day-of-week-saturday")) " : ""
-        return text
+        let days: [(Bool, String)] = [
+            (alarm.sunday, String(localized: "day-of-week-sunday")),
+            (alarm.monday, String(localized: "day-of-week-monday")),
+            (alarm.tuesday, String(localized: "day-of-week-tuesday")),
+            (alarm.wednesday, String(localized: "day-of-week-wednesday")),
+            (alarm.thursday, String(localized: "day-of-week-thursday")),
+            (alarm.friday, String(localized: "day-of-week-friday")),
+            (alarm.saturday, String(localized: "day-of-week-saturday"))
+        ]
+        return days.filter(\.0).map(\.1).joined(separator: " ")
     }
 
     var body: some View {
-        ZStack(alignment: .leading) {
-            VStack(alignment: .leading, spacing: 8) {
+        HStack(alignment: .center, spacing: 12) {
+            VStack(alignment: .leading, spacing: 4) {
                 Text(alarm.name)
-                    .font(Font.system(size: 20))
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
                     .lineLimit(1)
-
-                Text("\(String(format: "%02d", alarm.hour)):\(String(format: "%02d", alarm.minute))")
-                    .font(Font.system(size: 36).bold())
+                Text(String(format: "%02d:%02d", alarm.hour, alarm.minute))
+                    .font(.system(size: 44, weight: .semibold, design: .rounded))
+                    .monospacedDigit()
                 Text(dayOfWeeksString)
-                    .font(Font.system(size: 20))
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
             }
-            .fixedSize(horizontal: true, vertical: false)
-            .foregroundStyle(Color.white)
-            .padding(.leading, 16)
+            .opacity(alarmListModel.enable ? 1 : 0.45)
 
-            HStack {
-                Spacer()
-                Toggle(isOn: $alarmListModel.enable) {
-                    Text("")
-                }.labelsHidden()
-                .toggleStyle(ColoredToggleStyle(label: "", onColor: Color.white, offColor: Color.white, thumbColor: toggleThumbColor))
-                .padding()
-            }
-        }
-        .frame(height: 140)
-        .background(backgroundColor)
-        .clipShape(RoundedRectangle(cornerRadius: 16))
-        .padding(8)
-    }
-}
-
-// ref: https://stackoverflow.com/questions/56479674/set-toggle-color-in-swiftui
-struct ColoredToggleStyle: ToggleStyle {
-    var label = ""
-    var onColor = Color(UIColor.green)
-    var offColor = Color(UIColor.systemGray5)
-    var thumbColor = Color.white
-
-    func makeBody(configuration: Self.Configuration) -> some View {
-        HStack {
-            Text(label)
             Spacer()
-            Button(action: { configuration.isOn.toggle() }) {
-                RoundedRectangle(cornerRadius: 20, style: .circular)
-                    .fill(configuration.isOn ? onColor : offColor)
-                    .frame(width: 50, height: 29)
-                    .overlay(
-                        Circle()
-                            .fill(thumbColor)
-                            .shadow(radius: 1, x: 0, y: 1)
-                            .padding(1.5)
-                            .offset(x: configuration.isOn ? 10 : -10))
-                    .animation(.easeInOut, value: 0.1)
+
+            Toggle(isOn: $alarmListModel.enable) {
+                Text(alarm.name)
             }
+            .labelsHidden()
+            .tint(.brand)
         }
-        .font(.title)
-        .padding(.horizontal)
+        .padding(16)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .contentShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
 }
 

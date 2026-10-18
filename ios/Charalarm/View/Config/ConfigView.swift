@@ -1,5 +1,4 @@
 import SwiftUI
-import SDWebImageSwiftUI
 
 struct ConfigView: View {
     #if DEBUG
@@ -12,205 +11,114 @@ struct ConfigView: View {
 
     var body: some View {
         NavigationStack {
-            ZStack(alignment: .bottom) {
-                List {
-                    Section(
-                        header:
-                            Text(String(localized: "config-user-info"))
-                            .foregroundStyle(Color(.appMainText))
-                    ) {
-                        NavigationLink(destination: UserInfoView(viewState: UserInfoViewState())) {
-                            Text(String(localized: "config-user-info"))
-                                .foregroundStyle(Color.primary)
-                        }
+            Form {
+                Section(String(localized: "config-user-info")) {
+                    NavigationLink(String(localized: "config-user-info")) {
+                        UserInfoView(viewState: UserInfoViewState())
                     }
-
-                    Section(
-                        header:
-                            Text(String(localized: "config-conversation"))
-                            .foregroundStyle(Color(.appMainText)),
-                        footer:
-                            Text(String(localized: "config-conversation-language-footer") + "\n" + String(localized: "config-use-calendar-footer") + "\n" + String(localized: "config-mention-schedule-on-call-footer"))
-                    ) {
-                        Picker(String(localized: "config-conversation-language"), selection: $viewState.conversationLanguage) {
-                            ForEach(ConversationLanguage.allCases) { language in
-                                Text(language.displayName).tag(language)
-                            }
-                        }
-                        .foregroundStyle(Color.primary)
-
-                        Toggle(String(localized: "config-use-calendar"), isOn: Binding(
-                            get: { viewState.useCalendarInConversation },
-                            set: { viewState.setUseCalendarInConversation($0) }
-                        ))
-                        .foregroundStyle(Color.primary)
-
-                        Toggle(String(localized: "config-mention-schedule-on-call"), isOn: Binding(
-                            get: { viewState.mentionScheduleOnCall },
-                            set: { viewState.setMentionScheduleOnCall($0) }
-                        ))
-                        .foregroundStyle(Color.primary)
-                    }
-
-                    Section(
-                        header:
-                            Text(String(localized: "config-premium-plan"))
-                            .foregroundStyle(Color(.appMainText))
-                    ) {
-                        Button {
-                            viewState.subscriptionButtonTapped()
-                        } label: {
-                            Text(String(localized: "config-about-premium-plan"))
-                                .foregroundStyle(Color.primary)
-                        }
-                    }
-
-                    Section(
-                        header:
-                            Text("お問い合わせ")
-                            .foregroundStyle(Color.primary)
-                    ) {
-                        NavigationLink(destination: ContactView(viewState: ContactViewState())) {
-                            Text("お問い合わせ")
-                                .foregroundStyle(Color.primary)
-                        }
-                    }
-
-                    Section(
-                        header:
-                            Text("開発者情報")
-                            .foregroundStyle(Color.primary)
-                    ) {
-                        Button(action: {
-                            if let url = URL(string: OfficialDiscordUrlString) {
-                                openURL(url)
-                            }
-                        }) {
-                            Text(String(localized: "config-official-discord"))
-                                .foregroundStyle(Color.primary)
-                        }
-
-                        Button(action: {
-                            if let url = URL(string: OfficialTwitterUrlString) {
-                                openURL(url)
-                            }
-                        }) {
-                            Text(String(localized: "config-official-twitter"))
-                                .foregroundStyle(Color.primary)
-                        }
-
-                        #if DEBUG
-                        // ずんだもん会話の開発用動線（本番の動線はホーム画面の電話ボタン）
-                        // Stub: 返答はオウム返し（キャラの会話の設定はサーバから取得する）
-                        NavigationLink(destination: ConversationView(charaID: Self.debugConversationCharaID, textGenerationRepository: StubTextGenerationRepository())) {
-                            Text("[DEBUG] ずんだもんと通話 (Stub)")
-                                .foregroundStyle(Color.primary)
-                        }
-                        #endif
-
-                        // 同梱した時守しおりの VRM の表示確認（サーバに登録していなくても見られる）。
-                        // TestFlight で試すため Release ビルドでも出す。5.0.0 のリリース前に外す
-                        if let shioriModelURL = URL(string: "\(Variables.resourceEndpoint)/com.charalarm.shiori/shiori.vrm") {
-                            NavigationLink(destination: CharaVRMView(charaID: "com.charalarm.shiori", modelFileURL: shioriModelURL, framing: .full)) {
-                                Text("[試作] VRM プレビュー（時守しおり）")
-                                    .foregroundStyle(Color.primary)
-                            }
-                        }
-                    }
-
-                    Section(
-                        header:
-                            Text(String(localized: "config-application-info"))
-                            .foregroundStyle(Color.primary)
-                    ) {
-                        // バージョン情報
-                        HStack {
-                            Text(String(localized: "config-version-info"))
-                                .foregroundStyle(Color.primary)
-                            Spacer()
-                            Text(viewState.versionString)
-                                .foregroundStyle(Color.primary)
-                        }
-
-                        // ライセンス
-                        NavigationLink {
-                            LicenceView()
-                        } label: {
-                            Text(String(localized: "config-license"))
-                        }
-
-                        // その他
-                        Button {
-                            if let settingsUrl = URL(string: UIApplication.openSettingsURLString) {
-                                openURL(settingsUrl)
-                            }
-                        } label: {
-                            Text(String(localized: "config-other-app-setting"))
-                                .foregroundStyle(Color.primary)
-                        }
-                    }
-
-                    Section(
-                        header:
-                            Text(String(localized: "config-reset"))
-                            .foregroundStyle(Color(.appMainText))
-                    ) {
-                        Button(action: {
-                            viewState.resetButtonTapped()
-                        }) {
-                            Text(String(localized: "config-reset"))
-                                .foregroundStyle(Color.primary)
-                        }
-                        .alert(String(localized: "config-reset"), isPresented: $viewState.showingResetAlert) {
-                            Button(String(localized: "common-cancel"), role: .cancel) {}
-                            Button(String(localized: "common-reset"), role: .destructive) {
-                                viewState.withdraw()
-                            }
-                        } message: {
-                            Text(String(localized: "config-are-you-sure-you-want-to-reset-the-app"))
-                        }
-                    }
-
-                    // 広告とリセットせるが被ってしまうのでパディング追加のため
-                    // もっと良い方法があれば修正したい
-                    Section("") {}
                 }
-                .listStyle(.grouped)
-                .background(Color(.appBackground))
-                .scrollContentBackground(.hidden)
 
-                if viewState.isShowingADs {
-                    AdmobBannerView(adUnitID: Variables.admobConfigUnitID)
+                Section {
+                    Picker(String(localized: "config-conversation-language"), selection: $viewState.conversationLanguage) {
+                        ForEach(ConversationLanguage.allCases) { language in
+                            Text(language.displayName).tag(language)
+                        }
+                    }
+                    Toggle(String(localized: "config-use-calendar"), isOn: Binding(
+                        get: { viewState.useCalendarInConversation },
+                        set: { viewState.setUseCalendarInConversation($0) }
+                    ))
+                    Toggle(String(localized: "config-mention-schedule-on-call"), isOn: Binding(
+                        get: { viewState.mentionScheduleOnCall },
+                        set: { viewState.setMentionScheduleOnCall($0) }
+                    ))
+                } header: {
+                    Text(String(localized: "config-conversation"))
+                } footer: {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(String(localized: "config-conversation-language-footer"))
+                        Text(String(localized: "config-use-calendar-footer"))
+                        Text(String(localized: "config-mention-schedule-on-call-footer"))
+                    }
+                }
+
+                Section(String(localized: "config-premium-plan")) {
+                    Button(String(localized: "config-about-premium-plan")) {
+                        viewState.subscriptionButtonTapped()
+                    }
+                }
+
+                Section(String(localized: "config-contact")) {
+                    NavigationLink(String(localized: "config-contact")) {
+                        ContactView(viewState: ContactViewState())
+                    }
+                }
+
+                Section(String(localized: "config-developer-info")) {
+                    if let url = URL(string: OfficialDiscordUrlString) {
+                        Link(String(localized: "config-official-discord"), destination: url)
+                    }
+                    if let url = URL(string: OfficialTwitterUrlString) {
+                        Link(String(localized: "config-official-twitter"), destination: url)
+                    }
+
+                    #if DEBUG
+                    // ずんだもん会話の開発用動線（本番の動線はホーム画面の電話ボタン）
+                    // Stub: 返答はオウム返し（キャラの会話の設定はサーバから取得する）
+                    NavigationLink("[DEBUG] ずんだもんと通話 (Stub)") {
+                        ConversationView(charaID: Self.debugConversationCharaID, textGenerationRepository: StubTextGenerationRepository())
+                    }
+                    #endif
+
+                    // 同梱した時守しおりの VRM の表示確認（サーバに登録していなくても見られる）。
+                    // TestFlight で試すため Release ビルドでも出す。5.0.0 のリリース前に外す
+                    if let shioriModelURL = URL(string: "\(Variables.resourceEndpoint)/com.charalarm.shiori/shiori.vrm") {
+                        NavigationLink("[試作] VRM プレビュー（時守しおり）") {
+                            CharaVRMView(charaID: "com.charalarm.shiori", modelFileURL: shioriModelURL, framing: .full)
+                        }
+                    }
+                }
+
+                Section(String(localized: "config-application-info")) {
+                    LabeledContent(String(localized: "config-version-info"), value: viewState.versionString)
+                    NavigationLink(String(localized: "config-license")) {
+                        LicenceView()
+                    }
+                    Button(String(localized: "config-other-app-setting")) {
+                        if let settingsUrl = URL(string: UIApplication.openSettingsURLString) {
+                            openURL(settingsUrl)
+                        }
+                    }
+                }
+
+                Section {
+                    Button(String(localized: "config-reset"), role: .destructive) {
+                        viewState.resetButtonTapped()
+                    }
+                    .alert(String(localized: "config-reset"), isPresented: $viewState.showingResetAlert) {
+                        Button(String(localized: "common-cancel"), role: .cancel) {}
+                        Button(String(localized: "common-reset"), role: .destructive) {
+                            viewState.withdraw()
+                        }
+                    } message: {
+                        Text(String(localized: "config-are-you-sure-you-want-to-reset-the-app"))
+                    }
                 }
             }
-            .toolbar(.visible, for: .navigationBar)
-            .toolbarBackground(.visible, for: .navigationBar)
-            .toolbarBackground(Color(.appMain), for: .navigationBar)
+            .bannerAd(isShowing: viewState.isShowingADs, adUnitID: Variables.admobConfigUnitID)
+            .navigationTitle(String(localized: "config-config"))
             .navigationBarTitleDisplayMode(.inline)
-            .navigationBarBackButtonHidden()
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Button(action: {
+                    CloseBarButton {
                         dismiss()
-                    }) {
-                        Image(systemName: "xmark")
-                            .font(.system(size: 18, weight: .semibold))
-                            .padding(.top, 4)
-                            .padding(.trailing, 4)
-                            .padding(.bottom, 4)
-                            .foregroundStyle(Color.white)
                     }
-                }
-                ToolbarItem(placement: .principal) {
-                    Text(String(localized: "config-config"))
-                        .foregroundStyle(Color.white)
-                        .font(.system(size: 18, weight: .semibold))
                 }
             }
         }
-        .fullScreenCover(isPresented: $viewState.showingSubscriptionSheet, content: {
+        .fullScreenCover(isPresented: $viewState.showingSubscriptionSheet) {
             SubscriptionView(viewState: SubscriptionViewState())
-        })
+        }
         .alert("", isPresented: $viewState.showingAlert) {
             Button(String(localized: "common-close")) {}
         } message: {
