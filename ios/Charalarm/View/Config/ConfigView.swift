@@ -19,6 +19,12 @@ struct ConfigView: View {
                 }
 
                 Section {
+                    NavigationLink(String(localized: "config-background")) {
+                        BackgroundSelectionView()
+                    }
+                }
+
+                Section {
                     Picker(String(localized: "config-conversation-language"), selection: $viewState.conversationLanguage) {
                         ForEach(ConversationLanguage.allCases) { language in
                             Text(language.displayName).tag(language)

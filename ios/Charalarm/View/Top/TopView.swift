@@ -4,10 +4,11 @@ import GoogleMobileAds
 struct TopView: View {
     @State var viewState = TopViewState()
     @State private var adDelegate = AdmobRewardedHandler()
+    @AppStorage(TopBackground.defaultsKey) private var selectedBackground = TopBackground.washitsu.rawValue
 
     var body: some View {
         ZStack {
-            Image(.background)
+            Image(TopBackground.from(selectedBackground).image)
                 .resizable()
                 .scaledToFill()
                 .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity)
