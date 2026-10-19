@@ -81,6 +81,18 @@ targetTemplates:
     platform: iOS
     destinations: [iPhone]
     dependencies: *commonDependencies
+    postBuildScripts:
+      # アーカイブ（Release）のときだけ、ビルド番号を日本時間の年月日時分（例: 202610191530）にする。
+      # TestFlight は同じバージョン・同じビルド番号を受け付けないので、手で上げなくてよいように。
+      # 出来上がった Info.plist だけを書き換え、git には書き戻さない（Debug は CURRENT_PROJECT_VERSION のまま）
+      - name: Set Build Number
+        basedOnDependencyAnalysis: false
+        script: |
+          if [ "${CONFIGURATION}" = "Release" ]; then
+            build_number=$(TZ=Asia/Tokyo date +%Y%m%d%H%M)
+            /usr/libexec/PlistBuddy -c "Set :CFBundleVersion ${build_number}" "${TARGET_BUILD_DIR}/${INFOPLIST_PATH}"
+            echo "CFBundleVersion: ${build_number}"
+          fi
 
 targets:
   CharalarmDevelop:
