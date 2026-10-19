@@ -13,20 +13,22 @@ struct BackgroundSelectionView: View {
                         selectedBackground = background.rawValue
                     } label: {
                         VStack(spacing: 8) {
-                            Image(background.imageName)
+                            Image(background.image)
                                 .resizable()
                                 .scaledToFill()
                                 .frame(height: 190)
                                 .frame(maxWidth: .infinity)
                                 .clipped()
                                 .clipShape(RoundedRectangle(cornerRadius: 12))
+                                .accessibilityHidden(true)
 
                             HStack(spacing: 4) {
                                 Text(background.title)
                                 Spacer(minLength: 0)
-                                if selectedBackground == background.rawValue {
+                                if TopBackground.from(selectedBackground) == background {
                                     Image(systemName: "checkmark.circle.fill")
                                         .foregroundStyle(Color.brand)
+                                        .accessibilityHidden(true)
                                 }
                             }
                             .font(.subheadline.weight(.medium))
@@ -36,11 +38,11 @@ struct BackgroundSelectionView: View {
                         .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 16))
                         .overlay {
                             RoundedRectangle(cornerRadius: 16)
-                                .strokeBorder(selectedBackground == background.rawValue ? Color.brand : .clear, lineWidth: 2)
+                                .strokeBorder(TopBackground.from(selectedBackground) == background ? Color.brand : .clear, lineWidth: 2)
                         }
                     }
                     .buttonStyle(.plain)
-                    .accessibilityAddTraits(selectedBackground == background.rawValue ? .isSelected : [])
+                    .accessibilityAddTraits(TopBackground.from(selectedBackground) == background ? .isSelected : [])
                 }
             }
             .padding(16)

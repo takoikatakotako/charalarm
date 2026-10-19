@@ -12,14 +12,18 @@ enum TopBackground: String, CaseIterable, Identifiable {
 
     var id: String { rawValue }
 
-    var imageName: String {
+    static func from(_ rawValue: String) -> TopBackground {
+        TopBackground(rawValue: rawValue) ?? .washitsu
+    }
+
+    var image: ImageResource {
         switch self {
-        case .washitsu: "background"
-        case .office: "background-office"
-        case .bedroom: "background-bedroom"
-        case .livingRoom: "background-living-room"
-        case .cafe: "background-cafe"
-        case .library: "background-library"
+        case .washitsu: .background
+        case .office: .backgroundOffice
+        case .bedroom: .backgroundBedroom
+        case .livingRoom: .backgroundLivingRoom
+        case .cafe: .backgroundCafe
+        case .library: .backgroundLibrary
         }
     }
 

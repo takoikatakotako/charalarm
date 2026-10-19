@@ -8,7 +8,7 @@ struct TopView: View {
 
     var body: some View {
         ZStack {
-            Image((TopBackground(rawValue: selectedBackground) ?? .washitsu).imageName)
+            Image(TopBackground.from(selectedBackground).image)
                 .resizable()
                 .scaledToFill()
                 .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity)
