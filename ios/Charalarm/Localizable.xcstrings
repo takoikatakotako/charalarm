@@ -752,6 +752,48 @@
         }
       }
     },
+    "background-washitsu" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Japanese room" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "和室" } }
+      }
+    },
+    "background-office" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Office" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "オフィス" } }
+      }
+    },
+    "background-bedroom" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Bedroom" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "寝室" } }
+      }
+    },
+    "background-living-room" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Living room" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "リビング" } }
+      }
+    },
+    "background-cafe" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Cafe" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "カフェ" } }
+      }
+    },
+    "background-library" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Library" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "図書室" } }
+      }
+    },
+    "config-background" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Background" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "背景" } }
+      }
+    },
     "config-config" : {
       "comment" : "Config",
       "localizations" : {
