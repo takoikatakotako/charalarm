@@ -27,23 +27,6 @@ struct TopView: View {
                 }
             }
 
-            // タップで流したセリフの吹き出し（タップのじゃまをしない）
-            if let tapLineText = viewState.tapLinePlayer.text {
-                VStack {
-                    Text(tapLineText)
-                        .font(.callout)
-                        .foregroundStyle(Color.black)
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 10)
-                        .background(Color.white.opacity(0.9), in: RoundedRectangle(cornerRadius: 16))
-                        .padding(.horizontal, 32)
-                        .padding(.top, 150)
-                    Spacer()
-                }
-                .allowsHitTesting(false)
-                .transition(.opacity)
-            }
-
             Button(action: {
                 viewState.tapped()
             }) {
@@ -107,9 +90,21 @@ struct TopView: View {
 
                 Spacer()
 
-                // 下: 時計と、キャラ・アラーム・電話・設定
+                // 下: タップで流したセリフと、キャラ・アラーム・電話・設定
                 VStack(spacing: 12) {
-                    TopTimeView()
+                    if let tapLineText = viewState.tapLinePlayer.text {
+                        Text(tapLineText)
+                            .font(.callout)
+                            .foregroundStyle(Color.black)
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 10)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .background(Color.white.opacity(0.9), in: RoundedRectangle(cornerRadius: 16))
+                            .padding(.horizontal, 16)
+                            // キャラをタップするじゃまをしない
+                            .allowsHitTesting(false)
+                            .transition(.opacity)
+                    }
 
                     HStack(spacing: 0) {
                         Button {
