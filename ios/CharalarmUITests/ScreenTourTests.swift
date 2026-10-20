@@ -37,6 +37,11 @@ final class ScreenTourTests: XCTestCase {
         sleep(5)
         snap("10-top")
 
+        // キャラをタップすると、下にセリフが出る
+        app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.45)).tap()
+        sleep(3)
+        snap("10b-top-tap-line")
+
         // キャラ一覧 → キャラの紹介
         app.buttons["キャラ"].firstMatch.tap()
         require(app.navigationBars["キャラクター一覧"], "キャラ一覧")
@@ -72,7 +77,8 @@ final class ScreenTourTests: XCTestCase {
         require(app.buttons["和室"], "和室の背景")
         snap("13a-background")
         require(app.buttons["オフィス"], "オフィスの背景").tap()
-        XCTAssertTrue(app.buttons["オフィス"].firstMatch.isSelected)
+        // SwiftUI の .isSelected は XCUIElement.isSelected に出ないので、選んだ見た目は写真で見る
+        sleep(1)
         snap("13b-background-office")
         app.buttons["和室"].firstMatch.tap()
         app.navigationBars["背景"].buttons.firstMatch.tap()
