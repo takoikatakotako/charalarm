@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"log/slog"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -59,6 +60,7 @@ func (h *Chat) ChatPost(c echo.Context) error {
 		case common.ErrorAuthenticationFailure:
 			return c.JSON(http.StatusUnauthorized, response.Message{Message: "Unauthorized"})
 		}
+		slog.Error("chat failed", slog.String("chara", req.CharaID), slog.String("error", err.Error()))
 		return c.JSON(http.StatusInternalServerError, response.Message{Message: "Error!"})
 	}
 

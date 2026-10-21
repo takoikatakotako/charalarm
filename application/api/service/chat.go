@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 	"strings"
 	"time"
 	"unicode/utf8"
@@ -210,56 +211,61 @@ func hasCapability(input ChatInput, capability string) bool {
 // 端末の値は書き換えられる前提で、件数・長さの上限と role を確かめる。
 func validateChatInput(input ChatInput) error {
 	if len(input.Messages) == 0 || len(input.Messages) > chatMaxMessages {
-		return errors.New(common.ErrorInvalidValue)
+		return invalidValue("chat: message count", slog.Int("messages", len(input.Messages)), slog.Int("max", chatMaxMessages))
 	}
 	for _, c := range input.Capabilities {
 		if c != CapabilityCalendarRead {
-			return errors.New(common.ErrorInvalidValue)
+			return invalidValue("chat: unknown capability", slog.String("capability", c))
 		}
 	}
 	for _, m := range input.Messages {
 		// system は場面の指示 (電話に出た・会話を終える等) に使う。呼び出し側が場面を知っているため
 		if m.Role != llm.RoleSystem && m.Role != llm.RoleUser && m.Role != llm.RoleAssistant && m.Role != llm.RoleTool {
-			return errors.New(common.ErrorInvalidValue)
+			return invalidValue("chat: unknown role", slog.String("role", string(m.Role)))
 		}
 		// 道具の結果
 		if m.Role == llm.RoleTool {
 			if m.ToolCallID == "" || utf8.RuneCountInString(m.Content) > chatMaxToolResultLength {
-				return errors.New(common.ErrorInvalidValue)
+				return invalidValue("chat: tool result", slog.Bool("has_tool_call_id", m.ToolCallID != ""),
+					slog.Int("chars", utf8.RuneCountInString(m.Content)), slog.Int("max", chatMaxToolResultLength))
 			}
 			continue
 		}
 		// 道具の呼び出し (ひとことは空でもよい)
 		if len(m.ToolCalls) > 0 {
 			if m.Role != llm.RoleAssistant || len(m.ToolCalls) > chatMaxToolCalls || utf8.RuneCountInString(m.Content) > chatMaxMessageLength {
-				return errors.New(common.ErrorInvalidValue)
+				return invalidValue("chat: tool call", slog.String("role", string(m.Role)),
+					slog.Int("tool_calls", len(m.ToolCalls)), slog.Int("chars", utf8.RuneCountInString(m.Content)))
 			}
 			for _, call := range m.ToolCalls {
 				if call.Name != ToolCalendarToday {
-					return errors.New(common.ErrorInvalidValue)
+					return invalidValue("chat: unknown tool", slog.String("tool", call.Name))
 				}
 			}
 			continue
 		}
 		if m.Content == "" || utf8.RuneCountInString(m.Content) > chatMaxMessageLength {
-			return errors.New(common.ErrorInvalidValue)
+			return invalidValue("chat: message length", slog.String("role", string(m.Role)),
+				slog.Int("chars", utf8.RuneCountInString(m.Content)), slog.Int("max", chatMaxMessageLength))
 		}
 	}
 	if input.Language != "" && !database.IsSupportedLanguage(input.Language) {
-		return errors.New(common.ErrorInvalidValue)
+		return invalidValue("chat: unsupported language", slog.String("language", input.Language))
 	}
 	if utf8.RuneCountInString(input.TodayEvents) > chatMaxToolResultLength {
-		return errors.New(common.ErrorInvalidValue)
+		return invalidValue("chat: today events length",
+			slog.Int("chars", utf8.RuneCountInString(input.TodayEvents)), slog.Int("max", chatMaxToolResultLength))
 	}
 	if utf8.RuneCountInString(input.Memory) > chatMaxMemoryLength {
-		return errors.New(common.ErrorInvalidValue)
+		return invalidValue("chat: memory length",
+			slog.Int("chars", utf8.RuneCountInString(input.Memory)), slog.Int("max", chatMaxMemoryLength))
 	}
 	if input.Context != nil {
 		if _, err := time.Parse(time.RFC3339, input.Context.Now); err != nil {
-			return errors.New(common.ErrorInvalidValue)
+			return invalidValue("chat: context.now is not RFC3339")
 		}
 		if utf8.RuneCountInString(input.Context.TimeZone) > chatMaxTimeZoneLength {
-			return errors.New(common.ErrorInvalidValue)
+			return invalidValue("chat: time zone length", slog.Int("chars", utf8.RuneCountInString(input.Context.TimeZone)))
 		}
 	}
 	return nil

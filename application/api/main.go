@@ -3,7 +3,9 @@ package main
 import (
 	"context"
 	"log"
+	"log/slog"
 	"net/http"
+	"os"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -17,6 +19,9 @@ import (
 )
 
 func main() {
+	// アプリのログは CloudWatch Logs Insights で絞り込めるよう JSON で出す
+	slog.SetDefault(slog.New(slog.NewJSONHandler(os.Stdout, nil)))
+
 	// "ssm:///path" 形式の環境変数を Parameter Store の値に解決する
 	// (OPENAI_API_KEY 等の秘密値を Lambda 環境変数/state に平文で残さないため)
 	if err := environment.ResolveSSMEnv(context.Background()); err != nil {

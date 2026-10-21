@@ -7,6 +7,14 @@ enum ConversationMode {
     /// CallKit 着信フロー経由。着信音・音声セッションは CallKit が管理し、
     /// 終了は CXEndCallAction 経由でシステム通話を終わらせる。
     case callKit(callUUID: UUID?)
+
+    /// ログに出す名前
+    var logName: String {
+        switch self {
+        case .standalone: return "standalone"
+        case .callKit: return "callKit"
+        }
+    }
 }
 
 /// 会話の始め方。
@@ -17,6 +25,15 @@ enum ConversationTopic {
     case todaySchedule
     /// トップの「話題」。キャラがニュースの見出しを紹介してから、そのまま話せる
     case trendNews([TrendNews])
+
+    /// ログに出す名前（ニュースの中身は出さない）
+    var logName: String {
+        switch self {
+        case .call: return "call"
+        case .todaySchedule: return "todaySchedule"
+        case .trendNews: return "trendNews"
+        }
+    }
 
     /// 電話か（着信音を鳴らすか）
     var isCall: Bool {

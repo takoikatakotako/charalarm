@@ -15,14 +15,16 @@ extension ConversationViewState {
             do {
                 let input = try await recognizeUserSpeech()
                 if !input.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    CharalarmLogger.breadcrumb("聞き取り: できた chars=\(input.count)")
                     return input
                 }
-                CharalarmLogger.debug("音声認識が空でした（\(attempt)回目）")
+                CharalarmLogger.breadcrumb("聞き取り: 空（\(attempt)回目）")
             } catch {
                 CharalarmLogger.error("音声認識エラー", error: error)
             }
             resetRecognition()
         }
+        CharalarmLogger.breadcrumb("聞き取り: 3回とも聞き取れなかった")
         return nil
     }
 

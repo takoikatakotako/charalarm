@@ -10,6 +10,14 @@ struct CharalarmLogger {
         logger.debug("\(message, privacy: .public)")
     }
 
+    /// 流れの区切り（電話に出た・返事を作った・声を流した など）。端末のログと Crashlytics に残し、
+    /// エラーやクラッシュが起きたとき、どこまで進んでいたかが分かるようにする。
+    /// 会話の中身や予定などの個人情報は入れず、段階・文字数・状態コードくらいにする。
+    static func breadcrumb(_ message: String) {
+        logger.info("\(message, privacy: .public)")
+        Crashlytics.crashlytics().log(message)
+    }
+
     static func info(_ message: String, error: Error? = nil, attributes: [String: String]? = nil) {
         record(level: "info", message: message, error: error, attributes: attributes)
     }

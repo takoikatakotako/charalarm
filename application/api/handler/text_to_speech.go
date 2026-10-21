@@ -2,6 +2,7 @@ package handler
 
 import (
 	"errors"
+	"log/slog"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -40,7 +41,7 @@ func (h *TextToSpeech) TextToSpeechPost(c echo.Context) error {
 		case common.ErrorAuthenticationFailure:
 			return c.JSON(http.StatusUnauthorized, response.Message{Message: "Unauthorized"})
 		}
-		c.Logger().Error(err)
+		slog.Error("tts failed", slog.String("chara", req.CharaID), slog.String("error", err.Error()))
 		return c.JSON(http.StatusInternalServerError, response.Message{Message: "Error!"})
 	}
 
