@@ -36,10 +36,7 @@ struct APIClient {
         }
 
         guard (200 ... 299) ~= urlResponse.statusCode else {
-            if (try? JSONDecoder().decode(MessageResponse.self, from: data)) == nil {
-                throw CharalarmError.clientError
-            }
-            throw CharalarmError.clientError
+            throw CharalarmError.httpStatus(path: url.path, statusCode: urlResponse.statusCode)
         }
 
         let decoder = JSONDecoder()
@@ -63,7 +60,7 @@ struct APIClient {
         }
 
         guard (200 ... 299) ~= urlResponse.statusCode else {
-            throw CharalarmError.clientError
+            throw CharalarmError.httpStatus(path: url.path, statusCode: urlResponse.statusCode)
         }
         return data
     }
@@ -83,7 +80,7 @@ struct APIClient {
         }
 
         guard (200 ... 299) ~= urlResponse.statusCode else {
-            throw CharalarmError.clientError
+            throw CharalarmError.httpStatus(path: url.path, statusCode: urlResponse.statusCode)
         }
     }
 }

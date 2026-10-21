@@ -108,7 +108,12 @@ final class ConversationViewState: NSObject {
                 // ユーザーが自分で直せるので、何をすればよいかを出す
                 text = error.localizedDescription
             } catch {
-                CharalarmLogger.error("会話エラー", error: error)
+                CharalarmLogger.error("会話エラー", error: error, attributes: [
+                    "conversation_status": "\(status)",
+                    "conversation_mode": mode.logName,
+                    "conversation_topic": topic.logName,
+                    "conversation_language": language.rawValue
+                ])
                 text = "ごめんなさい、うまくつながりませんでした。少し時間をあけて、またかけてみてください。"
                 #if DEBUG
                 text += "\n\n[DEBUG] \(error)"
@@ -169,6 +174,7 @@ final class ConversationViewState: NSObject {
     private func startConversation() async throws {
         // キャラの会話の設定を取得し、声を準備する
         status = .preparing
+        CharalarmLogger.breadcrumb("会話: 開始 chara=\(charaID) mode=\(mode.logName) topic=\(topic.logName)")
         let chara = try await apiRepository.fetchCharacter(charaID: charaID)
         guard let conversation = chara.conversation else {
             throw ConversationError.notConversationChara
@@ -176,6 +182,7 @@ final class ConversationViewState: NSObject {
         self.conversation = conversation
         language = conversation.language(preferred: UserDefaultsRepository().getConversationLanguage())
         recognizer = SFSpeechRecognizer(locale: language.locale)
+        CharalarmLogger.breadcrumb("会話: 設定を取得 language=\(language.rawValue) voice=\(conversation.voiceProvider.rawValue)")
         charaName = chara.name
         // ユーザーがキャラ詳細で選んだ見た目（なければ既定）が 3D なら、会話の画面にも出す
         if case .vrm(let modelFileURL) = chara.appearance(preferred: UserDefaultsRepository().getPreferredAppearance(charaID: charaID)) {
@@ -263,6 +270,7 @@ final class ConversationViewState: NSObject {
 
     /// キャラの返事を作る。キャラがカレンダーを見るあいだは、そのひとこと（「ちょっと見てみますね」）を先に話す
     private func generateResponse(todayEvents: TodayEventsPolicy = .none) async throws -> String {
+        CharalarmLogger.breadcrumb("返事: 作る messages=\(chatMessages.count)")
         var fillerTask: Task<Void, Never>?
         let response = try await textGenerationRepository.generateResponse(
             charaID: charaID,
@@ -273,10 +281,19 @@ final class ConversationViewState: NSObject {
             guard let self else { return }
             self.stopRingtone()
             self.text = filler
-            fillerTask = Task { try? await self.synthesizeAndPlayVoiceInChunks(from: filler, interruptible: false) }
+            CharalarmLogger.breadcrumb("返事: カレンダーを見るひとこと chars=\(filler.count)")
+            fillerTask = Task {
+                do {
+                    try await self.synthesizeAndPlayVoiceInChunks(from: filler, interruptible: false)
+                } catch {
+                    // ひとことが流せなくても返事は続ける。ただ無音になった理由は残す
+                    CharalarmLogger.error("カレンダーを見るひとことを流せませんでした", error: error)
+                }
+            }
         }
         // ひとことを話し終えてから返事を話す
         await fillerTask?.value
+        CharalarmLogger.breadcrumb("返事: できた chars=\(response.count)")
         return response
     }
 
@@ -286,6 +303,7 @@ final class ConversationViewState: NSObject {
         }
 
         status = .generatingScript
+        CharalarmLogger.breadcrumb("会話: 終える")
         let farewellScript = try await generateResponse()
         chatMessages.append(ChatMessage(role: .assistant, content: farewellScript))
         text = farewellScript
@@ -294,6 +312,7 @@ final class ConversationViewState: NSObject {
 
         status = .ended
         conversationTimer?.invalidate()
+        CharalarmLogger.breadcrumb("会話: 終了")
 
         finishConversation()
     }
@@ -315,7 +334,12 @@ final class ConversationViewState: NSObject {
             throw ConversationError.notConversationChara
         }
         status = .synthesizingVoice
-        return try await textToSpeechRepository.synthesize(text: script)
+        do {
+            return try await textToSpeechRepository.synthesize(text: script)
+        } catch {
+            CharalarmLogger.breadcrumb("声: 合成に失敗 chars=\(script.count)")
+            throw error
+        }
     }
 
     /// キャラの返事をチャンクに分けて、合成しながら流す。
@@ -323,6 +347,7 @@ final class ConversationViewState: NSObject {
     private func synthesizeAndPlayVoiceInChunks(from text: String, interruptible: Bool = true) async throws {
         let chunks = TextChunker.split(text)
         guard !chunks.isEmpty else { return }
+        CharalarmLogger.breadcrumb("声: 流す chunks=\(chunks.map(\.count))")
 
         isBargedIn = false
         if interruptible {
@@ -347,7 +372,10 @@ final class ConversationViewState: NSObject {
         }
 
         if isBargedIn {
+            CharalarmLogger.breadcrumb("声: 話しかけられて止めた played=\(playedCount)/\(chunks.count)")
             markInterrupted(playedText: chunks.prefix(playedCount).joined())
+        } else {
+            CharalarmLogger.breadcrumb("声: 流し終えた played=\(playedCount)/\(chunks.count)")
         }
     }
 
