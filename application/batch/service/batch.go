@@ -114,7 +114,13 @@ func (b *Batch) forIOSVoIPPushNotification(resourceBaseURL string, alarm databas
 				return err
 			}
 			charaCallVoicesCount := len(chara.Calls)
-			if charaCallVoicesCount == 0 {
+			if charaCallVoicesCount == 0 && chara.ConversationTypeOf() != database.ConversationTypeNone {
+				// 会話できるキャラは録音ボイスを使わず端末で会話するので、ボイスがなくてもそのキャラで鳴らす
+				b.randomCharaNameAndVoiceFileURL[alarm.CharaID] = CharaNameAndVoiceFilePath{
+					CharaID:   chara.CharaID,
+					CharaName: chara.Name,
+				}
+			} else if charaCallVoicesCount == 0 {
 				// アラームのボイスがまだないキャラは、鳴らさないよりはランダムなキャラで鳴らす
 				slog.Warn("chara has no call voice, use random chara", slog.String("charaID", alarm.CharaID))
 				b.randomCharaNameAndVoiceFileURL[alarm.CharaID] = b.randomCharaNameAndVoiceFileURL["RANDOM"]

@@ -74,7 +74,9 @@ func chatLanguageInstruction(language string) string {
 }
 
 // chatSpeechInstruction は全キャラ共通の話し方の指示。返答は音声で読み上げるため。
-const chatSpeechInstruction = "返答はそのまま音声で読み上げます。絵文字・顔文字・飾りの記号（✨や★など）・箇条書き・マークダウンは使わず、話し言葉の文だけで答えてください。句読点（、。！？）は普通に使ってください。"
+// 読み上げの費用は話す長さで決まるので、返事は短くしてもらう。
+const chatSpeechInstruction = "返答はそのまま音声で読み上げます。絵文字・顔文字・飾りの記号（✨や★など）・箇条書き・マークダウンは使わず、話し言葉の文だけで答えてください。句読点（、。！？）は普通に使ってください。" +
+	"ふだんの会話では、1〜2文（60文字くらいまで）で短く返してください。予定やニュースを読むように頼まれたときも、要点だけを短くまとめてください。"
 
 // ChatReply は Reply の結果。ToolCalls があれば、端末で道具を実行して結果を足して呼び直してもらう
 // (Text はそのあいだに話すひとこと)。
@@ -87,6 +89,8 @@ type ChatReply struct {
 type Chat struct {
 	AWS       infrastructure.AWS
 	LLMClient llm.Client
+	// Usage は1日の上限。nil なら数えない。
+	Usage *UsageLimit
 }
 
 // ChatContext は端末から渡すその場の情報。
@@ -130,6 +134,9 @@ func (s *Chat) Reply(ctx context.Context, userID string, authToken string, input
 	}
 	if user.UserID != userID || user.AuthToken != authToken {
 		return ChatReply{}, errors.New(common.ErrorAuthenticationFailure)
+	}
+	if err := s.Usage.Use(user, 1, 0, time.Now()); err != nil {
+		return ChatReply{}, err
 	}
 
 	// キャラの人格プロンプトはサーバ側で管理する (アプリ更新なしで性格を変えられる)

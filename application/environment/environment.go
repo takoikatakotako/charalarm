@@ -1,6 +1,9 @@
 package environment
 
-import "os"
+import (
+	"os"
+	"strconv"
+)
 
 type Environment struct {
 	Profile         string
@@ -94,4 +97,52 @@ func LoadTTSEnvironment() TTSEnvironment {
 		e.Voice = val
 	}
 	return e
+}
+
+// RevenueCatEnvironment は RevenueCat (課金) の Webhook を受けるための設定。
+type RevenueCatEnvironment struct {
+	// WebhookAuthorization は RevenueCat の Webhook に設定した Authorization ヘッダの値。空なら Webhook を受けない。
+	WebhookAuthorization string
+	// EntitlementID はプレミアムプランの Entitlement の ID。
+	EntitlementID string
+}
+
+// LoadRevenueCatEnvironment は RevenueCat の設定を環境変数から読む。
+func LoadRevenueCatEnvironment() RevenueCatEnvironment {
+	e := RevenueCatEnvironment{
+		WebhookAuthorization: os.Getenv("CHARALARM_REVENUECAT_WEBHOOK_AUTHORIZATION"),
+		EntitlementID:        "premium",
+	}
+	if val, exists := os.LookupEnv("CHARALARM_REVENUECAT_ENTITLEMENT_ID"); exists && val != "" {
+		e.EntitlementID = val
+	}
+	return e
+}
+
+// UsageLimitEnvironment は会話と読み上げの1日の上限。費用が膨らみすぎないようにする。
+type UsageLimitEnvironment struct {
+	DailyChat         int
+	DailyTTSChars     int
+	PremiumMultiplier int
+}
+
+// LoadUsageLimitEnvironment は1日の上限を環境変数から読む。0 にすると数えない。
+func LoadUsageLimitEnvironment() UsageLimitEnvironment {
+	return UsageLimitEnvironment{
+		DailyChat:         intEnv("CHARALARM_DAILY_CHAT_LIMIT", 60),
+		DailyTTSChars:     intEnv("CHARALARM_DAILY_TTS_CHARS_LIMIT", 3000),
+		PremiumMultiplier: intEnv("CHARALARM_PREMIUM_LIMIT_MULTIPLIER", 3),
+	}
+}
+
+func intEnv(key string, defaultValue int) int {
+	val, exists := os.LookupEnv(key)
+	if !exists || val == "" {
+		return defaultValue
+	}
+	n, err := strconv.Atoi(val)
+	if err != nil {
+		return defaultValue
+	}
+	return n
 }

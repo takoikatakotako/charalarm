@@ -110,6 +110,24 @@ resource "aws_dynamodb_table" "chara_tap_line_table" {
   }
 }
 
+# 会話と読み上げの1日の使用量 (費用が膨らみすぎないよう数える)。古い日の分は TTL で消える
+resource "aws_dynamodb_table" "usage_table" {
+  name           = "usage-table"
+  hash_key       = "usageKey"
+  billing_mode   = "PAY_PER_REQUEST"
+  stream_enabled = false
+
+  attribute {
+    name = "usageKey"
+    type = "S"
+  }
+
+  ttl {
+    attribute_name = "expiresAt"
+    enabled        = true
+  }
+}
+
 resource "aws_dynamodb_table" "news_table" {
   name           = "news-table"
   hash_key       = "newsID"
