@@ -1,54 +1,57 @@
 import SwiftUI
 
-/// 話題のニュースの一覧。「読んでもらう」でキャラが見出しを紹介する。
-struct TrendNewsView: View {
-    @Environment(\.dismiss) private var dismiss
+/// 話題のニュースの一覧。ニュースを押すと、キャラがそのニュースを紹介する。
+/// お知らせと同じ画面（NewsHubView）のタブに入れる。
+struct TrendNewsList: View {
     let repository: TrendNewsRepository
-    /// 「読んでもらう」を押したときに、表示中のニュースを渡す
+    /// 押したニュースを渡す（キャラが紹介する）
     let onRead: ([TrendNews]) -> Void
 
     @State private var newsList: [TrendNews] = []
     @State private var failed = false
 
     var body: some View {
-        NavigationStack {
-            List {
-                if repository.isSample {
-                    Text(String(localized: "trend-news-sample-notice"))
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
-                }
-                ForEach(newsList) { news in
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(news.title)
-                            .font(.headline)
-                        Text(news.summary)
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                    }
-                    .padding(.vertical, 4)
-                }
-                if failed {
-                    Text(String(localized: "trend-news-failed"))
-                        .foregroundStyle(.secondary)
+        List {
+            if repository.isSample {
+                Text(String(localized: "trend-news-sample-notice"))
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+            }
+            if !newsList.isEmpty {
+                Button {
+                    onRead(newsList)
+                } label: {
+                    Label(String(localized: "trend-news-read-all"), systemImage: "play.circle.fill")
+                        .font(.headline)
                 }
             }
-            .navigationTitle(String(localized: "trend-news-title"))
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    CloseBarButton {
-                        dismiss()
+            ForEach(newsList) { news in
+                Button {
+                    onRead([news])
+                } label: {
+                    HStack(alignment: .center, spacing: 12) {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(news.title)
+                                .font(.headline)
+                            Text(news.summary)
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                        }
+                        Spacer(minLength: 0)
+                        Image(systemName: "play.circle")
+                            .font(.title2)
+                            .foregroundStyle(Color.brand)
+                            .accessibilityHidden(true)
                     }
+                    .padding(.vertical, 4)
+                    .contentShape(Rectangle())
                 }
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button(String(localized: "trend-news-read")) {
-                        let news = newsList
-                        dismiss()
-                        onRead(news)
-                    }
-                    .disabled(newsList.isEmpty)
-                }
+                .buttonStyle(.plain)
+                .accessibilityHint(String(localized: "trend-news-read"))
+            }
+            if failed {
+                Text(String(localized: "trend-news-failed"))
+                    .foregroundStyle(.secondary)
             }
         }
         .task {
@@ -63,5 +66,5 @@ struct TrendNewsView: View {
 }
 
 #Preview {
-    TrendNewsView(repository: DummyTrendNewsRepository()) { _ in }
+    TrendNewsList(repository: DummyTrendNewsRepository()) { _ in }
 }

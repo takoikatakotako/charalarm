@@ -1,38 +1,42 @@
+import RevenueCat
 import StoreKit
 
 @MainActor @Observable final class SubscriptionViewState {
-    var product: Product?
+    var product: StoreProduct?
     var enableDisplayLock: Bool = false
     var showingAlert: Bool = false
     var alertMessage: String?
 
-    private let apiRepository = APIRepository()
-    private let userDefaultsRepository = UserDefaultsRepository()
+    private let subscriptionRepository = SubscriptionRepository()
     let openURLRepository = OpenURLRepository()
 
     var priceMessage: String {
-        if let product = product, let period = product.subscription?.subscriptionPeriod {
-            return "\(product.displayPrice) / \(period.unit)"
-        } else {
+        guard let product else {
             return "-- / --"
         }
+        if let period = product.sk2Product?.subscription?.subscriptionPeriod {
+            return "\(product.localizedPriceString) / \(period.unit.localizedDescription)"
+        }
+        return product.localizedPriceString
     }
 
     func onAppear() {
         Task { @MainActor in
             do {
-                let product = try await fetchProducts()
-                self.product = product
+                product = try await subscriptionRepository.fetchProduct()
+                if product == nil {
+                    throw SubscribeError.productUnavailable
+                }
             } catch {
+                CharalarmLogger.error("サブスクの情報を取れませんでした", error: error)
                 alertMessage = String(localized: "error-failed-to-get-subscription-info")
                 showingAlert = true
             }
         }
     }
 
-    @MainActor
     func upgradeButtonTapped() {
-        guard let product = self.product else {
+        guard let product else {
             alertMessage = String(localized: "error-failed-to-get-subscription-info")
             showingAlert = true
             return
@@ -40,13 +44,19 @@ import StoreKit
 
         Task { @MainActor in
             enableDisplayLock = true
+            defer { enableDisplayLock = false }
             do {
-                let transaction = try await purchase(product: product)
-                userDefaultsRepository.setEnablePremiumPlan(enable: true)
-                await transaction.finish()
-                enableDisplayLock = false
+                guard try await subscriptionRepository.purchase(product: product) else {
+                    // 買えたのにプレミアムにならない（RevenueCat の Entitlement の設定漏れなど）
+                    CharalarmLogger.error("購入後にプレミアムプランが有効になりませんでした")
+                    alertMessage = String(localized: "error-failed-to-update-premium-plan")
+                    showingAlert = true
+                    return
+                }
+            } catch SubscribeError.userCancelled {
+                // 自分でやめたので何も出さない
             } catch {
-                enableDisplayLock = false
+                CharalarmLogger.error("サブスクを買えませんでした", error: error)
                 alertMessage = String(localized: "error-failed-to-update-premium-plan")
                 showingAlert = true
             }
@@ -56,79 +66,21 @@ import StoreKit
     func restore() {
         Task { @MainActor in
             enableDisplayLock = true
-
+            defer { enableDisplayLock = false }
             do {
-                try await AppStore.sync()
-
-                var validSubscription: Transaction?
-                for await verificationResult in Transaction.currentEntitlements {
-                    if case .verified(let transaction) = verificationResult,
-                       transaction.productType == .autoRenewable && !transaction.isUpgraded {
-                        validSubscription = transaction
-                    }
-                }
-
-                guard validSubscription?.productID == nil else {
-                    // リストア対象じゃない場合
-                    enableDisplayLock = false
+                guard try await subscriptionRepository.restore() else {
+                    // 有効なサブスクリプションがない（復元するものがない）
                     alertMessage = String(localized: "error-failed-to-find-purchase-history")
                     showingAlert = true
                     return
                 }
-
-                // 特典を付与
-                userDefaultsRepository.setEnablePremiumPlan(enable: true)
                 alertMessage = String(localized: "subscription-restore-success")
                 showingAlert = true
             } catch {
-                enableDisplayLock = false
+                CharalarmLogger.error("サブスクを復元できませんでした", error: error)
                 alertMessage = String(localized: "error-failed-to-subscription-restore")
                 showingAlert = true
             }
-        }
-    }
-
-    private func fetchProducts() async throws -> Product? {
-        let productIdList = [Variables.subscriptionProductID]
-        let products: [Product] = try await Product.products(for: productIdList)
-        guard let product = products.first else {
-            return nil
-        }
-        return product
-    }
-
-    private func purchase(product: Product) async throws -> Transaction {
-        // Product.PurchaseResultの取得
-        let purchaseResult: Product.PurchaseResult
-        do {
-            purchaseResult = try await product.purchase()
-        } catch Product.PurchaseError.productUnavailable {
-            throw SubscribeError.productUnavailable
-        } catch Product.PurchaseError.purchaseNotAllowed {
-            throw SubscribeError.purchaseNotAllowed
-        } catch {
-            throw SubscribeError.otherError
-        }
-
-        // VerificationResultの取得
-        let verificationResult: VerificationResult<Transaction>
-        switch purchaseResult {
-        case .success(let result):
-            verificationResult = result
-        case .userCancelled:
-            throw SubscribeError.userCancelled
-        case .pending:
-            throw SubscribeError.pending
-        @unknown default:
-            throw SubscribeError.otherError
-        }
-
-        // Transactionの取得
-        switch verificationResult {
-        case .verified(let transaction):
-            return transaction
-        case .unverified:
-            throw SubscribeError.failedVerification
         }
     }
 }

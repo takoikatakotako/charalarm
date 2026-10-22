@@ -21,6 +21,10 @@ struct UserDefaultsRepository: UserDefaultsRepositoryProtocol {
     private let KEY_CONVERSATION_LANGUAGE = "CONVERSATION_LANGUAGE"
     private let KEY_USE_CALENDAR_IN_CONVERSATION = "USE_CALENDAR_IN_CONVERSATION"
     private let KEY_MENTION_SCHEDULE_ON_CALL = "MENTION_SCHEDULE_ON_CALL"
+    private let KEY_EXCLUDED_CALENDAR_IDS = "EXCLUDED_CALENDAR_IDS"
+    private let KEY_TAP_VOICE_IN_SILENT_MODE = "TAP_VOICE_IN_SILENT_MODE"
+    private let KEY_LAST_SEEN_NEWS_AT = "LAST_SEEN_NEWS_AT"
+    private let KEY_DID_SYNC_PURCHASES_TO_REVENUECAT = "DID_SYNC_PURCHASES_TO_REVENUECAT"
 
     // Defaults
     private let DEFAULT_CHARA_DOMAIN = "jp.zunko.zundamon"
@@ -97,6 +101,42 @@ struct UserDefaultsRepository: UserDefaultsRepositoryProtocol {
 
     func setMentionScheduleOnCall(_ mention: Bool) {
         UserDefaults.standard.set(mention, forKey: KEY_MENTION_SCHEDULE_ON_CALL)
+    }
+
+    /// 読んだいちばん新しいお知らせの日時（それより新しいお知らせがあればベルに点を付ける）
+    func getLastSeenNewsAt() -> Date? {
+        UserDefaults.standard.object(forKey: KEY_LAST_SEEN_NEWS_AT) as? Date
+    }
+
+    func setLastSeenNewsAt(_ date: Date) {
+        UserDefaults.standard.set(date, forKey: KEY_LAST_SEEN_NEWS_AT)
+    }
+
+    /// RevenueCat を入れる前に買ったサブスクを、RevenueCat に送り済みか
+    func getDidSyncPurchasesToRevenueCat() -> Bool {
+        UserDefaults.standard.bool(forKey: KEY_DID_SYNC_PURCHASES_TO_REVENUECAT)
+    }
+
+    func setDidSyncPurchasesToRevenueCat(_ didSync: Bool) {
+        UserDefaults.standard.set(didSync, forKey: KEY_DID_SYNC_PURCHASES_TO_REVENUECAT)
+    }
+
+    /// マナーモードでも、ホームでタップしたときの声を出す。最初はオフ（マナーモードでは鳴らさない）
+    func getTapVoiceInSilentMode() -> Bool {
+        UserDefaults.standard.bool(forKey: KEY_TAP_VOICE_IN_SILENT_MODE)
+    }
+
+    func setTapVoiceInSilentMode(_ enabled: Bool) {
+        UserDefaults.standard.set(enabled, forKey: KEY_TAP_VOICE_IN_SILENT_MODE)
+    }
+
+    /// 予定を読まないカレンダー（EKCalendar.calendarIdentifier）。一度も選んでいなければ nil
+    func getExcludedCalendarIDs() -> Set<String>? {
+        UserDefaults.standard.stringArray(forKey: KEY_EXCLUDED_CALENDAR_IDS).map(Set.init)
+    }
+
+    func setExcludedCalendarIDs(_ ids: Set<String>) {
+        UserDefaults.standard.set(Array(ids).sorted(), forKey: KEY_EXCLUDED_CALENDAR_IDS)
     }
 
     func setDefaultCharaDomain() {

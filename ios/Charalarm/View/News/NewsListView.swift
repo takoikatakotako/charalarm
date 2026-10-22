@@ -1,33 +1,22 @@
 import SwiftUI
 
-struct NewsListView: View {
-    @Environment(\.dismiss) private var dismiss
-    @State private var viewState = NewsListViewState()
+/// 運営からのお知らせの一覧。話題のニュースと同じ画面（NewsHubView）のタブに入れる
+struct NewsList: View {
+    let viewState: NewsListViewState
 
     var body: some View {
-        NavigationStack {
-            List(viewState.newsList) { news in
+        List {
+            ForEach(viewState.newsList) { news in
                 NewsRow(news: news)
             }
-            .navigationTitle(String(localized: "news-news"))
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    CloseBarButton {
-                        dismiss()
-                    }
-                }
+            if viewState.isLoaded && viewState.newsList.isEmpty {
+                Text(String(localized: "news-empty"))
+                    .foregroundStyle(.secondary)
             }
-        }.onAppear {
-            viewState.fetchNews()
-        }.alert("", isPresented: $viewState.showingAlert) {
-            Button(String(localized: "common-close")) {}
-        } message: {
-            Text(viewState.alertMessage)
         }
     }
 }
 
 #Preview {
-    NewsListView()
+    NewsList(viewState: NewsListViewState())
 }

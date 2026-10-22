@@ -47,14 +47,6 @@ extension APIRepository {
             iOSPlatformInfo: iOSPlatformInfo)
     }
 
-    func postUserUpdatePremium(userID: String, authToken: String, requestBody: UserUpdatePremiumPlanRequest) async throws {
-        let path = "/user/update-premium"
-        let url = try createURL(path: path)
-        let requestHeader: [String: String] = APIHeader.createAuthorizationRequestHeader(userID: userID, authToken: authToken)
-        let requestBody: Encodable? = requestBody
-        let _: MessageResponse = try await APIClient().request(url: url, httpMethod: .post, requestHeader: requestHeader, requestBody: requestBody)
-    }
-
     func postUserSignup(request: UserSignUpRequest) async throws {
         let path = "/user/signup"
         let url = try createURL(path: path)

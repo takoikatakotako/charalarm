@@ -10,6 +10,8 @@ struct LocalCharaResource: Codable {
     var defaultAppearance: String?
     /// トップでタップしたときのセリフ。これより前に保存したものは nil
     var tapLines: [TapLine]?
+    /// 会話できるキャラか（電話で録音ボイスではなく会話画面を出す）。これより前に保存したものは nil
+    var supportsConversation: Bool?
 
     init(chara: Chara) {
         self.charaID = chara.charaID
@@ -17,6 +19,7 @@ struct LocalCharaResource: Codable {
         self.modelFileURL = chara.modelFileURL
         self.defaultAppearance = chara.appearances.first?.kind.rawValue
         self.tapLines = chara.tapLines
+        self.supportsConversation = chara.conversation != nil
 
         var expressions: [String: CharaLocalExpression] = [:]
         chara.expressions.forEach { touple in

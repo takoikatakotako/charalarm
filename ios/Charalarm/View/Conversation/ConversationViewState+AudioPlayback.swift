@@ -35,11 +35,16 @@ extension ConversationViewState {
             return
         }
         let audioSession = AVAudioSession.sharedInstance()
-        try audioSession.setCategory(.playAndRecord, mode: .voiceChat, options: [.defaultToSpeaker, .allowBluetoothHFP])
-        try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
-
-        // エコーキャンセル。エンジンを動かす前に有効にする
-        try engine.inputNode.setVoiceProcessingEnabled(true)
+        if listensToUser {
+            try audioSession.setCategory(.playAndRecord, mode: .voiceChat, options: [.defaultToSpeaker, .allowBluetoothHFP])
+            try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
+            // エコーキャンセル。エンジンを動かす前に有効にする
+            try engine.inputNode.setVoiceProcessingEnabled(true)
+        } else {
+            // 読み上げるだけなのでマイクは使わない
+            try audioSession.setCategory(.playback, mode: .spokenAudio)
+            try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
+        }
         engine.attach(voicePlayerNode)
         engine.connect(voicePlayerNode, to: engine.mainMixerNode, format: Self.voiceFormat)
         engine.prepare()
@@ -105,7 +110,7 @@ extension ConversationViewState {
         finishPlayback()
     }
 
-    private func finishPlayback() {
+    func finishPlayback() {
         playbackContinuation?.resume()
         playbackContinuation = nil
     }

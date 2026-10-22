@@ -13,6 +13,7 @@ import Foundation
     private var recentLines: [TapLine] = []
     private var audioPlayer: AVAudioPlayer?
     private var hideTextTask: Task<Void, Never>?
+    private var restoreCategoryTask: Task<Void, Never>?
     private let repository = TapLineRepository()
     private let fileRepository: FileRepositoryProtocol = FileRepository()
 
@@ -79,10 +80,30 @@ import Foundation
         }
     }
 
-    /// ボイスを流す（表情のボイスにも使う）
+    /// ボイスを流す（表情のボイスにも使う）。
+    /// うっかり触ったときに鳴らないよう、マナーモードのときは鳴らさない（吹き出しのセリフは出す）。
+    /// 設定で「マナーモードでも声を出す」をオンにしていれば鳴らす
     func playVoice(_ data: Data) {
+        setAudioCategory(UserDefaultsRepository().getTapVoiceInSilentMode() ? .playback : .ambient)
         audioPlayer = try? AVAudioPlayer(data: data)
         audioPlayer?.play()
+
+        // 流し終えたら、アプリのほかの音（着信音など）のためにマナーモードでも鳴る設定に戻す
+        restoreCategoryTask?.cancel()
+        let duration = audioPlayer?.duration ?? 0
+        restoreCategoryTask = Task {
+            try? await Task.sleep(for: .seconds(duration + 0.3))
+            guard !Task.isCancelled else { return }
+            self.setAudioCategory(.playback)
+        }
+    }
+
+    private func setAudioCategory(_ category: AVAudioSession.Category) {
+        do {
+            try AVAudioSession.sharedInstance().setCategory(category, options: .mixWithOthers)
+        } catch {
+            CharalarmLogger.error("オーディオセッションを切り替えられませんでした", error: error)
+        }
     }
 
     private func pick(from lines: [TapLine]) -> TapLine? {

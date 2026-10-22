@@ -13,6 +13,7 @@ struct AuthUseCase: AuthUseCaseProtcol {
     // ユーザー退会
     func withdraw(userID: String, authToken: String) async throws {
         try await apiRepository.postUserWithdraw(userID: userID, authToken: authToken)
+        await SubscriptionRepository().logOut()
         try keychainRepository.setUserID(userID: nil)
         try keychainRepository.setAuthToken(authToken: nil)
         userDefaultsRepository.setDefaultCharaDomain()

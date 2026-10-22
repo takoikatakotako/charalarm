@@ -202,6 +202,8 @@
 	</array>
 	<key>SUBSCRIPTION_PRODUCT_ID</key>
 	<string>${SUBSCRIPTION_PRODUCT_ID}</string>
+	<key>REVENUECAT_API_KEY</key>
+	<string>${REVENUECAT_API_KEY}</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

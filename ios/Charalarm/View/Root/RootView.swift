@@ -41,7 +41,8 @@ struct RootView: View {
                 let charaID: String? = notification.userInfo?[NSNotification.answerCallUserInfoKeyCharaID] as? String
                 let charaName: String? = notification.userInfo?[NSNotification.answerCallUserInfoKeyCharaName] as? String
                 let callUUID: UUID? = notification.userInfo?[NSNotification.answerCallUserInfoKeyCallUUID] as? UUID
-                viewState.answerCall(charaID: charaID, charaName: charaName, callUUID: callUUID)
+                let conversation = notification.userInfo?[NSNotification.answerCallUserInfoKeyConversation] as? Bool ?? false
+                viewState.answerCall(charaID: charaID, charaName: charaName, callUUID: callUUID, conversation: conversation)
             }
         }
         .task {
