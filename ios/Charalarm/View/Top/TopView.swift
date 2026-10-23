@@ -37,21 +37,10 @@ struct TopView: View {
             }
 
             VStack(spacing: 0) {
-                // 上: 言語・今日の予定・話題・お知らせ
+                // 上: 今日の予定・お知らせ
                 HStack(spacing: 8) {
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 8) {
-                            // 会話とタップのセリフの言語
-                            Menu {
-                                Picker(String(localized: "config-conversation-language"), selection: $viewState.conversationLanguage) {
-                                    ForEach(ConversationLanguage.allCases) { language in
-                                        Text(language.displayName).tag(language)
-                                    }
-                                }
-                            } label: {
-                                TopPillLabel(systemImageName: "globe", text: viewState.conversationLanguage.displayName)
-                            }
-
                             // キャラが今日の予定を読み上げる
                             Button {
                                 Task {
@@ -59,14 +48,6 @@ struct TopView: View {
                                 }
                             } label: {
                                 TopPillLabel(systemImageName: "calendar", text: String(localized: "top-today-schedule"))
-                            }
-                            .disabled(viewState.isPreparingCall)
-
-                            // 話題のニュース（キャラが紹介する）
-                            Button {
-                                viewState.trendNewsButtonTapped()
-                            } label: {
-                                TopPillLabel(systemImageName: "sparkles", text: String(localized: "top-trend-news"))
                             }
                             .disabled(viewState.isPreparingCall)
                         }
@@ -80,6 +61,15 @@ struct TopView: View {
                             .foregroundStyle(.white)
                             .frame(width: 40, height: 40)
                             .background(.black.opacity(0.3), in: Circle())
+                            // まだ読んでいないお知らせがあれば点を付ける
+                            .overlay(alignment: .topTrailing) {
+                                if viewState.hasUnreadNews {
+                                    Circle()
+                                        .fill(Color.red)
+                                        .frame(width: 10, height: 10)
+                                        .offset(x: -4, y: 4)
+                                }
+                            }
                     }
                     .accessibilityLabel(String(localized: "top-news"))
                 }
@@ -167,13 +157,14 @@ struct TopView: View {
             ConversationView(charaID: chara.charaID, topic: chara.topic)
         }
         .sheet(item: $viewState.sheet) {
-            // On Dissmiss
+            viewState.checkUnreadNews()
         } content: { item in
             switch item {
-            case .newsList:
-                NewsListView()
-            case .trendNews:
-                TrendNewsView(repository: DummyTrendNewsRepository()) { news in
+            case .news:
+                NewsHubView(
+                    trendNewsRepository: DummyTrendNewsRepository(),
+                    initialTab: viewState.hasUnreadNews ? .news : .trend
+                ) { news in
                     Task {
                         await viewState.readTrendNews(news)
                     }

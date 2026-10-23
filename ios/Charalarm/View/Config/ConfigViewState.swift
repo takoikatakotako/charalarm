@@ -6,6 +6,12 @@ import SwiftUI
     var alertMessage = ""
     var showingResetAlert = false
     var showingSubscriptionSheet = false
+    /// マナーモードでも、ホームでタップしたときの声を出す
+    var tapVoiceInSilentMode = UserDefaultsRepository().getTapVoiceInSilentMode() {
+        didSet {
+            UserDefaultsRepository().setTapVoiceInSilentMode(tapVoiceInSilentMode)
+        }
+    }
     /// 会話で今日の予定を使う。オンにするときにカレンダーの許可を求める
     private(set) var useCalendarInConversation = UserDefaultsRepository().getUseCalendarInConversation()
         && CalendarRepository().isAuthorized

@@ -25,6 +25,14 @@ struct ConfigView: View {
                 }
 
                 Section {
+                    Toggle(String(localized: "config-tap-voice-in-silent-mode"), isOn: $viewState.tapVoiceInSilentMode)
+                } header: {
+                    Text(String(localized: "config-sound"))
+                } footer: {
+                    Text(String(localized: "config-tap-voice-in-silent-mode-footer"))
+                }
+
+                Section {
                     Picker(String(localized: "config-conversation-language"), selection: $viewState.conversationLanguage) {
                         ForEach(ConversationLanguage.allCases) { language in
                             Text(language.displayName).tag(language)
@@ -34,6 +42,9 @@ struct ConfigView: View {
                         get: { viewState.useCalendarInConversation },
                         set: { viewState.setUseCalendarInConversation($0) }
                     ))
+                    NavigationLink(String(localized: "calendar-selection-title")) {
+                        CalendarSelectionView()
+                    }
                     Toggle(String(localized: "config-mention-schedule-on-call"), isOn: Binding(
                         get: { viewState.mentionScheduleOnCall },
                         set: { viewState.setMentionScheduleOnCall($0) }

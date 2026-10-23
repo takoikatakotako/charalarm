@@ -59,6 +59,8 @@ func (h *Chat) ChatPost(c echo.Context) error {
 			return c.JSON(http.StatusBadRequest, response.Message{Message: "Bad Request"})
 		case common.ErrorAuthenticationFailure:
 			return c.JSON(http.StatusUnauthorized, response.Message{Message: "Unauthorized"})
+		case common.ErrorUsageLimitExceeded:
+			return c.JSON(http.StatusTooManyRequests, response.Message{Message: "Too Many Requests"})
 		}
 		slog.Error("chat failed", slog.String("chara", req.CharaID), slog.String("error", err.Error()))
 		return c.JSON(http.StatusInternalServerError, response.Message{Message: "Error!"})

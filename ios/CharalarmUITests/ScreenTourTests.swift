@@ -83,6 +83,8 @@ final class ScreenTourTests: XCTestCase {
         app.buttons["和室"].firstMatch.tap()
         app.navigationBars["背景"].buttons.firstMatch.tap()
         require(app.navigationBars["設定"], "設定（背景から戻った）")
+        // 設定の項目が増えて、プレミアムプランは画面の外にある
+        app.collectionViews.firstMatch.swipeUp()
         require(app.buttons["プレミアムプランについて"], "設定のプレミアムプラン").tap()
         require(app.navigationBars["プレミアムプラン"], "プレミアムプラン")
         sleep(2)
@@ -94,17 +96,20 @@ final class ScreenTourTests: XCTestCase {
         snap("14-config-bottom")
         close()
 
-        // 話題のニュース・お知らせ
-        require(app.buttons["話題"], "ホーム").tap()
-        require(app.navigationBars["話題のニュース"], "話題のニュース")
-        sleep(1)
-        snap("15-trend-news")
-        close()
-
+        // 話題のニュース・お知らせ（1つの画面のタブ）
+        // はじめてなら、読んでいないお知らせがあるのでお知らせのタブから開く
         require(app.buttons["お知らせ"], "ホーム").tap()
-        require(app.navigationBars["ニュース"], "お知らせ")
+        require(app.segmentedControls.buttons["話題"], "お知らせのタブ")
         sleep(2)
         snap("16-news")
+        app.segmentedControls.buttons["話題"].firstMatch.tap()
+        require(app.buttons["まとめて読んでもらう"], "話題のニュース")
+        sleep(1)
+        snap("15-trend-news")
+        // スワイプでもお知らせに切り替わる
+        app.buttons["まとめて読んでもらう"].firstMatch.swipeLeft()
+        sleep(1)
+        XCTAssertTrue(app.segmentedControls.buttons["お知らせ"].firstMatch.isSelected, "スワイプでお知らせに切り替わりませんでした")
         close()
         require(app.buttons["キャラ"], "ホーム（最後）")
     }

@@ -50,6 +50,11 @@ class Variables {
         self.subscriptionProductID = productID
     }
 
+    // RevenueCat の Public API キー（空なら課金は使えない）
+    static var revenueCatAPIKey: String {
+        return Bundle.main.infoDictionary?["REVENUECAT_API_KEY"] as? String ?? ""
+    }
+
     // Push Token
     private(set) var pushToken: String = ""
     func setPushToken(_ pushToken: String) {

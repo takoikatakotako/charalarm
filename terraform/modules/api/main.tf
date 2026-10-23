@@ -20,6 +20,8 @@ resource "aws_lambda_function" "api_lambda_function" {
       "CHARALARM_GCP_CREDENTIAL_CONFIG" = var.gcp_credential_config,
       "CHARALARM_TTS_MODEL"             = var.tts_model,
       "CHARALARM_TTS_VOICE"             = var.tts_voice
+      # RevenueCat の Webhook の Authorization ヘッダ。パラメータ名が空なら Webhook は受けない
+      "CHARALARM_REVENUECAT_WEBHOOK_AUTHORIZATION" = var.revenuecat_webhook_authorization_ssm_parameter_name == "" ? "" : "ssm://${var.revenuecat_webhook_authorization_ssm_parameter_name}"
     }
   }
 

@@ -63,6 +63,10 @@ enum ConversationCapability {
 
     static func isCapable(charaID: String?) -> Bool {
         guard let charaID = charaID else { return false }
-        return capableCharaIDs.contains(charaID)
+        if capableCharaIDs.contains(charaID) {
+            return true
+        }
+        // キャラを選んだときに端末に保存した情報（会話できるか）を見る
+        return (try? LocalCharaResourceUseCase().loadCharaResource(charaID: charaID))?.supportsConversation == true
     }
 }

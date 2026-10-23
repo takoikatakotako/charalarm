@@ -80,6 +80,15 @@ aws dynamodb create-table \
     --billing-mode PAY_PER_REQUEST \
     --region ap-northeast-1
 
+# usage-table (会話と読み上げの1日の使用量)
+aws dynamodb create-table \
+    --endpoint-url $ENDPOINT_URL \
+    --table-name usage-table \
+    --attribute-definitions AttributeName=usageKey,AttributeType=S \
+    --key-schema AttributeName=usageKey,KeyType=HASH \
+    --billing-mode PAY_PER_REQUEST \
+    --region ap-northeast-1
+
 
 ## Add Chara
 aws dynamodb put-item \

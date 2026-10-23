@@ -33,6 +33,9 @@ import AppTrackingTransparency
                 try keychainRepository.setUserID(userID: userID)
                 try keychainRepository.setAuthToken(authToken: authToken)
 
+                // 課金（RevenueCat）もこのユーザー ID にそろえる
+                await SubscriptionRepository().logIn(userID: userID.uuidString)
+
                 // Set Push Token
                 if let token = optionalPushToken {
                     let pushToken = PushTokenRequest(pushToken: token)

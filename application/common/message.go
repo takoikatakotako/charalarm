@@ -24,6 +24,7 @@ const (
 	FailedToWithdraw                   = "Failed to withdraw"
 	ErrorInvalidValue                  = "error invalid value"
 	ErrorAuthenticationFailure         = "error authentication failure"
+	ErrorUsageLimitExceeded            = "error usage limit exceeded"
 	ErrorAlarmAlreadyExists            = "error alarm already exists"
 	ErrorCanNotFindEnvironmentVariable = "error can not find environment variable"
 )

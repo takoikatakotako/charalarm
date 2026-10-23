@@ -64,25 +64,6 @@ func (u *User) Signup(userID string, authToken string, platform string) error {
 	return nil
 }
 
-func (u *User) UpdatePremiumPlan(userID string, authToken string, enablePremiumPlan bool) error {
-	// バリデーション
-	if !database.IsValidUUID(userID) || !database.IsValidUUID(authToken) {
-		return errors.New(common.ErrorInvalidValue)
-	}
-
-	// Check User Is Exist
-	isExist, err := u.AWS.IsExistUser(userID)
-	if err != nil {
-		return err
-	}
-	if !isExist {
-		return errors.New(common.ErrorInvalidValue)
-	}
-
-	// プレミアムプランを更新
-	return u.AWS.UpdateUserPremiumPlan(userID, enablePremiumPlan)
-}
-
 func (u *User) Withdraw(userID string, authToken string) error {
 	// バリデーション
 	if !database.IsValidUUID(userID) || !database.IsValidUUID(authToken) {

@@ -33,8 +33,8 @@ enum TopViewAlert {
 }
 
 enum TopViewSheet: Identifiable {
-    case newsList
-    case trendNews
+    /// 話題のニュースとお知らせ（タブで切り替える）
+    case news
     case characterList
     case alarmList
     case config
@@ -58,6 +58,8 @@ struct TopConversationChara: Identifiable {
 
 @MainActor @Observable final class TopViewState {
     var charaImage = UIImage()
+    /// まだ読んでいないお知らせがある（ベルに点を付ける）
+    var hasUnreadNews = false
     /// VRM のキャラを選んでいれば、立ち絵の代わりに 3D で出す
     var vrmChara: TopVRMChara?
     var showingAlert = false
@@ -95,6 +97,7 @@ struct TopConversationChara: Identifiable {
 
         // 設定の画面で変えたかもしれないので読み直す
         conversationLanguage = userDefaultsRepository.getConversationLanguage()
+        checkUnreadNews()
 
         guard let charaID = userDefaultsRepository.getCharaID() else {
             self.alert = .failedToGetCharacterSelectionInformation
@@ -116,11 +119,16 @@ struct TopConversationChara: Identifiable {
     }
 
     func newsButtonTapped() {
-        sheet = .newsList
+        sheet = .news
     }
 
-    func trendNewsButtonTapped() {
-        sheet = .trendNews
+    /// まだ読んでいないお知らせがあるか確かめる（ベルの点）
+    func checkUnreadNews() {
+        Task {
+            guard let latest = try? await NewsRepository().fetchNews().map(\.registeredAt).max() else { return }
+            let lastSeen = userDefaultsRepository.getLastSeenNewsAt() ?? .distantPast
+            hasUnreadNews = latest > lastSeen
+        }
     }
 
     /// 話題のニュースを、キャラに読んでもらう

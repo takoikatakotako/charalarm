@@ -75,9 +75,10 @@ data "aws_iam_policy_document" "api_lambda_function_role_policy_document" {
       "ssm:GetParameter",
       "ssm:GetParameters",
     ]
-    resources = [
-      "arn:aws:ssm:ap-northeast-1:${local.account_id}:parameter${var.openai_api_key_ssm_parameter_name}"
-    ]
+    resources = compact([
+      "arn:aws:ssm:ap-northeast-1:${local.account_id}:parameter${var.openai_api_key_ssm_parameter_name}",
+      var.revenuecat_webhook_authorization_ssm_parameter_name == "" ? "" : "arn:aws:ssm:ap-northeast-1:${local.account_id}:parameter${var.revenuecat_webhook_authorization_ssm_parameter_name}",
+    ])
   }
 
   # SecureString(既定の aws/ssm キー)を復号するための権限

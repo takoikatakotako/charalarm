@@ -30,14 +30,16 @@ struct CallActionButton: View {
     }
 
     let kind: Kind
+    /// ボタンの直径
+    var size: CGFloat = 76
     let action: () -> Void
 
     var body: some View {
         Button(action: action) {
             Image(systemName: kind.systemImageName)
-                .font(.system(size: 30, weight: .semibold))
+                .font(.system(size: size * 0.4, weight: .semibold))
                 .foregroundStyle(.white)
-                .frame(width: 76, height: 76)
+                .frame(width: size, height: size)
                 .background(kind.color, in: Circle())
         }
         .accessibilityLabel(kind == .answer ? "answer" : "decline")

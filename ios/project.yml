@@ -27,6 +27,9 @@ packages:
   GoogleMobileAds:
     url: https://github.com/googleads/swift-package-manager-google-mobile-ads
     from: 13.11.0
+  RevenueCat:
+    url: https://github.com/RevenueCat/purchases-ios-spm
+    from: 5.96.0
 
 schemes:
   Develop:
@@ -73,6 +76,8 @@ _commonDependencies: &commonDependencies
     product: SDWebImageSwiftUI
   - package: GoogleMobileAds
     product: GoogleMobileAds
+  - package: RevenueCat
+    product: RevenueCat
 
 # ターゲットテンプレート
 targetTemplates:
@@ -81,6 +86,16 @@ targetTemplates:
     platform: iOS
     destinations: [iPhone]
     dependencies: *commonDependencies
+    preBuildScripts:
+      # 課金は RevenueCat で扱うので、キーが空のままアーカイブすると購入も復元もできないアプリになる。
+      # リリース用のビルドではキーの入れ忘れを止める
+      - name: Check RevenueCat API Key
+        basedOnDependencyAnalysis: false
+        script: |
+          if [ "${CONFIGURATION}" = "Release" ] && [ -z "${REVENUECAT_API_KEY}" ]; then
+            echo "error: REVENUECAT_API_KEY が空です。project.yml に RevenueCat の Public API キーを入れてください"
+            exit 1
+          fi
     postBuildScripts:
       # アーカイブ（Release）のときだけ、ビルド番号を日本時間の年月日時分（例: 202610191530）にする。
       # TestFlight は同じバージョン・同じビルド番号を受け付けないので、手で上げなくてよいように。
@@ -128,6 +143,7 @@ targets:
           ADMOB_ALARM_LIST: ca-app-pub-3940256099942544/2934735716
           ADMOB_CONFIG: ca-app-pub-3940256099942544/2934735716
           SUBSCRIPTION_PRODUCT_ID: charalarm.development.monthly.subscription
+          REVENUECAT_API_KEY: appl_yNEpFErBOrPpfZYsYqsYvRBXiAh
         Release:
           CODE_SIGN_ENTITLEMENTS: Charalarm/CharalarmRelease.entitlements
           API_ENDPOINT: https://api.charalarm-development.swiswiswift.com
@@ -136,6 +152,7 @@ targets:
           ADMOB_ALARM_LIST: ca-app-pub-3940256099942544/2934735716
           ADMOB_CONFIG: ca-app-pub-3940256099942544/2934735716
           SUBSCRIPTION_PRODUCT_ID: charalarm.development.monthly.subscription
+          REVENUECAT_API_KEY: appl_yNEpFErBOrPpfZYsYqsYvRBXiAh
 
   CharalarmStaging:
     templates: [CharalarmApp]
@@ -170,6 +187,7 @@ targets:
           ADMOB_ALARM_LIST: ca-app-pub-3940256099942544/2934735716
           ADMOB_CONFIG: ca-app-pub-3940256099942544/2934735716
           SUBSCRIPTION_PRODUCT_ID: charalarm.staging.monthly.subscription
+          REVENUECAT_API_KEY: ""
         Release:
           CODE_SIGN_ENTITLEMENTS: Charalarm/CharalarmRelease.entitlements
           API_ENDPOINT: https://api.charalarm-staging.swiswiswift.com
@@ -178,6 +196,7 @@ targets:
           ADMOB_ALARM_LIST: ca-app-pub-3940256099942544/2934735716
           ADMOB_CONFIG: ca-app-pub-3940256099942544/2934735716
           SUBSCRIPTION_PRODUCT_ID: charalarm.staging.monthly.subscription
+          REVENUECAT_API_KEY: ""
 
   CharalarmProduction:
     templates: [CharalarmApp]
@@ -212,6 +231,7 @@ targets:
           ADMOB_ALARM_LIST: ca-app-pub-5587141252700968/8220227024
           ADMOB_CONFIG: ca-app-pub-5587141252700968/1355204268
           SUBSCRIPTION_PRODUCT_ID: charalarm.production.monthly.subscription
+          REVENUECAT_API_KEY: ""
         Release:
           CODE_SIGN_ENTITLEMENTS: Charalarm/CharalarmRelease.entitlements
           API_ENDPOINT: https://api3.charalarm.com
@@ -220,6 +240,7 @@ targets:
           ADMOB_ALARM_LIST: ca-app-pub-5587141252700968/8220227024
           ADMOB_CONFIG: ca-app-pub-5587141252700968/1355204268
           SUBSCRIPTION_PRODUCT_ID: charalarm.production.monthly.subscription
+          REVENUECAT_API_KEY: ""
 
   # 主な画面をたどって画面写真を残す UI テスト（デザインの見直し用）
   CharalarmUITests:

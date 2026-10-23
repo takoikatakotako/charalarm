@@ -6,7 +6,6 @@ import PushKit
 import CallKit
 import AVKit
 import GoogleMobileAds
-import StoreKit
 
 class AppDelegate: UIResponder, UIApplicationDelegate {
     let model = AppDelegateModel(apiRepository: APIRepository(), keychainRepository: KeychainRepository())
@@ -18,8 +17,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Initialize the Google Mobile Ads SDK.
         MobileAds.shared.start()
 
-        // 課金周りの監視
-        observeTransactionUpdates()
+        // 課金（RevenueCat）。購入状態の変化を見張る
+        SubscriptionRepository().configure()
 
         //
         model.registerDefaults()
@@ -63,10 +62,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func applicationWillEnterForeground(_ application: UIApplication) {
         // Called as part of the transition from the background to the active state; here you can undo many of the changes made on entering the background.
-
-        Task {
-            await updateSubscriptionStatus()
-        }
+        // 課金の状態は RevenueCat が前に戻ったときに取り直し、SubscriptionRepository が受け取る
     }
 }
 
@@ -133,48 +129,5 @@ extension AppDelegate: CXProviderDelegate {
     func provider(_ provider: CXProvider, perform action: CXEndCallAction) {
         action.fulfill()
         model.endCall()
-    }
-}
-
-// 課金関係
-extension AppDelegate {
-    private func observeTransactionUpdates() {
-        Task(priority: .background) {
-            for await verificationResult in Transaction.updates {
-                guard case .verified(let transaction) = verificationResult else {
-                    continue
-                }
-
-                if transaction.revocationDate != nil {
-                    // 払い戻しされてるので特典削除
-                    model.setEnablePremiumPlan(enable: false)
-                } else if let expirationDate = transaction.expirationDate,
-                          Date() < expirationDate // 有効期限内
-                          && !transaction.isUpgraded {
-                    // 有効なサブスクリプションなのでproductIdに対応した特典を有効にする
-                    model.setEnablePremiumPlan(enable: true)
-                }
-
-                await transaction.finish()
-            }
-        }
-    }
-
-    private func updateSubscriptionStatus() async {
-        var validSubscription: StoreKit.Transaction?
-        for await verificationResult in Transaction.currentEntitlements {
-            if case .verified(let transaction) = verificationResult,
-               transaction.productType == .autoRenewable && !transaction.isUpgraded {
-                validSubscription = transaction
-            }
-        }
-
-        if validSubscription?.productID != nil {
-            // 特典を付与
-            model.setEnablePremiumPlan(enable: true)
-        } else {
-            // 特典を削除
-            model.setEnablePremiumPlan(enable: false)
-        }
     }
 }

@@ -25,6 +25,8 @@ type TextToSpeech struct {
 	Client tts.Client
 	// Voice は既定の声。キャラ情報 (geminiVoice / geminiVoiceStyle) で上書きする。
 	Voice tts.Voice
+	// Usage は1日の上限。nil なら数えない。
+	Usage *UsageLimit
 }
 
 // Synthesize はユーザーを認証したうえで text を合成する。
@@ -53,6 +55,9 @@ func (s *TextToSpeech) Synthesize(ctx context.Context, userID string, authToken 
 	}
 	if user.UserID != userID || user.AuthToken != authToken {
 		return tts.Audio{}, errors.New(common.ErrorAuthenticationFailure)
+	}
+	if err := s.Usage.Use(user, 0, utf8.RuneCountInString(text), time.Now()); err != nil {
+		return tts.Audio{}, err
 	}
 
 	// Gemini TTS で話すキャラだけ合成する (VOICEVOX のキャラは端末内で合成する)

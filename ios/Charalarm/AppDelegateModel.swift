@@ -83,10 +83,15 @@ class AppDelegateModel {
         }
     }
 
+    /// 会話画面で電話に出るか。会話できるキャラか、サーバが録音ボイスを付けてこなかった（会話キャラ）とき
+    private var answersWithConversation: Bool {
+        ConversationCapability.isCapable(charaID: charaID) || (!charaID.isEmpty && voiceFileURL.isEmpty)
+    }
+
     // VoIP Pushを受信
     func receiveVoipPush() {
-        // 会話対応キャラ（ずんだもん）は録音ファイルを再生せず、音声会話画面が音声を扱う
-        if ConversationCapability.isCapable(charaID: charaID) {
+        // 会話対応キャラは録音ファイルを再生せず、音声会話画面が音声を扱う
+        if answersWithConversation {
             return
         }
 
@@ -117,28 +122,13 @@ class AppDelegateModel {
         let userInfo: [String: Any] = [
             NSNotification.answerCallUserInfoKeyCharaID: charaID,
             NSNotification.answerCallUserInfoKeyCharaName: charaName,
-            NSNotification.answerCallUserInfoKeyCallUUID: callUUID
+            NSNotification.answerCallUserInfoKeyCallUUID: callUUID,
+            NSNotification.answerCallUserInfoKeyConversation: answersWithConversation
         ]
         NotificationCenter.default.post(name: NSNotification.answerCall, object: self, userInfo: userInfo)
     }
 
     func endCall() {
         NotificationCenter.default.post(name: NSNotification.endCall, object: self, userInfo: nil)
-    }
-
-    func setEnablePremiumPlan(enable: Bool) {
-        guard let userID = keychainRepository.getUserID(), let authToken = keychainRepository.getAuthToken() else {
-            return
-        }
-
-        Task { @MainActor in
-            do {
-                userDefaultsRepository.setEnablePremiumPlan(enable: enable)
-                let requestBody = UserUpdatePremiumPlanRequest(enablePremiumPlan: enable)
-                try await apiRepository.postUserUpdatePremium(userID: userID, authToken: authToken, requestBody: requestBody)
-            } catch {
-                CharalarmLogger.error("プレミアムプランの更新に失敗", error: error)
-            }
-        }
     }
 }

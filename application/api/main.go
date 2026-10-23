@@ -82,14 +82,28 @@ func main() {
 	newsService := service.News{
 		AWS: awsRepository,
 	}
+	usageLimitEnv := environment.LoadUsageLimitEnvironment()
+	usageLimit := &service.UsageLimit{
+		AWS:               awsRepository,
+		DailyChat:         usageLimitEnv.DailyChat,
+		DailyTTSChars:     usageLimitEnv.DailyTTSChars,
+		PremiumMultiplier: usageLimitEnv.PremiumMultiplier,
+	}
 	chatService := service.Chat{
 		AWS:       awsRepository,
 		LLMClient: llmClient,
+		Usage:     usageLimit,
 	}
 	ttsEnv := environment.LoadTTSEnvironment()
 	textToSpeechService := service.TextToSpeech{
 		AWS:   awsRepository,
 		Voice: tts.Voice{Model: ttsEnv.Model, Name: ttsEnv.Voice},
+		Usage: usageLimit,
+	}
+	revenueCatEnv := environment.LoadRevenueCatEnvironment()
+	revenueCatService := service.RevenueCat{
+		AWS:           awsRepository,
+		EntitlementID: revenueCatEnv.EntitlementID,
 	}
 	if gcpHTTPClient != nil {
 		textToSpeechService.Client = tts.NewGeminiClient(gcpEnv.Project, gcpHTTPClient)
@@ -120,6 +134,10 @@ func main() {
 	textToSpeechHandler := handler.TextToSpeech{
 		Service: textToSpeechService,
 	}
+	revenueCatHandler := handler.RevenueCat{
+		Service:       revenueCatService,
+		Authorization: revenueCatEnv.WebhookAuthorization,
+	}
 
 	e := echo.New()
 	// アクセスログには IP アドレスや User-Agent を出さない (個人情報をサーバに残さないため)
@@ -139,7 +157,6 @@ func main() {
 	// user
 	e.GET("/user/info", userHandler.UserInfoGet)
 	e.POST("/user/signup", userHandler.UserSignupPost)
-	e.POST("/user/update-premium", userHandler.UserUpdatePremiumPost)
 	e.POST("/user/withdraw", userHandler.UserWithdrawPost)
 
 	// alarm
@@ -164,6 +181,9 @@ func main() {
 
 	// tts (キャラの発話を音声にする)
 	e.POST("/tts", textToSpeechHandler.TextToSpeechPost)
+
+	// webhook (RevenueCat からの購入・更新・期限切れの知らせ)
+	e.POST("/webhook/revenuecat", revenueCatHandler.WebhookPost)
 
 	e.Logger.Fatal(e.Start(":8080"))
 }

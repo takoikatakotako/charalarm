@@ -54,32 +54,6 @@ func (u *User) UserSignupPost(c echo.Context) error {
 	return c.JSON(http.StatusOK, res)
 }
 
-func (u *User) UserUpdatePremiumPost(c echo.Context) error {
-	authorizationHeader := c.Request().Header.Get("Authorization")
-	userID, authToken, err := auth.Basic(authorizationHeader)
-	if err != nil {
-		res := response.Message{Message: "Error!"}
-		return c.JSON(http.StatusInternalServerError, res)
-	}
-
-	req := new(request2.UserUpdatePremiumPlan)
-	if err := c.Bind(&req); err != nil {
-		res := response.Message{Message: "Error!"}
-		return c.JSON(http.StatusInternalServerError, res)
-	}
-
-	err = u.Service.UpdatePremiumPlan(userID, authToken, req.EnablePremiumPlan)
-	if err != nil {
-		res := response.Message{Message: "Error!"}
-		return c.JSON(http.StatusInternalServerError, res)
-	}
-
-	res := response.Message{
-		Message: Healthy,
-	}
-	return c.JSON(http.StatusOK, res)
-}
-
 func (u *User) UserWithdrawPost(c echo.Context) error {
 	authorizationHeader := c.Request().Header.Get("Authorization")
 	userID, authToken, err := auth.Basic(authorizationHeader)

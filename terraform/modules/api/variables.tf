@@ -46,6 +46,13 @@ variable "openai_api_key_ssm_parameter_name" {
   type = string
 }
 
+# RevenueCat の Webhook に設定する Authorization ヘッダの値を保持する SSM パラメータ名。
+# 秘密値は SSM Parameter Store (SecureString) に手動投入し、名前だけを渡す。空なら Webhook は受けない。
+variable "revenuecat_webhook_authorization_ssm_parameter_name" {
+  type    = string
+  default = ""
+}
+
 variable "llm_provider" {
   type    = string
   default = "openai"

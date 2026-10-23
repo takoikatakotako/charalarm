@@ -12,6 +12,8 @@ const (
 	UserTableUserIdIndexName  = "user-id-index"
 	AlarmTableTargetIndexName = "target-index"
 	UserTablePremiumPlan      = "premiumPlan"
+	// UserTablePremiumPlanEventAt は premiumPlan を書いた RevenueCat のイベントの時刻 (ミリ秒)
+	UserTablePremiumPlanEventAt = "premiumPlanEventAt"
 )
 
 type User struct {

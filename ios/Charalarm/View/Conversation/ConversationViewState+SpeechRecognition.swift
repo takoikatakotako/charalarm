@@ -11,7 +11,7 @@ extension ConversationViewState {
     /// 音声認識を最大3回試みる。無音や一時失敗では聞き直し、全滅時のみ nil。
     func recognizeUserSpeechWithRetry() async -> String? {
         for attempt in 1...3 {
-            guard !shouldDismiss else { return nil }
+            guard !shouldDismiss, !Task.isCancelled else { return nil }
             do {
                 let input = try await recognizeUserSpeech()
                 if !input.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
@@ -26,6 +26,29 @@ extension ConversationViewState {
         }
         CharalarmLogger.breadcrumb("聞き取り: 3回とも聞き取れなかった")
         return nil
+    }
+
+    /// 聞き取りをやめる（停止ボタン）。受け取りを待っていたら、止めたことにして返す
+    func stopListening() {
+        resetRecognitionTask()
+        request?.endAudio()
+        request = nil
+        if let continuation = recognitionContinuation {
+            continuation.resume(throwing: CancellationError())
+            recognitionContinuation = nil
+        }
+        pendingRecognizedText = nil
+    }
+
+    private func resetRecognitionTask() {
+        silenceTimer?.invalidate()
+        silenceTimer = nil
+        task?.cancel()
+        task = nil
+        // 読み上げるだけのときはマイクに触らない
+        if listensToUser {
+            engine.inputNode.removeTap(onBus: 0)
+        }
     }
 
     private func resetRecognition() {

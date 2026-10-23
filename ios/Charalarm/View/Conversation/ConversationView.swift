@@ -5,6 +5,7 @@ import SwiftUI
 struct ConversationView: View {
     @State private var viewState: ConversationViewState
     @Environment(\.dismiss) private var dismiss
+    private let topic: ConversationTopic
 
     init(
         charaID: String,
@@ -12,6 +13,7 @@ struct ConversationView: View {
         topic: ConversationTopic = .call,
         textGenerationRepository: TextGenerationRepository = BackendTextGenerationRepository()
     ) {
+        self.topic = topic
         _viewState = State(initialValue: ConversationViewState(
             charaID: charaID,
             mode: mode,
@@ -21,6 +23,33 @@ struct ConversationView: View {
     }
 
     var body: some View {
+        Group {
+            if isTodaySchedule {
+                TodayScheduleView(viewState: viewState)
+            } else {
+                callBody
+            }
+        }
+        .onAppear {
+            viewState.onAppear()
+        }
+        .onDisappear {
+            viewState.teardown()
+        }
+        .onChange(of: viewState.shouldDismiss) { _, shouldDismiss in
+            if shouldDismiss {
+                dismiss()
+            }
+        }
+    }
+
+    private var isTodaySchedule: Bool {
+        if case .todaySchedule = topic { return true }
+        return false
+    }
+
+    /// 電話・話題のときの画面
+    private var callBody: some View {
         ZStack {
             CallBackground()
 
@@ -59,21 +88,14 @@ struct ConversationView: View {
                 .padding(.bottom, 32)
             }
         }
-        .onAppear {
-            viewState.onAppear()
-        }
-        .onDisappear {
-            viewState.teardown()
-        }
-        .onChange(of: viewState.shouldDismiss) { _, shouldDismiss in
-            if shouldDismiss {
-                dismiss()
-            }
-        }
     }
 
     private var statusLabel: String {
-        switch viewState.status {
+        Self.statusLabel(viewState.status)
+    }
+
+    static func statusLabel(_ status: ConversationStatus) -> String {
+        switch status {
         case .idle, .preparing: return String(localized: "conversation-status-preparing")
         case .requestingPermission: return String(localized: "conversation-status-permission")
         case .generatingScript: return String(localized: "conversation-status-thinking")
