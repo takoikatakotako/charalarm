@@ -19,13 +19,14 @@ type RevenueCat struct {
 // RevenueCatEvent は RevenueCat の Webhook のイベント (使う項目だけ)。
 // https://www.revenuecat.com/docs/integrations/webhooks/event-types-and-fields
 type RevenueCatEvent struct {
-	Type            string   `json:"type"`
-	AppUserID       string   `json:"app_user_id"`
-	EntitlementIDs  []string `json:"entitlement_ids"`
-	ExpirationAtMs  *int64   `json:"expiration_at_ms"`
-	TransferredFrom []string `json:"transferred_from"`
-	TransferredTo   []string `json:"transferred_to"`
-	Environment     string   `json:"environment"`
+	Type             string   `json:"type"`
+	EventTimestampMs int64    `json:"event_timestamp_ms"`
+	AppUserID        string   `json:"app_user_id"`
+	EntitlementIDs   []string `json:"entitlement_ids"`
+	ExpirationAtMs   *int64   `json:"expiration_at_ms"`
+	TransferredFrom  []string `json:"transferred_from"`
+	TransferredTo    []string `json:"transferred_to"`
+	Environment      string   `json:"environment"`
 }
 
 // HandleEvent はイベントに合わせてプレミアムプランを更新する。
@@ -42,16 +43,13 @@ func (r *RevenueCat) HandleEvent(event RevenueCatEvent, now time.Time) error {
 			// 匿名 ID ($RCAnonymousID:...) など、アプリのユーザー ID ではないもの
 			continue
 		}
-		isExist, err := r.AWS.IsExistUser(userID)
+		// 重複や順番の入れ替わりで届いた古いイベントでは上書きしない
+		updated, err := r.AWS.UpdateUserPremiumPlanIfNewer(userID, enable, event.EventTimestampMs)
 		if err != nil {
 			return err
 		}
-		if !isExist {
-			slog.Warn("revenuecat webhook: unknown user", slog.String("type", event.Type))
-			continue
-		}
-		if err := r.AWS.UpdateUserPremiumPlan(userID, enable); err != nil {
-			return err
+		if !updated {
+			slog.Info("revenuecat webhook: skipped (old event or unknown user)", slog.String("type", event.Type))
 		}
 	}
 	return nil

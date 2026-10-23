@@ -24,7 +24,7 @@ struct UserDefaultsRepository: UserDefaultsRepositoryProtocol {
     private let KEY_EXCLUDED_CALENDAR_IDS = "EXCLUDED_CALENDAR_IDS"
     private let KEY_TAP_VOICE_IN_SILENT_MODE = "TAP_VOICE_IN_SILENT_MODE"
     private let KEY_LAST_SEEN_NEWS_AT = "LAST_SEEN_NEWS_AT"
-    private let KEY_DID_SYNC_PURCHASES_TO_REVENUECAT = "DID_SYNC_PURCHASES_TO_REVENUECAT"
+    private let KEY_NEEDS_PURCHASE_SYNC_TO_REVENUECAT = "NEEDS_PURCHASE_SYNC_TO_REVENUECAT"
 
     // Defaults
     private let DEFAULT_CHARA_DOMAIN = "jp.zunko.zundamon"
@@ -112,13 +112,13 @@ struct UserDefaultsRepository: UserDefaultsRepositoryProtocol {
         UserDefaults.standard.set(date, forKey: KEY_LAST_SEEN_NEWS_AT)
     }
 
-    /// RevenueCat を入れる前に買ったサブスクを、RevenueCat に送り済みか
-    func getDidSyncPurchasesToRevenueCat() -> Bool {
-        UserDefaults.standard.bool(forKey: KEY_DID_SYNC_PURCHASES_TO_REVENUECAT)
+    /// RevenueCat を入れる前に買ったサブスクを、RevenueCat に送る必要があるか。まだ決めていなければ nil
+    func getNeedsPurchaseSyncToRevenueCat() -> Bool? {
+        UserDefaults.standard.object(forKey: KEY_NEEDS_PURCHASE_SYNC_TO_REVENUECAT) as? Bool
     }
 
-    func setDidSyncPurchasesToRevenueCat(_ didSync: Bool) {
-        UserDefaults.standard.set(didSync, forKey: KEY_DID_SYNC_PURCHASES_TO_REVENUECAT)
+    func setNeedsPurchaseSyncToRevenueCat(_ needsSync: Bool) {
+        UserDefaults.standard.set(needsSync, forKey: KEY_NEEDS_PURCHASE_SYNC_TO_REVENUECAT)
     }
 
     /// マナーモードでも、ホームでタップしたときの声を出す。最初はオフ（マナーモードでは鳴らさない）

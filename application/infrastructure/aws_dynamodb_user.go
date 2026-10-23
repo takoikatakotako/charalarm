@@ -219,3 +219,43 @@ func (a *AWS) DeleteUser(userID string) error {
 
 	return nil
 }
+
+// UpdateUserPremiumPlanIfNewer は、前に書いたイベントより新しいときだけプレミアムプランを書く。
+// RevenueCat の Webhook は重複したり順番が入れ替わったりするので、古いイベントで上書きしない。
+// 書いたかどうかを返す (古いイベントやいないユーザーなら false)。
+func (a *AWS) UpdateUserPremiumPlanIfNewer(userID string, enablePremiumPlan bool, eventAtMs int64) (bool, error) {
+	client, err := a.createDynamoDBClient()
+	if err != nil {
+		return false, err
+	}
+
+	update := expression.UpdateBuilder{}.
+		Set(expression.Name(database.UserTablePremiumPlan), expression.Value(enablePremiumPlan)).
+		Set(expression.Name(database.UserTablePremiumPlanEventAt), expression.Value(eventAtMs))
+	eventAt := expression.Name(database.UserTablePremiumPlanEventAt)
+	condition := expression.AttributeExists(expression.Name(database.UserTableUserId)).And(
+		expression.Or(expression.AttributeNotExists(eventAt), eventAt.LessThan(expression.Value(eventAtMs))))
+	expr, err := expression.NewBuilder().WithUpdate(update).WithCondition(condition).Build()
+	if err != nil {
+		return false, err
+	}
+
+	_, err = client.UpdateItem(context.Background(), &dynamodb.UpdateItemInput{
+		TableName: aws.String(database.UserTableName),
+		Key: map[string]types.AttributeValue{
+			database.UserTableUserId: &types.AttributeValueMemberS{Value: userID},
+		},
+		ExpressionAttributeNames:  expr.Names(),
+		ExpressionAttributeValues: expr.Values(),
+		UpdateExpression:          expr.Update(),
+		ConditionExpression:       expr.Condition(),
+	})
+	var conditionFailed *types.ConditionalCheckFailedException
+	if errors.As(err, &conditionFailed) {
+		return false, nil
+	}
+	if err != nil {
+		return false, err
+	}
+	return true, nil
+}

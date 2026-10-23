@@ -86,6 +86,16 @@ targetTemplates:
     platform: iOS
     destinations: [iPhone]
     dependencies: *commonDependencies
+    preBuildScripts:
+      # 課金は RevenueCat で扱うので、キーが空のままアーカイブすると購入も復元もできないアプリになる。
+      # リリース用のビルドではキーの入れ忘れを止める
+      - name: Check RevenueCat API Key
+        basedOnDependencyAnalysis: false
+        script: |
+          if [ "${CONFIGURATION}" = "Release" ] && [ -z "${REVENUECAT_API_KEY}" ]; then
+            echo "error: REVENUECAT_API_KEY が空です。project.yml に RevenueCat の Public API キーを入れてください"
+            exit 1
+          fi
     postBuildScripts:
       # アーカイブ（Release）のときだけ、ビルド番号を日本時間の年月日時分（例: 202610191530）にする。
       # TestFlight は同じバージョン・同じビルド番号を受け付けないので、手で上げなくてよいように。

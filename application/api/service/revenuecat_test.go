@@ -4,7 +4,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
+	"github.com/takoikatakotako/charalarm/infrastructure"
 )
 
 func TestPremiumPlanChanges(t *testing.T) {
@@ -58,4 +60,42 @@ func TestPremiumPlanChanges(t *testing.T) {
 			assert.Equal(t, tt.want, premiumPlanChanges(tt.event, "premium", now))
 		})
 	}
+}
+
+func TestRevenueCatHandleEventIgnoresOldEvents(t *testing.T) {
+	awsRepository := infrastructure.AWS{Profile: "local"}
+	userService := User{AWS: awsRepository}
+	revenueCat := RevenueCat{AWS: awsRepository, EntitlementID: "premium"}
+
+	userID := uuid.New().String()
+	authToken := uuid.New().String()
+	assert.NoError(t, userService.Signup(userID, authToken, "iOS"))
+
+	now := time.Now()
+	future := now.Add(24 * time.Hour).UnixMilli()
+	past := now.Add(-time.Hour).UnixMilli()
+	premiumPlan := func() bool {
+		user, err := userService.GetUser(userID, authToken)
+		assert.NoError(t, err)
+		return user.PremiumPlan
+	}
+
+	// 更新されて有効
+	renewal := RevenueCatEvent{Type: "RENEWAL", AppUserID: userID, EntitlementIDs: []string{"premium"}, ExpirationAtMs: &future, EventTimestampMs: 2000}
+	assert.NoError(t, revenueCat.HandleEvent(renewal, now))
+	assert.True(t, premiumPlan())
+
+	// それより前の期限切れが遅れて届いても無効にしない
+	oldExpiration := RevenueCatEvent{Type: "EXPIRATION", AppUserID: userID, EntitlementIDs: []string{"premium"}, ExpirationAtMs: &past, EventTimestampMs: 1000}
+	assert.NoError(t, revenueCat.HandleEvent(oldExpiration, now))
+	assert.True(t, premiumPlan())
+
+	// 新しい期限切れなら無効にする
+	newExpiration := RevenueCatEvent{Type: "EXPIRATION", AppUserID: userID, EntitlementIDs: []string{"premium"}, ExpirationAtMs: &past, EventTimestampMs: 3000}
+	assert.NoError(t, revenueCat.HandleEvent(newExpiration, now))
+	assert.False(t, premiumPlan())
+
+	// 同じイベントが重複して届いても変わらない
+	assert.NoError(t, revenueCat.HandleEvent(renewal, now))
+	assert.False(t, premiumPlan())
 }

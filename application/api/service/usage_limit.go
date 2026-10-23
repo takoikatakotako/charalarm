@@ -47,7 +47,8 @@ func (l *UsageLimit) Use(user database.User, chat int, ttsChars int, now time.Ti
 	if user.PremiumPlan && l.PremiumMultiplier > 0 {
 		multiplier = l.PremiumMultiplier
 	}
-	if exceeded(usage.Chat, l.DailyChat*multiplier) || exceeded(usage.TTSChars, l.DailyTTSChars*multiplier) {
+	// このリクエストで増やした方の上限だけを見る (読み上げが上限でも会話は続けられる)
+	if (chat > 0 && exceeded(usage.Chat, l.DailyChat*multiplier)) || (ttsChars > 0 && exceeded(usage.TTSChars, l.DailyTTSChars*multiplier)) {
 		slog.Warn("usage limit exceeded",
 			slog.Int("chat", usage.Chat), slog.Int("tts_chars", usage.TTSChars), slog.Bool("premium", user.PremiumPlan))
 		return ErrUsageLimitExceeded

@@ -157,7 +157,6 @@ func main() {
 	// user
 	e.GET("/user/info", userHandler.UserInfoGet)
 	e.POST("/user/signup", userHandler.UserSignupPost)
-	e.POST("/user/update-premium", userHandler.UserUpdatePremiumPost)
 	e.POST("/user/withdraw", userHandler.UserWithdrawPost)
 
 	// alarm

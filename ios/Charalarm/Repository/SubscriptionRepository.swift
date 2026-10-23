@@ -25,13 +25,15 @@ struct SubscriptionRepository {
                 .build()
         )
 
+        // 移行が要るかは、購入状態の見張りでプレミアムの印が書き換わる前に決めておく
+        let needsPurchaseSync = needsPurchaseSyncFromStoreKit()
         Task {
+            if needsPurchaseSync {
+                await syncPurchasesFromStoreKit()
+            }
             for await customerInfo in Purchases.shared.customerInfoStream {
                 updatePremiumPlan(customerInfo)
             }
-        }
-        Task {
-            await syncPurchasesFromStoreKitIfNeeded()
         }
     }
 
@@ -98,16 +100,22 @@ struct SubscriptionRepository {
         userDefaultsRepository.setEnablePremiumPlan(enable: isPremium(customerInfo))
     }
 
-    /// RevenueCat を入れる前に StoreKit で買った人の購入を、一度だけ RevenueCat に送る
-    private func syncPurchasesFromStoreKitIfNeeded() async {
-        guard userDefaultsRepository.getEnablePremiumPlan(),
-              !userDefaultsRepository.getDidSyncPurchasesToRevenueCat() else {
-            return
+    /// RevenueCat を入れる前に StoreKit で買った人か。初めて決めたときの答えを取っておき、送れるまで使う
+    private func needsPurchaseSyncFromStoreKit() -> Bool {
+        if let needsSync = userDefaultsRepository.getNeedsPurchaseSyncToRevenueCat() {
+            return needsSync
         }
+        let needsSync = userDefaultsRepository.getEnablePremiumPlan()
+        userDefaultsRepository.setNeedsPurchaseSyncToRevenueCat(needsSync)
+        return needsSync
+    }
+
+    /// StoreKit で買った購入を RevenueCat に送る。失敗したら次の起動でもう一度送る
+    private func syncPurchasesFromStoreKit() async {
         do {
             let customerInfo = try await Purchases.shared.syncPurchases()
             updatePremiumPlan(customerInfo)
-            userDefaultsRepository.setDidSyncPurchasesToRevenueCat(true)
+            userDefaultsRepository.setNeedsPurchaseSyncToRevenueCat(false)
         } catch {
             CharalarmLogger.error("RevenueCat に購入を送れませんでした", error: error)
         }
