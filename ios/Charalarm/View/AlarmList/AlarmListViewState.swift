@@ -23,17 +23,18 @@ import Foundation
         }
     }
 
+    /// 作れるアラームの数。無料は1つ、プレミアムは10まで
+    static let maxFreeAlarms = 1
+    static let maxPremiumAlarms = 10
+
     func addAlarmButtonTapped() {
-        if alarms.isEmpty {
+        let isPremium = userDefaultsRepository.getEnablePremiumPlan()
+        if alarms.count < (isPremium ? Self.maxPremiumAlarms : Self.maxFreeAlarms) {
             sheet = .alarmDetailForCreate
-        } else if 0 < alarms.count && alarms.count <= 10 {
-            if userDefaultsRepository.getEnablePremiumPlan() {
-                sheet = .alarmDetailForCreate
-            } else {
-                alertMessage = String(localized: "alarm-list-too-much")
-            }
+        } else if isPremium {
+            alertMessage = String(localized: "alarm-you-can-create-up-to-ten-alarms")
         } else {
-            alertMessage = String(localized: "alarm-you-can-create-up-to-three-alarms")
+            alertMessage = String(localized: "alarm-list-too-much")
         }
     }
 

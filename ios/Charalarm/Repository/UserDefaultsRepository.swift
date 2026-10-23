@@ -25,6 +25,7 @@ struct UserDefaultsRepository: UserDefaultsRepositoryProtocol {
     private let KEY_TAP_VOICE_IN_SILENT_MODE = "TAP_VOICE_IN_SILENT_MODE"
     private let KEY_LAST_SEEN_NEWS_AT = "LAST_SEEN_NEWS_AT"
     private let KEY_NEEDS_PURCHASE_SYNC_TO_REVENUECAT = "NEEDS_PURCHASE_SYNC_TO_REVENUECAT"
+    private let KEY_REWARDED_UNLOCKED_DAY_PREFIX = "REWARDED_UNLOCKED_DAY_"
 
     // Defaults
     private let DEFAULT_CHARA_DOMAIN = "jp.zunko.zundamon"
@@ -119,6 +120,15 @@ struct UserDefaultsRepository: UserDefaultsRepositoryProtocol {
 
     func setNeedsPurchaseSyncToRevenueCat(_ needsSync: Bool) {
         UserDefaults.standard.set(needsSync, forKey: KEY_NEEDS_PURCHASE_SYNC_TO_REVENUECAT)
+    }
+
+    /// リワード広告を見て、その機能を使えるようにした日（yyyy-MM-dd）
+    func getRewardedUnlockedDay(feature: String) -> String? {
+        UserDefaults.standard.string(forKey: KEY_REWARDED_UNLOCKED_DAY_PREFIX + feature)
+    }
+
+    func setRewardedUnlockedDay(feature: String, day: String) {
+        UserDefaults.standard.set(day, forKey: KEY_REWARDED_UNLOCKED_DAY_PREFIX + feature)
     }
 
     /// マナーモードでも、ホームでタップしたときの声を出す。最初はオフ（マナーモードでは鳴らさない）

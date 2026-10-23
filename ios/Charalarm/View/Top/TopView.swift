@@ -3,7 +3,6 @@ import GoogleMobileAds
 
 struct TopView: View {
     @State var viewState = TopViewState()
-    @State private var adDelegate = AdmobRewardedHandler()
     @AppStorage(TopBackground.defaultsKey) private var selectedBackground = TopBackground.washitsu.rawValue
 
     var body: some View {
@@ -142,7 +141,7 @@ struct TopView: View {
         }
         .onAppear {
             viewState.onAppear()
-            adDelegate.load()
+            viewState.preloadRewardedAd()
         }
         .alert(
             viewState.alert?.message ?? "",
@@ -152,6 +151,20 @@ struct TopView: View {
             Button(String(localized: "common-close")) {}
         } message: { item in
             Text(item.message)
+        }
+        .alert(
+            String(localized: "rewarded-title"),
+            isPresented: $viewState.showingRewardedPrompt,
+            presenting: viewState.rewardedPrompt
+        ) { _ in
+            Button(String(localized: "rewarded-watch")) {
+                viewState.watchRewardedAd()
+            }
+            Button(String(localized: "common-cancel"), role: .cancel) {
+                viewState.cancelRewardedAd()
+            }
+        } message: { feature in
+            Text(feature.promptMessage)
         }
         .fullScreenCover(item: $viewState.conversationChara) { chara in
             ConversationView(charaID: chara.charaID, topic: chara.topic)

@@ -255,7 +255,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "2つ以上アラームを作るにはプレミアムプランに登録する必要があります。"
+            "value" : "To create more than one alarm, please subscribe to the premium plan."
           }
         },
         "ja" : {
@@ -400,18 +400,18 @@
         }
       }
     },
-    "alarm-you-can-create-up-to-three-alarms" : {
+    "alarm-you-can-create-up-to-ten-alarms" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "You can create up to three alarms."
+            "value" : "You can create up to 10 alarms."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "アラームは最大3つまで作成できます。"
+            "value" : "アラームは最大10個まで作成できます。"
           }
         }
       }
@@ -2360,6 +2360,70 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "リセット"
+          }
+        }
+      }
+    },
+    "rewarded-title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Watch an ad?"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "広告を見て使いますか？"
+          }
+        }
+      }
+    },
+    "rewarded-today-schedule-message" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Watch an ad to have your character read today's schedule. After that, you can use it without ads for the rest of the day. With the premium plan, there are no ads."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "広告を見ると、キャラクターが今日の予定を読んでくれます。今日はこのあと、広告なしで使えます。プレミアムプランなら広告は出ません。"
+          }
+        }
+      }
+    },
+    "rewarded-trend-news-message" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Watch an ad to have your character read the news. After that, you can use it without ads for the rest of the day. With the premium plan, there are no ads."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "広告を見ると、キャラクターが話題のニュースを読んでくれます。今日はこのあと、広告なしで使えます。プレミアムプランなら広告は出ません。"
+          }
+        }
+      }
+    },
+    "rewarded-watch" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Watch ad"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "広告を見る"
           }
         }
       }

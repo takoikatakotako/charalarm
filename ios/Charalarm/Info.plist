@@ -8,6 +8,8 @@
 	<string>${ADMOB_ALARM_LIST}</string>
 	<key>ADMOB_CONFIG</key>
 	<string>${ADMOB_CONFIG}</string>
+	<key>ADMOB_REWARDED</key>
+	<string>${ADMOB_REWARDED}</string>
 	<key>API_ENDPOINT</key>
 	<string>$(API_ENDPOINT)</string>
 	<key>CFBundleDevelopmentRegion</key>
