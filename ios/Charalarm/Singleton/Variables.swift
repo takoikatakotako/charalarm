@@ -41,6 +41,11 @@ class Variables {
         self.admobConfigUnitID = unitID
     }
 
+    // AdmobのユニットID: リワード広告（空なら広告を出さずに使える）
+    static var admobRewardedUnitID: String {
+        return Bundle.main.infoDictionary?["ADMOB_REWARDED"] as? String ?? ""
+    }
+
     // サブスクのIDを取得
     static var subscriptionProductID: String {
         return Bundle.main.infoDictionary?["SUBSCRIPTION_PRODUCT_ID"] as? String ?? ""

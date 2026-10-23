@@ -142,6 +142,7 @@ targets:
           GAD_APPLICATION_IDENTIFER: ca-app-pub-3940256099942544~1458002511
           ADMOB_ALARM_LIST: ca-app-pub-3940256099942544/2934735716
           ADMOB_CONFIG: ca-app-pub-3940256099942544/2934735716
+          ADMOB_REWARDED: ca-app-pub-3940256099942544/1712485313
           SUBSCRIPTION_PRODUCT_ID: charalarm.development.monthly.subscription
           REVENUECAT_API_KEY: appl_yNEpFErBOrPpfZYsYqsYvRBXiAh
         Release:
@@ -151,6 +152,7 @@ targets:
           GAD_APPLICATION_IDENTIFER: ca-app-pub-3940256099942544~1458002511
           ADMOB_ALARM_LIST: ca-app-pub-3940256099942544/2934735716
           ADMOB_CONFIG: ca-app-pub-3940256099942544/2934735716
+          ADMOB_REWARDED: ca-app-pub-3940256099942544/1712485313
           SUBSCRIPTION_PRODUCT_ID: charalarm.development.monthly.subscription
           REVENUECAT_API_KEY: appl_yNEpFErBOrPpfZYsYqsYvRBXiAh
 
@@ -186,6 +188,7 @@ targets:
           GAD_APPLICATION_IDENTIFER: ca-app-pub-3940256099942544~1458002511
           ADMOB_ALARM_LIST: ca-app-pub-3940256099942544/2934735716
           ADMOB_CONFIG: ca-app-pub-3940256099942544/2934735716
+          ADMOB_REWARDED: ca-app-pub-3940256099942544/1712485313
           SUBSCRIPTION_PRODUCT_ID: charalarm.staging.monthly.subscription
           REVENUECAT_API_KEY: ""
         Release:
@@ -195,6 +198,7 @@ targets:
           GAD_APPLICATION_IDENTIFER: ca-app-pub-3940256099942544~1458002511
           ADMOB_ALARM_LIST: ca-app-pub-3940256099942544/2934735716
           ADMOB_CONFIG: ca-app-pub-3940256099942544/2934735716
+          ADMOB_REWARDED: ca-app-pub-3940256099942544/1712485313
           SUBSCRIPTION_PRODUCT_ID: charalarm.staging.monthly.subscription
           REVENUECAT_API_KEY: ""
 
@@ -230,6 +234,7 @@ targets:
           GAD_APPLICATION_IDENTIFER: ca-app-pub-5587141252700968~9053558907
           ADMOB_ALARM_LIST: ca-app-pub-5587141252700968/8220227024
           ADMOB_CONFIG: ca-app-pub-5587141252700968/1355204268
+          ADMOB_REWARDED: ""
           SUBSCRIPTION_PRODUCT_ID: charalarm.production.monthly.subscription
           REVENUECAT_API_KEY: ""
         Release:
@@ -239,6 +244,7 @@ targets:
           GAD_APPLICATION_IDENTIFER: ca-app-pub-5587141252700968~9053558907
           ADMOB_ALARM_LIST: ca-app-pub-5587141252700968/8220227024
           ADMOB_CONFIG: ca-app-pub-5587141252700968/1355204268
+          ADMOB_REWARDED: ""
           SUBSCRIPTION_PRODUCT_ID: charalarm.production.monthly.subscription
           REVENUECAT_API_KEY: ""
 
