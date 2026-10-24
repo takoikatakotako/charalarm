@@ -23,7 +23,7 @@ charalarm/
 
 ## 技術スタック
 
-**iOS**: Swift, SwiftUI, Combine, Firebase, Datadog, CallKit
+**iOS**: Swift, SwiftUI, Combine, Firebase, CallKit
 **Backend**: Go 1.25, Echo v4, AWS SDK v2
 **Infra**: Lambda, DynamoDB, SQS, SNS, S3, CloudFront, API Gateway, EventBridge
 **IaC**: Terraform
