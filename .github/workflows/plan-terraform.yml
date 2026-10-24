@@ -1,0 +1,92 @@
+name: Plan Terraform
+
+# terraform/ が変わった PR で、各環境の plan を PR にコメントする（#311）。
+# 手動実行では main の差分を Summary に出す。apply の前にこれを見る。
+# plan は読み取りだけのロール（*-terraform-plan-role）で回すので、何も変えない。
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'terraform/**'
+      - '.github/workflows/plan-terraform.yml'
+      - '.github/scripts/terraform-aws-profiles.sh'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "plan する環境"
+        required: true
+        default: development
+        type: choice
+        options:
+          - development
+          - staging
+          - production
+
+permissions:
+  contents: read
+  id-token: write
+  pull-requests: write
+
+jobs:
+  plan:
+    name: Plan (${{ matrix.environment }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        environment: ${{ github.event_name == 'workflow_dispatch' && fromJson(format('["{0}"]', inputs.environment)) || fromJson('["development","staging","production"]') }}
+    defaults:
+      run:
+        working-directory: terraform/environment/${{ matrix.environment }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS profiles (plan)
+        run: ${{ github.workspace }}/.github/scripts/terraform-aws-profiles.sh ${{ matrix.environment }} plan
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.14.3
+          terraform_wrapper: false
+
+      - name: Install tfcmt
+        if: github.event_name == 'pull_request'
+        run: |
+          ver=v4.14.15
+          curl -fsSL "https://github.com/suzuki-shunsuke/tfcmt/releases/download/${ver}/tfcmt_linux_amd64.tar.gz" \
+            | sudo tar -xz -C /usr/local/bin tfcmt
+          tfcmt --version
+
+      - name: Terraform Init
+        run: terraform init -input=false
+
+      - name: Terraform Plan (PR comment)
+        if: github.event_name == 'pull_request'
+        run: >
+          tfcmt --config "${{ github.workspace }}/.github/tfcmt.yaml"
+          -var "target:${{ matrix.environment }}"
+          plan -patch -- terraform plan -no-color -input=false -lock=false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Terraform Plan (summary)
+        if: github.event_name != 'pull_request'
+        run: |
+          set -o pipefail
+          terraform plan -no-color -input=false -lock=false 2>&1 | tee "$RUNNER_TEMP/plan.txt"
+
+      - name: Publish plan to summary
+        if: github.event_name != 'pull_request' && always()
+        run: |
+          {
+            echo "## Plan (${{ matrix.environment }})"
+            echo ""
+            echo '```terraform'
+            head -c 900000 "$RUNNER_TEMP/plan.txt"
+            echo ''
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
