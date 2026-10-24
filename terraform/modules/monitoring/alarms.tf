@@ -63,3 +63,37 @@ resource "aws_cloudwatch_metric_alarm" "batch_heartbeat" {
     FunctionName = var.batch_function_name
   }
 }
+
+##################################################
+# 1日の使用量の上限に当たった回数 (全ユーザー合計)
+##################################################
+# API は上限を超えると "usage limit exceeded" をログに出し、429 を返す。
+# ふつうの使い方ではほとんど当たらないので、急に増えたら乱用 (大量登録や API の直叩き) を疑う。
+# 月ごとの予算アラート (GCP) より早く気づくためのもの。
+resource "aws_cloudwatch_log_metric_filter" "usage_limit_exceeded" {
+  name           = "${var.name_prefix}-usage-limit-exceeded"
+  log_group_name = var.api_log_group_name
+  pattern        = "\"usage limit exceeded\""
+
+  metric_transformation {
+    name          = "UsageLimitExceeded"
+    namespace     = "Charalarm/${var.name_prefix}"
+    value         = "1"
+    default_value = "0"
+  }
+}
+
+resource "aws_cloudwatch_metric_alarm" "usage_limit_exceeded" {
+  alarm_name          = "${var.name_prefix}-usage-limit-exceeded"
+  alarm_description   = "1時間に ${var.usage_limit_exceeded_threshold} 回を超えて、1日の使用量の上限に当たっています (乱用の疑い)"
+  namespace           = aws_cloudwatch_log_metric_filter.usage_limit_exceeded.metric_transformation[0].namespace
+  metric_name         = aws_cloudwatch_log_metric_filter.usage_limit_exceeded.metric_transformation[0].name
+  statistic           = "Sum"
+  period              = 3600
+  evaluation_periods  = 1
+  threshold           = var.usage_limit_exceeded_threshold
+  comparison_operator = "GreaterThanThreshold"
+  treat_missing_data  = "notBreaching"
+  alarm_actions       = [aws_sns_topic.alerts.arn]
+  ok_actions          = [aws_sns_topic.alerts.arn]
+}

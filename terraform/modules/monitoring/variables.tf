@@ -45,3 +45,14 @@ variable "create_dashboard" {
   description = "CloudWatch Dashboard を作成するか (コスト削減のため development/staging では false)"
   default     = true
 }
+
+variable "api_log_group_name" {
+  type        = string
+  description = "API Lambda のロググループ名 (1日の使用量の上限に当たった回数を数える)"
+}
+
+variable "usage_limit_exceeded_threshold" {
+  type        = number
+  description = "1時間に、全ユーザー合計でこの回数を超えて使用量の上限に当たったら通知する"
+  default     = 20
+}

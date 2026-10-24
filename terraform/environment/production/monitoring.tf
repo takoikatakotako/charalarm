@@ -5,6 +5,7 @@ module "monitoring" {
   source                           = "../../modules/monitoring"
   name_prefix                      = local.prefix
   slack_webhook_ssm_parameter_name = "/charalarm/production/slack-webhook-url"
+  api_log_group_name               = module.api.log_group_name
 
   worker_function_name = module.worker2.function_name
   batch_function_name  = module.batch2.function_name
