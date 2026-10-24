@@ -103,4 +103,5 @@ S3 + CloudFrontで配信。キャラIDはリバースドメイン形式 (例: `c
 - APNs証明書は1年で期限切れ (要定期更新)
 - Lambda イメージは ECR にプッシュで自動デプロイ
 - CloudFront キャッシュ削除は手動ワークフロー
+- Terraform は PR で各環境の plan が自動で走る。development は main へのマージで自動 apply、staging / production は手動の「Apply Terraform」ワークフローで apply する（production は承認あり）。management の composition は手元から apply する
 - ローカル開発には Moto を使用 (LocalStack から移行済み)

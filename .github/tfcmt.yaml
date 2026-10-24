@@ -1,0 +1,9 @@
+# 環境ごとの plan を PR の「別コメント」として投稿・上書きするため、
+# target 変数をコメントの隠しメタデータに埋め込む（gcp-iac と同じ）。
+embedded_var_names:
+  - target
+
+terraform:
+  plan:
+    # target を含むラベル名が GitHub の 50 字制限を超えるため、ラベルは付けない。
+    disable_label: true

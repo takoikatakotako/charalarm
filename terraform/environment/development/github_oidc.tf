@@ -90,3 +90,32 @@ module "github_actions_deploy_role" {
   policy_name       = "${local.prefix}-github-actions-policy"
   policy_json       = data.aws_iam_policy_document.github_actions_deploy.json
 }
+
+# terraform plan / apply を GitHub Actions から行うロール（#311）
+# plan は読み取りだけ。SecureString の SSM パラメータ（data で読む）を復号するため、SSM 経由の KMS 復号だけ足す。
+# apply は Terraform が IAM も作るため、管理者権限を付ける。引き受けられるのは Environment の terraform-development だけ。
+data "aws_iam_policy_document" "terraform_plan" {
+  statement {
+    effect    = "Allow"
+    actions   = ["kms:Decrypt"]
+    resources = ["*"]
+
+    condition {
+      test     = "StringEquals"
+      variable = "kms:ViaService"
+      values   = ["ssm.ap-northeast-1.amazonaws.com"]
+    }
+  }
+}
+
+module "terraform_ci_role" {
+  source = "../../modules/terraform_ci_role"
+
+  oidc_provider_arn   = module.github_oidc.oidc_provider_arn
+  github_repository   = "takoikatakotako/charalarm"
+  github_environments = ["terraform-development"]
+  name_prefix         = local.prefix
+  plan_policy_arns    = ["arn:aws:iam::aws:policy/ReadOnlyAccess"]
+  plan_policy_json    = data.aws_iam_policy_document.terraform_plan.json
+  apply_policy_arns   = ["arn:aws:iam::aws:policy/AdministratorAccess"]
+}

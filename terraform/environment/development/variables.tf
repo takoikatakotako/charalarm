@@ -23,7 +23,4 @@ locals {
   lp_domain               = "charalarm.sandbox.swiswiswift.com"
   lp_bucket_name          = "charalarm.sandbox.swiswiswift.com"
   lp_acm_certificate_arn  = "arn:aws:acm:us-east-1:397693451628:certificate/f7fadcbe-34ce-454d-8ee6-9ccdf4dc0d9b"
-
-  ios_voip_push_certificate_filename = "development-voip-expiration-20270507-certificate.pem"
-  ios_voip_push_private_filename     = "development-voip-expiration-20270507-privatekey.pem"
 }
