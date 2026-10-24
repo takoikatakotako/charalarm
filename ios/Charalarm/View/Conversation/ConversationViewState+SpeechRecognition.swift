@@ -21,6 +21,10 @@ extension ConversationViewState {
                 CharalarmLogger.breadcrumb("聞き取り: 空（\(attempt)回目）")
             } catch {
                 CharalarmLogger.error("音声認識エラー", error: error)
+                resetRecognition()
+                // マイクの準備ができるまで (電話に出た直後など) 少し待ってから聞き直す
+                try? await Task.sleep(for: .milliseconds(500))
+                continue
             }
             resetRecognition()
         }
@@ -106,7 +110,10 @@ extension ConversationViewState {
         request.shouldReportPartialResults = true
         self.request = request
 
-        installInputTap()
+        guard installInputTap() else {
+            self.request = nil
+            throw ConversationError.microphoneNotReady
+        }
 
         task = recognizer?.recognitionTask(with: request) { [weak self] result, error in
             Task { @MainActor in
@@ -121,13 +128,22 @@ extension ConversationViewState {
         }
     }
 
-    /// マイクの音を音声認識に流す。エンジンの設定が変わったら (形が変わることがあるので) 付け直す
-    func installInputTap() {
+    /// マイクの音を音声認識に流す。エンジンの設定が変わったら (形が変わることがあるので) 付け直す。
+    /// 電話に出た直後などはマイクの形がまだ決まっておらず (0Hz・0ch)、そのまま付けると例外で落ちる。
+    /// そのときは付けずに false を返す
+    @discardableResult
+    func installInputTap() -> Bool {
         let input = engine.inputNode
         input.removeTap(onBus: 0)
-        input.installTap(onBus: 0, bufferSize: 1024, format: input.outputFormat(forBus: 0)) { [weak self] buffer, _ in
+        let format = input.outputFormat(forBus: 0)
+        guard format.sampleRate > 0, format.channelCount > 0 else {
+            CharalarmLogger.breadcrumb("聞き取り: マイクの準備ができていない rate=\(format.sampleRate) ch=\(format.channelCount)")
+            return false
+        }
+        input.installTap(onBus: 0, bufferSize: 1024, format: format) { [weak self] buffer, _ in
             self?.request?.append(buffer)
         }
+        return true
     }
 
     private func didRecognize(_ recognizedText: String) {

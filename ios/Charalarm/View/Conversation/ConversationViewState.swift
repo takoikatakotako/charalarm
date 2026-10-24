@@ -452,8 +452,13 @@ final class ConversationViewState: NSObject {
 
         isBargedIn = false
         if interruptible {
-            try startListening()
-            isListeningForBargeIn = true
+            // 話しかけて止められるよう、流している最中も聞く。マイクの準備ができていなければ、止められないまま流す
+            do {
+                try startListening()
+                isListeningForBargeIn = true
+            } catch {
+                CharalarmLogger.error("流している最中の聞き取りを始められませんでした", error: error)
+            }
         }
         defer { isListeningForBargeIn = false }
 
