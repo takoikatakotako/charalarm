@@ -92,6 +92,12 @@ extension ConversationViewState {
             pendingRecognizedText = nil
             return pending
         }
+        // キャラが話しているあいだに聞こえたのに止めなかった（相づちだった）なら、返事としては聞き直す
+        if request != nil, !isBargedIn, !heardText.isEmpty {
+            resetRecognitionTask()
+            request?.endAudio()
+            request = nil
+        }
         if request == nil {
             text = ""
             try startListening()
@@ -109,6 +115,7 @@ extension ConversationViewState {
         let request = SFSpeechAudioBufferRecognitionRequest()
         request.shouldReportPartialResults = true
         self.request = request
+        heardText = ""
 
         guard installInputTap() else {
             self.request = nil
@@ -117,13 +124,14 @@ extension ConversationViewState {
 
         task = recognizer?.recognitionTask(with: request) { [weak self] result, error in
             Task { @MainActor in
-                guard let self else { return }
+                // やめた聞き取り (相づちで聞き直した等) からの知らせは、今の聞き取りに混ぜない
+                guard let self, self.request === request else { return }
                 if let error {
                     self.failRecognition(error)
                     return
                 }
                 guard let result, !result.isFinal else { return }
-                self.didRecognize(result.bestTranscription.formattedString)
+                self.didRecognize(result.bestTranscription)
             }
         }
     }
@@ -146,21 +154,65 @@ extension ConversationViewState {
         return true
     }
 
-    private func didRecognize(_ recognizedText: String) {
-        let trimmed = recognizedText.trimmingCharacters(in: .whitespacesAndNewlines)
-        // キャラが話している最中に言葉が聞こえたら止める (物音で止まらないよう2文字から)
-        if isListeningForBargeIn && !isBargedIn {
-            guard trimmed.count >= 2 else { return }
+    private func didRecognize(_ transcription: SFTranscription) {
+        let recognizedText = transcription.formattedString
+        guard !recognizedText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
+
+        // キャラが話している最中は、間を空けずにしばらく話し続けたときだけ止める。
+        // 言葉の中身ではなく音声上の長さで見るので、どの言語でも相づち（「うん」「うーん…」「yeah」など）では止まらない
+        if isListeningForBargeIn && !isBargedIn,
+           let speech = Self.continuousSpeeches(in: transcription.segments).first(where: {
+               $0.duration >= Constants.bargeInMinimumDuration && $0.words >= Constants.bargeInMinimumWords
+           }) {
+            CharalarmLogger.breadcrumb(String(format: "聞き取り: 話しかけられた duration=%.2f words=%d", speech.duration, speech.words))
             interruptPlayback()
         }
-
-        text = recognizedText
+        heardText = recognizedText
+        if !isListeningForBargeIn || isBargedIn {
+            text = recognizedText
+        }
         silenceTimer?.invalidate()
         silenceTimer = Timer.scheduledTimer(withTimeInterval: Constants.silenceDetectionTime, repeats: false) { [weak self] _ in
             Task { @MainActor in
                 self?.stopRecognition()
             }
         }
+    }
+
+    /// 間を空けずに話し続けたところごとの、声を出していた長さ（秒）と違う語の数。
+    /// 長さは各語の長さの合計で、語と語のあいだの無音は入れない。
+    /// 間を空けた「うん」「へー」は別々に数え、「うーん…」と伸ばしても「うんうん」と繰り返しても1語にする。
+    /// 音声上の時刻がまだ付いていない途中結果では空
+    static func continuousSpeeches(in segments: [SFTranscriptionSegment]) -> [(duration: TimeInterval, words: Int)] {
+        continuousSpeeches(in: segments.map { HeardWord(word: $0.substring, timestamp: $0.timestamp, duration: $0.duration) })
+    }
+
+    /// 聞き取れた1語と、音声上の時刻（秒）
+    struct HeardWord {
+        let word: String
+        let timestamp: TimeInterval
+        let duration: TimeInterval
+    }
+
+    static func continuousSpeeches(in segments: [HeardWord]) -> [(duration: TimeInterval, words: Int)] {
+        var speeches: [(duration: TimeInterval, words: Int)] = []
+        var runEnd: TimeInterval = 0
+        var runDuration: TimeInterval = 0
+        var runWords: Set<String> = []
+        for segment in segments where segment.duration > 0 {
+            if !runWords.isEmpty && segment.timestamp - runEnd > Constants.bargeInMaximumPause {
+                speeches.append((runDuration, runWords.count))
+                runDuration = 0
+                runWords = []
+            }
+            runEnd = segment.timestamp + segment.duration
+            runDuration += segment.duration
+            runWords.insert(segment.word.lowercased())
+        }
+        if !runWords.isEmpty {
+            speeches.append((runDuration, runWords.count))
+        }
+        return speeches
     }
 
     private func failRecognition(_ error: Error) {
@@ -185,11 +237,19 @@ extension ConversationViewState {
         task = nil
 
         if let continuation = recognitionContinuation {
-            continuation.resume(returning: text)
+            continuation.resume(returning: heardText)
             recognitionContinuation = nil
+        } else if isListeningForBargeIn && !isBargedIn {
+            // キャラが話している最中の相づちだけだった（止めるほど話さなかった）。返事として受け取らず、聞き直す
+            CharalarmLogger.breadcrumb("聞き取り: 相づちなので聞き流した")
+            do {
+                try startListening()
+            } catch {
+                CharalarmLogger.error("流している最中の聞き取りを始め直せませんでした", error: error)
+            }
         } else {
             // まだ受け取る準備ができていない (キャラの声を止めた直後など)。次に受け取る
-            pendingRecognizedText = text
+            pendingRecognizedText = heardText
         }
     }
 }
