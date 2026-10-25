@@ -69,6 +69,8 @@ final class ConversationViewState: NSObject {
     var task: SFSpeechRecognitionTask?
     var recognitionContinuation: CheckedContinuation<String, Error>?
     var silenceTimer: Timer?
+    /// 今の聞き取りで聞こえた言葉（字幕の text は、キャラが話しているあいだキャラの言葉のままにするので分ける）
+    var heardText = ""
 
     // MARK: - Audio Playback
 

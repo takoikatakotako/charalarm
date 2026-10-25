@@ -92,6 +92,12 @@ extension ConversationViewState {
             pendingRecognizedText = nil
             return pending
         }
+        // キャラが話しているあいだに聞こえたのが相づちだけなら、返事としては聞き直す
+        if request != nil, Backchannel.isOnly(heardText) {
+            resetRecognitionTask()
+            request?.endAudio()
+            request = nil
+        }
         if request == nil {
             text = ""
             try startListening()
@@ -109,6 +115,7 @@ extension ConversationViewState {
         let request = SFSpeechAudioBufferRecognitionRequest()
         request.shouldReportPartialResults = true
         self.request = request
+        heardText = ""
 
         guard installInputTap() else {
             self.request = nil
@@ -117,7 +124,8 @@ extension ConversationViewState {
 
         task = recognizer?.recognitionTask(with: request) { [weak self] result, error in
             Task { @MainActor in
-                guard let self else { return }
+                // やめた聞き取り (相づちで聞き直した等) からの知らせは、今の聞き取りに混ぜない
+                guard let self, self.request === request else { return }
                 if let error {
                     self.failRecognition(error)
                     return
@@ -148,13 +156,17 @@ extension ConversationViewState {
 
     private func didRecognize(_ recognizedText: String) {
         let trimmed = recognizedText.trimmingCharacters(in: .whitespacesAndNewlines)
-        // キャラが話している最中に言葉が聞こえたら止める (物音で止まらないよう2文字から)
-        if isListeningForBargeIn && !isBargedIn {
-            guard trimmed.count >= 2 else { return }
+        let isCharaSpeaking = isListeningForBargeIn && !isBargedIn
+        // キャラが話している最中に言葉が聞こえたら止める (物音で止まらないよう2文字から)。
+        // 相づち (「うん」など) だけなら止めず、字幕もキャラの言葉のままにする
+        if isCharaSpeaking && trimmed.count >= 2 && !Backchannel.isOnly(trimmed) {
+            CharalarmLogger.breadcrumb("聞き取り: 話しかけられた chars=\(trimmed.count)")
             interruptPlayback()
         }
-
-        text = recognizedText
+        heardText = recognizedText
+        if !isListeningForBargeIn || isBargedIn {
+            text = recognizedText
+        }
         silenceTimer?.invalidate()
         silenceTimer = Timer.scheduledTimer(withTimeInterval: Constants.silenceDetectionTime, repeats: false) { [weak self] _ in
             Task { @MainActor in
@@ -185,11 +197,19 @@ extension ConversationViewState {
         task = nil
 
         if let continuation = recognitionContinuation {
-            continuation.resume(returning: text)
+            continuation.resume(returning: heardText)
             recognitionContinuation = nil
+        } else if isListeningForBargeIn && !isBargedIn {
+            // キャラが話している最中の相づちだけだった。返事として受け取らず、聞き直す
+            CharalarmLogger.breadcrumb("聞き取り: 相づちなので聞き流した")
+            do {
+                try startListening()
+            } catch {
+                CharalarmLogger.error("流している最中の聞き取りを始め直せませんでした", error: error)
+            }
         } else {
             // まだ受け取る準備ができていない (キャラの声を止めた直後など)。次に受け取る
-            pendingRecognizedText = text
+            pendingRecognizedText = heardText
         }
     }
 }
