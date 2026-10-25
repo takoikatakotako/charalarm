@@ -127,7 +127,10 @@ extension AppDelegate: PKPushRegistryDelegate {
 }
 
 extension AppDelegate: CXProviderDelegate {
-    func providerDidReset(_ provider: CXProvider) {}
+    /// CallKit がリセットされた。通話はすべて終わったものとして、画面と音声を片付ける
+    func providerDidReset(_ provider: CXProvider) {
+        model.endCall()
+    }
 
     func provider(_ provider: CXProvider, perform action: CXAnswerCallAction) {
         action.fulfill()

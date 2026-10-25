@@ -39,14 +39,17 @@ struct RootView: View {
         .task {
             let answeredCalls = NotificationCenter.default.notifications(named: NSNotification.answerCall)
             // 受け取る準備をする前に電話に出ていたら、ここで合わせる
-            viewState.showAnsweredCallIfNeeded()
+            viewState.syncWithAnsweredCall()
             for await _ in answeredCalls {
-                viewState.showAnsweredCallIfNeeded()
+                viewState.syncWithAnsweredCall()
             }
         }
         .task {
-            for await _ in NotificationCenter.default.notifications(named: NSNotification.endCall) {
-                viewState.endCall()
+            let endedCalls = NotificationCenter.default.notifications(named: NSNotification.endCall)
+            // 受け取る準備をする前に電話が終わっていたら、ここで合わせる
+            viewState.syncWithAnsweredCall()
+            for await _ in endedCalls {
+                viewState.syncWithAnsweredCall()
             }
         }
     }

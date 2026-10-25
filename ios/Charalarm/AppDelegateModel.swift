@@ -127,6 +127,8 @@ class AppDelegateModel {
     }
 
     func endCall() {
+        // 録音ボイスを流していたら止める (会話画面の音声は、画面を閉じるときに片付く)
+        audioPlayer.stop()
         MainActor.assumeIsolated {
             AnsweredCallStore.shared.end()
         }
