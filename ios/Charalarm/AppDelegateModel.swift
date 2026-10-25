@@ -6,6 +6,8 @@ class AppDelegateModel {
     private(set) var charaName: String = ""
     private(set) var voiceFileURL: String = ""
     private var audioPlayer = AVAudioPlayer()
+    /// 録音ボイスのダウンロードと再生。電話が終わったら止める
+    private var voicePlaybackTask: Task<Void, Never>?
     private let apiRepository: APIRepository
     private let fileRepository: FileRepository
     private let keychainRepository: KeychainRepository
@@ -102,9 +104,12 @@ class AppDelegateModel {
 
         // 準備中の音を再生
 
-        Task { @MainActor in
+        voicePlaybackTask?.cancel()
+        voicePlaybackTask = Task { @MainActor in
             do {
                 let fileData = try await fileRepository.downloadFile(url: url)
+                // ダウンロード中に電話が終わっていたら流さない
+                try Task.checkCancellation()
 
                 // 準備中の音を停止
                 audioPlayer = try AVAudioPlayer(data: fileData)
@@ -127,7 +132,9 @@ class AppDelegateModel {
     }
 
     func endCall() {
-        // 録音ボイスを流していたら止める (会話画面の音声は、画面を閉じるときに片付く)
+        // 録音ボイスをダウンロード中なら取りやめ、流していたら止める (会話画面の音声は、画面を閉じるときに片付く)
+        voicePlaybackTask?.cancel()
+        voicePlaybackTask = nil
         audioPlayer.stop()
         MainActor.assumeIsolated {
             AnsweredCallStore.shared.end()
