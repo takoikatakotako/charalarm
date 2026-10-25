@@ -2,27 +2,14 @@ import UIKit
 import SwiftUI
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
-    var window: UIWindow?
-    var rootViewController: UIViewController?
     let sceneDelegateModel = SceneDelegateModel()
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         // キャラクターの初期値のDomainを登録
         sceneDelegateModel.registerDefaults()
 
-        // データをロードする
-        // sceneDelegateModel.loadData()
-
-        // RootViewを作成
-        let rootView = RootView(viewState: RootViewState())
-
-        if let windowScene = scene as? UIWindowScene {
-            let window = UIWindow(windowScene: windowScene)
-            rootViewController = UIHostingController(rootView: rootView)
-            window.rootViewController = self.rootViewController
-            self.window = window
-            window.makeKeyAndVisible()
-        }
+        // 画面 (RootView) は CharalarmApp の WindowGroup が作る。
+        // ここでも window を作ると RootView が 2 つでき、電話に出たときに会話が 2 つ同時に始まってしまう
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {
