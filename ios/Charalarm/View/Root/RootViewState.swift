@@ -14,31 +14,32 @@ import FirebaseAuth
     private let userDefaultsRepository = UserDefaultsRepository()
     private let fileRepository: FileRepositoryProtocol = FileRepository()
 
+    /// 起動の確認を始めたか (一度だけ行う)
+    private var hasStartedLaunching = false
+    /// 電話以外で出す画面 (起動の確認の結果、チュートリアルの完了・リセットで変わる)。電話が終わったらここに戻る
+    private var launchDestination: RootViewType?
+
     func onAppear() {
+        // 電話に出てアプリが起動したときは、起動の確認より先に電話の画面を出す
+        syncWithAnsweredCall()
+        guard !hasStartedLaunching else { return }
+        hasStartedLaunching = true
+
         Task { @MainActor in
             do {
-                // ローディング中（初回起動）のみ先に進む
-                guard type == .loading else {
-                    return
-                }
-
                 // TODO: ネットワークチェック
 
                 // メンテナンス中か確認
                 let isMaintenance = try await apiRepository.fetchMaintenance()
                 if isMaintenance {
-                    withAnimation(.linear(duration: 1)) {
-                        type = .maintenance
-                    }
+                    finishLaunching(.maintenance)
                     return
                 }
 
                 // アップデートが必要か確認
                 let requireVersion = try await apiRepository.fetchRequireVersion()
                 if requireVersion > appUseCase.appVersion {
-                    withAnimation(.linear(duration: 1)) {
-                        type = .updateRequire
-                    }
+                    finishLaunching(.updateRequire)
                     return
                 }
 
@@ -65,46 +66,53 @@ import FirebaseAuth
 
                 // チュートリアルの状態を確認
                 if appUseCase.isDoneTutorial {
-                    withAnimation(.linear(duration: 1)) {
-                        type = .top
-                    }
+                    finishLaunching(.top)
                 } else {
-                    withAnimation(.linear(duration: 1)) {
-                        type = .tutorial
-                    }
+                    finishLaunching(.tutorial)
                 }
             } catch {
                 CharalarmLogger.error("起動時の確認に失敗", error: error)
-                withAnimation(.linear(duration: 1)) {
-                    type = .error
-                }
+                finishLaunching(.error)
             }
         }
     }
 
     func doneTutorial() {
-        withAnimation(.linear(duration: 1)) {
-            type = .top
-        }
+        showDestination(.top)
     }
 
     func didReset() {
+        showDestination(.tutorial)
+    }
+
+    /// 起動の確認が終わった
+    private func finishLaunching(_ destination: RootViewType) {
+        showDestination(destination)
+    }
+
+    /// 電話以外の画面に移る。電話中なら電話の画面のままにし、行き先を覚えて電話が終わってから出す
+    private func showDestination(_ destination: RootViewType) {
+        launchDestination = destination
+        guard AnsweredCallStore.shared.call == nil else { return }
         withAnimation(.linear(duration: 1)) {
-            type = .tutorial
+            type = destination
         }
     }
 
-    func answerCall(charaID: String?, charaName: String?, callUUID: UUID?, conversation: Bool) {
-        self.charaID = charaID
-        self.charaName = charaName
-        self.callUUID = callUUID
-        // 会話対応キャラは音声会話画面へ、それ以外は従来の録音再生へ
-        type = conversation ? .conversation : .calling
-    }
-
-    func endCall() {
-        withAnimation(.linear(duration: 1)) {
-            type = .top
+    /// 画面を通話の状態に合わせる。電話に出ていれば電話の画面に、電話が終わっていれば元の画面に戻す。
+    /// 知らせ (応答・終話) を受け取る準備をする前に状態が変わっていても、これで合わせられる
+    func syncWithAnsweredCall() {
+        if let call = AnsweredCallStore.shared.call {
+            charaID = call.charaID
+            charaName = call.charaName
+            callUUID = call.callUUID
+            // 会話対応キャラは音声会話画面へ、それ以外は従来の録音再生へ
+            type = call.conversation ? .conversation : .calling
+        } else if type == .conversation || type == .calling {
+            // 起動の確認がまだ終わっていなければ、終わるまでロゴを出す
+            withAnimation(.linear(duration: 1)) {
+                type = launchDestination ?? .loading
+            }
         }
     }
 }

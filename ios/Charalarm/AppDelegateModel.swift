@@ -6,6 +6,8 @@ class AppDelegateModel {
     private(set) var charaName: String = ""
     private(set) var voiceFileURL: String = ""
     private var audioPlayer = AVAudioPlayer()
+    /// 録音ボイスのダウンロードと再生。電話が終わったら止める
+    private var voicePlaybackTask: Task<Void, Never>?
     private let apiRepository: APIRepository
     private let fileRepository: FileRepository
     private let keychainRepository: KeychainRepository
@@ -102,9 +104,12 @@ class AppDelegateModel {
 
         // 準備中の音を再生
 
-        Task { @MainActor in
+        voicePlaybackTask?.cancel()
+        voicePlaybackTask = Task { @MainActor in
             do {
                 let fileData = try await fileRepository.downloadFile(url: url)
+                // ダウンロード中に電話が終わっていたら流さない
+                try Task.checkCancellation()
 
                 // 準備中の音を停止
                 audioPlayer = try AVAudioPlayer(data: fileData)
@@ -119,16 +124,20 @@ class AppDelegateModel {
 
     func answerCall(callUUID: UUID) {
         // charaID が未取得(旧ペイロード等)の場合は空のまま = 非会話キャラ扱いで従来の録音再生にフォールバック
-        let userInfo: [String: Any] = [
-            NSNotification.answerCallUserInfoKeyCharaID: charaID,
-            NSNotification.answerCallUserInfoKeyCharaName: charaName,
-            NSNotification.answerCallUserInfoKeyCallUUID: callUUID,
-            NSNotification.answerCallUserInfoKeyConversation: answersWithConversation
-        ]
-        NotificationCenter.default.post(name: NSNotification.answerCall, object: self, userInfo: userInfo)
+        let call = AnsweredCall(charaID: charaID, charaName: charaName, callUUID: callUUID, conversation: answersWithConversation)
+        // CallKit の知らせはメインスレッドで届く (CXProvider の delegate の queue が nil)
+        MainActor.assumeIsolated {
+            AnsweredCallStore.shared.answer(call)
+        }
     }
 
     func endCall() {
-        NotificationCenter.default.post(name: NSNotification.endCall, object: self, userInfo: nil)
+        // 録音ボイスをダウンロード中なら取りやめ、流していたら止める (会話画面の音声は、画面を閉じるときに片付く)
+        voicePlaybackTask?.cancel()
+        voicePlaybackTask = nil
+        audioPlayer.stop()
+        MainActor.assumeIsolated {
+            AnsweredCallStore.shared.end()
+        }
     }
 }

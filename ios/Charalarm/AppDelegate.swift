@@ -9,6 +9,11 @@ import GoogleMobileAds
 
 class AppDelegate: UIResponder, UIApplicationDelegate {
     let model = AppDelegateModel(apiRepository: APIRepository(), keychainRepository: KeychainRepository())
+    /// VoIP Push の受け口。受け取り続けるため、アプリが動いているあいだ持っておく
+    private var voipRegistry: PKPushRegistry?
+    /// 着信を出す CallKit の窓口。応答・終話の知らせを受け続けるため、同じものを持っておく。
+    /// CallKit がリセットされると使えなくなるので、そのときは捨てて次の着信で作り直す
+    private var callProvider: CXProvider?
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Use Firebase library to configure APIs.
@@ -30,6 +35,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let voipRegistry = PKPushRegistry(queue: DispatchQueue.main)
         voipRegistry.delegate = self
         voipRegistry.desiredPushTypes = [PKPushType.voIP]
+        self.voipRegistry = voipRegistry
 
         // バックグラウンドでの音声再生を有効化する
         do {
@@ -102,20 +108,41 @@ extension AppDelegate: PKPushRegistryDelegate {
             model.setVoiceFileURL(voiceFileURL: voiceFileURL)
         }
 
-        // 通話画面を表示
+        // 通話画面を表示。着信を出し終えたら PushKit に知らせる
+        let update = CXCallUpdate()
+        update.remoteHandle = CXHandle(type: .generic, value: model.charaName)
+        makeCallProviderIfNeeded().reportNewIncomingCall(with: UUID(), update: update) { error in
+            if let error {
+                CharalarmLogger.error("着信を出せませんでした", error: error)
+            }
+            completion()
+        }
+    }
+}
+
+extension AppDelegate: CXProviderDelegate {
+    private func makeCallProviderIfNeeded() -> CXProvider {
+        if let callProvider {
+            return callProvider
+        }
         let config = CXProviderConfiguration()
         config.iconTemplateImageData = UIImage(resource: .callAlarm).pngData()
         config.includesCallsInRecents = true
         let provider = CXProvider(configuration: config)
         provider.setDelegate(self, queue: nil)
-        let update = CXCallUpdate()
-        update.remoteHandle = CXHandle(type: .generic, value: model.charaName)
-        provider.reportNewIncomingCall(with: UUID(), update: update, completion: { _ in })
+        callProvider = provider
+        return provider
     }
-}
 
-extension AppDelegate: CXProviderDelegate {
-    func providerDidReset(_ provider: CXProvider) {}
+    /// CallKit がリセットされた。通話はすべて終わったものとして、画面と音声を片付ける。
+    /// リセット後の provider は使えなくなるので捨て、次の着信で作り直す
+    func providerDidReset(_ provider: CXProvider) {
+        model.endCall()
+        provider.invalidate()
+        if provider === callProvider {
+            callProvider = nil
+        }
+    }
 
     func provider(_ provider: CXProvider, perform action: CXAnswerCallAction) {
         action.fulfill()
