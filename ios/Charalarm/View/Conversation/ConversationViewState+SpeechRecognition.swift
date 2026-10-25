@@ -116,7 +116,6 @@ extension ConversationViewState {
         request.shouldReportPartialResults = true
         self.request = request
         heardText = ""
-        heardStartTime = nil
 
         guard installInputTap() else {
             self.request = nil
@@ -158,19 +157,15 @@ extension ConversationViewState {
     private func didRecognize(_ transcription: SFTranscription) {
         let recognizedText = transcription.formattedString
         guard !recognizedText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
-        let heardStartTime = self.heardStartTime ?? Date()
-        self.heardStartTime = heardStartTime
 
-        // キャラが話している最中は、しばらく話し続けたら止める。
-        // 言葉の中身ではなく長さで見るので、どの言語でも相づち（「うん」「うーん…」「yeah」など）では止まらない。
-        // 「うーん」と伸ばしても1語のままで、「うんうん」と繰り返しても同じ語なので、違う語が続いたときだけにする
-        if isListeningForBargeIn && !isBargedIn {
-            let elapsed = Date().timeIntervalSince(heardStartTime)
-            let words = Set(transcription.segments.map { $0.substring.lowercased() }).count
-            if elapsed >= Constants.bargeInMinimumDuration && words >= Constants.bargeInMinimumWords {
-                CharalarmLogger.breadcrumb("聞き取り: 話しかけられた words=\(words)")
-                interruptPlayback()
-            }
+        // キャラが話している最中は、間を空けずにしばらく話し続けたときだけ止める。
+        // 言葉の中身ではなく音声上の長さで見るので、どの言語でも相づち（「うん」「うーん…」「yeah」など）では止まらない
+        if isListeningForBargeIn && !isBargedIn,
+           let speech = Self.continuousSpeeches(in: transcription.segments).first(where: {
+               $0.duration >= Constants.bargeInMinimumDuration && $0.words >= Constants.bargeInMinimumWords
+           }) {
+            CharalarmLogger.breadcrumb(String(format: "聞き取り: 話しかけられた duration=%.2f words=%d", speech.duration, speech.words))
+            interruptPlayback()
         }
         heardText = recognizedText
         if !isListeningForBargeIn || isBargedIn {
@@ -182,6 +177,42 @@ extension ConversationViewState {
                 self?.stopRecognition()
             }
         }
+    }
+
+    /// 間を空けずに話し続けたところごとの、長さ（秒）と違う語の数。
+    /// 間を空けた「うん」「へー」は別々に数え、「うーん…」と伸ばしても「うんうん」と繰り返しても1語にする。
+    /// 音声上の時刻がまだ付いていない途中結果では空
+    static func continuousSpeeches(in segments: [SFTranscriptionSegment]) -> [(duration: TimeInterval, words: Int)] {
+        continuousSpeeches(in: segments.map { HeardWord(word: $0.substring, timestamp: $0.timestamp, duration: $0.duration) })
+    }
+
+    /// 聞き取れた1語と、音声上の時刻（秒）
+    struct HeardWord {
+        let word: String
+        let timestamp: TimeInterval
+        let duration: TimeInterval
+    }
+
+    static func continuousSpeeches(in segments: [HeardWord]) -> [(duration: TimeInterval, words: Int)] {
+        var speeches: [(duration: TimeInterval, words: Int)] = []
+        var runStart: TimeInterval = 0
+        var runEnd: TimeInterval = 0
+        var runWords: Set<String> = []
+        for segment in segments where segment.duration > 0 {
+            if !runWords.isEmpty && segment.timestamp - runEnd > Constants.bargeInMaximumPause {
+                speeches.append((runEnd - runStart, runWords.count))
+                runWords = []
+            }
+            if runWords.isEmpty {
+                runStart = segment.timestamp
+            }
+            runEnd = segment.timestamp + segment.duration
+            runWords.insert(segment.word.lowercased())
+        }
+        if !runWords.isEmpty {
+            speeches.append((runEnd - runStart, runWords.count))
+        }
+        return speeches
     }
 
     private func failRecognition(_ error: Error) {

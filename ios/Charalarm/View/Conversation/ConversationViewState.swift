@@ -28,8 +28,10 @@ final class ConversationViewState: NSObject {
 
     enum Constants {
         static let silenceDetectionTime: TimeInterval = 2.0
-        /// キャラが話している最中に、これだけ話し続けたら話しかけとみなして止める（これより短いのは相づち）
-        static let bargeInMinimumDuration: TimeInterval = 1.0
+        /// キャラが話している最中に、間を空けずにこれだけ話し続けたら話しかけとみなして止める（これより短いのは相づち）
+        static let bargeInMinimumDuration: TimeInterval = 0.8
+        /// これより長く間が空いたら、話し続けたことにしない（間を空けた「うん」「へー」を足し合わせない）
+        static let bargeInMaximumPause: TimeInterval = 0.4
         /// 話しかけとみなすのに要る、違う語の数（「うーん」「うんうん」は1語）
         static let bargeInMinimumWords = 2
         static let maxConversationDuration: TimeInterval = 120.0
@@ -75,8 +77,6 @@ final class ConversationViewState: NSObject {
     var silenceTimer: Timer?
     /// 今の聞き取りで聞こえた言葉（字幕の text は、キャラが話しているあいだキャラの言葉のままにするので分ける）
     var heardText = ""
-    /// 今の聞き取りで、最初に言葉が聞こえた時刻
-    var heardStartTime: Date?
 
     // MARK: - Audio Playback
 
