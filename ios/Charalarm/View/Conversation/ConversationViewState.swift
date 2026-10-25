@@ -28,7 +28,8 @@ final class ConversationViewState: NSObject {
 
     enum Constants {
         static let silenceDetectionTime: TimeInterval = 2.0
-        /// キャラが話している最中に、間を空けずにこれだけ話し続けたら話しかけとみなして止める（これより短いのは相づち）
+        /// キャラが話している最中に、間を空けずにこれだけ声を出し続けたら話しかけとみなして止める（これより短いのは相づち）。
+        /// 語と語のあいだの無音は入れない。実機で試して決める
         static let bargeInMinimumDuration: TimeInterval = 0.8
         /// これより長く間が空いたら、話し続けたことにしない（間を空けた「うん」「へー」を足し合わせない）
         static let bargeInMaximumPause: TimeInterval = 0.4

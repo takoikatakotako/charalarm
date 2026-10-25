@@ -179,7 +179,8 @@ extension ConversationViewState {
         }
     }
 
-    /// 間を空けずに話し続けたところごとの、長さ（秒）と違う語の数。
+    /// 間を空けずに話し続けたところごとの、声を出していた長さ（秒）と違う語の数。
+    /// 長さは各語の長さの合計で、語と語のあいだの無音は入れない。
     /// 間を空けた「うん」「へー」は別々に数え、「うーん…」と伸ばしても「うんうん」と繰り返しても1語にする。
     /// 音声上の時刻がまだ付いていない途中結果では空
     static func continuousSpeeches(in segments: [SFTranscriptionSegment]) -> [(duration: TimeInterval, words: Int)] {
@@ -195,22 +196,21 @@ extension ConversationViewState {
 
     static func continuousSpeeches(in segments: [HeardWord]) -> [(duration: TimeInterval, words: Int)] {
         var speeches: [(duration: TimeInterval, words: Int)] = []
-        var runStart: TimeInterval = 0
         var runEnd: TimeInterval = 0
+        var runDuration: TimeInterval = 0
         var runWords: Set<String> = []
         for segment in segments where segment.duration > 0 {
             if !runWords.isEmpty && segment.timestamp - runEnd > Constants.bargeInMaximumPause {
-                speeches.append((runEnd - runStart, runWords.count))
+                speeches.append((runDuration, runWords.count))
+                runDuration = 0
                 runWords = []
             }
-            if runWords.isEmpty {
-                runStart = segment.timestamp
-            }
             runEnd = segment.timestamp + segment.duration
+            runDuration += segment.duration
             runWords.insert(segment.word.lowercased())
         }
         if !runWords.isEmpty {
-            speeches.append((runEnd - runStart, runWords.count))
+            speeches.append((runDuration, runWords.count))
         }
         return speeches
     }
