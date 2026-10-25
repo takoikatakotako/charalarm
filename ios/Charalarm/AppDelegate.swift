@@ -9,6 +9,17 @@ import GoogleMobileAds
 
 class AppDelegate: UIResponder, UIApplicationDelegate {
     let model = AppDelegateModel(apiRepository: APIRepository(), keychainRepository: KeychainRepository())
+    /// VoIP Push の受け口。受け取り続けるため、アプリが動いているあいだ持っておく
+    private var voipRegistry: PKPushRegistry?
+    /// 着信を出す CallKit の窓口。応答・終話の知らせを受け続けるため、ずっと同じものを使う
+    private lazy var callProvider: CXProvider = {
+        let config = CXProviderConfiguration()
+        config.iconTemplateImageData = UIImage(resource: .callAlarm).pngData()
+        config.includesCallsInRecents = true
+        let provider = CXProvider(configuration: config)
+        provider.setDelegate(self, queue: nil)
+        return provider
+    }()
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Use Firebase library to configure APIs.
@@ -30,6 +41,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let voipRegistry = PKPushRegistry(queue: DispatchQueue.main)
         voipRegistry.delegate = self
         voipRegistry.desiredPushTypes = [PKPushType.voIP]
+        self.voipRegistry = voipRegistry
 
         // バックグラウンドでの音声再生を有効化する
         do {
@@ -102,15 +114,15 @@ extension AppDelegate: PKPushRegistryDelegate {
             model.setVoiceFileURL(voiceFileURL: voiceFileURL)
         }
 
-        // 通話画面を表示
-        let config = CXProviderConfiguration()
-        config.iconTemplateImageData = UIImage(resource: .callAlarm).pngData()
-        config.includesCallsInRecents = true
-        let provider = CXProvider(configuration: config)
-        provider.setDelegate(self, queue: nil)
+        // 通話画面を表示。着信を出し終えたら PushKit に知らせる
         let update = CXCallUpdate()
         update.remoteHandle = CXHandle(type: .generic, value: model.charaName)
-        provider.reportNewIncomingCall(with: UUID(), update: update, completion: { _ in })
+        callProvider.reportNewIncomingCall(with: UUID(), update: update) { error in
+            if let error {
+                CharalarmLogger.error("着信を出せませんでした", error: error)
+            }
+            completion()
+        }
     }
 }
 

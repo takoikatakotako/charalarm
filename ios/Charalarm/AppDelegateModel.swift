@@ -119,16 +119,16 @@ class AppDelegateModel {
 
     func answerCall(callUUID: UUID) {
         // charaID が未取得(旧ペイロード等)の場合は空のまま = 非会話キャラ扱いで従来の録音再生にフォールバック
-        let userInfo: [String: Any] = [
-            NSNotification.answerCallUserInfoKeyCharaID: charaID,
-            NSNotification.answerCallUserInfoKeyCharaName: charaName,
-            NSNotification.answerCallUserInfoKeyCallUUID: callUUID,
-            NSNotification.answerCallUserInfoKeyConversation: answersWithConversation
-        ]
-        NotificationCenter.default.post(name: NSNotification.answerCall, object: self, userInfo: userInfo)
+        let call = AnsweredCall(charaID: charaID, charaName: charaName, callUUID: callUUID, conversation: answersWithConversation)
+        // CallKit の知らせはメインスレッドで届く (CXProvider の delegate の queue が nil)
+        MainActor.assumeIsolated {
+            AnsweredCallStore.shared.answer(call)
+        }
     }
 
     func endCall() {
-        NotificationCenter.default.post(name: NSNotification.endCall, object: self, userInfo: nil)
+        MainActor.assumeIsolated {
+            AnsweredCallStore.shared.end()
+        }
     }
 }

@@ -37,12 +37,11 @@ struct RootView: View {
             }
         }
         .task {
-            for await notification in NotificationCenter.default.notifications(named: NSNotification.answerCall) {
-                let charaID: String? = notification.userInfo?[NSNotification.answerCallUserInfoKeyCharaID] as? String
-                let charaName: String? = notification.userInfo?[NSNotification.answerCallUserInfoKeyCharaName] as? String
-                let callUUID: UUID? = notification.userInfo?[NSNotification.answerCallUserInfoKeyCallUUID] as? UUID
-                let conversation = notification.userInfo?[NSNotification.answerCallUserInfoKeyConversation] as? Bool ?? false
-                viewState.answerCall(charaID: charaID, charaName: charaName, callUUID: callUUID, conversation: conversation)
+            let answeredCalls = NotificationCenter.default.notifications(named: NSNotification.answerCall)
+            // 受け取る準備をする前に電話に出ていたら、ここで合わせる
+            viewState.showAnsweredCallIfNeeded()
+            for await _ in answeredCalls {
+                viewState.showAnsweredCallIfNeeded()
             }
         }
         .task {

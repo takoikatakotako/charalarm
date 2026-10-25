@@ -9,10 +9,4 @@ extension NSNotification {
 
     // setChara
     static let setCharaUserInfoKeyCharaID = "charaID"
-
-    // answerCall
-    static let answerCallUserInfoKeyCharaID = "charaID"
-    static let answerCallUserInfoKeyCharaName = "charaName"
-    static let answerCallUserInfoKeyCallUUID = "callUUID"
-    static let answerCallUserInfoKeyConversation = "conversation"
 }
