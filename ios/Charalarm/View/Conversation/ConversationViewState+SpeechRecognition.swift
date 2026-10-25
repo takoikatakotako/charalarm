@@ -92,8 +92,8 @@ extension ConversationViewState {
             pendingRecognizedText = nil
             return pending
         }
-        // キャラが話しているあいだに聞こえたのが相づちだけなら、返事としては聞き直す
-        if request != nil, Backchannel.isOnly(heardText) {
+        // キャラが話しているあいだに聞こえたのに止めなかった（相づちだった）なら、返事としては聞き直す
+        if request != nil, !isBargedIn, !heardText.isEmpty {
             resetRecognitionTask()
             request?.endAudio()
             request = nil
@@ -116,6 +116,7 @@ extension ConversationViewState {
         request.shouldReportPartialResults = true
         self.request = request
         heardText = ""
+        heardStartTime = nil
 
         guard installInputTap() else {
             self.request = nil
@@ -131,7 +132,7 @@ extension ConversationViewState {
                     return
                 }
                 guard let result, !result.isFinal else { return }
-                self.didRecognize(result.bestTranscription.formattedString)
+                self.didRecognize(result.bestTranscription)
             }
         }
     }
@@ -154,14 +155,22 @@ extension ConversationViewState {
         return true
     }
 
-    private func didRecognize(_ recognizedText: String) {
-        let trimmed = recognizedText.trimmingCharacters(in: .whitespacesAndNewlines)
-        let isCharaSpeaking = isListeningForBargeIn && !isBargedIn
-        // キャラが話している最中に言葉が聞こえたら止める (物音で止まらないよう2文字から)。
-        // 相づち (「うん」など) だけなら止めず、字幕もキャラの言葉のままにする
-        if isCharaSpeaking && trimmed.count >= 2 && !Backchannel.isOnly(trimmed) {
-            CharalarmLogger.breadcrumb("聞き取り: 話しかけられた chars=\(trimmed.count)")
-            interruptPlayback()
+    private func didRecognize(_ transcription: SFTranscription) {
+        let recognizedText = transcription.formattedString
+        guard !recognizedText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
+        let heardStartTime = self.heardStartTime ?? Date()
+        self.heardStartTime = heardStartTime
+
+        // キャラが話している最中は、しばらく話し続けたら止める。
+        // 言葉の中身ではなく長さで見るので、どの言語でも相づち（「うん」「うーん…」「yeah」など）では止まらない。
+        // 「うーん」と伸ばしても1語のままで、「うんうん」と繰り返しても同じ語なので、違う語が続いたときだけにする
+        if isListeningForBargeIn && !isBargedIn {
+            let elapsed = Date().timeIntervalSince(heardStartTime)
+            let words = Set(transcription.segments.map { $0.substring.lowercased() }).count
+            if elapsed >= Constants.bargeInMinimumDuration && words >= Constants.bargeInMinimumWords {
+                CharalarmLogger.breadcrumb("聞き取り: 話しかけられた words=\(words)")
+                interruptPlayback()
+            }
         }
         heardText = recognizedText
         if !isListeningForBargeIn || isBargedIn {
@@ -200,7 +209,7 @@ extension ConversationViewState {
             continuation.resume(returning: heardText)
             recognitionContinuation = nil
         } else if isListeningForBargeIn && !isBargedIn {
-            // キャラが話している最中の相づちだけだった。返事として受け取らず、聞き直す
+            // キャラが話している最中の相づちだけだった（止めるほど話さなかった）。返事として受け取らず、聞き直す
             CharalarmLogger.breadcrumb("聞き取り: 相づちなので聞き流した")
             do {
                 try startListening()
