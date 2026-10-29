@@ -12,7 +12,8 @@ enum TextChunker {
     /// 長すぎる文を切ってよいところ
     private static let pauses: Set<Character> = ["、", "，", ",", "；", ";", "：", ":", " ", "　"]
     /// 最初のチャンクを読点で切るとき、少なくともこれだけの長さは残す（「あ、」「Well,」だけを先に流さない）。
-    /// 英字は日本語の文字より速く読めるので半分に数える（日本語の6文字 ≒ 英語の12文字）
+    /// ラテン文字（英語・スペイン語・フランス語・ドイツ語）は日本語の文字より速く読めるので半分に数える（日本語の6文字 ≒ 英語の12文字）。
+    /// 漢字・ハングルは1文字を1と数える
     static let minFirstChunkLength = 6.0
 
     /// 文単位に分割する。文が長すぎるときは、読点や空白で maxChunkLength 文字以内に切る。
@@ -30,13 +31,19 @@ enum TextChunker {
         let characters = Array(chunk)
         var length = 0.0
         for index in characters.indices {
-            length += characters[index].isASCII ? 0.5 : 1
+            length += isLatin(characters[index]) ? 0.5 : 1
             guard length >= minFirstChunkLength, isFirstChunkPause(at: index, in: characters) else { continue }
             let rest = String(characters[(index + 1)...])
             guard !rest.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return [chunk] }
             return [String(characters[...index]), rest]
         }
         return [chunk]
+    }
+
+    /// ASCII と、アクセント付きのラテン文字（é、ñ、ü など。Latin-1 補助〜拡張 B）
+    private static func isLatin(_ character: Character) -> Bool {
+        guard let scalar = character.unicodeScalars.first else { return false }
+        return scalar.value < 0x0250
     }
 
     /// 最初のチャンクを短く切ってよいところ。「、」「，」と、後ろが空白の「,」（「1,000」の途中で切らない）
