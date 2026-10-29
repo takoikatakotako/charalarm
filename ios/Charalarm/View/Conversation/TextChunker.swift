@@ -11,12 +11,33 @@ enum TextChunker {
     private static let asciiSentenceEnds: Set<Character> = [".", "!", "?"]
     /// 長すぎる文を切ってよいところ
     private static let pauses: Set<Character> = ["、", "，", ",", "；", ";", "：", ":", " ", "　"]
+    /// 最初のチャンクを短く切ってよいところ（読点）
+    private static let firstChunkPauses: Set<Character> = ["、", "，", ","]
+    /// 最初のチャンクを読点で切るとき、少なくともこの文字数は残す（「あ、」だけを先に流さない）
+    static let minFirstChunkLength = 6
 
     /// 文単位に分割する。文が長すぎるときは、読点や空白で maxChunkLength 文字以内に切る。
+    /// 最初のチャンクだけは読点で短く切る（最初の声を早く流し始め、続きは流しているあいだに合成する）
     static func split(_ text: String) -> [String] {
-        splitSentences(text)
+        let chunks = splitSentences(text)
             .flatMap(splitLongSentence)
             .filter { !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
+        guard let first = chunks.first else { return chunks }
+        return splitFirstChunk(first) + chunks.dropFirst()
+    }
+
+    /// 最初のチャンクを、minFirstChunkLength 文字目以降で最初の読点の後ろで切る。読点がなければ、そのまま
+    private static func splitFirstChunk(_ chunk: String) -> [String] {
+        let characters = Array(chunk)
+        guard let pauseOffset = characters.indices.first(where: {
+            $0 + 1 >= minFirstChunkLength && firstChunkPauses.contains(characters[$0])
+        }) else {
+            return [chunk]
+        }
+        let head = String(characters[...pauseOffset])
+        let rest = String(characters[(pauseOffset + 1)...])
+        guard !rest.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return [chunk] }
+        return [head, rest]
     }
 
     private static func splitSentences(_ text: String) -> [String] {
