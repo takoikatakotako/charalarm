@@ -82,6 +82,8 @@ final class ConversationViewState: NSObject {
     // MARK: - Audio Playback
 
     var audioPlayer: AVAudioPlayer?
+    /// 電話の音声が使えるようになるのを待って着信音を流す
+    var ringtoneTask: Task<Void, Never>?
     /// キャラの声を流すプレーヤー (音声認識と同じエンジンにつなぐ)
     let voicePlayerNode = AVAudioPlayerNode()
     var playbackContinuation: CheckedContinuation<Void, Never>?
@@ -190,6 +192,8 @@ final class ConversationViewState: NSObject {
                 text += "\n\n[DEBUG] \(error)"
                 #endif
             }
+            // うまくつながらなかったときも、着信音を鳴らしっぱなしにしない
+            stopRingtone()
         }
     }
 
@@ -251,6 +255,10 @@ final class ConversationViewState: NSObject {
         // キャラの会話の設定を取得し、声を準備する
         status = .preparing
         CharalarmLogger.breadcrumb("会話: 開始 chara=\(charaID) mode=\(mode.logName) topic=\(topic.logName)")
+        // 着信で出たときは、キャラの設定を取りにいく前から着信音を流して、最初のひとことまでの待ちを埋める
+        if case .callKit = mode, topic.isCall {
+            playRingtoneWhenCallAudioIsActive()
+        }
         let chara = try await apiRepository.fetchCharacter(charaID: charaID)
         guard let conversation = chara.conversation else {
             throw ConversationError.notConversationChara
@@ -283,7 +291,8 @@ final class ConversationViewState: NSObject {
         }
         guard !isFinished else { return }
 
-        // 着信音を再生（CallKit モードでは着信音はシステムが鳴らすのでスキップ。「今日の予定」は電話ではないので鳴らさない）
+        // 着信音を再生（CallKit モードでは最初に鳴らしている。「今日の予定」は電話ではないので鳴らさない）
+        // 着信音は、最初の声を合成し終えたところで止める。返事の生成と最初の声の合成のあいだも鳴らしておく
         if case .standalone = mode, topic.isCall {
             playRingtone()
         }
@@ -311,7 +320,6 @@ final class ConversationViewState: NSObject {
         let initialScript = try await generateResponse(todayEvents: todayEvents)
         guard !isFinished else { return }
 
-        stopRingtone()
         chatMessages.append(ChatMessage(role: .assistant, content: initialScript))
         text = initialScript
         startConversationTracking()
@@ -376,7 +384,6 @@ final class ConversationViewState: NSObject {
             todayEvents: todayEvents
         ) { [weak self] filler in
             guard let self else { return }
-            self.stopRingtone()
             self.text = filler
             CharalarmLogger.breadcrumb("返事: カレンダーを見るひとこと chars=\(filler.count)")
             fillerTask = Task {
@@ -460,6 +467,10 @@ final class ConversationViewState: NSObject {
         CharalarmLogger.breadcrumb("声: 流す chunks=\(chunks.map(\.count))")
 
         isBargedIn = false
+        var currentAudioData: Data? = try await synthesizeVoice(from: chunks[0])
+        guard !isFinished, !isStopped else { return }
+        // 着信音を流したまま聞くと、着信音を話しかけと取り違えるので、止めてから聞く
+        stopRingtone()
         if interruptible {
             // 話しかけて止められるよう、流している最中も聞く。マイクの準備ができていなければ、止められないまま流す
             do {
@@ -472,7 +483,6 @@ final class ConversationViewState: NSObject {
         defer { isListeningForBargeIn = false }
 
         var playedCount = 0
-        var currentAudioData: Data? = try await synthesizeVoice(from: chunks[0])
         for i in 0..<chunks.count {
             guard !isFinished, !isStopped, !isBargedIn else { break }
             // 次のチャンクを並行合成しつつ現在のチャンクを再生（レイテンシ隠蔽）
@@ -569,7 +579,7 @@ final class ConversationViewState: NSObject {
             }
         }
 
-        audioPlayer?.stop()
+        stopRingtone()
         audioPlayer = nil
 
         chatMessages.removeAll()

@@ -16,14 +16,22 @@ struct AnsweredCall: Equatable {
     static let shared = AnsweredCallStore()
 
     private(set) var call: AnsweredCall?
+    /// CallKit が電話の音声を使えるようにした。これより前に流した音は聞こえない
+    private(set) var isAudioActive = false
 
     func answer(_ call: AnsweredCall) {
         self.call = call
         NotificationCenter.default.post(name: NSNotification.answerCall, object: self)
     }
 
+    func activateAudio() {
+        isAudioActive = true
+        NotificationCenter.default.post(name: NSNotification.callAudioDidActivate, object: self)
+    }
+
     func end() {
         call = nil
+        isAudioActive = false
         NotificationCenter.default.post(name: NSNotification.endCall, object: self)
     }
 }

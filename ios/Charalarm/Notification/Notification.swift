@@ -6,6 +6,7 @@ extension NSNotification {
     static let doneTutorial = NSNotification.Name("doneTutorial")
     static let answerCall = NSNotification.Name("answerCall")
     static let endCall = NSNotification.Name("endCall")
+    static let callAudioDidActivate = NSNotification.Name("callAudioDidActivate")
 
     // setChara
     static let setCharaUserInfoKeyCharaID = "charaID"
