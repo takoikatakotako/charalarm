@@ -11,10 +11,9 @@ enum TextChunker {
     private static let asciiSentenceEnds: Set<Character> = [".", "!", "?"]
     /// 長すぎる文を切ってよいところ
     private static let pauses: Set<Character> = ["、", "，", ",", "；", ";", "：", ":", " ", "　"]
-    /// 最初のチャンクを短く切ってよいところ（読点）
-    private static let firstChunkPauses: Set<Character> = ["、", "，", ","]
-    /// 最初のチャンクを読点で切るとき、少なくともこの文字数は残す（「あ、」だけを先に流さない）
-    static let minFirstChunkLength = 6
+    /// 最初のチャンクを読点で切るとき、少なくともこれだけの長さは残す（「あ、」「Well,」だけを先に流さない）。
+    /// 英字は日本語の文字より速く読めるので半分に数える（日本語の6文字 ≒ 英語の12文字）
+    static let minFirstChunkLength = 6.0
 
     /// 文単位に分割する。文が長すぎるときは、読点や空白で maxChunkLength 文字以内に切る。
     /// 最初のチャンクだけは読点で短く切る（最初の声を早く流し始め、続きは流しているあいだに合成する）
@@ -26,18 +25,30 @@ enum TextChunker {
         return splitFirstChunk(first) + chunks.dropFirst()
     }
 
-    /// 最初のチャンクを、minFirstChunkLength 文字目以降で最初の読点の後ろで切る。読点がなければ、そのまま
+    /// 最初のチャンクを、minFirstChunkLength 以上の長さになってから最初の読点の後ろで切る。読点がなければ、そのまま
     private static func splitFirstChunk(_ chunk: String) -> [String] {
         let characters = Array(chunk)
-        guard let pauseOffset = characters.indices.first(where: {
-            $0 + 1 >= minFirstChunkLength && firstChunkPauses.contains(characters[$0])
-        }) else {
-            return [chunk]
+        var length = 0.0
+        for index in characters.indices {
+            length += characters[index].isASCII ? 0.5 : 1
+            guard length >= minFirstChunkLength, isFirstChunkPause(at: index, in: characters) else { continue }
+            let rest = String(characters[(index + 1)...])
+            guard !rest.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return [chunk] }
+            return [String(characters[...index]), rest]
         }
-        let head = String(characters[...pauseOffset])
-        let rest = String(characters[(pauseOffset + 1)...])
-        guard !rest.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return [chunk] }
-        return [head, rest]
+        return [chunk]
+    }
+
+    /// 最初のチャンクを短く切ってよいところ。「、」「，」と、後ろが空白の「,」（「1,000」の途中で切らない）
+    private static func isFirstChunkPause(at index: Int, in characters: [Character]) -> Bool {
+        switch characters[index] {
+        case "、", "，":
+            return true
+        case ",":
+            return index + 1 < characters.count && characters[index + 1].isWhitespace
+        default:
+            return false
+        }
     }
 
     private static func splitSentences(_ text: String) -> [String] {
