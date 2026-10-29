@@ -23,7 +23,23 @@ extension ConversationViewState {
         audioPlayer?.play()
     }
 
+    /// 電話に出たあと、CallKit が電話の音声を使えるようにしたら着信音を流す。それより前に流しても聞こえない
+    func playRingtoneWhenCallAudioIsActive() {
+        ringtoneTask?.cancel()
+        ringtoneTask = Task { [weak self] in
+            if !AnsweredCallStore.shared.isAudioActive {
+                for await _ in NotificationCenter.default.notifications(named: NSNotification.callAudioDidActivate) {
+                    break
+                }
+            }
+            guard let self, !Task.isCancelled else { return }
+            self.playRingtone()
+        }
+    }
+
     func stopRingtone() {
+        ringtoneTask?.cancel()
+        ringtoneTask = nil
         audioPlayer?.stop()
     }
 

@@ -150,6 +150,10 @@ extension AppDelegate: CXProviderDelegate {
     }
 
     func provider(_ provider: CXProvider, didActivate audioSession: AVAudioSession) {
+        // CallKit の知らせはメインスレッドで届く (CXProvider の delegate の queue が nil)
+        MainActor.assumeIsolated {
+            AnsweredCallStore.shared.activateAudio()
+        }
         model.receiveVoipPush()
     }
 
