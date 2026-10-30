@@ -27,7 +27,8 @@ final class ConversationViewState: NSObject {
     // MARK: - Constants
 
     enum Constants {
-        static let silenceDetectionTime: TimeInterval = 2.0
+        /// 話し終えてからこれだけ黙っていたら、言い終えたとみなして返事を作る。短いほどテンポがよいが、言葉の途中の間で切れやすい
+        static let silenceDetectionTime: TimeInterval = 1.0
         /// キャラが話している最中に、間を空けずにこれだけ声を出し続けたら話しかけとみなして止める（これより短いのは相づち）。
         /// 語と語のあいだの無音は入れない。実機で試して決める
         static let bargeInMinimumDuration: TimeInterval = 0.8
