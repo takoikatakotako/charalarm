@@ -19,6 +19,8 @@ final class ConversationViewState: NSObject {
     var isStopped = false
     /// 3D で出すキャラのモデル（見た目が 3D のとき）
     var vrmModelFileURL: URL?
+    /// 3D のキャラの表情。キャラの返事に付いた印で変える
+    var expression: VRMExpression = .neutral
     /// 立ち絵のキャラの絵（見た目が 3D でないとき。「今日の予定」の右下に出す）
     var charaImage: UIImage?
     /// 「今日の予定」のとき、画面に出す今日の予定（それ以外は nil）
@@ -144,7 +146,7 @@ final class ConversationViewState: NSObject {
         isStopped = false
         reloadTodayEvents()
         CharalarmLogger.breadcrumb("会話: 再生ボタンで読み直す")
-        chatMessages = [ChatMessage(role: .system, content: ConversationTopic.todaySchedulePrompt)]
+        startMessages(with: ConversationTopic.todaySchedulePrompt)
         mainTask = Task {
             do {
                 try await speakFirstAndTalk(todayEvents: .always)
@@ -301,18 +303,25 @@ final class ConversationViewState: NSObject {
         // 初回の応答を生成
         switch topic {
         case .call:
-            chatMessages.append(ChatMessage(role: .system, content: conversation.openingPrompt))
+            startMessages(with: conversation.openingPrompt)
             // 最初のひとことは、設定でオンにしていれば今日の予定に触れる
             try await speakFirstAndTalk(todayEvents: .ifEnabled)
         case .todaySchedule:
             // キャラが読み上げる予定を、画面にも出す
             reloadTodayEvents()
-            chatMessages.append(ChatMessage(role: .system, content: ConversationTopic.todaySchedulePrompt))
+            startMessages(with: ConversationTopic.todaySchedulePrompt)
             try await speakFirstAndTalk(todayEvents: .always)
         case .trendNews(let news):
-            chatMessages.append(ChatMessage(role: .system, content: ConversationTopic.trendNewsPrompt(news)))
+            startMessages(with: ConversationTopic.trendNewsPrompt(news))
             try await speakFirstAndTalk()
         }
+    }
+
+    /// 会話の履歴を、場面の指示から始める。3D のキャラなら、表情の印の指示を先に置く
+    /// （最初のひとことでは最後の system がユーザーの発言として渡るので、場面の指示を最後にする）
+    private func startMessages(with prompt: String) {
+        chatMessages = vrmModelFileURL == nil ? [] : [ChatMessage(role: .system, content: VRMExpression.prompt)]
+        chatMessages.append(ChatMessage(role: .system, content: prompt))
     }
 
     /// キャラの最初のひとことを話して、そのまま会話を続ける
@@ -385,6 +394,7 @@ final class ConversationViewState: NSObject {
             todayEvents: todayEvents
         ) { [weak self] filler in
             guard let self else { return }
+            let filler = self.applyExpression(filler)
             self.text = filler
             CharalarmLogger.breadcrumb("返事: カレンダーを見るひとこと chars=\(filler.count)")
             fillerTask = Task {
@@ -398,8 +408,9 @@ final class ConversationViewState: NSObject {
         }
         // ひとことを話し終えてから返事を話す
         await fillerTask?.value
-        CharalarmLogger.breadcrumb("返事: できた chars=\(response.count)")
-        return response
+        let text = applyExpression(response)
+        CharalarmLogger.breadcrumb("返事: できた chars=\(text.count) expression=\(expression.rawValue)")
+        return text
     }
 
     private func endConversation(prompt: String? = nil) async throws {

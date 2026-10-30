@@ -1,5 +1,6 @@
 // キャラの VRM を表示する。Swift (VRMWebView) から ?model=<URL>&framing=<bust|full> で開く。
 // 読み込みの結果は webkit.messageHandlers.vrm に { type: "loaded" | "error", message } で返す。
+// 表情は Swift から setExpression('happy') のように変える。
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { VRMLoaderPlugin, VRMUtils } from '@pixiv/three-vrm';
@@ -67,11 +68,38 @@ function idle(elapsed) {
   }
 }
 
+// 会話の返事に合わせた表情。neutral はどれも出さない。急に変わらないよう少しずつ切り替える
+const emotions = ['happy', 'angry', 'sad', 'relaxed', 'surprised'];
+let emotion = 'neutral';
+window.setExpression = (name) => {
+  emotion = name;
+};
+
+// 真顔に見えないよう、ふだんも口元を少し微笑ませる (モデルにある口だけの表情)。怒り・悲しみ・驚きと笑顔のときは足さない
+const smileExpression = '微笑み・口';
+const smileWeights = { neutral: 0.6, relaxed: 0.6 };
+
+function updateEmotion(delta) {
+  const expressions = vrm.expressionManager;
+  if (!expressions) return;
+  const rate = Math.min(1, delta * 6);
+  const ease = (name, target) => {
+    if (!expressions.getExpression(name)) return;
+    const value = expressions.getValue(name) ?? 0;
+    expressions.setValue(name, value + (target - value) * rate);
+  };
+  for (const name of emotions) {
+    ease(name, name === emotion ? 1 : 0);
+  }
+  ease(smileExpression, smileWeights[emotion] ?? 0);
+}
+
 function animate() {
   requestAnimationFrame(animate);
   const delta = Math.min(clock.getDelta(), 0.1);
   if (vrm) {
     idle(clock.elapsedTime);
+    updateEmotion(delta);
     vrm.update(delta);
   }
   renderer.render(scene, camera);
