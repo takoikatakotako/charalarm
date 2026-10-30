@@ -68,6 +68,16 @@ struct TopConversationChara: Identifiable {
             showingAlert = alert != nil
         }
     }
+    /// 無料の人に「広告を見ると使えます」と聞いている機能
+    var rewardedPrompt: RewardedFeature? {
+        didSet {
+            showingRewardedPrompt = rewardedPrompt != nil
+        }
+    }
+    var showingRewardedPrompt = false
+    let rewardedAd = RewardedAdPresenter()
+    /// 広告を見たら始める会話
+    private var pendingRewardedTopic: ConversationTopic?
     var sheet: TopViewSheet?
     /// 電話ボタンで通話するキャラ。nil でなければ会話画面を出す。
     var conversationChara: TopConversationChara?
@@ -134,7 +144,11 @@ struct TopConversationChara: Identifiable {
     /// 話題のニュースを、キャラに読んでもらう
     @MainActor
     func readTrendNews(_ news: [TrendNews]) async {
-        await startConversation(topic: .trendNews(news))
+        if needsRewardedAd(for: .trendNews) {
+            // 話題の画面（シート）が閉じきってから聞く
+            try? await Task.sleep(for: .milliseconds(600))
+        }
+        await startWithRewardedAdIfNeeded(.trendNews, topic: .trendNews(news))
     }
 
     func characterListButtonTapped() {
@@ -165,13 +179,62 @@ struct TopConversationChara: Identifiable {
         let calendarRepository = CalendarRepository()
         guard calendarRepository.isAuthorized else {
             if await calendarRepository.requestAccess() {
-                await startConversation(topic: .todaySchedule)
+                await startWithRewardedAdIfNeeded(.todaySchedule, topic: .todaySchedule)
             } else {
                 alert = .calendarNotAuthorized
             }
             return
         }
-        await startConversation(topic: .todaySchedule)
+        await startWithRewardedAdIfNeeded(.todaySchedule, topic: .todaySchedule)
+    }
+
+    // MARK: - リワード広告
+
+    /// トップを開いたとき、無料の人のために広告を先に読んでおく
+    func preloadRewardedAd() {
+        guard !userDefaultsRepository.getEnablePremiumPlan() else { return }
+        Task { await rewardedAd.load() }
+    }
+
+    /// 無料の人は、その日はじめて使うときに広告を見るか聞く。プレミアムの人と、今日もう見た人はそのまま始める
+    private func startWithRewardedAdIfNeeded(_ feature: RewardedFeature, topic: ConversationTopic) async {
+        guard needsRewardedAd(for: feature) else {
+            await startConversation(topic: topic)
+            return
+        }
+        pendingRewardedTopic = topic
+        rewardedPrompt = feature
+    }
+
+    /// 「広告を見る」を押した。最後まで見たら、その日は広告なしで使えるようにして始める
+    func watchRewardedAd() {
+        guard let feature = rewardedPrompt, let topic = pendingRewardedTopic else { return }
+        rewardedPrompt = nil
+        pendingRewardedTopic = nil
+        Task {
+            guard await rewardedAd.present() else { return }
+            userDefaultsRepository.setRewardedUnlockedDay(feature: feature.rawValue, day: Self.today())
+            await startConversation(topic: topic)
+        }
+    }
+
+    func cancelRewardedAd() {
+        rewardedPrompt = nil
+        pendingRewardedTopic = nil
+    }
+
+    private func needsRewardedAd(for feature: RewardedFeature) -> Bool {
+        !userDefaultsRepository.getEnablePremiumPlan()
+            && rewardedAd.isAvailable
+            && userDefaultsRepository.getRewardedUnlockedDay(feature: feature.rawValue) != Self.today()
+    }
+
+    private static func today() -> String {
+        let formatter = DateFormatter()
+        formatter.calendar = Calendar(identifier: .gregorian)
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.dateFormat = "yyyy-MM-dd"
+        return formatter.string(from: Date())
     }
 
     @MainActor

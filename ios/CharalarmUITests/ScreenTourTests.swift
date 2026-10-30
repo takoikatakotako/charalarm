@@ -112,6 +112,14 @@ final class ScreenTourTests: XCTestCase {
         XCTAssertTrue(app.segmentedControls.buttons["お知らせ"].firstMatch.isSelected, "スワイプでお知らせに切り替わりませんでした")
         close()
         require(app.buttons["キャラ"], "ホーム（最後）")
+
+        // 無料の人がニュースを読んでもらうときは、先にリワード広告を見るか聞く
+        require(app.buttons["お知らせ"], "ホーム（2回目）").tap()
+        require(app.segmentedControls.buttons["話題"], "お知らせ（2回目）").tap()
+        require(app.buttons["まとめて読んでもらう"], "話題のニュース（2回目）").tap()
+        require(app.alerts["広告を見て使いますか？"], "リワード広告の確認")
+        snap("17-rewarded-prompt")
+        app.alerts.buttons["キャンセル"].tap()
     }
 
     /// チュートリアルの7画面
