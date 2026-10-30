@@ -6,12 +6,28 @@ enum RewardedFeature: String {
     case todaySchedule
     case trendNews
 
+    /// その日はじめては広告なしで使えて、使い終えてホームに戻ったら広告をすすめる
+    var allowsFreeFirstUse: Bool {
+        self == .todaySchedule
+    }
+
+    /// 使う前に聞くときの文
     var promptMessage: String {
         switch self {
         case .todaySchedule:
             return String(localized: "rewarded-today-schedule-message")
         case .trendNews:
             return String(localized: "rewarded-trend-news-message")
+        }
+    }
+
+    /// 無料の1回を使い終えて、ホームに戻ったときに聞く文
+    var afterFreeUseMessage: String {
+        switch self {
+        case .todaySchedule:
+            return String(localized: "rewarded-today-schedule-after-free-use-message")
+        case .trendNews:
+            return promptMessage
         }
     }
 }

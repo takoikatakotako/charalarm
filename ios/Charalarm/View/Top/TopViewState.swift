@@ -75,9 +75,13 @@ struct TopConversationChara: Identifiable {
         }
     }
     var showingRewardedPrompt = false
+    /// 無料の1回を使い終えて、ホームに戻ったところで聞いている（見ても会話は始めず、今日を広告なしにするだけ）
+    private(set) var isRewardedPromptAfterFreeUse = false
     let rewardedAd = RewardedAdPresenter()
     /// 広告を見たら始める会話
     private var pendingRewardedTopic: ConversationTopic?
+    /// 無料の1回を使っている機能。会話の画面を閉じたら広告をすすめる
+    private var freeUseFeature: RewardedFeature?
     var sheet: TopViewSheet?
     /// 電話ボタンで通話するキャラ。nil でなければ会話画面を出す。
     var conversationChara: TopConversationChara?
@@ -196,25 +200,49 @@ struct TopConversationChara: Identifiable {
         Task { await rewardedAd.load() }
     }
 
-    /// 無料の人は、その日はじめて使うときに広告を見るか聞く。プレミアムの人と、今日もう見た人はそのまま始める
+    /// 無料の人は、その日はじめて使うときに広告を見るか聞く。プレミアムの人と、今日もう見た人はそのまま始める。
+    /// 無料の1回がある機能は、その日はじめては広告なしで始めて、ホームに戻ったら広告をすすめる
     private func startWithRewardedAdIfNeeded(_ feature: RewardedFeature, topic: ConversationTopic) async {
         guard needsRewardedAd(for: feature) else {
             await startConversation(topic: topic)
             return
         }
+        if feature.allowsFreeFirstUse && userDefaultsRepository.getRewardedFreeUseDay(feature: feature.rawValue) != Self.today() {
+            await startConversation(topic: topic)
+            // 会話の画面を出せたときだけ、無料の1回を使ったことにする
+            if conversationChara != nil {
+                userDefaultsRepository.setRewardedFreeUseDay(feature: feature.rawValue, day: Self.today())
+                freeUseFeature = feature
+            }
+            return
+        }
         pendingRewardedTopic = topic
+        isRewardedPromptAfterFreeUse = false
         rewardedPrompt = feature
     }
 
-    /// 「広告を見る」を押した。最後まで見たら、その日は広告なしで使えるようにして始める
+    /// 会話の画面を閉じてホームに戻った。無料の1回を使い終えたところなら、今日を広告なしにする広告をすすめる
+    func conversationDismissed() {
+        guard let feature = freeUseFeature else { return }
+        freeUseFeature = nil
+        guard needsRewardedAd(for: feature) else { return }
+        isRewardedPromptAfterFreeUse = true
+        rewardedPrompt = feature
+    }
+
+    /// 「広告を見る」を押した。最後まで見たら、その日は広告なしで使えるようにして始める。
+    /// 無料の1回を使い終えたあとなら、始めずに今日を広告なしにするだけ
     func watchRewardedAd() {
-        guard let feature = rewardedPrompt, let topic = pendingRewardedTopic else { return }
+        guard let feature = rewardedPrompt else { return }
+        let topic = pendingRewardedTopic
         rewardedPrompt = nil
         pendingRewardedTopic = nil
         Task {
             guard await rewardedAd.present() else { return }
             userDefaultsRepository.setRewardedUnlockedDay(feature: feature.rawValue, day: Self.today())
-            await startConversation(topic: topic)
+            if let topic {
+                await startConversation(topic: topic)
+            }
         }
     }
 
