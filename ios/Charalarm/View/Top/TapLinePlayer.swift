@@ -125,11 +125,14 @@ import Foundation
         return picked
     }
 
+    /// 吹き出しにセリフを出す。ボイスを流し終えて少ししてから消す（流しているあいだは消さない）。
+    /// 短いセリフも読めるよう 1.5 秒は出す。ボイスが読めなかったときは5秒
     private func show(_ text: String) {
         self.text = text
         hideTextTask?.cancel()
+        let duration = audioPlayer.map { max($0.duration + 0.2, 1.5) } ?? 5
         hideTextTask = Task {
-            try? await Task.sleep(for: .seconds(5))
+            try? await Task.sleep(for: .seconds(duration))
             guard !Task.isCancelled else { return }
             self.text = nil
         }
