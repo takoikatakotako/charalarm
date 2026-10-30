@@ -309,7 +309,7 @@ func buildChatMessages(persona string, input ChatInput) ([]llm.Message, error) {
 		}
 		messages = append(messages, llm.Message{
 			Role:    llm.RoleSystem,
-			Content: "現在の日時: " + formatChatTime(now, input.Context.TimeZone),
+			Content: "現在の日時: " + formatChatTime(now, input.Context.TimeZone) + "\n" + chatTimeOfDayInstruction(now),
 		})
 	}
 
@@ -333,6 +333,26 @@ func buildChatMessages(persona string, input ChatInput) ([]llm.Message, error) {
 }
 
 var japaneseWeekdays = [...]string{"日", "月", "火", "水", "木", "金", "土"}
+
+// chatTimeOfDayInstruction は、あいさつを今の時間帯に合わせる指示。
+// モーニングコールのキャラは人格プロンプトにつられて、夜でも「おはよう」と言いやすいので、時間帯をはっきり伝える。
+func chatTimeOfDayInstruction(t time.Time) string {
+	return "今は" + timeOfDay(t.Hour()) + "です。あいさつや話す内容は、この時刻に合わせてください（朝でなければ「おはよう」とは言わないでください）。"
+}
+
+// timeOfDay は時刻 (時) の時間帯。
+func timeOfDay(hour int) string {
+	switch {
+	case hour >= 4 && hour < 11:
+		return "朝"
+	case hour >= 11 && hour < 16:
+		return "昼"
+	case hour >= 16 && hour < 19:
+		return "夕方"
+	default:
+		return "夜"
+	}
+}
 
 // formatChatTime は端末の時刻を LLM が読みやすい日本語にする。
 // 時刻は端末のオフセットのまま使う (Lambda に tzdata が無くても動くように)。

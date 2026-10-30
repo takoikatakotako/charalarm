@@ -94,7 +94,11 @@ func TestBuildChatMessages(t *testing.T) {
 		assert.Equal(t, llm.RoleSystem, messages[3].Role)
 		assert.Contains(t, messages[3].Content, "<memory>\n呼び方はたこさん\n</memory>")
 
-		assert.Equal(t, llm.Message{Role: llm.RoleSystem, Content: "現在の日時: 2026年10月11日(日) 07:05（Asia/Tokyo）"}, messages[4])
+		assert.Equal(t, llm.Message{
+			Role: llm.RoleSystem,
+			Content: "現在の日時: 2026年10月11日(日) 07:05（Asia/Tokyo）\n" +
+				"今は朝です。あいさつや話す内容は、この時刻に合わせてください（朝でなければ「おはよう」とは言わないでください）。",
+		}, messages[4])
 
 		assert.Equal(t, user, messages[5])
 	})
@@ -141,7 +145,19 @@ func formatChatTimeString(t *testing.T, now string, timeZone string) string {
 		Messages: []llm.Message{{Role: llm.RoleUser, Content: "x"}},
 	})
 	assert.NoError(t, err)
-	return strings.TrimPrefix(messages[2].Content, "現在の日時: ")
+	line, _, _ := strings.Cut(messages[2].Content, "\n")
+	return strings.TrimPrefix(line, "現在の日時: ")
+}
+
+func TestTimeOfDay(t *testing.T) {
+	// 夜に「おはよう」と言わないよう、20時は夜
+	assert.Equal(t, "夜", timeOfDay(20))
+	assert.Equal(t, "夜", timeOfDay(3))
+	assert.Equal(t, "朝", timeOfDay(4))
+	assert.Equal(t, "朝", timeOfDay(10))
+	assert.Equal(t, "昼", timeOfDay(11))
+	assert.Equal(t, "夕方", timeOfDay(16))
+	assert.Equal(t, "夜", timeOfDay(19))
 }
 
 func repeatMessage(m llm.Message, n int) []llm.Message {
