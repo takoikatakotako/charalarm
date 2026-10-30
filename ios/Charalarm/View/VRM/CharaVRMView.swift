@@ -6,6 +6,7 @@ struct CharaVRMView: View {
     /// サーバの modelFileURL。ファイル名が同梱のものと同じなら、ダウンロードしない
     let modelFileURL: URL
     var framing: VRMWebView.Framing = .bust
+    var expression: VRMExpression = .neutral
 
     @State private var localModelFileURL: URL?
     @State private var isLoaded = false
@@ -17,6 +18,7 @@ struct CharaVRMView: View {
                 VRMWebView(
                     modelFileURL: localModelFileURL,
                     framing: framing,
+                    expression: expression,
                     onLoaded: { isLoaded = true },
                     onError: { _ in failed = true }
                 )

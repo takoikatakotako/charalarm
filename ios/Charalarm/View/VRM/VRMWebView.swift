@@ -13,6 +13,7 @@ struct VRMWebView: UIViewRepresentable {
     /// 端末内の VRM ファイル（同梱かキャッシュ）
     let modelFileURL: URL
     var framing: Framing = .bust
+    var expression: VRMExpression = .neutral
     var onLoaded: () -> Void = {}
     var onError: (String) -> Void = { _ in }
 
@@ -27,6 +28,8 @@ struct VRMWebView: UIViewRepresentable {
         configuration.userContentController.add(context.coordinator, name: "vrm")
 
         let webView = WKWebView(frame: .zero, configuration: configuration)
+        context.coordinator.webView = webView
+        context.coordinator.show(expression)
         webView.isOpaque = false
         webView.backgroundColor = .clear
         webView.scrollView.backgroundColor = .clear
@@ -51,19 +54,36 @@ struct VRMWebView: UIViewRepresentable {
         return webView
     }
 
-    func updateUIView(_ webView: WKWebView, context: Context) {}
+    func updateUIView(_ webView: WKWebView, context: Context) {
+        context.coordinator.show(expression)
+    }
 
     static func dismantleUIView(_ webView: WKWebView, coordinator: Coordinator) {
         webView.configuration.userContentController.removeScriptMessageHandler(forName: "vrm")
     }
 
     final class Coordinator: NSObject, WKScriptMessageHandler {
+        weak var webView: WKWebView?
         private let onLoaded: () -> Void
         private let onError: (String) -> Void
+        private var isLoaded = false
+        /// 出す表情。モデルを読み込む前に決まったら、読み込み終えてから出す
+        private var expression: VRMExpression = .neutral
 
         init(onLoaded: @escaping () -> Void, onError: @escaping (String) -> Void) {
             self.onLoaded = onLoaded
             self.onError = onError
+        }
+
+        func show(_ expression: VRMExpression) {
+            guard expression != self.expression else { return }
+            self.expression = expression
+            applyExpression()
+        }
+
+        private func applyExpression() {
+            guard isLoaded else { return }
+            webView?.evaluateJavaScript("setExpression('\(expression.rawValue)')")
         }
 
         func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
@@ -72,6 +92,10 @@ struct VRMWebView: UIViewRepresentable {
             }
             switch type {
             case "loaded":
+                isLoaded = true
+                if expression != .neutral {
+                    applyExpression()
+                }
                 onLoaded()
             case "error":
                 let detail = body["message"] as? String ?? ""
