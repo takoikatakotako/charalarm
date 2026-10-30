@@ -2380,6 +2380,22 @@
         }
       }
     },
+    "rewarded-today-schedule-after-free-use-message" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Watch an ad to have your character read today's schedule as many times as you like, without ads, for the rest of the day. With the premium plan, there are no ads."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "広告を見ると、今日はこのあと何回でも、広告なしでキャラクターが今日の予定を読んでくれます。プレミアムプランなら広告は出ません。"
+          }
+        }
+      }
+    },
     "rewarded-today-schedule-message" : {
       "localizations" : {
         "en" : {

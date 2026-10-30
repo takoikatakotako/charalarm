@@ -26,6 +26,7 @@ struct UserDefaultsRepository: UserDefaultsRepositoryProtocol {
     private let KEY_LAST_SEEN_NEWS_AT = "LAST_SEEN_NEWS_AT"
     private let KEY_NEEDS_PURCHASE_SYNC_TO_REVENUECAT = "NEEDS_PURCHASE_SYNC_TO_REVENUECAT"
     private let KEY_REWARDED_UNLOCKED_DAY_PREFIX = "REWARDED_UNLOCKED_DAY_"
+    private let KEY_REWARDED_FREE_USE_DAY_PREFIX = "REWARDED_FREE_USE_DAY_"
 
     // Defaults
     private let DEFAULT_CHARA_DOMAIN = "jp.zunko.zundamon"
@@ -129,6 +130,15 @@ struct UserDefaultsRepository: UserDefaultsRepositoryProtocol {
 
     func setRewardedUnlockedDay(feature: String, day: String) {
         UserDefaults.standard.set(day, forKey: KEY_REWARDED_UNLOCKED_DAY_PREFIX + feature)
+    }
+
+    /// 広告なしの無料の1回を使った日（yyyy-MM-dd）
+    func getRewardedFreeUseDay(feature: String) -> String? {
+        UserDefaults.standard.string(forKey: KEY_REWARDED_FREE_USE_DAY_PREFIX + feature)
+    }
+
+    func setRewardedFreeUseDay(feature: String, day: String) {
+        UserDefaults.standard.set(day, forKey: KEY_REWARDED_FREE_USE_DAY_PREFIX + feature)
     }
 
     /// マナーモードでも、ホームでタップしたときの声を出す。最初はオフ（マナーモードでは鳴らさない）

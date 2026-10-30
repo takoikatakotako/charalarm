@@ -164,9 +164,11 @@ struct TopView: View {
                 viewState.cancelRewardedAd()
             }
         } message: { feature in
-            Text(feature.promptMessage)
+            Text(viewState.isRewardedPromptAfterFreeUse ? feature.afterFreeUseMessage : feature.promptMessage)
         }
-        .fullScreenCover(item: $viewState.conversationChara) { chara in
+        .fullScreenCover(item: $viewState.conversationChara) {
+            viewState.conversationDismissed()
+        } content: { chara in
             ConversationView(charaID: chara.charaID, topic: chara.topic)
         }
         .sheet(item: $viewState.sheet) {
