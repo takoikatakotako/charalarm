@@ -334,7 +334,8 @@ private struct EventBlock: View {
     let showsTime: Bool
 
     var body: some View {
-        HStack(spacing: 0) {
+        // 長い予定でも、タイトルと時刻は上に出す（Google カレンダーと同じ）
+        HStack(alignment: .top, spacing: 0) {
             Rectangle()
                 .fill(event.calendarColor)
                 .frame(width: 3)
