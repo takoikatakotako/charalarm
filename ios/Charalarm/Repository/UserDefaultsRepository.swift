@@ -29,13 +29,19 @@ struct UserDefaultsRepository: UserDefaultsRepositoryProtocol {
     private let KEY_REWARDED_FREE_USE_DAY_PREFIX = "REWARDED_FREE_USE_DAY_"
 
     // Defaults
-    private let DEFAULT_CHARA_DOMAIN = "jp.zunko.zundamon"
-    private let DEFAULT_CHARA_NAME = "ずんだもん"
+    private let DEFAULT_CHARA_DOMAIN = "com.charalarm.yui"
+    private let DEFAULT_CHARA_NAME = "井上結衣"
 
     // UserDefaults の初期値を設定する
     func registerDefaults() {
         let defaults =  [KEY_CHARA_DOMAIN: DEFAULT_CHARA_DOMAIN, KEY_CHARA_NAME: DEFAULT_CHARA_NAME]
         UserDefaults.standard.register(defaults: defaults)
+    }
+
+    /// キャラを保存したことがあるか（registerDefaults の初期値ではなく）
+    func hasSavedCharaDomain() -> Bool {
+        guard let bundleID = Bundle.main.bundleIdentifier else { return false }
+        return UserDefaults.standard.persistentDomain(forName: bundleID)?[KEY_CHARA_DOMAIN] != nil
     }
 
     func getCharaID() -> String? {
@@ -164,6 +170,6 @@ struct UserDefaultsRepository: UserDefaultsRepositoryProtocol {
     }
 
     func setDefaultCharaName() {
-        UserDefaults.standard.set(DEFAULT_CHARA_DOMAIN, forKey: KEY_CHARA_NAME)
+        UserDefaults.standard.set(DEFAULT_CHARA_NAME, forKey: KEY_CHARA_NAME)
     }
 }
