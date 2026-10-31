@@ -38,6 +38,12 @@ struct UserDefaultsRepository: UserDefaultsRepositoryProtocol {
         UserDefaults.standard.register(defaults: defaults)
     }
 
+    /// キャラを保存したことがあるか（registerDefaults の初期値ではなく）
+    func hasSavedCharaDomain() -> Bool {
+        guard let bundleID = Bundle.main.bundleIdentifier else { return false }
+        return UserDefaults.standard.persistentDomain(forName: bundleID)?[KEY_CHARA_DOMAIN] != nil
+    }
+
     func getCharaID() -> String? {
         guard let charaDomain = UserDefaults.standard.string(forKey: KEY_CHARA_DOMAIN) else {
             return nil

@@ -13,6 +13,7 @@ struct CharaUseCase: CharaUseCaseProtcol {
     private let defaultsCharaID = "com.charalarm.yui"
     /// 同梱した 3D モデルのファイル名。サーバと同じ名前にして、ダウンロードせずに同梱のものを使う（VRMModelRepository）
     private let defaultsCharaVRMFileName = "yui.vrm"
+    private let legacyDefaultsCharaID = "jp.zunko.zundamon"
 
     func getSelfIntroductionUrlString(charaID: String) -> String {
         return "\(Variables.resourceEndpoint)/\(charaID)/self-introduction.caf"
@@ -20,6 +21,17 @@ struct CharaUseCase: CharaUseCaseProtcol {
 
     func getCharaThumbnailUrlString(charaID: String) -> String {
         return "\(Variables.resourceEndpoint)/\(charaID)/thumbnail.png"
+    }
+
+    /// 前の最初のキャラ（ずんだもん）のまま使っていた人は、キャラを保存していない（registerDefaults の初期値で動いていた）。
+    /// 最初のキャラを結衣に変えても切り替わらないよう、前のバージョンが置いたずんだもんのファイルがあれば、ずんだもんを保存する
+    func keepLegacyDefaultCharaForExistingUser() {
+        guard !userDefaultsRepository.hasSavedCharaDomain(),
+              (try? fileRepository.isExistFile(directoryName: legacyDefaultsCharaID, fileName: "resource.json")) == true else {
+            return
+        }
+        userDefaultsRepository.setCharaDomain(charaDomain: legacyDefaultsCharaID)
+        userDefaultsRepository.setCharaName(charaName: "ずんだもん")
     }
 
     func isExistDefaultCharaResources() -> Bool {

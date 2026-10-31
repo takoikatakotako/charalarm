@@ -47,6 +47,7 @@ import FirebaseAuth
                 try await Auth.auth().signInAnonymously()
 
                 // UserDefaults に初期値を入れる
+                charaUseCase.keepLegacyDefaultCharaForExistingUser()
                 userDefaultsRepository.registerDefaults()
 
                 // 初期ファイルが配置済みか確認する
