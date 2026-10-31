@@ -75,8 +75,9 @@ window.setExpression = (name) => {
   emotion = name;
 };
 
-// 真顔に見えないよう、ふだんも口元を少し微笑ませる (モデルにある口だけの表情)。怒り・悲しみ・驚きと笑顔のときは足さない
-const smileExpression = '微笑み・口';
+// 真顔に見えないよう、ふだんも口元を少し微笑ませる (モデルにある口だけの表情)。怒り・悲しみ・驚きと笑顔のときは足さない。
+// 口の表情の名前はモデルで違うので、前から順に見つかったものを使う (結衣は「微笑み・口」がない)
+const smileExpressionNames = ['微笑み・口', 'リラックス・口'];
 const smileWeights = { neutral: 0.6, relaxed: 0.6 };
 
 function updateEmotion(delta) {
@@ -91,7 +92,8 @@ function updateEmotion(delta) {
   for (const name of emotions) {
     ease(name, name === emotion ? 1 : 0);
   }
-  ease(smileExpression, smileWeights[emotion] ?? 0);
+  const smileExpression = smileExpressionNames.find((name) => expressions.getExpression(name));
+  if (smileExpression) ease(smileExpression, smileWeights[emotion] ?? 0);
 }
 
 function animate() {
