@@ -10,7 +10,9 @@ struct CharaUseCase: CharaUseCaseProtcol {
     private let fileRepository = FileRepository()
     private let userDefaultsRepository = UserDefaultsRepository()
 
-    private let defaultsCharaID = "jp.zunko.zundamon"
+    private let defaultsCharaID = "com.charalarm.yui"
+    /// 同梱した 3D モデルのファイル名。サーバと同じ名前にして、ダウンロードせずに同梱のものを使う（VRMModelRepository）
+    private let defaultsCharaVRMFileName = "yui.vrm"
 
     func getSelfIntroductionUrlString(charaID: String) -> String {
         return "\(Variables.resourceEndpoint)/\(charaID)/self-introduction.caf"
@@ -46,7 +48,7 @@ struct CharaUseCase: CharaUseCaseProtcol {
     func copyToDefaultCharaDirectory() throws {
         guard let resourceFileURL = Bundle.main.url(forResource: "resource", withExtension: "json", subdirectory: "Resource/\(defaultsCharaID)"),
               let resourceData = try? Data(contentsOf: resourceFileURL),
-              let localCharaResource: LocalCharaResource = try? JSONDecoder().decode(LocalCharaResource.self, from: resourceData) else {
+              var localCharaResource: LocalCharaResource = try? JSONDecoder().decode(LocalCharaResource.self, from: resourceData) else {
             // TODO: エラー
             return
         }
@@ -72,7 +74,9 @@ struct CharaUseCase: CharaUseCaseProtcol {
             }
         }
 
-        try fileRepository.saveFile(directoryName: defaultsCharaID, fileName: "resource.json", data: resourceData)
+        // モデルの URL は環境で変わるので、resource.json に書かずにここで入れる
+        localCharaResource.modelFileURL = URL(string: "\(Variables.resourceEndpoint)/\(defaultsCharaID)/\(defaultsCharaVRMFileName)")
+        try LocalCharaResourceUseCase().saveCharaResource(charaID: defaultsCharaID, localCharaResource: localCharaResource)
     }
 
     func loadLocalCharaResource() throws -> LocalCharaResource {

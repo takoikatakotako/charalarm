@@ -29,8 +29,8 @@ struct UserDefaultsRepository: UserDefaultsRepositoryProtocol {
     private let KEY_REWARDED_FREE_USE_DAY_PREFIX = "REWARDED_FREE_USE_DAY_"
 
     // Defaults
-    private let DEFAULT_CHARA_DOMAIN = "jp.zunko.zundamon"
-    private let DEFAULT_CHARA_NAME = "ずんだもん"
+    private let DEFAULT_CHARA_DOMAIN = "com.charalarm.yui"
+    private let DEFAULT_CHARA_NAME = "井上結衣"
 
     // UserDefaults の初期値を設定する
     func registerDefaults() {
@@ -164,6 +164,6 @@ struct UserDefaultsRepository: UserDefaultsRepositoryProtocol {
     }
 
     func setDefaultCharaName() {
-        UserDefaults.standard.set(DEFAULT_CHARA_DOMAIN, forKey: KEY_CHARA_NAME)
+        UserDefaults.standard.set(DEFAULT_CHARA_NAME, forKey: KEY_CHARA_NAME)
     }
 }
