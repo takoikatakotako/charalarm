@@ -115,10 +115,10 @@ targets:
     sources:
       - path: Charalarm
         excludes:
-          - Charalarm/Resource
-          - Charalarm/open_jtalk_dic_utf_8-1.11
-          - Charalarm/vvms
-          - Charalarm/VRMViewer
+          - Resource
+          - open_jtalk_dic_utf_8-1.11
+          - vvms
+          - VRMViewer
       - path: Charalarm/Resource
         type: folder
       - path: Charalarm/VRMViewer
@@ -161,10 +161,10 @@ targets:
     sources:
       - path: Charalarm
         excludes:
-          - Charalarm/Resource
-          - Charalarm/open_jtalk_dic_utf_8-1.11
-          - Charalarm/vvms
-          - Charalarm/VRMViewer
+          - Resource
+          - open_jtalk_dic_utf_8-1.11
+          - vvms
+          - VRMViewer
       - path: Charalarm/Resource
         type: folder
       - path: Charalarm/VRMViewer
@@ -207,10 +207,10 @@ targets:
     sources:
       - path: Charalarm
         excludes:
-          - Charalarm/Resource
-          - Charalarm/open_jtalk_dic_utf_8-1.11
-          - Charalarm/vvms
-          - Charalarm/VRMViewer
+          - Resource
+          - open_jtalk_dic_utf_8-1.11
+          - vvms
+          - VRMViewer
       - path: Charalarm/Resource
         type: folder
       - path: Charalarm/VRMViewer
