@@ -30,9 +30,6 @@
         }
       }
     },
-    "%@のボイス" : {
-
-    },
     "alarm-add-alarm" : {
       "localizations" : {
         "en" : {
@@ -133,23 +130,6 @@
         }
       }
     },
-    "alarm-failed-to-delete-the-alarm" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Failed to delete the alarm."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "アラームの削除に失敗しました。"
-          }
-        }
-      }
-    },
     "alarm-failed-to-create-an-alarm" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -163,6 +143,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "アラームの作成に失敗しました。"
+          }
+        }
+      }
+    },
+    "alarm-failed-to-delete-the-alarm" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Failed to delete the alarm."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "アラームの削除に失敗しました。"
           }
         }
       }
@@ -426,6 +423,108 @@
         }
       }
     },
+    "background-bedroom" : {
+      "comment" : "Home screen background: bedroom",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bedroom"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "寝室"
+          }
+        }
+      }
+    },
+    "background-cafe" : {
+      "comment" : "Home screen background: cafe",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cafe"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "カフェ"
+          }
+        }
+      }
+    },
+    "background-library" : {
+      "comment" : "Home screen background: library",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Library"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "図書室"
+          }
+        }
+      }
+    },
+    "background-living-room" : {
+      "comment" : "Home screen background: living room",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Living room"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "リビング"
+          }
+        }
+      }
+    },
+    "background-office" : {
+      "comment" : "Home screen background: office",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Office"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "オフィス"
+          }
+        }
+      }
+    },
+    "background-washitsu" : {
+      "comment" : "Home screen background: Japanese room",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Japanese room"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "和室"
+          }
+        }
+      }
+    },
     "calendar-selection-allow" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -494,16 +593,6 @@
         }
       }
     },
-    "Calling..." : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Calling..."
-          }
-        }
-      }
-    },
     "calling-status" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -517,6 +606,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "通話中…"
+          }
+        }
+      }
+    },
+    "Calling..." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Calling..."
           }
         }
       }
@@ -803,125 +903,6 @@
         }
       }
     },
-    "config-calendar-access-denied" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Calendar access is not allowed. Please allow it in the Settings app."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "カレンダーへのアクセスが許可されていません。設定アプリから許可してください。"
-          }
-        }
-      }
-    },
-    "background-washitsu" : {
-      "comment" : "Home screen background: Japanese room",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Japanese room"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "和室"
-          }
-        }
-      }
-    },
-    "background-office" : {
-      "comment" : "Home screen background: office",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Office"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "オフィス"
-          }
-        }
-      }
-    },
-    "background-bedroom" : {
-      "comment" : "Home screen background: bedroom",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bedroom"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "寝室"
-          }
-        }
-      }
-    },
-    "background-living-room" : {
-      "comment" : "Home screen background: living room",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Living room"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "リビング"
-          }
-        }
-      }
-    },
-    "background-cafe" : {
-      "comment" : "Home screen background: cafe",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cafe"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "カフェ"
-          }
-        }
-      }
-    },
-    "background-library" : {
-      "comment" : "Home screen background: library",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Library"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "図書室"
-          }
-        }
-      }
-    },
     "config-background" : {
       "comment" : "Settings link and title for the home screen background picker",
       "localizations" : {
@@ -935,6 +916,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "背景"
+          }
+        }
+      }
+    },
+    "config-calendar-access-denied" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Calendar access is not allowed. Please allow it in the Settings app."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "カレンダーへのアクセスが許可されていません。設定アプリから許可してください。"
           }
         }
       }
@@ -2063,6 +2061,7 @@
     },
     "news-news" : {
       "comment" : "News",
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3287,49 +3286,7 @@
     "VoIPPushTokenEndpoint" : {
 
     },
-    "お問い合わせ" : {
-
-    },
-    "お問い合わせ内容" : {
-
-    },
-    "キャラームのTwitterを開く" : {
-
-    },
-    "キャラクター" : {
-
-    },
     "ずんだもん" : {
-
-    },
-    "ボイス" : {
-
-    },
-    "メールアドレス" : {
-
-    },
-    "メンテナンスの状況はTwitterでお知らせしています。" : {
-
-    },
-    "メンテナンス中です" : {
-
-    },
-    "メンテナンス終了までお待ちください。" : {
-
-    },
-    "ユーザーID" : {
-
-    },
-    "ランダム" : {
-
-    },
-    "送信" : {
-
-    },
-    "閉じる" : {
-
-    },
-    "開発者情報" : {
 
     }
   },
