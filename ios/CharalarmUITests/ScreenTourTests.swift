@@ -20,6 +20,49 @@ final class ScreenTourTests: XCTestCase {
         }
     }
 
+    func testAppIconSelection() {
+        app.launchArguments.append("--ui-test-settings")
+        app.launch()
+        openAppIconSelection()
+        selectAppIcon("yui")
+        selectAppIcon("shiori")
+        snap("app-icon-shiori")
+
+        // iOS が持つ選択を再起動後にも表示できることを確かめる。
+        app.terminate()
+        app.launch()
+        openAppIconSelection()
+        XCTAssertEqual(app.buttons["app-icon-shiori"].value as? String, "選択中")
+
+        // デフォルトに戻す経路も確認し、シミュレーターを元の状態に戻す。
+        selectAppIcon("yui")
+        snap("app-icon-yui")
+    }
+
+    private func openAppIconSelection() {
+        require(app.navigationBars["設定"], "設定", timeout: 30)
+        require(app.buttons["config-app-icon"], "設定のアプリアイコン").tap()
+        require(app.navigationBars["アプリアイコン"], "アプリアイコン選択")
+        require(app.buttons["app-icon-yui"], "結衣のアイコン")
+        require(app.buttons["app-icon-shiori"], "しおりのアイコン")
+    }
+
+    private func selectAppIcon(_ name: String) {
+        let button = app.buttons["app-icon-\(name)"].firstMatch
+        if button.value as? String != "選択中" {
+            XCTAssertTrue(button.isEnabled)
+            button.tap()
+            // UIKit が表示するアイコン変更の通知を閉じる。
+            let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
+            let confirmation = springboard.alerts.buttons["OK"].firstMatch
+            if confirmation.waitForExistence(timeout: 5) {
+                confirmation.tap()
+            }
+        }
+        let selected = XCTNSPredicateExpectation(predicate: NSPredicate(format: "value == %@", "選択中"), object: button)
+        XCTAssertEqual(XCTWaiter.wait(for: [selected], timeout: 10), .completed, "アイコンを \(name) に変更できませんでした")
+    }
+
     func testScreenTour() {
         app.launch()
 

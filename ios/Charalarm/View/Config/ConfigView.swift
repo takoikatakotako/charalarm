@@ -22,6 +22,10 @@ struct ConfigView: View {
                     NavigationLink(String(localized: "config-background")) {
                         BackgroundSelectionView()
                     }
+                    NavigationLink(String(localized: "config-app-icon")) {
+                        AppIconSelectionView()
+                    }
+                    .accessibilityIdentifier("config-app-icon")
                 }
 
                 Section {
