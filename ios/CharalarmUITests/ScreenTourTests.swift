@@ -24,7 +24,6 @@ final class ScreenTourTests: XCTestCase {
         app.launchArguments.append("--ui-test-settings")
         app.launch()
         openAppIconSelection()
-        selectAppIcon("logo")
         selectAppIcon("yui")
         snap("app-icon-yui")
         selectAppIcon("shiori")
@@ -38,20 +37,19 @@ final class ScreenTourTests: XCTestCase {
         openAppIconSelection()
         XCTAssertEqual(app.buttons["app-icon-clock-hug"].value as? String, "選択中")
 
-        // 結衣も代替アイコンとして選べることと、ロゴへの復帰を確かめる。
+        // デフォルトの井上結衣に戻せることを確かめる。
         selectAppIcon("yui")
-        selectAppIcon("logo")
-        snap("app-icon-logo")
+        snap("app-icon-yui-default")
     }
 
     private func openAppIconSelection() {
         require(app.navigationBars["設定"], "設定", timeout: 30)
         require(app.buttons["config-app-icon"], "設定のアプリアイコン").tap()
         require(app.navigationBars["アプリアイコン"], "アプリアイコン選択")
-        require(app.buttons["app-icon-logo"], "Charalarmのロゴアイコン")
         require(app.buttons["app-icon-clock-hug"], "時計を抱える女の子のアイコン")
         require(app.buttons["app-icon-yui"], "結衣のアイコン")
         require(app.buttons["app-icon-shiori"], "しおりのアイコン")
+        XCTAssertFalse(app.buttons["app-icon-logo"].exists, "Charalarmロゴが選択肢に残っています")
     }
 
     private func selectAppIcon(_ name: String) {

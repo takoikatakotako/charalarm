@@ -18,23 +18,6 @@
         }
       }
     },
-    "app-icon-logo-name" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Charalarm"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Charalarm"
-          }
-        }
-      }
-    },
     "config-app-icon" : {
       "extractionState" : "manual",
       "localizations" : {
