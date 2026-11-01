@@ -24,7 +24,9 @@ final class ScreenTourTests: XCTestCase {
         app.launchArguments.append("--ui-test-settings")
         app.launch()
         openAppIconSelection()
+        selectAppIcon("logo")
         selectAppIcon("yui")
+        snap("app-icon-yui")
         selectAppIcon("shiori")
         snap("app-icon-shiori")
 
@@ -34,15 +36,17 @@ final class ScreenTourTests: XCTestCase {
         openAppIconSelection()
         XCTAssertEqual(app.buttons["app-icon-shiori"].value as? String, "選択中")
 
-        // デフォルトに戻す経路も確認し、シミュレーターを元の状態に戻す。
+        // 結衣も代替アイコンとして選べることと、ロゴへの復帰を確かめる。
         selectAppIcon("yui")
-        snap("app-icon-yui")
+        selectAppIcon("logo")
+        snap("app-icon-logo")
     }
 
     private func openAppIconSelection() {
         require(app.navigationBars["設定"], "設定", timeout: 30)
         require(app.buttons["config-app-icon"], "設定のアプリアイコン").tap()
         require(app.navigationBars["アプリアイコン"], "アプリアイコン選択")
+        require(app.buttons["app-icon-logo"], "Charalarmのロゴアイコン")
         require(app.buttons["app-icon-yui"], "結衣のアイコン")
         require(app.buttons["app-icon-shiori"], "しおりのアイコン")
     }

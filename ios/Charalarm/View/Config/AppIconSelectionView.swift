@@ -1,6 +1,7 @@
 import SwiftUI
 
 private enum AppIconOption: String, CaseIterable, Identifiable {
+    case logo
     case yui
     case shiori
 
@@ -8,6 +9,7 @@ private enum AppIconOption: String, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
+        case .logo: String(localized: "app-icon-logo-name")
         case .yui: String(localized: "app-icon-yui-name")
         case .shiori: String(localized: "app-icon-shiori-name")
         }
@@ -15,6 +17,7 @@ private enum AppIconOption: String, CaseIterable, Identifiable {
 
     var previewImage: ImageResource {
         switch self {
+        case .logo: .appIconLogoPreview
         case .yui: .appIconYuiPreview
         case .shiori: .appIconShioriPreview
         }
@@ -28,14 +31,21 @@ struct AppIconSelectionView: View {
     @State private var showingError = false
 
     // このビルドに同梱された代替アイコン名を使い、環境をまたいだアイコンを選ばない。
-    private var shioriIconName: String? {
+    private func alternateIconName(for icon: AppIconOption) -> String? {
+        let prefix: String
+        switch icon {
+        case .logo: return nil
+        case .yui: prefix = "AppIcon-Yui-"
+        case .shiori: prefix = "AppIcon-Shiori-"
+        }
         let icons = Bundle.main.object(forInfoDictionaryKey: "CFBundleIcons") as? [String: Any]
         let alternates = icons?["CFBundleAlternateIcons"] as? [String: Any]
-        return alternates?.keys.first { $0.hasPrefix("AppIcon-Shiori-") }
+        return alternates?.keys.first { $0.hasPrefix(prefix) }
     }
 
     private var canChangeIcon: Bool {
-        UIApplication.shared.supportsAlternateIcons && shioriIconName != nil
+        UIApplication.shared.supportsAlternateIcons
+            && AppIconOption.allCases.filter { $0 != .logo }.allSatisfy { alternateIconName(for: $0) != nil }
     }
 
     var body: some View {
@@ -85,7 +95,7 @@ struct AppIconSelectionView: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text(icon.title)
                     .font(.body.weight(.medium))
-                if icon == .yui {
+                if icon == .logo {
                     Text(String(localized: "app-icon-default"))
                         .font(.caption)
                         .foregroundStyle(.secondary)
@@ -111,20 +121,20 @@ struct AppIconSelectionView: View {
     private func refreshSelection() {
         // UserDefaults に複製せず、再起動後も iOS が保持する実際の選択を表示する。
         if let name = UIApplication.shared.alternateIconName {
-            selectedIcon = name == shioriIconName ? .shiori : nil
+            selectedIcon = AppIconOption.allCases.first { alternateIconName(for: $0) == name }
         } else {
-            selectedIcon = .yui
+            selectedIcon = .logo
         }
     }
 
     private func select(_ icon: AppIconOption) async {
         guard canChangeIcon, pendingIcon == nil, selectedIcon != icon else { return }
         let alternateName: String?
-        if icon == .shiori {
-            guard let name = shioriIconName else { return }
+        if icon != .logo {
+            guard let name = alternateIconName(for: icon) else { return }
             alternateName = name
         } else {
-            // nil を渡すとデフォルトの結衣に戻る。
+            // nil を渡すとデフォルトのスプラッシュロゴに戻る。
             alternateName = nil
         }
 
