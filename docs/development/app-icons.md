@@ -22,6 +22,6 @@ bash ios/scripts/generate-clock-hug-icons.sh
 
 `ios/project.yml` の各ターゲットで `ASSETCATALOG_COMPILER_APPICON_NAME` と `ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES` を指定しています。変更後は `cd ios` で `xcodegen generate` を実行して Xcode プロジェクトを更新します。
 
-結衣の画像は内蔵の画像生成ツールで作成しました。生成元画像とプロンプトは `output/imagegen/inoue-yui-app-icon*` に保存し、アセット登録時に sips で 1024 × 1024 px にリサイズしています。
+結衣の画像は内蔵の画像生成ツールで作成し、アセット登録時に sips で 1024 × 1024 px にリサイズしています。生成元画像とプロンプトは作業ファイルなのでリポジトリには入れていません（`output/` は .gitignore）。
 
 UI テスト `ScreenTourTests/testAppIconSelection` は、3種類のアイコンへの切り替え、「時計を抱える女の子」の再起動後の保持、デフォルトの井上結衣への復帰、Charalarmロゴが選択肢にないことを確認します。Debug ビルド限定の起動引数 `--ui-test-settings` で設定画面を直接開き、起動時の API 確認やログインに依存させていません。

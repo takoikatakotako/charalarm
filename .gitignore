@@ -136,3 +136,6 @@ ios/Charalarm/vvms/
 
 # Gemini TTS の PoC 用 CLI（手元だけで使う。コミットしない）
 application/tools/ttspoc/
+
+# 画像生成などの作業ファイル
+output/
