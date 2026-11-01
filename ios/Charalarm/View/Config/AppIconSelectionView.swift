@@ -2,6 +2,7 @@ import SwiftUI
 
 private enum AppIconOption: String, CaseIterable, Identifiable {
     case logo
+    case clockHug = "clock-hug"
     case yui
     case shiori
 
@@ -10,6 +11,7 @@ private enum AppIconOption: String, CaseIterable, Identifiable {
     var title: String {
         switch self {
         case .logo: String(localized: "app-icon-logo-name")
+        case .clockHug: String(localized: "app-icon-clock-hug-name")
         case .yui: String(localized: "app-icon-yui-name")
         case .shiori: String(localized: "app-icon-shiori-name")
         }
@@ -18,6 +20,7 @@ private enum AppIconOption: String, CaseIterable, Identifiable {
     var previewImage: ImageResource {
         switch self {
         case .logo: .appIconLogoPreview
+        case .clockHug: .appIconClockHugPreview
         case .yui: .appIconYuiPreview
         case .shiori: .appIconShioriPreview
         }
@@ -35,6 +38,7 @@ struct AppIconSelectionView: View {
         let prefix: String
         switch icon {
         case .logo: return nil
+        case .clockHug: prefix = "AppIcon-ClockHug-"
         case .yui: prefix = "AppIcon-Yui-"
         case .shiori: prefix = "AppIcon-Shiori-"
         }

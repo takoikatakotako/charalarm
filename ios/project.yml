@@ -135,6 +135,7 @@ targets:
         INFOPLIST_FILE: Charalarm/Info.plist
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon-Logo-Develop
         ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES:
+          - AppIcon-ClockHug-Develop
           - AppIcon-Yui-Develop
           - AppIcon-Shiori-Develop
       configs:
@@ -184,6 +185,7 @@ targets:
         INFOPLIST_FILE: Charalarm/Info.plist
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon-Logo-Staging
         ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES:
+          - AppIcon-ClockHug-Staging
           - AppIcon-Yui-Staging
           - AppIcon-Shiori-Staging
       configs:
@@ -233,6 +235,7 @@ targets:
         INFOPLIST_FILE: Charalarm/Info.plist
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon-Logo-Production
         ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES:
+          - AppIcon-ClockHug-Production
           - AppIcon-Yui-Production
           - AppIcon-Shiori-Production
       configs:

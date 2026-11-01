@@ -29,12 +29,14 @@ final class ScreenTourTests: XCTestCase {
         snap("app-icon-yui")
         selectAppIcon("shiori")
         snap("app-icon-shiori")
+        selectAppIcon("clock-hug")
+        snap("app-icon-clock-hug")
 
         // iOS が持つ選択を再起動後にも表示できることを確かめる。
         app.terminate()
         app.launch()
         openAppIconSelection()
-        XCTAssertEqual(app.buttons["app-icon-shiori"].value as? String, "選択中")
+        XCTAssertEqual(app.buttons["app-icon-clock-hug"].value as? String, "選択中")
 
         // 結衣も代替アイコンとして選べることと、ロゴへの復帰を確かめる。
         selectAppIcon("yui")
@@ -47,6 +49,7 @@ final class ScreenTourTests: XCTestCase {
         require(app.buttons["config-app-icon"], "設定のアプリアイコン").tap()
         require(app.navigationBars["アプリアイコン"], "アプリアイコン選択")
         require(app.buttons["app-icon-logo"], "Charalarmのロゴアイコン")
+        require(app.buttons["app-icon-clock-hug"], "時計を抱える女の子のアイコン")
         require(app.buttons["app-icon-yui"], "結衣のアイコン")
         require(app.buttons["app-icon-shiori"], "しおりのアイコン")
     }

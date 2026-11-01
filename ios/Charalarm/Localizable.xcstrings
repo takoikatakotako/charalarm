@@ -1,6 +1,23 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "app-icon-clock-hug-name" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Girl Hugging a Clock"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "時計を抱える女の子"
+          }
+        }
+      }
+    },
     "app-icon-logo-name" : {
       "extractionState" : "manual",
       "localizations" : {
