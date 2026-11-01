@@ -20,6 +20,7 @@ nav:
       - DynamoDB: development/dynamodb.md
       - LocalStack: development/localstack.md
       - iOS: development/ios.md
+      - アプリアイコン: development/app-icons.md
       - SQS: development/sqs.md
       - サブスクリプション: development/subscription.md
       - キャラクター:
