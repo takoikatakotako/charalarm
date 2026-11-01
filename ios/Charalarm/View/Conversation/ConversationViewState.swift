@@ -40,7 +40,7 @@ final class ConversationViewState: NSObject {
         static let bargeInMinimumWords = 2
         static let maxConversationDuration: TimeInterval = 120.0
         /// ユーザーが話せる回数。読み上げの費用が膨らまないよう、この回数で最後の返事をお別れのあいさつにする
-        static let maxUserTurns = 4
+        static let maxUserTurns = 3
         static let conversationTimerInterval: TimeInterval = 1.0
         static let ringtoneAssetName = "ringtone"
     }
