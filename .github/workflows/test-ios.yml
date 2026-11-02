@@ -20,6 +20,15 @@ jobs:
     # チェックアウト
     - uses: actions/checkout@v4
 
+    - uses: actions/setup-node@v4
+      with:
+        node-version: '22'
+
+    - name: Test VRM texture limits
+      run: |
+        node --test ios/scripts/tests/texture-limit.test.mjs
+        python3 -m unittest discover -s ios/scripts/tests
+
     # SwiftLint はビルド済みのバイナリを使う (mint bootstrap は4つのツールをソースからビルドするので15分かかる)
     # バージョンは Mintfile にそろえる
     - name: Install SwiftLint
