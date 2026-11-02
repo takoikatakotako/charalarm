@@ -19,6 +19,10 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 document.body.appendChild(renderer.domElement);
+// メモリが足りないなどで WebGL の描画が失われたら、Swift に知らせる (黒いままにせず、ログで原因を見分けられるように)
+renderer.domElement.addEventListener('webglcontextlost', () => {
+  post('error', 'WebGL のコンテキストが失われました');
+});
 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(30, window.innerWidth / window.innerHeight, 0.1, 20);

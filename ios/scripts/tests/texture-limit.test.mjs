@@ -61,3 +61,12 @@ test('report canvas allocation failure instead of rendering oversized textures',
   assert.throws(() => limitTextureSize([new Texture({ width: 4096, height: 4096 })], 2048),
     /テクスチャを縮小できませんでした/);
 });
+
+test('close the original image bitmaps after resizing', () => {
+  globalThis.document = canvasDocument([]);
+  let closed = 0;
+  const bitmap = { width: 4096, height: 4096, close: () => { closed += 1; } };
+  const small = { width: 1024, height: 1024, close: () => { closed += 100; } };
+  limitTextureSize([new Texture(bitmap), new Texture(bitmap), new Texture(small)], 2048);
+  assert.equal(closed, 1);
+});

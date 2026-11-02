@@ -19,4 +19,9 @@ export function limitTextureSize(textures, maxSize) {
     texture.image = canvas;
     texture.needsUpdate = true;
   }
+  // 縮める前の大きい画像 (ImageBitmap) は、ガベージコレクションを待たずにすぐ手放す。
+  // WKWebView の User-Agent には Safari と入らないので、GLTFLoader は ImageBitmap で読み込む
+  for (const image of resized.keys()) {
+    image.close?.();
+  }
 }
