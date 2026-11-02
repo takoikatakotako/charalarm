@@ -139,3 +139,6 @@ application/tools/ttspoc/
 
 # 画像生成などの作業ファイル
 output/
+
+# Python の検証スクリプト
+__pycache__/

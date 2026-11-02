@@ -4,6 +4,7 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { VRMLoaderPlugin, VRMUtils } from '@pixiv/three-vrm';
+import { limitTextureSize } from './texture-limit.js';
 
 const params = new URLSearchParams(location.search);
 const modelURL = params.get('model');
@@ -18,6 +19,10 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 document.body.appendChild(renderer.domElement);
+// メモリが足りないなどで WebGL の描画が失われたら、Swift に知らせる (黒いままにせず、ログで原因を見分けられるように)
+renderer.domElement.addEventListener('webglcontextlost', () => {
+  post('error', 'WebGL のコンテキストが失われました');
+});
 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(30, window.innerWidth / window.innerHeight, 0.1, 20);
@@ -118,14 +123,17 @@ if (!modelURL) {
 } else {
   const loader = new GLTFLoader();
   loader.register((parser) => new VRMLoaderPlugin(parser));
-  loader.load(
-    modelURL,
-    (gltf) => {
-      vrm = gltf.userData.vrm;
-      if (!vrm) {
+  loader.loadAsync(modelURL)
+    .then(async (gltf) => {
+      const loadedVRM = gltf.userData.vrm;
+      if (!loadedVRM) {
         post('error', 'VRM ではありません');
         return;
       }
+      // 大きいモデルや端末内の旧キャッシュも、初回の描画前に 2K 以下にする。
+      const textures = await gltf.parser.getDependencies('texture');
+      limitTextureSize(textures, Math.min(2048, renderer.capabilities.maxTextureSize));
+      vrm = loadedVRM;
       VRMUtils.removeUnnecessaryVertices(gltf.scene);
       VRMUtils.combineSkeletons(gltf.scene);
       VRMUtils.rotateVRM0(vrm);
@@ -135,10 +143,11 @@ if (!modelURL) {
       vrm.update(0);
       frameCamera();
       post('loaded');
-    },
-    undefined,
-    (error) => post('error', String(error?.message ?? error)),
-  );
+    })
+    .catch((error) => {
+      vrm = null;
+      post('error', String(error?.message ?? error));
+    });
 }
 
 animate();
