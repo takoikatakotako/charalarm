@@ -84,6 +84,8 @@ import Foundation
     /// うっかり触ったときに鳴らないよう、マナーモードのときは鳴らさない（吹き出しのセリフは出す）。
     /// 設定で「マナーモードでも声を出す」をオンにしていれば鳴らす
     func playVoice(_ data: Data) {
+        // 電話のあいだは、電話の音声カテゴリを変えない
+        guard AnsweredCallStore.shared.call == nil else { return }
         setAudioCategory(UserDefaultsRepository().getTapVoiceInSilentMode() ? .playback : .ambient)
         audioPlayer = try? AVAudioPlayer(data: data)
         audioPlayer?.play()
@@ -93,7 +95,8 @@ import Foundation
         let duration = audioPlayer?.duration ?? 0
         restoreCategoryTask = Task {
             try? await Task.sleep(for: .seconds(duration + 0.3))
-            guard !Task.isCancelled else { return }
+            // バックグラウンドで待っているあいだに電話に出ていたら、電話の音声カテゴリを上書きしない
+            guard !Task.isCancelled, AnsweredCallStore.shared.call == nil else { return }
             self.setAudioCategory(.playback)
         }
     }
