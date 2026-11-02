@@ -122,6 +122,23 @@ class AppDelegateModel {
         }
     }
 
+    /// 電話に出たら、マナーモードでも声が聞こえる音声カテゴリにしておく。
+    /// トップのタップのボイスは、マナーモードのとき鳴らないカテゴリ (.ambient) に切り替えることがあり、
+    /// それが残ったまま着信すると、着信音やキャラの声が消えてしまう。CallKit が音声を有効にする前に設定する
+    func configureAudioSessionForAnsweredCall() {
+        let audioSession = AVAudioSession.sharedInstance()
+        do {
+            if answersWithConversation {
+                // 会話画面がオーディオエンジンを用意するときと同じ設定にしておく (あとで切り替わらないように)
+                try audioSession.setCategory(.playAndRecord, mode: .voiceChat, options: [.defaultToSpeaker, .allowBluetoothHFP])
+            } else {
+                try audioSession.setCategory(.playback, mode: .spokenAudio)
+            }
+        } catch {
+            CharalarmLogger.error("電話の音声カテゴリを設定できませんでした", error: error)
+        }
+    }
+
     func answerCall(callUUID: UUID) {
         // charaID が未取得(旧ペイロード等)の場合は空のまま = 非会話キャラ扱いで従来の録音再生にフォールバック
         let call = AnsweredCall(charaID: charaID, charaName: charaName, callUUID: callUUID, conversation: answersWithConversation)

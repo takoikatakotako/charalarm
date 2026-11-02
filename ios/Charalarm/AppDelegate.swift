@@ -145,6 +145,7 @@ extension AppDelegate: CXProviderDelegate {
     }
 
     func provider(_ provider: CXProvider, perform action: CXAnswerCallAction) {
+        model.configureAudioSessionForAnsweredCall()
         action.fulfill()
         model.answerCall(callUUID: action.callUUID)
     }
