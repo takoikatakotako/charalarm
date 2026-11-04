@@ -146,3 +146,22 @@ func intEnv(key string, defaultValue int) int {
 	}
 	return n
 }
+
+// WeatherKitEnvironment は天気 (WeatherKit REST API) を取るための設定。どれかが空なら天気を使わない。
+type WeatherKitEnvironment struct {
+	TeamID    string
+	ServiceID string
+	KeyID     string
+	// PrivateKey は WeatherKit を有効にした鍵 (.p8 の PEM)。Lambda では "ssm://" で Parameter Store から読む。
+	PrivateKey string
+}
+
+// LoadWeatherKitEnvironment は WeatherKit の設定を環境変数から読む。
+func LoadWeatherKitEnvironment() WeatherKitEnvironment {
+	return WeatherKitEnvironment{
+		TeamID:     os.Getenv("CHARALARM_WEATHERKIT_TEAM_ID"),
+		ServiceID:  os.Getenv("CHARALARM_WEATHERKIT_SERVICE_ID"),
+		KeyID:      os.Getenv("CHARALARM_WEATHERKIT_KEY_ID"),
+		PrivateKey: os.Getenv("CHARALARM_WEATHERKIT_PRIVATE_KEY"),
+	}
+}

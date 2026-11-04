@@ -14,6 +14,7 @@ import (
 	"github.com/takoikatakotako/charalarm/api/service/llm"
 	"github.com/takoikatakotako/charalarm/api/service/tts"
 	"github.com/takoikatakotako/charalarm/api/service/vertex"
+	"github.com/takoikatakotako/charalarm/api/service/weather"
 	"github.com/takoikatakotako/charalarm/environment"
 	"github.com/takoikatakotako/charalarm/infrastructure"
 )
@@ -93,6 +94,21 @@ func main() {
 		AWS:       awsRepository,
 		LLMClient: llmClient,
 		Usage:     usageLimit,
+	}
+	// 天気 (WeatherKit)。設定がそろっていなければ使わない
+	weatherKitEnv := environment.LoadWeatherKitEnvironment()
+	weatherConfig := weather.Config{
+		TeamID:     weatherKitEnv.TeamID,
+		ServiceID:  weatherKitEnv.ServiceID,
+		KeyID:      weatherKitEnv.KeyID,
+		PrivateKey: weatherKitEnv.PrivateKey,
+	}
+	if weatherConfig.Enabled() {
+		weatherClient, err := weather.NewClient(weatherConfig, nil)
+		if err != nil {
+			log.Fatalf("failed to create weatherkit client: %v", err)
+		}
+		chatService.Weather = weatherClient
 	}
 	ttsEnv := environment.LoadTTSEnvironment()
 	textToSpeechService := service.TextToSpeech{

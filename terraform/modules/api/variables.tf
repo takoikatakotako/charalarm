@@ -84,3 +84,25 @@ variable "tts_voice" {
   type    = string
   default = "ja-jp-advisor-5"
 }
+
+# 天気 (WeatherKit REST API)。Apple Developer で作った鍵・Service ID を渡す。
+# 鍵 (.p8) は SecureString で Parameter Store に手で置き、そのパラメータ名を渡す。空なら天気は使わない
+variable "weatherkit_team_id" {
+  type    = string
+  default = ""
+}
+
+variable "weatherkit_service_id" {
+  type    = string
+  default = ""
+}
+
+variable "weatherkit_key_id" {
+  type    = string
+  default = ""
+}
+
+variable "weatherkit_private_key_ssm_parameter_name" {
+  type    = string
+  default = ""
+}

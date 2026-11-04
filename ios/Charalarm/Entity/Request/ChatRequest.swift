@@ -10,6 +10,8 @@ struct ChatRequest: Encodable {
     let capabilities: [String]
     /// 今日の予定（JSON）。電話の最初のひとことで、設定でオンにしているときだけ送る
     let todayEvents: String?
+    /// 天気を伝える地域（都道府県コード）。電話の最初のひとことで、設定で地域を選んでいるときだけ送る
+    let weatherRegion: String?
     let messages: [ChatMessage]
     let context: ChatContext
 }

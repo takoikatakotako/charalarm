@@ -36,8 +36,10 @@ type Chat struct {
 	// Capabilities は端末で使える道具 (例: calendar.read)。許可がないものは含めない。
 	Capabilities []string `json:"capabilities"`
 	// TodayEvents は今日の予定 (タイトルと時刻の JSON)。電話の最初のひとことで、ユーザーが設定でオンにしているときだけ送られる
-	TodayEvents string        `json:"todayEvents"`
-	Memory      string        `json:"memory"`
-	Context     *ChatContext  `json:"context"`
-	Messages    []ChatMessage `json:"messages"`
+	TodayEvents string `json:"todayEvents"`
+	// WeatherRegion は天気を伝える地域 (都道府県コード "01"〜"47")。電話の最初のひとことで、ユーザーが設定で地域を選んでいるときだけ送られる
+	WeatherRegion string        `json:"weatherRegion"`
+	Memory        string        `json:"memory"`
+	Context       *ChatContext  `json:"context"`
+	Messages      []ChatMessage `json:"messages"`
 }

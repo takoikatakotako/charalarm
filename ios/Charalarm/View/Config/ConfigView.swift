@@ -1,6 +1,9 @@
 import SwiftUI
 
 struct ConfigView: View {
+    /// WeatherKit のデータ提供元のページ（Apple Weather の表記と一緒に出す）
+    private static let weatherLegalAttributionURL = URL(string: "https://weatherkit.apple.com/legal-attribution.html")!
+
     #if DEBUG
     private static let debugConversationCharaID = "jp.zunko.zundamon"
     #endif
@@ -47,6 +50,12 @@ struct ConfigView: View {
                             Text(limit.displayName).tag(limit)
                         }
                     }
+                    Picker(String(localized: "config-weather-region"), selection: $viewState.weatherRegion) {
+                        Text(String(localized: "config-weather-region-none")).tag(WeatherRegion?.none)
+                        ForEach(WeatherRegion.all) { region in
+                            Text(region.displayName).tag(WeatherRegion?.some(region))
+                        }
+                    }
                     Toggle(String(localized: "config-use-calendar"), isOn: Binding(
                         get: { viewState.useCalendarInConversation },
                         set: { viewState.setUseCalendarInConversation($0) }
@@ -64,6 +73,12 @@ struct ConfigView: View {
                     VStack(alignment: .leading, spacing: 4) {
                         Text(String(localized: "config-conversation-language-footer"))
                         Text(String(localized: "config-call-time-limit-footer"))
+                        Text(String(localized: "config-weather-region-footer"))
+                        // WeatherKit の利用条件: Apple Weather の表記と、データ提供元のページへのリンクを出す
+                        HStack(spacing: 8) {
+                            Text("\u{F8FF} Weather")
+                            Link(String(localized: "config-weather-data-sources"), destination: Self.weatherLegalAttributionURL)
+                        }
                         Text(String(localized: "config-use-calendar-footer"))
                         Text(String(localized: "config-mention-schedule-on-call-footer"))
                     }

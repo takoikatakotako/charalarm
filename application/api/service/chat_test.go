@@ -1,11 +1,14 @@
 package service
 
 import (
+	"context"
+	"errors"
 	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/takoikatakotako/charalarm/api/service/llm"
+	"github.com/takoikatakotako/charalarm/api/service/weather"
 	"github.com/takoikatakotako/charalarm/infrastructure/database"
 )
 
@@ -255,4 +258,70 @@ func TestChatLanguageInstruction(t *testing.T) {
 	for _, language := range database.SupportedLanguages {
 		assert.NotEmpty(t, database.LanguageNames[language], language)
 	}
+}
+
+type fakeWeather struct {
+	calls int
+	err   error
+}
+
+func (f *fakeWeather) Today(_ context.Context, region weather.Region) (weather.Forecast, error) {
+	f.calls++
+	if f.err != nil {
+		return weather.Forecast{}, f.err
+	}
+	return weather.Forecast{Region: region, Condition: "雨", TemperatureMax: 17, TemperatureMin: 11, PrecipitationChance: 0.7, PrecipitationType: "雨"}, nil
+}
+
+func TestWeather(t *testing.T) {
+	opening := llm.Message{Role: llm.RoleSystem, Content: "電話に出たところ"}
+	user := llm.Message{Role: llm.RoleUser, Content: "おはよう"}
+
+	t.Run("知らない地域は受け付けない", func(t *testing.T) {
+		assert.NoError(t, validateChatInput(ChatInput{WeatherRegion: "13", Messages: []llm.Message{opening}}))
+		assert.Error(t, validateChatInput(ChatInput{WeatherRegion: "99", Messages: []llm.Message{opening}}))
+		assert.Error(t, validateChatInput(ChatInput{WeatherRegion: "Tokyo", Messages: []llm.Message{opening}}))
+	})
+
+	t.Run("電話の最初のひとことで天気を取り、会話の直前に置く", func(t *testing.T) {
+		fake := &fakeWeather{}
+		chat := Chat{Weather: fake}
+		input := ChatInput{WeatherRegion: "13", Messages: []llm.Message{opening}}
+		input.forecast = chat.forecast(context.Background(), input)
+		assert.Equal(t, 1, fake.calls)
+
+		messages, err := buildChatMessages("", input)
+		assert.NoError(t, err)
+		last := messages[len(messages)-2]
+		assert.Equal(t, llm.RoleSystem, last.Role)
+		assert.Contains(t, last.Content, chatWeatherInstruction)
+		assert.Contains(t, last.Content, "<weather>\n地域: 東京都\n今日の天気: 雨\n")
+		assert.Equal(t, opening, messages[len(messages)-1])
+	})
+
+	t.Run("ユーザーが話したあとは取らない", func(t *testing.T) {
+		fake := &fakeWeather{}
+		chat := Chat{Weather: fake}
+		assert.Equal(t, "", chat.forecast(context.Background(), ChatInput{WeatherRegion: "13", Messages: []llm.Message{opening, user}}))
+		assert.Equal(t, 0, fake.calls)
+	})
+
+	t.Run("地域が無い・設定が無いときは取らない", func(t *testing.T) {
+		fake := &fakeWeather{}
+		assert.Equal(t, "", (&Chat{Weather: fake}).forecast(context.Background(), ChatInput{Messages: []llm.Message{opening}}))
+		assert.Equal(t, 0, fake.calls)
+		assert.Equal(t, "", (&Chat{}).forecast(context.Background(), ChatInput{WeatherRegion: "13", Messages: []llm.Message{opening}}))
+	})
+
+	t.Run("取れないときは天気に触れずに続ける", func(t *testing.T) {
+		chat := Chat{Weather: &fakeWeather{err: errors.New("timeout")}}
+		input := ChatInput{WeatherRegion: "13", Messages: []llm.Message{opening}}
+		input.forecast = chat.forecast(context.Background(), input)
+		assert.Equal(t, "", input.forecast)
+		messages, err := buildChatMessages("", input)
+		assert.NoError(t, err)
+		for _, m := range messages {
+			assert.NotContains(t, m.Content, "<weather>")
+		}
+	})
 }
