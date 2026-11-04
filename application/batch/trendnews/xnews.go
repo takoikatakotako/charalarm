@@ -54,6 +54,8 @@ func (c *XClient) Search(ctx context.Context, query string, maxResults int, maxA
 		return nil, err
 	}
 	req.Header.Set("Authorization", "Bearer "+c.BearerToken)
+	// X は Accept-Language でニュースの言語を決める。付けないと、呼び出し元によっては英語のニュースが返る
+	req.Header.Set("Accept-Language", "ja")
 
 	res, err := c.HTTPClient.Do(req)
 	if err != nil {

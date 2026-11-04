@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"unicode"
 	"unicode/utf8"
 
 	"github.com/takoikatakotako/charalarm/api/service/llm"
@@ -110,7 +111,7 @@ func (j *Job) collect(ctx context.Context) []Story {
 			continue
 		}
 		for _, s := range found {
-			if s.ID == "" || seen[s.ID] || strings.TrimSpace(s.Name) == "" || strings.TrimSpace(s.Summary) == "" {
+			if s.ID == "" || seen[s.ID] || strings.TrimSpace(s.Name) == "" || strings.TrimSpace(s.Summary) == "" || !isJapanese(s.Name) {
 				continue
 			}
 			seen[s.ID] = true
@@ -164,6 +165,16 @@ func pickStories(stories []Story, answer string, limit int) []Story {
 		}
 	}
 	return selected
+}
+
+// isJapanese は、ひらがな・カタカナ・漢字を含むか（日本語のニュースか）。
+func isJapanese(s string) bool {
+	for _, r := range s {
+		if unicode.In(r, unicode.Hiragana, unicode.Katakana, unicode.Han) {
+			return true
+		}
+	}
+	return false
 }
 
 func truncate(s string, length int) string {
