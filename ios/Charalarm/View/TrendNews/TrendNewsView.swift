@@ -9,14 +9,13 @@ struct TrendNewsList: View {
 
     @State private var newsList: [TrendNews] = []
     @State private var failed = false
+    @State private var loaded = false
 
     var body: some View {
         List {
-            if repository.isSample {
-                Text(String(localized: "trend-news-sample-notice"))
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
-            }
+            Text(String(localized: repository.isSample ? "trend-news-sample-notice" : "trend-news-source-notice"))
+                .font(.footnote)
+                .foregroundStyle(.secondary)
             if !newsList.isEmpty {
                 Button {
                     onRead(newsList)
@@ -52,11 +51,15 @@ struct TrendNewsList: View {
             if failed {
                 Text(String(localized: "trend-news-failed"))
                     .foregroundStyle(.secondary)
+            } else if loaded && newsList.isEmpty {
+                Text(String(localized: "trend-news-empty"))
+                    .foregroundStyle(.secondary)
             }
         }
         .task {
             do {
                 newsList = try await repository.fetchTrendNews()
+                loaded = true
             } catch {
                 CharalarmLogger.error("話題のニュースを取れませんでした", error: error)
                 failed = true

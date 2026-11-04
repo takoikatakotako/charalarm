@@ -177,7 +177,7 @@ struct TopView: View {
             switch item {
             case .news:
                 NewsHubView(
-                    trendNewsRepository: DummyTrendNewsRepository(),
+                    trendNewsRepository: ResourceTrendNewsRepository(),
                     initialTab: viewState.hasUnreadNews ? .news : .trend
                 ) { news in
                     Task {

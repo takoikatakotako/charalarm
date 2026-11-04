@@ -1293,6 +1293,40 @@
         }
       }
     },
+    "config-mention-news-on-call" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Talk about trending news when calling"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "電話の最初に話題のニュースを話す"
+          }
+        }
+      }
+    },
+    "config-mention-news-on-call-footer" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "When on, the character briefly mentions one of today's trending game and anime news at the start of each call."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "オンにすると、電話の最初に、今日の話題のゲームやアニメのニュースからひとつ、キャラが短く触れます。"
+          }
+        }
+      }
+    },
     "config-mention-schedule-on-call" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -3085,6 +3119,23 @@
         }
       }
     },
+    "trend-news-empty" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "There is no trending news right now."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "いまは話題のニュースがありません。"
+          }
+        }
+      }
+    },
     "trend-news-failed" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -3149,6 +3200,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "いまは試しのサンプルのニュースです。"
+          }
+        }
+      }
+    },
+    "trend-news-source-notice" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Summaries of posts on X, picked for a morning chat."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "X の投稿をまとめたニュースから、朝に聞いて楽しいものを選んでいます。"
           }
         }
       }

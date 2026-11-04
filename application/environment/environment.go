@@ -165,3 +165,30 @@ func LoadWeatherKitEnvironment() WeatherKitEnvironment {
 		PrivateKey: os.Getenv("CHARALARM_WEATHERKIT_PRIVATE_KEY"),
 	}
 }
+
+// TrendNewsEnvironment は batch で話題のニュースを作るための設定。
+type TrendNewsEnvironment struct {
+	// XBearerToken は X API の Bearer Token。Lambda では "ssm://" で Parameter Store から読む。
+	XBearerToken string
+	// ResourceBucketName はニュースの JSON を置く resource のバケット。
+	ResourceBucketName  string
+	GCPProject          string
+	GCPCredentialConfig string
+	// LLMModel はニュースを選ぶ Gemini のモデル。
+	LLMModel string
+}
+
+// LoadTrendNewsEnvironment は話題のニュースの設定を環境変数から読む。
+func LoadTrendNewsEnvironment() TrendNewsEnvironment {
+	e := TrendNewsEnvironment{
+		XBearerToken:        os.Getenv("CHARALARM_X_BEARER_TOKEN"),
+		ResourceBucketName:  os.Getenv("CHARALARM_RESOURCE_BUCKET_NAME"),
+		GCPProject:          os.Getenv("CHARALARM_GCP_PROJECT"),
+		GCPCredentialConfig: os.Getenv("CHARALARM_GCP_CREDENTIAL_CONFIG"),
+		LLMModel:            "gemini-3.1-flash-lite",
+	}
+	if val, exists := os.LookupEnv("CHARALARM_LLM_MODEL"); exists && val != "" {
+		e.LLMModel = val
+	}
+	return e
+}

@@ -81,6 +81,14 @@ module "batch" {
   batch_function_image_uri = "448049807848.dkr.ecr.ap-northeast-1.amazonaws.com/charalarm-batch"
   batch_function_image_tag = "ffe24e8fbfea805d4f0b64d28765a909edb7654c"
   resource_base_url        = "https://${local.resource_domain}"
+
+  # 話題のニュース。X の Bearer Token は Parameter Store に手で置いてある
+  # development は費用を抑えるため 1 日 1 回 (日本時間 4 時)
+  x_bearer_token_ssm_parameter_name = "/charalarm/dev/x-api-bearer-token"
+  trend_news_schedule_expression    = "cron(0 19 * * ? *)"
+  resource_bucket_name              = local.resource_bucket_name
+  gcp_project                       = "sandbox-492513"
+  gcp_credential_config             = local.gcp_credential_config
 }
 
 

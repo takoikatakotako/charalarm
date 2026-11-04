@@ -23,6 +23,7 @@ struct UserDefaultsRepository: UserDefaultsRepositoryProtocol {
     private let KEY_MENTION_SCHEDULE_ON_CALL = "MENTION_SCHEDULE_ON_CALL"
     private let KEY_CALL_TIME_LIMIT = "CALL_TIME_LIMIT"
     private let KEY_WEATHER_REGION = "WEATHER_REGION"
+    private let KEY_MENTION_NEWS_ON_CALL = "MENTION_NEWS_ON_CALL"
     private let KEY_EXCLUDED_CALENDAR_IDS = "EXCLUDED_CALENDAR_IDS"
     private let KEY_TAP_VOICE_IN_SILENT_MODE = "TAP_VOICE_IN_SILENT_MODE"
     private let KEY_LAST_SEEN_NEWS_AT = "LAST_SEEN_NEWS_AT"
@@ -120,6 +121,15 @@ struct UserDefaultsRepository: UserDefaultsRepositoryProtocol {
 
     func setCallTimeLimit(_ limit: CallTimeLimit) {
         UserDefaults.standard.set(limit.rawValue, forKey: KEY_CALL_TIME_LIMIT)
+    }
+
+    /// 電話の最初に、キャラのほうから話題のニュースに触れる。最初はオフ
+    func getMentionNewsOnCall() -> Bool {
+        UserDefaults.standard.bool(forKey: KEY_MENTION_NEWS_ON_CALL)
+    }
+
+    func setMentionNewsOnCall(_ mention: Bool) {
+        UserDefaults.standard.set(mention, forKey: KEY_MENTION_NEWS_ON_CALL)
     }
 
     /// 電話の最初に天気を伝える地域。選んでいなければ nil（天気は話さない）
