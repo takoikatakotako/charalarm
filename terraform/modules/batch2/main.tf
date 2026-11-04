@@ -63,7 +63,7 @@ resource "aws_lambda_permission" "batch_lambda_permission" {
 
 
 ##################################################
-# 話題のニュース (1 日 4 回)
+# 話題のニュース (既定は 1 日 4 回。trend_news_schedule_expression で変える)
 # X のニュースを取り、子ども（9+）が朝に聞いてよいものを Gemini で選んで resource のバケットに置く。
 # X の Bearer Token のパラメータ名が空なら作らない
 ##################################################
@@ -71,7 +71,7 @@ resource "aws_cloudwatch_event_rule" "trend_news_event_rule" {
   count               = var.x_bearer_token_ssm_parameter_name == "" ? 0 : 1
   name                = "trend-news-event-rule"
   description         = "trend news event rule"
-  schedule_expression = "cron(0 1,7,13,19 * * ? *)" # 日本時間 4・10・16・22 時
+  schedule_expression = var.trend_news_schedule_expression
 }
 
 resource "aws_cloudwatch_event_target" "trend_news_event_target" {

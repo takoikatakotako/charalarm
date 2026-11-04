@@ -38,3 +38,9 @@ variable "llm_model" {
   type    = string
   default = "gemini-3.1-flash-lite"
 }
+
+# 話題のニュースを作る時刻 (UTC)。既定は日本時間 4・10・16・22 時
+variable "trend_news_schedule_expression" {
+  type    = string
+  default = "cron(0 1,7,13,19 * * ? *)"
+}
