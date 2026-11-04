@@ -110,13 +110,21 @@ func (j *Job) collect(ctx context.Context) []Story {
 			slog.Warn("trend news search failed", slog.String("query", query), slog.String("error", err.Error()))
 			continue
 		}
+		kept, notJapanese := 0, 0
 		for _, s := range found {
-			if s.ID == "" || seen[s.ID] || strings.TrimSpace(s.Name) == "" || strings.TrimSpace(s.Summary) == "" || !isJapanese(s.Name) {
+			if s.ID == "" || seen[s.ID] || strings.TrimSpace(s.Name) == "" || strings.TrimSpace(s.Summary) == "" {
+				continue
+			}
+			if !isJapanese(s.Name) {
+				notJapanese++
 				continue
 			}
 			seen[s.ID] = true
 			stories = append(stories, s)
+			kept++
 		}
+		slog.Info("trend news searched", slog.String("query", query), slog.Int("found", len(found)),
+			slog.Int("kept", kept), slog.Int("not_japanese", notJapanese))
 	}
 	return stories
 }
