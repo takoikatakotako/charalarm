@@ -22,6 +22,7 @@ struct UserDefaultsRepository: UserDefaultsRepositoryProtocol {
     private let KEY_USE_CALENDAR_IN_CONVERSATION = "USE_CALENDAR_IN_CONVERSATION"
     private let KEY_MENTION_SCHEDULE_ON_CALL = "MENTION_SCHEDULE_ON_CALL"
     private let KEY_CALL_TIME_LIMIT = "CALL_TIME_LIMIT"
+    private let KEY_WEATHER_REGION = "WEATHER_REGION"
     private let KEY_EXCLUDED_CALENDAR_IDS = "EXCLUDED_CALENDAR_IDS"
     private let KEY_TAP_VOICE_IN_SILENT_MODE = "TAP_VOICE_IN_SILENT_MODE"
     private let KEY_LAST_SEEN_NEWS_AT = "LAST_SEEN_NEWS_AT"
@@ -119,6 +120,19 @@ struct UserDefaultsRepository: UserDefaultsRepositoryProtocol {
 
     func setCallTimeLimit(_ limit: CallTimeLimit) {
         UserDefaults.standard.set(limit.rawValue, forKey: KEY_CALL_TIME_LIMIT)
+    }
+
+    /// 電話の最初に天気を伝える地域。選んでいなければ nil（天気は話さない）
+    func getWeatherRegion() -> WeatherRegion? {
+        UserDefaults.standard.string(forKey: KEY_WEATHER_REGION).flatMap(WeatherRegion.find(code:))
+    }
+
+    func setWeatherRegion(_ region: WeatherRegion?) {
+        if let region {
+            UserDefaults.standard.set(region.code, forKey: KEY_WEATHER_REGION)
+        } else {
+            UserDefaults.standard.removeObject(forKey: KEY_WEATHER_REGION)
+        }
     }
 
     /// 読んだいちばん新しいお知らせの日時（それより新しいお知らせがあればベルに点を付ける）

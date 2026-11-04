@@ -61,6 +61,13 @@ import SwiftUI
         }
     }
 
+    /// 電話の最初に天気を伝える地域。nil なら天気は話さない
+    var weatherRegion: WeatherRegion? = UserDefaultsRepository().getWeatherRegion() {
+        didSet {
+            UserDefaultsRepository().setWeatherRegion(weatherRegion)
+        }
+    }
+
     /// キャラとの電話を自動で終える時間
     var callTimeLimit: CallTimeLimit = UserDefaultsRepository().getCallTimeLimit() {
         didSet {

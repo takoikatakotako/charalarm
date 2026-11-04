@@ -22,6 +22,11 @@ resource "aws_lambda_function" "api_lambda_function" {
       "CHARALARM_TTS_VOICE"             = var.tts_voice
       # RevenueCat の Webhook の Authorization ヘッダ。パラメータ名が空なら Webhook は受けない
       "CHARALARM_REVENUECAT_WEBHOOK_AUTHORIZATION" = var.revenuecat_webhook_authorization_ssm_parameter_name == "" ? "" : "ssm://${var.revenuecat_webhook_authorization_ssm_parameter_name}"
+      # 天気 (WeatherKit REST API)。鍵のパラメータ名が空なら天気は使わない
+      "CHARALARM_WEATHERKIT_TEAM_ID"     = var.weatherkit_team_id,
+      "CHARALARM_WEATHERKIT_SERVICE_ID"  = var.weatherkit_service_id,
+      "CHARALARM_WEATHERKIT_KEY_ID"      = var.weatherkit_key_id,
+      "CHARALARM_WEATHERKIT_PRIVATE_KEY" = var.weatherkit_private_key_ssm_parameter_name == "" ? "" : "ssm://${var.weatherkit_private_key_ssm_parameter_name}"
     }
   }
 

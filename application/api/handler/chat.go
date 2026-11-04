@@ -42,6 +42,7 @@ func (h *Chat) ChatPost(c echo.Context) error {
 	}
 	input.Capabilities = req.Capabilities
 	input.TodayEvents = req.TodayEvents
+	input.WeatherRegion = req.WeatherRegion
 	for _, m := range req.Messages {
 		message := llm.Message{Role: llm.Role(m.Role), Content: m.Content, ToolCallID: m.ToolCallID}
 		for _, call := range m.ToolCalls {

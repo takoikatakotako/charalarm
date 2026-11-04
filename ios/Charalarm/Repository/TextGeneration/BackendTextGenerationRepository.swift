@@ -42,9 +42,12 @@ struct BackendTextGenerationRepository: TextGenerationRepository {
             todayEvents = calendarRepository.todayEventsJSON()
         }
 
+        // 電話の最初のひとことで、設定で選んだ地域の天気に触れてもらう（「今日の予定」ボタンでは送らない）
+        let weatherRegion = todayEventsPolicy == .ifEnabled ? userDefaultsRepository.getWeatherRegion()?.code : nil
+
         let response = try await apiRepository.postChat(
             userID: userID, authToken: authToken, charaID: charaID, language: language,
-            capabilities: capabilities, todayEvents: todayEvents, messages: inputs, context: .current()
+            capabilities: capabilities, todayEvents: todayEvents, weatherRegion: weatherRegion, messages: inputs, context: .current()
         )
         guard response.type == "toolCall", let calls = response.calls, !calls.isEmpty else {
             return response.message

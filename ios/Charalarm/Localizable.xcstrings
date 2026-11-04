@@ -1542,6 +1542,74 @@
         }
       }
     },
+    "config-weather-data-sources" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Weather data sources"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "天気のデータについて"
+          }
+        }
+      }
+    },
+    "config-weather-region" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Weather region"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "天気の地域"
+          }
+        }
+      }
+    },
+    "config-weather-region-footer" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "When set, the character mentions today's weather in that region at the start of each call. The selected prefecture is sent with every call."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "選ぶと、電話の最初にその地域の今日の天気を話します。電話のたびに、選んだ都道府県を送ります。"
+          }
+        }
+      }
+    },
+    "config-weather-region-none" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "None"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "使わない"
+          }
+        }
+      }
+    },
     "contact-email" : {
       "extractionState" : "manual",
       "localizations" : {
