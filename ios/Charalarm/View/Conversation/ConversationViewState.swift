@@ -321,8 +321,8 @@ final class ConversationViewState: NSObject {
         // 初回の応答を生成
         switch topic {
         case .call:
-            startMessages(with: conversation.openingPrompt)
-            // 最初のひとことは、設定でオンにしていれば今日の予定に触れる
+            // 最初のひとことは、設定でオンにしていれば話題のニュースと今日の予定に触れる
+            startMessages(with: conversation.openingPrompt, context: await callNewsPrompt())
             try await speakFirstAndTalk(todayEvents: .ifEnabled)
         case .todaySchedule:
             // キャラが読み上げる予定を、画面にも出す
@@ -337,9 +337,9 @@ final class ConversationViewState: NSObject {
 
     /// 会話の履歴を、場面の指示から始める。3D のキャラなら、表情の印の指示を先に置く
     /// （最初のひとことでは最後の system がユーザーの発言として渡るので、場面の指示を最後にする）
-    private func startMessages(with prompt: String) {
+    private func startMessages(with prompt: String, context: String? = nil) {
         chatMessages = vrmModelFileURL == nil ? [] : [ChatMessage(role: .system, content: VRMExpression.prompt)]
-        chatMessages.append(ChatMessage(role: .system, content: prompt))
+        chatMessages += [context, prompt].compactMap { $0 }.map { ChatMessage(role: .system, content: $0) }
     }
 
     /// キャラの最初のひとことを話して、そのまま会話を続ける

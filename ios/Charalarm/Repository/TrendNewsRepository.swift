@@ -7,8 +7,44 @@ protocol TrendNewsRepository {
     func fetchTrendNews() async throws -> [TrendNews]
 }
 
-/// 画面と会話の流れを試すためのダミーのニュース。
-/// 本物は、サーバのバッチが X の話題（Grok）から作ったものを API で返す予定（規約と中身の確かめ方を決めてから）。
+enum TrendNewsError: Error {
+    /// 配っている一覧を取れなかった
+    case unavailable
+}
+
+/// batch が 1 日に数回作って CloudFront で配るニュース（resource の trend-news/ja.json）。
+/// X のニュースから、子ども（9+）が朝に聞いてよいものを Gemini で選んである。作ってから 1 日以上たったものは使わない
+struct ResourceTrendNewsRepository: TrendNewsRepository {
+    let isSample = false
+    /// これより古い一覧は使わない（batch が止まっていても、古いニュースを読み上げない）
+    static let maxAge: TimeInterval = 24 * 60 * 60
+
+    private struct Feed: Decodable {
+        let generatedAt: Date
+        let items: [TrendNews]
+    }
+
+    func fetchTrendNews() async throws -> [TrendNews] {
+        guard let url = URL(string: Variables.resourceEndpoint + "/trend-news/ja.json") else {
+            throw TrendNewsError.unavailable
+        }
+        var request = URLRequest(url: url)
+        request.timeoutInterval = 5
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
+            throw TrendNewsError.unavailable
+        }
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        let feed = try decoder.decode(Feed.self, from: data)
+        guard Date().timeIntervalSince(feed.generatedAt) < Self.maxAge else {
+            return []
+        }
+        return feed.items
+    }
+}
+
+/// 画面と会話の流れを試すためのダミーのニュース（プレビュー用）。
 struct DummyTrendNewsRepository: TrendNewsRepository {
     let isSample = true
 

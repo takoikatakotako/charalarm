@@ -103,6 +103,23 @@ func (a *AWS) PutResourceFile(bucket string, charaID string, fileName string, co
 	return err
 }
 
+// PutPublicFile は bucket の key にファイルを置く (batch が作って CloudFront で配る JSON など)。
+// cacheControl で、CloudFront と端末にどれだけ使い回してよいかを伝える。
+func (a *AWS) PutPublicFile(bucket string, key string, contentType string, cacheControl string, data []byte) error {
+	client, err := a.createS3Client()
+	if err != nil {
+		return err
+	}
+	_, err = client.PutObject(context.Background(), &s3.PutObjectInput{
+		Bucket:       aws.String(bucket),
+		Key:          aws.String(key),
+		Body:         bytes.NewReader(data),
+		ContentType:  aws.String(contentType),
+		CacheControl: aws.String(cacheControl),
+	})
+	return err
+}
+
 // InvalidateResourceFiles は CloudFront のキャッシュから {charaID}/{fileName} を消す (同じ名前で上書きしたとき用)。
 func (a *AWS) InvalidateResourceFiles(distributionID string, charaID string, fileNames []string) error {
 	cfg, err := a.createAWSConfig()

@@ -56,6 +56,7 @@ struct ConfigView: View {
                             Text(region.displayName).tag(WeatherRegion?.some(region))
                         }
                     }
+                    Toggle(String(localized: "config-mention-news-on-call"), isOn: $viewState.mentionNewsOnCall)
                     Toggle(String(localized: "config-use-calendar"), isOn: Binding(
                         get: { viewState.useCalendarInConversation },
                         set: { viewState.setUseCalendarInConversation($0) }
@@ -74,6 +75,7 @@ struct ConfigView: View {
                         Text(String(localized: "config-conversation-language-footer"))
                         Text(String(localized: "config-call-time-limit-footer"))
                         Text(String(localized: "config-weather-region-footer"))
+                        Text(String(localized: "config-mention-news-on-call-footer"))
                         // WeatherKit の利用条件: Apple Weather の表記と、データ提供元のページへのリンクを出す
                         HStack(spacing: 8) {
                             Text("\u{F8FF} Weather")

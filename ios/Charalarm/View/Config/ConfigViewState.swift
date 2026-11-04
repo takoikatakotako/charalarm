@@ -61,6 +61,13 @@ import SwiftUI
         }
     }
 
+    /// 電話の最初に、キャラのほうから話題のニュースに触れる
+    var mentionNewsOnCall = UserDefaultsRepository().getMentionNewsOnCall() {
+        didSet {
+            UserDefaultsRepository().setMentionNewsOnCall(mentionNewsOnCall)
+        }
+    }
+
     /// 電話の最初に天気を伝える地域。nil なら天気は話さない
     var weatherRegion: WeatherRegion? = UserDefaultsRepository().getWeatherRegion() {
         didSet {
