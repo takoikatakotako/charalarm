@@ -42,6 +42,11 @@ struct ConfigView: View {
                             Text(language.displayName).tag(language)
                         }
                     }
+                    Picker(String(localized: "config-call-time-limit"), selection: $viewState.callTimeLimit) {
+                        ForEach(CallTimeLimit.allCases) { limit in
+                            Text(limit.displayName).tag(limit)
+                        }
+                    }
                     Toggle(String(localized: "config-use-calendar"), isOn: Binding(
                         get: { viewState.useCalendarInConversation },
                         set: { viewState.setUseCalendarInConversation($0) }
@@ -58,6 +63,7 @@ struct ConfigView: View {
                 } footer: {
                     VStack(alignment: .leading, spacing: 4) {
                         Text(String(localized: "config-conversation-language-footer"))
+                        Text(String(localized: "config-call-time-limit-footer"))
                         Text(String(localized: "config-use-calendar-footer"))
                         Text(String(localized: "config-mention-schedule-on-call-footer"))
                     }

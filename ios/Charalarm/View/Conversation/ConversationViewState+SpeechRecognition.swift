@@ -8,10 +8,10 @@ import AVFoundation
 /// 無音時の一時的な失敗で会話を終わらせないためのリトライを含む。
 extension ConversationViewState {
 
-    /// 音声認識を最大3回試みる。無音や一時失敗では聞き直し、全滅時のみ nil。
+    /// 音声認識を最大3回試みる。無音や一時失敗では聞き直し、全滅時と上限の時間になったときは nil。
     func recognizeUserSpeechWithRetry() async -> String? {
         for attempt in 1...3 {
-            guard !shouldDismiss, !Task.isCancelled else { return nil }
+            guard !shouldDismiss, !Task.isCancelled, !isTimeUp else { return nil }
             do {
                 let input = try await recognizeUserSpeech()
                 if !input.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
@@ -20,6 +20,8 @@ extension ConversationViewState {
                 }
                 CharalarmLogger.breadcrumb("聞き取り: 空（\(attempt)回目）")
             } catch {
+                // 上限の時間になって聞くのをやめた
+                if isTimeUp { return nil }
                 CharalarmLogger.error("音声認識エラー", error: error)
                 resetRecognition()
                 // マイクの準備ができるまで (電話に出た直後など) 少し待ってから聞き直す

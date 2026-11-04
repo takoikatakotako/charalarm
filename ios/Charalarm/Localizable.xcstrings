@@ -1107,6 +1107,40 @@
         }
       }
     },
+    "config-call-time-limit" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Call length"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "電話の長さ"
+          }
+        }
+      }
+    },
+    "config-call-time-limit-footer" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "After this much time in a call, the character says goodbye and hangs up."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "電話でこの時間だけ話すと、キャラがお別れを言って電話を切ります。"
+          }
+        }
+      }
+    },
     "config-config" : {
       "comment" : "Config",
       "localizations" : {

@@ -38,7 +38,6 @@ final class ConversationViewState: NSObject {
         static let bargeInMaximumPause: TimeInterval = 0.4
         /// 話しかけとみなすのに要る、違う語の数（「うーん」「うんうん」は1語）
         static let bargeInMinimumWords = 2
-        static let maxConversationDuration: TimeInterval = 120.0
         /// ユーザーが話せる回数。読み上げの費用が膨らまないよう、この回数で最後の返事をお別れのあいさつにする
         static let maxUserTurns = 3
         static let conversationTimerInterval: TimeInterval = 1.0
@@ -102,10 +101,16 @@ final class ConversationViewState: NSObject {
 
     // MARK: - Timers / State
 
-    private var conversationTimer: Timer?
-    private var conversationStartTime: Date?
+    var conversationTimer: Timer?
+    var conversationStartTime: Date?
+    /// 電話を自動で終える時間（設定で選ぶ）
+    let timeLimit: CallTimeLimit
+    /// 上限の時間になった。次の区切りでお別れに進む
+    var isTimeUp = false
+    /// 電話を切る・画面を閉じるのを頼んだ（手動の終了と時間切れが重なっても二度頼まない）
+    var isEndRequested = false
     private var chatMessages: [ChatMessage] = []
-    private var mainTask: Task<Void, Never>?
+    var mainTask: Task<Void, Never>?
 
     // MARK: - Initialization
 
@@ -114,11 +119,13 @@ final class ConversationViewState: NSObject {
         mode: ConversationMode = .standalone,
         topic: ConversationTopic = .call,
         textToSpeechRepository: TextToSpeechRepository? = nil,
-        textGenerationRepository: TextGenerationRepository = BackendTextGenerationRepository()
+        textGenerationRepository: TextGenerationRepository = BackendTextGenerationRepository(),
+        timeLimit: CallTimeLimit = UserDefaultsRepository().getCallTimeLimit()
     ) {
         self.charaID = charaID
         self.mode = mode
         self.topic = topic
+        self.timeLimit = timeLimit
         self.textToSpeechRepository = textToSpeechRepository
         self.textGenerationRepository = textGenerationRepository
     }
@@ -147,6 +154,7 @@ final class ConversationViewState: NSObject {
         reloadTodayEvents()
         CharalarmLogger.breadcrumb("会話: 再生ボタンで読み直す")
         startMessages(with: ConversationTopic.todaySchedulePrompt)
+        startConversationTracking()
         mainTask = Task {
             do {
                 try await speakFirstAndTalk(todayEvents: .always)
@@ -217,6 +225,7 @@ final class ConversationViewState: NSObject {
 
     private func requestDismiss() {
         guard !shouldDismiss else { return }
+        isEndRequested = true
         cleanupResources()
         shouldDismiss = true
     }
@@ -228,18 +237,24 @@ final class ConversationViewState: NSObject {
             requestDismiss()
             return
         }
+        guard !isEndRequested else { return }
+        isEndRequested = true
         let endCallAction = CXEndCallAction(call: callUUID)
         let transaction = CXTransaction(action: endCallAction)
-        callController.request(transaction) { error in
+        callController.request(transaction) { [weak self] error in
             if let error = error {
                 CharalarmLogger.error("CallKit 終話に失敗", error: error)
+                // 切れていないので、もう一度「通話を終了」を押せるようにする
+                Task { @MainActor in
+                    self?.isEndRequested = false
+                }
             }
         }
     }
 
     /// 会話が自然終了したとき、モードに応じて画面/通話を閉じる。
     /// 「今日の予定」は予定を見られるよう画面を閉じず、黙って再生ボタンを出す。
-    private func finishConversation() {
+    func finishConversation() {
         if case .todaySchedule = topic {
             stopSpeaking()
             return
@@ -294,6 +309,9 @@ final class ConversationViewState: NSObject {
         }
         guard !isFinished else { return }
 
+        // 電話の時間はここから数える（許可を求めるダイアログを出しているあいだは数えない）
+        startConversationTracking()
+
         // 着信音を再生（CallKit モードでは最初に鳴らしている。「今日の予定」は電話ではないので鳴らさない）
         // 着信音は、最初の声を合成し終えたところで止める。返事の生成と最初の声の合成のあいだも鳴らしておく
         if case .standalone = mode, topic.isCall {
@@ -332,7 +350,6 @@ final class ConversationViewState: NSObject {
 
         chatMessages.append(ChatMessage(role: .assistant, content: initialScript))
         text = initialScript
-        startConversationTracking()
 
         try await synthesizeAndPlayVoiceInChunks(from: initialScript, interruptible: listensToUser)
         guard !isFinished else { return }
@@ -348,24 +365,25 @@ final class ConversationViewState: NSObject {
     private func conversationLoop() async throws {
         guard !isFinished else { return }
 
-        // ユーザーの発話を認識（無音や一時失敗は聞き直す）
+        // キャラが話しているあいだに上限の時間になったら、聞かずにお別れする
+        if isTimeUp {
+            try await endConversation()
+            return
+        }
+
+        // ユーザーの発話を認識（無音や一時失敗は聞き直す。上限の時間になったら聞くのをやめる）
         guard let userInput = await recognizeUserSpeechWithRetry() else {
             if !isFinished {
-                try await endConversation(prompt: conversation?.noInputEndingPrompt)
+                try await endConversation(prompt: isTimeUp ? nil : conversation?.noInputEndingPrompt)
             }
             return
         }
         guard !isFinished else { return }
 
-        if shouldEndConversation() {
-            try await endConversation()
-            return
-        }
-
         chatMessages.append(ChatMessage(role: .user, content: userInput))
 
-        // 話した回数が上限に届いたら、今の話に答えつつ締めくくる
-        if userTurnCount >= Constants.maxUserTurns {
+        // 話した回数か時間が上限に届いたら、今の話に答えつつ締めくくる
+        if isTimeUp || userTurnCount >= Constants.maxUserTurns {
             try await endConversation()
             return
         }
@@ -525,22 +543,6 @@ final class ConversationViewState: NSObject {
         chatMessages[index] = ChatMessage(role: .assistant, content: (playedText.isEmpty ? "" : playedText + "…") + note)
     }
 
-    // MARK: - Conversation Tracking
-
-    private func startConversationTracking() {
-        conversationStartTime = Date()
-        conversationTimer?.invalidate()
-        conversationTimer = Timer.scheduledTimer(
-            withTimeInterval: Constants.conversationTimerInterval,
-            repeats: true
-        ) { [weak self] _ in
-            Task { @MainActor [weak self] in
-                guard let self = self, let startTime = self.conversationStartTime else { return }
-                self.conversationDuration = Date().timeIntervalSince(startTime)
-            }
-        }
-    }
-
     /// ユーザーの話を聞いて会話するか。「今日の予定」は読み上げるだけで、マイクも使わない
     var listensToUser: Bool {
         if case .todaySchedule = topic { return false }
@@ -548,18 +550,13 @@ final class ConversationViewState: NSObject {
     }
 
     /// 画面を閉じたか、停止ボタンでこの流れを止めた
-    private var isFinished: Bool {
+    var isFinished: Bool {
         shouldDismiss || Task.isCancelled
     }
 
     /// ユーザーが話した回数
     private var userTurnCount: Int {
         chatMessages.filter { $0.role == ChatMessage.Role.user.rawValue }.count
-    }
-
-    private func shouldEndConversation() -> Bool {
-        guard let startTime = conversationStartTime else { return false }
-        return Date().timeIntervalSince(startTime) >= Constants.maxConversationDuration
     }
 
     // MARK: - Cleanup

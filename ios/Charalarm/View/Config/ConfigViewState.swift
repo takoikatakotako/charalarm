@@ -61,6 +61,13 @@ import SwiftUI
         }
     }
 
+    /// キャラとの電話を自動で終える時間
+    var callTimeLimit: CallTimeLimit = UserDefaultsRepository().getCallTimeLimit() {
+        didSet {
+            UserDefaultsRepository().setCallTimeLimit(callTimeLimit)
+        }
+    }
+
     private let keychainRepository: KeychainRepository = KeychainRepository()
     private let userDefaultsRepository = UserDefaultsRepository()
     private let appUseCase = AppUseCase()

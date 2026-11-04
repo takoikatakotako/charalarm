@@ -21,6 +21,7 @@ struct UserDefaultsRepository: UserDefaultsRepositoryProtocol {
     private let KEY_CONVERSATION_LANGUAGE = "CONVERSATION_LANGUAGE"
     private let KEY_USE_CALENDAR_IN_CONVERSATION = "USE_CALENDAR_IN_CONVERSATION"
     private let KEY_MENTION_SCHEDULE_ON_CALL = "MENTION_SCHEDULE_ON_CALL"
+    private let KEY_CALL_TIME_LIMIT = "CALL_TIME_LIMIT"
     private let KEY_EXCLUDED_CALENDAR_IDS = "EXCLUDED_CALENDAR_IDS"
     private let KEY_TAP_VOICE_IN_SILENT_MODE = "TAP_VOICE_IN_SILENT_MODE"
     private let KEY_LAST_SEEN_NEWS_AT = "LAST_SEEN_NEWS_AT"
@@ -109,6 +110,15 @@ struct UserDefaultsRepository: UserDefaultsRepositoryProtocol {
 
     func setMentionScheduleOnCall(_ mention: Bool) {
         UserDefaults.standard.set(mention, forKey: KEY_MENTION_SCHEDULE_ON_CALL)
+    }
+
+    /// キャラとの電話を自動で終える時間。選んでいなければ 2 分
+    func getCallTimeLimit() -> CallTimeLimit {
+        CallTimeLimit(rawValue: UserDefaults.standard.integer(forKey: KEY_CALL_TIME_LIMIT)) ?? .default
+    }
+
+    func setCallTimeLimit(_ limit: CallTimeLimit) {
+        UserDefaults.standard.set(limit.rawValue, forKey: KEY_CALL_TIME_LIMIT)
     }
 
     /// 読んだいちばん新しいお知らせの日時（それより新しいお知らせがあればベルに点を付ける）
