@@ -63,6 +63,13 @@ module "api" {
   # Gemini TTS は sandbox の Vertex AI を使う (gcp-iac の terraform/sandbox/charalarm.tf)
   gcp_project           = "sandbox-492513"
   gcp_credential_config = local.gcp_credential_config
+
+  # 天気 (WeatherKit REST API)。鍵は Apple Developer の「Charalarm WeatherKit」で、
+  # .p8 を SecureString で Parameter Store に手で置いてある
+  weatherkit_team_id                        = "5RH346BQ66"
+  weatherkit_service_id                     = "com.swiswiswift.charalarm.weatherkit"
+  weatherkit_key_id                         = "F965S53HW8"
+  weatherkit_private_key_ssm_parameter_name = "/charalarm/dev/weatherkit-private-key"
 }
 
 
