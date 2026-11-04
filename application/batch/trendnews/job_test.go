@@ -61,7 +61,7 @@ func TestJobRun(t *testing.T) {
 		searcher := &fakeSearcher{results: map[string][]Story{
 			"ゲーム": {story("1", "人狼バーガー"), story("2", "けがの話")},
 			"アニメ": {story("1", "人狼バーガー"), story("3", "薬屋のひとりごと")},
-			"マンガ": {{ID: "4", Name: "要約なし"}},
+			"マンガ": {{ID: "4", Name: "要約なし"}, story("5", "Fans Celebrate Amuro Ray's Birthday")},
 		}}
 		model := &fakeLLM{answer: "3\n1.\n"}
 		publisher := &fakePublisher{}
@@ -85,6 +85,7 @@ func TestJobRun(t *testing.T) {
 		assert.Contains(t, user, "1. 人狼バーガー")
 		assert.Contains(t, user, "3. 薬屋のひとりごと")
 		assert.NotContains(t, user, "要約なし")
+		assert.NotContains(t, user, "Amuro", "日本語でないニュースは除く")
 	})
 
 	t.Run("一部の検索で失敗しても、取れた分で続ける", func(t *testing.T) {
@@ -135,6 +136,7 @@ func TestXClientSearch(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		gotQuery = r.URL.RawQuery
 		gotAuth = r.Header.Get("Authorization")
+		assert.Equal(t, "ja", r.Header.Get("Accept-Language"))
 		assert.Equal(t, "/2/news/search", r.URL.Path)
 		_, _ = w.Write([]byte(`{"data":[{"id":"1","name":"人狼バーガー","hook":"h","summary":"s","category":"Entertainment","updated_at":"2026-11-04T09:46:08.000Z"}],"meta":{"result_count":1}}`))
 	}))
@@ -154,6 +156,13 @@ func TestXClientSearch(t *testing.T) {
 	server.Close()
 	_, err = client.Search(context.Background(), "ゲーム", 10, 24)
 	assert.Error(t, err)
+}
+
+func TestIsJapanese(t *testing.T) {
+	assert.True(t, isJapanese("『薬屋のひとりごと』劇場版"))
+	assert.True(t, isJapanese("JO1「ANIMAL」全米デビュー"))
+	assert.False(t, isJapanese("Fans Celebrate Amuro Ray's Birthday"))
+	assert.False(t, isJapanese(""))
 }
 
 func TestXClientSearchStatusError(t *testing.T) {
