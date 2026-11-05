@@ -97,12 +97,13 @@ func TestJobRun(t *testing.T) {
 		ja := decodeFeed(t, publisher.files[FeedKeyJapanese])
 		assert.Equal(t, "2026-11-04T19:00:00Z", ja.GeneratedAt)
 		require.Len(t, ja.Items, 2)
-		assert.Equal(t, FeedItem{ID: "3", Title: "見出し3", Hook: "つかみ3", Summary: "要約3", UpdatedAt: "2026-11-04T09:46:08.000Z"}, ja.Items[0])
+		assert.Equal(t, FeedItem{ID: "3", Title: "見出し3", Hook: "つかみ3", Summary: "要約3", URL: "https://x.com/i/trending/3", UpdatedAt: "2026-11-04T09:46:08.000Z"}, ja.Items[0])
 		assert.Equal(t, "1", ja.Items[1].ID)
 
 		en := decodeFeed(t, publisher.files[FeedKeyEnglish])
 		require.Len(t, en.Items, 2)
 		assert.Equal(t, "Title 3", en.Items[0].Title)
+		assert.Equal(t, "https://x.com/i/trending/3", en.Items[0].URL)
 		assert.Equal(t, ja.GeneratedAt, en.GeneratedAt)
 
 		// Gemini には番号つきで 3 件 (重なりと要約なしを除く。英語のニュースも渡す) を渡す

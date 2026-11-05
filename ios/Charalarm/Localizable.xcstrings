@@ -3153,6 +3153,23 @@
         }
       }
     },
+    "trend-news-open-source" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "View on X"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "X で見る"
+          }
+        }
+      }
+    },
     "trend-news-read" : {
       "extractionState" : "manual",
       "localizations" : {
