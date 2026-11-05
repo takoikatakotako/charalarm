@@ -30,7 +30,8 @@ const (
 )
 
 // Queries は X で検索する言葉。キャラアラームの利用者が楽しめる分野に絞る。
-var Queries = []string{"ゲーム", "アニメ", "マンガ"}
+// X は呼び出し元によってニュースの言語を変え (Accept-Language は効かない)、Lambda から呼ぶと英語になるので、lang:ja で日本語に絞る
+var Queries = []string{"ゲーム lang:ja", "アニメ lang:ja", "マンガ lang:ja"}
 
 // Feed はアプリに配るニュースの一覧。
 type Feed struct {

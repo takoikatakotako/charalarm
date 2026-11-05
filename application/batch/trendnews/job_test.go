@@ -59,9 +59,9 @@ func TestJobRun(t *testing.T) {
 
 	t.Run("集めて重なりを除き、Gemini が選んだ順に配る", func(t *testing.T) {
 		searcher := &fakeSearcher{results: map[string][]Story{
-			"ゲーム": {story("1", "人狼バーガー"), story("2", "けがの話")},
-			"アニメ": {story("1", "人狼バーガー"), story("3", "薬屋のひとりごと")},
-			"マンガ": {{ID: "4", Name: "要約なし"}, story("5", "Fans Celebrate Amuro Ray's Birthday")},
+			"ゲーム lang:ja": {story("1", "人狼バーガー"), story("2", "けがの話")},
+			"アニメ lang:ja": {story("1", "人狼バーガー"), story("3", "薬屋のひとりごと")},
+			"マンガ lang:ja": {{ID: "4", Name: "要約なし"}, story("5", "Fans Celebrate Amuro Ray's Birthday")},
 		}}
 		model := &fakeLLM{answer: "3\n1.\n"}
 		publisher := &fakePublisher{}
@@ -90,8 +90,8 @@ func TestJobRun(t *testing.T) {
 
 	t.Run("一部の検索で失敗しても、取れた分で続ける", func(t *testing.T) {
 		searcher := &fakeSearcher{
-			results: map[string][]Story{"アニメ": {story("3", "薬屋のひとりごと")}},
-			errs:    map[string]error{"ゲーム": errors.New("status 503")},
+			results: map[string][]Story{"アニメ lang:ja": {story("3", "薬屋のひとりごと")}},
+			errs:    map[string]error{"ゲーム lang:ja": errors.New("status 503")},
 		}
 		publisher := &fakePublisher{}
 		job := Job{Searcher: searcher, LLM: &fakeLLM{answer: "1"}, Publisher: publisher}
@@ -102,8 +102,8 @@ func TestJobRun(t *testing.T) {
 	t.Run("取れない・選べない・Gemini が失敗したら、前の一覧を残す", func(t *testing.T) {
 		cases := map[string]Job{
 			"取れない":       {Searcher: &fakeSearcher{}, LLM: &fakeLLM{answer: "1"}},
-			"選べるものがない":   {Searcher: &fakeSearcher{results: map[string][]Story{"ゲーム": {story("1", "a")}}}, LLM: &fakeLLM{answer: "なし"}},
-			"Gemini が失敗": {Searcher: &fakeSearcher{results: map[string][]Story{"ゲーム": {story("1", "a")}}}, LLM: &fakeLLM{err: errors.New("timeout")}},
+			"選べるものがない":   {Searcher: &fakeSearcher{results: map[string][]Story{"ゲーム lang:ja": {story("1", "a")}}}, LLM: &fakeLLM{answer: "なし"}},
+			"Gemini が失敗": {Searcher: &fakeSearcher{results: map[string][]Story{"ゲーム lang:ja": {story("1", "a")}}}, LLM: &fakeLLM{err: errors.New("timeout")}},
 		}
 		for name, job := range cases {
 			t.Run(name, func(t *testing.T) {
