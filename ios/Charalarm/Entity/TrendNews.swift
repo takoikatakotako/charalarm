@@ -9,6 +9,8 @@ struct TrendNews: Identifiable, Equatable, Decodable {
     var hook: String = ""
     /// 長めの要約。一覧で見せる
     let summary: String
+    /// X のニュースのページ（もとの投稿を辿れる）。古い一覧には無い
+    var url: URL?
 
     /// キャラに渡す紹介文。短い紹介がなければ要約
     var introduction: String {

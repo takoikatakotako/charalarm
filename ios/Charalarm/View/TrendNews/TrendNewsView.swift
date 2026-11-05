@@ -25,28 +25,38 @@ struct TrendNewsList: View {
                 }
             }
             ForEach(newsList) { news in
-                Button {
-                    onRead([news])
-                } label: {
-                    HStack(alignment: .center, spacing: 12) {
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text(news.title)
-                                .font(.headline)
-                            Text(news.summary)
-                                .font(.subheadline)
-                                .foregroundStyle(.secondary)
+                VStack(alignment: .leading, spacing: 6) {
+                    Button {
+                        onRead([news])
+                    } label: {
+                        HStack(alignment: .center, spacing: 12) {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(news.title)
+                                    .font(.headline)
+                                Text(news.summary)
+                                    .font(.subheadline)
+                                    .foregroundStyle(.secondary)
+                            }
+                            Spacer(minLength: 0)
+                            Image(systemName: "play.circle")
+                                .font(.title2)
+                                .foregroundStyle(Color.brand)
+                                .accessibilityHidden(true)
                         }
-                        Spacer(minLength: 0)
-                        Image(systemName: "play.circle")
-                            .font(.title2)
-                            .foregroundStyle(Color.brand)
-                            .accessibilityHidden(true)
+                        .contentShape(Rectangle())
                     }
-                    .padding(.vertical, 4)
-                    .contentShape(Rectangle())
+                    .buttonStyle(.plain)
+                    .accessibilityHint(String(localized: "trend-news-read"))
+                    // もとの投稿を辿れるよう、X のニュースのページを開く
+                    if let url = news.url {
+                        Link(destination: url) {
+                            Label(String(localized: "trend-news-open-source"), systemImage: "arrow.up.right.square")
+                                .font(.caption)
+                        }
+                        .buttonStyle(.borderless)
+                    }
                 }
-                .buttonStyle(.plain)
-                .accessibilityHint(String(localized: "trend-news-read"))
+                .padding(.vertical, 4)
             }
             if failed {
                 Text(String(localized: "trend-news-failed"))

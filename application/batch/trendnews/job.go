@@ -49,8 +49,15 @@ type FeedItem struct {
 	// Hook は 1〜2 文の短い紹介。モーニングコールで使う。
 	Hook string `json:"hook"`
 	// Summary は長めの要約。ホームの「話題」で見せる。
-	Summary   string `json:"summary"`
+	Summary string `json:"summary"`
+	// URL は X のニュースのページ。もとの投稿を辿れるようにする
+	URL       string `json:"url"`
 	UpdatedAt string `json:"updatedAt"`
+}
+
+// storyURL は X のニュースのページ。
+func storyURL(id string) string {
+	return "https://x.com/i/trending/" + id
 }
 
 // Searcher は X のニュースを探す。
@@ -165,7 +172,7 @@ func (l Localized) valid() bool {
 }
 
 func (l Localized) feedItem(s Story) FeedItem {
-	return FeedItem{ID: s.ID, Title: l.Title, Hook: l.Hook, Summary: l.Summary, UpdatedAt: s.UpdatedAt}
+	return FeedItem{ID: s.ID, Title: l.Title, Hook: l.Hook, Summary: l.Summary, URL: storyURL(s.ID), UpdatedAt: s.UpdatedAt}
 }
 
 // SelectedStory は選ばれたニュースと、その日本語版・英語版。
