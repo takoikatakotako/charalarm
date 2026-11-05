@@ -12,8 +12,9 @@ enum TrendNewsError: Error {
     case unavailable
 }
 
-/// batch が 1 日に数回作って CloudFront で配るニュース（resource の trend-news/ja.json）。
-/// X のニュースから、子ども（9+）が朝に聞いてよいものを Gemini で選んである。作ってから 1 日以上たったものは使わない
+/// batch が 1 日に数回作って CloudFront で配るニュース（resource の trend-news/ja.json と en.json）。
+/// X のニュースから、子ども（9+）が朝に聞いてよいものを Gemini で選び、日本語版と英語版を作ってある。
+/// 会話の言語が日本語なら日本語版、それ以外は英語版を読む（キャラが会話の言語で紹介し直す）。作ってから 1 日以上たったものは使わない
 struct ResourceTrendNewsRepository: TrendNewsRepository {
     let isSample = false
     /// これより古い一覧は使わない（batch が止まっていても、古いニュースを読み上げない）
@@ -25,7 +26,8 @@ struct ResourceTrendNewsRepository: TrendNewsRepository {
     }
 
     func fetchTrendNews() async throws -> [TrendNews] {
-        guard let url = URL(string: Variables.resourceEndpoint + "/trend-news/ja.json") else {
+        let file = UserDefaultsRepository().getConversationLanguage() == .japanese ? "ja" : "en"
+        guard let url = URL(string: Variables.resourceEndpoint + "/trend-news/\(file).json") else {
             throw TrendNewsError.unavailable
         }
         var request = URLRequest(url: url)
