@@ -294,3 +294,15 @@ func TestDatabaseCharaToResponseChara(t *testing.T) {
 	assert.Equal(t, "https://swiswiswift.com/com.example.chara/voice2.mp3", responseChara.Resources[3].FileURL)
 	assert.Equal(t, "https://swiswiswift.com/com.example.chara/hello.caf", responseChara.Resources[4].FileURL)
 }
+
+func TestAlarmCallConversion(t *testing.T) {
+	call := &database.AlarmCall{TimeLimit: 60, Schedule: true, Weather: false, News: true}
+	databaseAlarm := convertToDatabaseAlarm(input.Alarm{AlarmID: "a", Hour: 7, TimeDifference: 9, Call: call}, "target")
+	assert.Equal(t, call, databaseAlarm.Call)
+	assert.Equal(t, call, convertToAlarmOutput(databaseAlarm).Call)
+
+	// 設定の無いアラームは nil のまま
+	databaseAlarm = convertToDatabaseAlarm(input.Alarm{AlarmID: "b", Hour: 7, TimeDifference: 9}, "target")
+	assert.Nil(t, databaseAlarm.Call)
+	assert.Nil(t, convertToAlarmOutput(databaseAlarm).Call)
+}

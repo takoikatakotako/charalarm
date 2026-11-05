@@ -21,6 +21,8 @@ struct Alarm: Identifiable, Hashable {
     var thursday: Bool
     var friday: Bool
     var saturday: Bool
+    /// 電話（AI 会話）の設定。nil なら、アプリ共通の設定を使う（設定の無い古いアラーム）
+    var call: CallSettings?
 }
 
 extension Alarm {
@@ -43,7 +45,8 @@ extension Alarm {
             wednesday: wednesday,
             thursday: thursday,
             friday: friday,
-            saturday: saturday
+            saturday: saturday,
+            call: call
         )
     }
 }

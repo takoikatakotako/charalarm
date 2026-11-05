@@ -61,6 +61,8 @@ struct AlarmDetailView: View {
                     Text(viewState.selectedCharaCall?.message ?? String(localized: "alarm-random"))
                 }
 
+                morningCallSection
+
                 if viewState.type == .edit {
                     Section {
                         Button(String(localized: "alarm-delete-alarm"), role: .destructive) {
@@ -114,6 +116,33 @@ struct AlarmDetailView: View {
             }
             .navigationTitle(title)
             .navigationBarTitleDisplayMode(.inline)
+        }
+    }
+}
+
+extension AlarmDetailView {
+    /// 電話（AI 会話）の長さと、電話の最初に触れる内容。アラームごとに決める
+    private var morningCallSection: some View {
+        Section {
+            Picker(String(localized: "config-call-time-limit"), selection: $viewState.callSettings.timeLimit) {
+                ForEach(CallTimeLimit.allCases) { limit in
+                    Text(limit.displayName).tag(limit)
+                }
+            }
+            Toggle(String(localized: "alarm-call-schedule"), isOn: Binding(
+                get: { viewState.callSettings.schedule },
+                set: { viewState.setCallSchedule($0) }
+            ))
+            Toggle(String(localized: "alarm-call-weather"), isOn: Binding(
+                get: { viewState.callSettings.weather && viewState.hasWeatherRegion },
+                set: { viewState.callSettings.weather = $0 }
+            ))
+            .disabled(!viewState.hasWeatherRegion)
+            Toggle(String(localized: "alarm-call-news"), isOn: $viewState.callSettings.news)
+        } header: {
+            Text(String(localized: "alarm-morning-call"))
+        } footer: {
+            Text(String(localized: viewState.hasWeatherRegion ? "alarm-morning-call-footer" : "alarm-morning-call-footer-no-region"))
         }
     }
 }

@@ -25,12 +25,12 @@ extension ConversationViewState {
     /// 「今日の予定」は電話ではない（読み上げるだけ）ので、時間では止めない
     private func checkTimeLimit() {
         guard listensToUser, !isEndRequested, !isFinished else { return }
-        if conversationDuration >= timeLimit.hardDeadline {
-            CharalarmLogger.breadcrumb("会話: 上限を過ぎても終わらないので切る limit=\(timeLimit.rawValue)")
+        if conversationDuration >= callSettings.timeLimit.hardDeadline {
+            CharalarmLogger.breadcrumb("会話: 上限を過ぎても終わらないので切る limit=\(callSettings.timeLimit.rawValue)")
             forceEnd()
-        } else if !isTimeUp, conversationDuration >= timeLimit.duration {
+        } else if !isTimeUp, conversationDuration >= callSettings.timeLimit.duration {
             isTimeUp = true
-            CharalarmLogger.breadcrumb("会話: 上限の時間になった limit=\(timeLimit.rawValue) status=\(status)")
+            CharalarmLogger.breadcrumb("会話: 上限の時間になった limit=\(callSettings.timeLimit.rawValue) status=\(status)")
             // 黙って返事を待っていたら、待つのをやめてお別れに進む。
             // ユーザーが話している途中なら言い終えるのを待ち、キャラが返事を作っている・話している最中なら終わってから、その話に答えつつお別れする
             if status == .recognizingSpeech, heardText.isEmpty {

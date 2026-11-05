@@ -82,6 +82,9 @@ func (a *Alarm) AddAlarm(input input.AddAlarm) error {
 		slog.Error("Unknown alarm type", slog.String("alarmType", input.Alarm.Type), slog.String("file", fileName), slog.String("func", funcName))
 		return errors.New(common.ErrorInvalidValue)
 	}
+	if input.Alarm.Call != nil && !input.Alarm.Call.IsValid() {
+		return invalidValue("alarm: call time limit", slog.Int("time_limit", input.Alarm.Call.TimeLimit))
+	}
 	databaseAlarm := convertToDatabaseAlarm(input.Alarm, target)
 
 	// アラームを追加する
@@ -120,6 +123,9 @@ func (a *Alarm) EditAlarm(input input.EditAlarm) error {
 	fmt.Println(target)
 	fmt.Println("@@@@@target@@@@@")
 
+	if input.Alarm.Call != nil && !input.Alarm.Call.IsValid() {
+		return invalidValue("alarm: call time limit", slog.Int("time_limit", input.Alarm.Call.TimeLimit))
+	}
 	databaseAlarm := convertToDatabaseAlarm(input.Alarm, target)
 
 	// アラームを更新する

@@ -85,6 +85,7 @@ func (b *Batch) forIOSVoIPPushNotification(resourceBaseURL string, alarm databas
 	alarmInfo.AlarmID = alarm.AlarmID
 	alarmInfo.UserID = alarm.UserID
 	alarmInfo.SNSEndpointArn = alarm.Target
+	alarmInfo.Call = alarm.Call
 
 	//
 	if alarm.CharaID == "" || alarm.CharaID == "RANDOM" {

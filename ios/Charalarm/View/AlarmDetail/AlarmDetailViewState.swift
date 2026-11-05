@@ -12,6 +12,8 @@ import SwiftUI
     var showingIndicator: Bool = false
     /// true にすると画面を閉じる（保存・削除が終わったとき）
     var shouldDismiss = false
+    /// 電話（AI 会話）の設定。アラームと一緒に保存する。設定の無い古いアラームは、アプリ共通の設定から始める
+    var callSettings: CallSettings
 
     let type: AlarmDetailViewTyep
 //    private let alarmRepository: AlarmRepository = AlarmRepository()
@@ -34,6 +36,28 @@ import SwiftUI
     init(alarm: Alarm, type: AlarmDetailViewTyep) {
         self.alarm = alarm
         self.type = type
+        self.callSettings = alarm.call ?? .appDefault
+    }
+
+    /// 天気の地域を設定で選んでいるか（選んでいなければ天気は話せない）
+    var hasWeatherRegion: Bool {
+        UserDefaultsRepository().getWeatherRegion() != nil
+    }
+
+    /// 電話の最初に今日の予定を話す。オンにするときにカレンダーの許可を求める
+    func setCallSchedule(_ schedule: Bool) {
+        guard schedule else {
+            callSettings.schedule = false
+            return
+        }
+        Task { @MainActor in
+            let granted = await CalendarRepository().requestAccess()
+            callSettings.schedule = granted
+            if !granted {
+                alertMessage = String(localized: "config-calendar-access-denied")
+                showingAlert = true
+            }
+        }
     }
 
     func onAppear() {
@@ -142,6 +166,7 @@ import SwiftUI
         Task { @MainActor in
             showingIndicator = true
             do {
+                alarm.call = callSettings
                 let alarmRequest = alarm.toAlarmRequest(userID: userUUID)
                 let alarmAddRequest = AlarmAddRequest(alarm: alarmRequest)
                 try await apiRepository.addAlarm(userID: userID, authToken: authToken, requestBody: alarmAddRequest)
@@ -170,6 +195,7 @@ import SwiftUI
         Task { @MainActor in
             showingIndicator = true
             do {
+                alarm.call = callSettings
                 let alarmRequest = alarm.toAlarmRequest(userID: userUUID)
                 let alarmEditRequest = AlarmEditRequest(alarm: alarmRequest)
                 try await apiRepository.editAlarm(userID: userID, authToken: authToken, requestBody: alarmEditRequest)

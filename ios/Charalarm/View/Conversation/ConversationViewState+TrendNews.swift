@@ -6,7 +6,7 @@ extension ConversationViewState {
 
     /// 電話の最初に話題のニュースに触れてもらう指示。設定でオフ・ニュースが取れないときは nil（ニュースには触れない）
     func callNewsPrompt() async -> String? {
-        guard UserDefaultsRepository().getMentionNewsOnCall() else { return nil }
+        guard callSettings.news else { return nil }
         do {
             let news = try await ResourceTrendNewsRepository().fetchTrendNews()
             guard !news.isEmpty else { return nil }

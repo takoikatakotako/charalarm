@@ -103,8 +103,8 @@ final class ConversationViewState: NSObject {
 
     var conversationTimer: Timer?
     var conversationStartTime: Date?
-    /// 電話を自動で終える時間（設定で選ぶ）
-    let timeLimit: CallTimeLimit
+    /// 電話の設定（長さ・話す内容）。アラームの電話はアラームごと、それ以外はアプリ共通の設定
+    let callSettings: CallSettings
     /// 上限の時間になった。次の区切りでお別れに進む
     var isTimeUp = false
     /// 電話を切る・画面を閉じるのを頼んだ（手動の終了と時間切れが重なっても二度頼まない）
@@ -120,12 +120,12 @@ final class ConversationViewState: NSObject {
         topic: ConversationTopic = .call,
         textToSpeechRepository: TextToSpeechRepository? = nil,
         textGenerationRepository: TextGenerationRepository = BackendTextGenerationRepository(),
-        timeLimit: CallTimeLimit = UserDefaultsRepository().getCallTimeLimit()
+        callSettings: CallSettings = .appDefault
     ) {
         self.charaID = charaID
         self.mode = mode
         self.topic = topic
-        self.timeLimit = timeLimit
+        self.callSettings = callSettings
         self.textToSpeechRepository = textToSpeechRepository
         self.textGenerationRepository = textGenerationRepository
     }
@@ -323,7 +323,7 @@ final class ConversationViewState: NSObject {
         case .call:
             // 最初のひとことは、設定でオンにしていれば話題のニュースと今日の予定に触れる
             startMessages(with: conversation.openingPrompt, context: await callNewsPrompt())
-            try await speakFirstAndTalk(todayEvents: .ifEnabled)
+            try await speakFirstAndTalk(todayEvents: .opening(callSettings))
         case .todaySchedule:
             // キャラが読み上げる予定を、画面にも出す
             reloadTodayEvents()

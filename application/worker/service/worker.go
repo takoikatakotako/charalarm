@@ -22,6 +22,7 @@ func (s *CallWorkerService) PublishPlatformApplication(alarmInfo queue.IOSVoIPPu
 	iOSVoIPPushSNSMessage.CharaID = alarmInfo.CharaID
 	iOSVoIPPushSNSMessage.CharaName = alarmInfo.CharaName
 	iOSVoIPPushSNSMessage.VoiceFileURL = alarmInfo.VoiceFileURL
+	iOSVoIPPushSNSMessage.SetCall(alarmInfo.Call)
 
 	// メッセージを送信
 	return s.AWS.PublishPlatformApplication(alarmInfo.SNSEndpointArn, iOSVoIPPushSNSMessage)
