@@ -1,5 +1,7 @@
 package output
 
+import "github.com/takoikatakotako/charalarm/infrastructure/database"
+
 type Alarm struct {
 	AlarmID string
 	UserID  string
@@ -25,6 +27,9 @@ type Alarm struct {
 	Thursday  bool
 	Friday    bool
 	Saturday  bool
+
+	// Call はアラームの電話（AI 会話）の設定。nil ならアプリ共通の設定
+	Call *database.AlarmCall
 }
 
 type GetAlarms struct {

@@ -5,6 +5,8 @@ class AppDelegateModel {
     private(set) var charaID: String = ""
     private(set) var charaName: String = ""
     private(set) var voiceFileURL: String = ""
+    /// 鳴ったアラームの電話の設定。nil ならアプリ共通の設定
+    private(set) var callSettings: CallSettings?
     private var audioPlayer = AVAudioPlayer()
     /// 録音ボイスのダウンロードと再生。電話が終わったら止める
     private var voicePlaybackTask: Task<Void, Never>?
@@ -32,6 +34,10 @@ class AppDelegateModel {
 
     func setVoiceFileURL(voiceFileURL: String) {
         self.voiceFileURL = voiceFileURL
+    }
+
+    func setCallSettings(_ callSettings: CallSettings?) {
+        self.callSettings = callSettings
     }
 
     func registerDefaults() {
@@ -141,7 +147,7 @@ class AppDelegateModel {
 
     func answerCall(callUUID: UUID) {
         // charaID が未取得(旧ペイロード等)の場合は空のまま = 非会話キャラ扱いで従来の録音再生にフォールバック
-        let call = AnsweredCall(charaID: charaID, charaName: charaName, callUUID: callUUID, conversation: answersWithConversation)
+        let call = AnsweredCall(charaID: charaID, charaName: charaName, callUUID: callUUID, conversation: answersWithConversation, callSettings: callSettings)
         // CallKit の知らせはメインスレッドで届く (CXProvider の delegate の queue が nil)
         MainActor.assumeIsolated {
             AnsweredCallStore.shared.answer(call)

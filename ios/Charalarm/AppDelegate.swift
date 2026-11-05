@@ -106,6 +106,8 @@ extension AppDelegate: PKPushRegistryDelegate {
             model.setCharaID(charaID: dataDictionary["charaID"] ?? "")
             model.setCharaName(charaName: charaNeme)
             model.setVoiceFileURL(voiceFileURL: voiceFileURL)
+            // アラームの電話の設定（長さ・話す内容）。設定の無い古いアラームは nil（アプリ共通の設定を使う）
+            model.setCallSettings(CallSettings(payload: dataDictionary))
         }
 
         // 通話画面を表示。着信を出し終えたら PushKit に知らせる

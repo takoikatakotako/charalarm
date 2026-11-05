@@ -20,8 +20,8 @@ protocol TextGenerationRepository {
 enum TodayEventsPolicy {
     /// 送らない
     case none
-    /// 設定の「電話の最初に今日の予定を話す」がオンなら送る（電話の最初のひとこと）
-    case ifEnabled
+    /// 電話の最初のひとこと。電話の設定で予定・天気に触れるなら、今日の予定と天気の地域を送る
+    case opening(CallSettings)
     /// 必ず送る（トップの「今日の予定」ボタン）
     case always
 }

@@ -19,4 +19,6 @@ struct AlarmRequest: Encodable {
     let thursday: Bool
     let friday: Bool
     let saturday: Bool
+    /// 電話（AI 会話）の設定。nil なら送らない（アプリ共通の設定を使う）
+    let call: CallSettings?
 }

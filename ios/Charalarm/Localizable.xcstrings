@@ -64,6 +64,57 @@
         }
       }
     },
+    "alarm-call-news" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Talk about trending news"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "話題のニュースを話す"
+          }
+        }
+      }
+    },
+    "alarm-call-schedule" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Talk about today's schedule"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "今日の予定を話す"
+          }
+        }
+      }
+    },
+    "alarm-call-weather" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Talk about the weather"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "天気を話す"
+          }
+        }
+      }
+    },
     "alarm-chara" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -259,6 +310,57 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "2つ以上アラームを作るにはプレミアムプランに登録する必要があります。"
+          }
+        }
+      }
+    },
+    "alarm-morning-call" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Morning call"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "モーニングコール"
+          }
+        }
+      }
+    },
+    "alarm-morning-call-footer" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "For characters you can talk with: what the character mentions first, and how long the call lasts."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "会話できるキャラの電話で、最初に触れる内容と、電話を切るまでの時間です。"
+          }
+        }
+      }
+    },
+    "alarm-morning-call-footer-no-region" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "For characters you can talk with: what the character mentions first, and how long the call lasts. To hear the weather, choose a weather region in Settings."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "会話できるキャラの電話で、最初に触れる内容と、電話を切るまでの時間です。天気を話すには、設定で「天気の地域」を選んでください。"
           }
         }
       }

@@ -65,7 +65,9 @@ import Foundation
             wednesday: true,
             thursday: true,
             friday: true,
-            saturday: true
+            saturday: true,
+            // 新しいアラームの電話の設定は、今のアプリ共通の設定から始める
+            call: .appDefault
         )
     }
 

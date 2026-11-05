@@ -12,6 +12,7 @@ struct ConversationView: View {
         charaID: String,
         mode: ConversationMode = .standalone,
         topic: ConversationTopic = .call,
+        callSettings: CallSettings = .appDefault,
         textGenerationRepository: TextGenerationRepository = BackendTextGenerationRepository()
     ) {
         self.topic = topic
@@ -19,7 +20,8 @@ struct ConversationView: View {
             charaID: charaID,
             mode: mode,
             topic: topic,
-            textGenerationRepository: textGenerationRepository
+            textGenerationRepository: textGenerationRepository,
+            callSettings: callSettings
         ))
     }
 

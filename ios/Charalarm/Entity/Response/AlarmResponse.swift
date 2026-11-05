@@ -19,6 +19,8 @@ struct AlarmResponse: Response {
     let thursday: Bool
     let friday: Bool
     let saturday: Bool
+    /// 電話（AI 会話）の設定。設定の無い古いアラームは nil
+    let call: CallSettings?
 }
 
 extension AlarmResponse {
@@ -40,7 +42,8 @@ extension AlarmResponse {
             wednesday: wednesday,
             thursday: thursday,
             friday: friday,
-            saturday: saturday
+            saturday: saturday,
+            call: call
         )
     }
 }

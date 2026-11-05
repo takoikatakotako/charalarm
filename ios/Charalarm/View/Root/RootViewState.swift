@@ -7,6 +7,8 @@ import FirebaseAuth
     var charaID: String?
     var charaName: String?
     var callUUID: UUID?
+    /// 鳴ったアラームの電話の設定。nil ならアプリ共通の設定
+    var callSettings: CallSettings?
 
     private let apiRepository = APIRepository()
     private let appUseCase = AppUseCase()
@@ -107,6 +109,7 @@ import FirebaseAuth
             charaID = call.charaID
             charaName = call.charaName
             callUUID = call.callUUID
+            callSettings = call.callSettings
             // 会話対応キャラは音声会話画面へ、それ以外は従来の録音再生へ
             type = call.conversation ? .conversation : .calling
         } else if type == .conversation || type == .calling {

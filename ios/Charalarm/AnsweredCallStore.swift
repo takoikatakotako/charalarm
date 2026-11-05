@@ -7,6 +7,8 @@ struct AnsweredCall: Equatable {
     let callUUID: UUID
     /// 会話画面で出るか（でなければ録音ボイスを流す画面）
     let conversation: Bool
+    /// 鳴ったアラームの電話の設定。nil ならアプリ共通の設定
+    let callSettings: CallSettings?
 }
 
 /// 通話中の電話を、電話が終わるまで持っておく。

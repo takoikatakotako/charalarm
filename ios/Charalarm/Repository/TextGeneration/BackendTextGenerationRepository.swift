@@ -35,7 +35,7 @@ struct BackendTextGenerationRepository: TextGenerationRepository {
         let sendsTodayEvents: Bool
         switch todayEventsPolicy {
         case .none: sendsTodayEvents = false
-        case .ifEnabled: sendsTodayEvents = userDefaultsRepository.getMentionScheduleOnCall()
+        case .opening(let settings): sendsTodayEvents = settings.schedule
         case .always: sendsTodayEvents = true
         }
         if sendsTodayEvents && calendarRepository.isAuthorized {
@@ -43,7 +43,10 @@ struct BackendTextGenerationRepository: TextGenerationRepository {
         }
 
         // 電話の最初のひとことで、設定で選んだ地域の天気に触れてもらう（「今日の予定」ボタンでは送らない）
-        let weatherRegion = todayEventsPolicy == .ifEnabled ? userDefaultsRepository.getWeatherRegion()?.code : nil
+        var weatherRegion: String?
+        if case .opening(let settings) = todayEventsPolicy, settings.weather {
+            weatherRegion = userDefaultsRepository.getWeatherRegion()?.code
+        }
 
         let response = try await apiRepository.postChat(
             userID: userID, authToken: authToken, charaID: charaID, language: language,

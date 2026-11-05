@@ -96,6 +96,7 @@ func convertToDatabaseAlarm(alarm input.Alarm, target string) database.Alarm {
 		Thursday:       alarmThursday,
 		Friday:         alarmFriday,
 		Saturday:       alarmSaturday,
+		Call:           alarm.Call,
 	}
 	databaseAlarm.SetAlarmTime()
 	return databaseAlarm
@@ -171,6 +172,7 @@ func convertToAlarmOutput(alarm database.Alarm) output.Alarm {
 		Thursday:       alarmThursday,
 		Friday:         alarmFriday,
 		Saturday:       alarmSaturday,
+		Call:           alarm.Call,
 	}
 }
 

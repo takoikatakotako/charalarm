@@ -44,6 +44,33 @@ type Alarm struct {
 	Thursday  bool `dynamodbav:"thursday"`
 	Friday    bool `dynamodbav:"friday"`
 	Saturday  bool `dynamodbav:"saturday"`
+
+	// Call はアラームの電話（AI 会話）の設定。nil なら、アプリ共通の設定を使う（古いアラーム）。
+	// センシティブな値（予定の中身・天気の地域）は入れず、話すかどうかだけを持つ
+	Call *AlarmCall `dynamodbav:"call,omitempty"`
+}
+
+// AlarmCall はアラームの電話（AI 会話）の設定。
+type AlarmCall struct {
+	// TimeLimit は電話を自動で終える時間（秒）。AlarmCallTimeLimits のどれか
+	TimeLimit int `dynamodbav:"timeLimit" json:"timeLimit"`
+	// Schedule / Weather / News は、電話の最初に今日の予定・天気・話題のニュースに触れるか
+	Schedule bool `dynamodbav:"schedule" json:"schedule"`
+	Weather  bool `dynamodbav:"weather" json:"weather"`
+	News     bool `dynamodbav:"news" json:"news"`
+}
+
+// AlarmCallTimeLimits は選べる電話の長さ（秒）。iOS の CallTimeLimit と同じ
+var AlarmCallTimeLimits = []int{30, 60, 90, 120, 180}
+
+// IsValid は設定の値が正しいか。
+func (c AlarmCall) IsValid() bool {
+	for _, limit := range AlarmCallTimeLimits {
+		if c.TimeLimit == limit {
+			return true
+		}
+	}
+	return false
 }
 
 func (a *Alarm) SetAlarmTime() {

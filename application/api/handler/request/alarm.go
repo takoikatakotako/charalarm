@@ -25,4 +25,15 @@ type Alarm struct {
 	Thursday  bool `json:"thursday"`
 	Friday    bool `json:"friday"`
 	Saturday  bool `json:"saturday"`
+
+	// Call はアラームの電話（AI 会話）の設定。省略したアラームは、アプリ共通の設定を使う
+	Call *AlarmCall `json:"call,omitempty"`
+}
+
+// AlarmCall はアラームの電話（AI 会話）の設定。
+type AlarmCall struct {
+	TimeLimit int  `json:"timeLimit"`
+	Schedule  bool `json:"schedule"`
+	Weather   bool `json:"weather"`
+	News      bool `json:"news"`
 }

@@ -5,6 +5,7 @@ import (
 	"github.com/takoikatakotako/charalarm/api/handler/response"
 	"github.com/takoikatakotako/charalarm/api/service/input"
 	"github.com/takoikatakotako/charalarm/api/service/output"
+	"github.com/takoikatakotako/charalarm/infrastructure/database"
 )
 
 func convertToAlarmInput(request request.Alarm) input.Alarm {
@@ -27,7 +28,22 @@ func convertToAlarmInput(request request.Alarm) input.Alarm {
 		Thursday:       request.Thursday,
 		Friday:         request.Friday,
 		Saturday:       request.Saturday,
+		Call:           convertToAlarmCallInput(request.Call),
 	}
+}
+
+func convertToAlarmCallInput(call *request.AlarmCall) *database.AlarmCall {
+	if call == nil {
+		return nil
+	}
+	return &database.AlarmCall{TimeLimit: call.TimeLimit, Schedule: call.Schedule, Weather: call.Weather, News: call.News}
+}
+
+func convertToAlarmCallResponse(call *database.AlarmCall) *response.AlarmCall {
+	if call == nil {
+		return nil
+	}
+	return &response.AlarmCall{TimeLimit: call.TimeLimit, Schedule: call.Schedule, Weather: call.Weather, News: call.News}
 }
 
 func convertToAlarmResponses(outputs []output.Alarm) []response.Alarm {
@@ -65,6 +81,8 @@ func convertToAlarmResponse(output output.Alarm) response.Alarm {
 		Thursday:  output.Thursday,
 		Friday:    output.Friday,
 		Saturday:  output.Saturday,
+
+		Call: convertToAlarmCallResponse(output.Call),
 	}
 }
 
