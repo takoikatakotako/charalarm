@@ -1,259 +1,177 @@
 # DynamoDB
 
-DynamoDBのテーブル構造についてです。
+DynamoDB のテーブルと項目です。正は `application/infrastructure/database/*.go` の構造体で、ここはその要約です。
+ローカル (Moto) の作り方は `local/createTable.sh`、AWS 上は `terraform/modules/dynamodb` にあります。
+
+サーバに個人情報は置きません。会話の履歴・キャラの記憶・予定の中身・天気の地域は端末にだけあります。
+
+| テーブル | キー | 中身 |
+|---|---|---|
+| user-table | `userID` | ユーザー、プッシュトークン、プレミアム |
+| alarm-table | `alarmID` (GSI: `user-id-index`, `alarm-time-index`, `target-index`) | アラーム |
+| chara-table | `charaID` | キャラ |
+| chara-tap-line-table | `charaID` + `lineID` | キャラをタップしたときのセリフ |
+| news-table | `newsID` | アプリのお知らせ |
+| usage-table | `usageKey` (TTL: `expiresAt`) | 会話・音声合成の 1 日の使用量 |
 
 
 ## user-table
 
-ユーザー情報、認証情報、プッシュ通知用のトークンが格納されるテーブルです。
-
-```
+```json
 {
-  "userID":"{UUID}",
-  "authToken":"{UUID}",
-  "iosVoIPPushTokens":{
-    "token":"{iOSのVoIPプッシュ通知のトークン}",
-    "snsEndpointArn":"{iOSのVoIPプッシュ通知のPlatformApplicationのエンドポイント}"
-  },
-  "iosPushTokens":{
-    "token":"{iOSのVoIPプッシュ通知のトークン}",
-    "snsEndpointArn":"{iOSのVoIPプッシュ通知のPlatformApplicationのエンドポイント}"
+  "userID": "{UUID}",
+  "authToken": "{UUID}",
+  "platform": "iOS",
+  "premiumPlan": false,
+  "premiumPlanEventAt": "{RFC 3339}",
+  "createdAt": "{RFC 3339}",
+  "updatedAt": "{RFC 3339}",
+  "iosPlatformInfo": {
+    "pushToken": "{String}",
+    "pushTokenSNSEndpoint": "{SNS エンドポイントの ARN}",
+    "voIPPushToken": "{String}",
+    "voIPPushTokenSNSEndpoint": "{SNS エンドポイントの ARN}"
   }
 }
 ```
 
+- `userID` と `authToken` はアプリが作る UUID。API は Basic 認証 (`userID:authToken`) で使う
+- `premiumPlan` は RevenueCat の Webhook (`/webhook/revenuecat`) で更新する
 
 
 ## alarm-table
 
-アラームの情報が入るテーブルです。
-
-```
+```json
 {
-  "alarmID":"{UUID}",
-  "userID":"{UUID}",
-  "alarmType":"{VOICE_CALL_ALARM or NEWS_CALL_ALARM or CALENDER_CALL_ALARM}",
-  "alarmEnable":"{Bool}",
-  "alarmName":"{String}",
-  "alarmHour":"{Int}",
-  "alarmMinute":"{Int}",
-  "alarmTime":"{String}",
-  "charaID":"{String}",
-  "charaName":"{String}",
-  "voiceFileURL":"{String}",  
-  "sunday":"{Bool}",
-  "monday":"{Bool}",
-  "tuesday":"{Bool}",
-  "wednesday":"{Bool}",
-  "thursday":"{Bool}",
-  "friday":"{Bool}",
-  "saturday":"{Bool}"
+  "alarmID": "{UUID}",
+  "userID": "{UUID}",
+  "type": "IOS_VOIP_PUSH_NOTIFICATION",
+  "target": "{SNS エンドポイントの ARN}",
+  "enable": true,
+  "name": "{String}",
+  "hour": 22,
+  "minute": 30,
+  "time": "22-30",
+  "timeDifference": 9.0,
+  "//": "日本の平日 7:30 のアラーム → UTC の日〜木 22:30",
+  "charaID": "com.charalarm.yui",
+  "charaName": "井上結衣",
+  "voiceFileName": "{String}",
+  "sunday": true,
+  "monday": true,
+  "tuesday": true,
+  "wednesday": true,
+  "thursday": true,
+  "friday": false,
+  "saturday": false,
+  "call": {
+    "timeLimit": 60,
+    "schedule": true,
+    "weather": true,
+    "news": false
+  }
 }
 ```
 
-### alarmType
-
-アラームの種類です。
-
-- VOICE_CALL_ALARM
-
-キャラクターから電話がかかってきて、事前録音されたボイスを再生します。
-
-- NEWS_CALL_ALARM
-
-キャラクターから電話がかかってきて、音声合成されたニュースを再生します。
-
-- CALENDER_CALL_ALARM
-
-キャラクターから電話がかかってきて、音声合成された今日の予定を再生します。
-
-
-### alarmTime
-
-インデックス用のフィールドです。
-`("%02d-%02d", alarmHour, alarmMinute)` が入ります。
-
-
-### charaID
-
-キャラクターのIDです。
-ランダムの場合は `RANDOM` が入ります。
-
-
-### charaName
-
-キャラクター名です。
-ランダムの場合は `RANDOM` が入ります。
-
-
-### voiceFileURL
-
-ボイス用のURLが入ります。
-ランダムの場合は `RANDOM` が入ります。
+- `type`: `IOS_PUSH_NOTIFICATION` か `IOS_VOIP_PUSH_NOTIFICATION`
+- `target`: 送り先の SNS エンドポイント。`target-index` で、トークンが変わったときに引き直す
+- `hour` / `minute` / 曜日: UTC で持つ。API が端末の時刻 (現地) と `timeDifference` から変換して保存し、返すときに現地に戻す (`application/api/service/converter.go`)
+- `time`: `alarm-time-index` 用。`("%02d-%02d", hour, minute)`。バッチが毎分、UTC の今の時刻でこの値を引く
+- `timeDifference`: アラームを作った端末の UTC からの時差 (時間)
+- `charaID` / `charaName` / `voiceFileName`: ランダムのときは `RANDOM`
+- `call`: 電話 (AI 会話) の設定。無いアラーム (古いアプリが作ったもの) は、アプリ共通の設定を使う
+    - `timeLimit`: 電話の長さ (秒)。30 / 60 / 90 / 120 / 180 のどれか
+    - `schedule` / `weather` / `news`: 電話の最初に、今日の予定・天気・話題のニュースに触れるか
+    - 予定の中身や地域は持たない (端末の値を使う)
 
 
 ## chara-table
 
-キャラクターの情報が入るテーブルです。
-
-```
+```json
 {
-  "charaID":"{String}",
-  "enable":"{Bool}",
-  "name":"{String}",
-  "description":"{String}",
-  "profiles":[
-    {
-      "title":{String},
-      "name":{String},
-      "url":{String}
-    }
-  ],
-  "resources":{
-    "images":[
-      {String}
-    ],
-    "voices":[
-      {String}
-    ]
+  "charaID": "com.charalarm.yui",
+  "enable": true,
+  "created_at": "2023-06-03",
+  "updated_at": "2023-06-14",
+  "name": "井上結衣",
+  "description": "{String}",
+  "displayOrder": 1,
+  "profiles": [{ "title": "声優", "name": "{String}", "url": "{URL}" }],
+  "expressions": {
+    "normal": { "imageFileNames": ["normal.png"], "voiceFileNames": ["{String}"] }
   },
-  "expressions":{
-    "{String}":{
-      "images":[
-        "{String}"
-      ],
-      "voices":[
-        "{String}"
-      ]
-    }
-  },
-  "calls":{
-    "voices":[
-      "{String}"
-    ]
-  }
+  "calls": [{ "message": "{String}", "voiceFileName": "{String}" }],
+
+  "appearanceType": "vrm",
+  "vrmFileName": "yui.vrm",
+
+  "conversationType": "gemini",
+  "conversationPrompt": "{人格プロンプト}",
+  "conversationLanguages": ["ja", "en"],
+  "voicevoxStyleID": 3,
+  "voiceProvider": "gemini",
+  "geminiVoice": "{声の名前}",
+  "geminiVoiceStyle": "{声の調子の指示}",
+
+  "callOpeningPrompt": "{電話の最初のひとことの指示}",
+  "callEndingPrompt": "{電話を切るときの指示}",
+  "callNoInputEndingPrompt": "{返事が無くて切るときの指示}"
 }
 ```
 
-## サンプル
+- `appearanceType`: `illustration` (立ち絵) か `vrm`。未設定なら立ち絵
+- `conversationType`: `none` (アラームだけ) / `voicevox` (端末で合成) / `gemini` (サーバで合成)。未設定なら古い項目から導く
+- `conversationLanguages`: 話せる言語。未設定なら日本語だけ。対応している言語は `ja` `en` `zh-Hans` `zh-Hant` `ko` `es` `fr` `de`
+- キャラの編集は管理画面から行う。リソース (画像・ボイス・VRM) の置き場は [キャラクター](chara.md)
 
-```
+
+## chara-tap-line-table
+
+トップでキャラをタップしたときのセリフ。1 行に 1 セリフ。
+
+```json
 {
-  "charaID":"com.charalarm.yui",
-  "enable":true,
-  "name":"井上結衣",
-  "description":"井上結衣です。プログラマーとして働いていてこのアプリを作っています。このアプリをたくさん使ってくれると嬉しいです、よろしくね！",
-  "profiles":[
-    {
-      "title":"イラストレーター",
-      "name":"さいもん",
-      "url":"https://twitter.com/simon_ns"
-    },
-    {
-      "title":"声優",
-      "name":"Mai",
-      "url":"https://twitter.com/mai_mizuiro"
-    },
-    {
-      "title":"スクリプト",
-      "name":"小旗ふたる！",
-      "url":"https://twitter.com/Kass_kobataku"
-    }
-  ],
-  "resources":{
-    "images":[
-      "thumbnail.png",
-      "normal.png",
-      "smile.png",
-      "comfused.png"
-    ],
-    "voices":[
-      "self-introduction.caf",
-      "com-charalarm-yui-0.caf",
-      "com-charalarm-yui-1.caf",
-      "com-charalarm-yui-2.caf",
-      "com-charalarm-yui-3.caf",
-      "com-charalarm-yui-4.caf",
-      "com-charalarm-yui-5.caf",
-      "com-charalarm-yui-6.caf",
-      "com-charalarm-yui-7.caf",
-      "com-charalarm-yui-8.caf",
-      "com-charalarm-yui-9.caf",
-      "com-charalarm-yui-10.caf",
-      "com-charalarm-yui-11.caf",
-      "com-charalarm-yui-12.caf",
-      "com-charalarm-yui-13.caf",
-      "com-charalarm-yui-14.caf",
-      "com-charalarm-yui-15.caf",
-      "com-charalarm-yui-16.caf",
-      "com-charalarm-yui-17.caf",
-      "com-charalarm-yui-18.caf",
-      "com-charalarm-yui-19.caf",
-      "com-charalarm-yui-20.caf"
-    ]
-  },
-  "expressions":{
-    "normal":{
-      "images":[
-        "normal.png"
-      ],
-      "voices":[
-        "com-charalarm-yui-1.caf",
-        "com-charalarm-yui-4.caf",
-        "com-charalarm-yui-5.caf"
-      ]
-    },
-    "smile":{
-      "images":[
-        "smile.png"
-      ],
-      "voices":[
-        "com-charalarm-yui-2.caf",
-        "com-charalarm-yui-3.caf"
-      ]
-    },
-    "comfused":{
-      "images":[
-        "comfused.png"
-      ],
-      "voices":[
-        "com-charalarm-yui-5.caf",
-        "com-charalarm-yui-12.caf",
-        "com-charalarm-yui-13.caf",
-        "com-charalarm-yui-14.caf"
-      ]
-    }
-  },
-  "calls":{
-    "voices":[
-      "com-charalarm-yui-15.caf",
-      "com-charalarm-yui-16.caf",
-      "com-charalarm-yui-17.caf",
-      "com-charalarm-yui-18.caf",
-      "com-charalarm-yui-19.caf",
-      "com-charalarm-yui-20.caf"
-    ]
-  }
+  "charaID": "com.charalarm.yui",
+  "lineID": "{UUID}",
+  "text": "{String}",
+  "voiceFileName": "tap-{lineID}.wav",
+  "theme": "morning",
+  "language": "ja",
+  "when": { "dates": ["12-25"], "hours": [22, 5], "weekdays": [0, 6] }
 }
 ```
 
-## CharaID
+- 管理画面で下書きを作り (Gemini)、ボイスを作ってリソースに置く
+- `when` の空の項目は条件にしない。`hours` は [開始, 終了) で、開始 > 終了なら日をまたぐ
 
-ドメインを逆にしたものが入ります。ex. com.charalarm.yui
 
+## news-table
 
+アプリの「お知らせ」。管理画面から作る。
+
+```json
+{
+  "newsID": "{UUID}",
+  "title": "{String}",
+  "body": "{String}",
+  "registeredAt": "{RFC 3339}"
+}
 ```
-aws dynamodb put-item \
---table-name chara-table \
---item '{"charaID":{"S":"com.charalarm.yui"},"enable":{"BOOL":true},"name":{"S":"井上結衣"},"created_at":{"S":"2023-06-03"},"updated_at":{"S":"2023-06-14"},"description":{"S":"井上結衣です。プログラマーとして働いていてこのアプリを作っています。このアプリをたくさん使ってくれると嬉しいです、よろしくね！"},"profiles":{"L":[{"M":{"title":{"S":"イラストレーター"},"name":{"S":"さいもん"},"url":{"S":"https://twitter.com/simon_ns"}}},{"M":{"title":{"S":"声優"},"name":{"S":"Mai"},"url":{"S":"https://twitter.com/mai_mizuiro"}}},{"M":{"title":{"S":"スクリプト"},"name":{"S":"小旗ふたる！"},"url":{"S":"https://twitter.com/Kass_kobataku"}}}]},"calls":{"L":[{"M":{"message":{"S":"井上結衣さんのボイス15"},"voiceFileName":{"S":"com-charalarm-yui-15.caf"}}},{"M":{"message":{"S":"井上結衣さんのボイス16"},"voiceFileName":{"S":"com-charalarm-yui-16.caf"}}},{"M":{"message":{"S":"井上結衣さんのボイス17"},"voiceFileName":{"S":"com-charalarm-yui-17.caf"}}},{"M":{"message":{"S":"井上結衣さんのボイス18"},"voiceFileName":{"S":"com-charalarm-yui-18.caf"}}},{"M":{"message":{"S":"井上結衣さんのボイス19"},"voiceFileName":{"S":"com-charalarm-yui-19.caf"}}},{"M":{"message":{"S":"井上結衣さんのボイス20"},"voiceFileName":{"S":"com-charalarm-yui-20.caf"}}}]},"expressions":{"M":{"normal":{"M":{"imageFileNames":{"L":[{"S":"normal.png"}]},"voiceFileNames":{"L":[{"S":"com-charalarm-yui-1.caf"},{"S":"com-charalarm-yui-4.caf"},{"S":"com-charalarm-yui-5.caf"}]}}},"smile":{"M":{"imageFileNames":{"L":[{"S":"smile.png"}]},"voiceFileNames":{"L":[{"S":"com-charalarm-yui-2.caf"},{"S":"com-charalarm-yui-3.caf"}]}}},"confused":{"M":{"imageFileNames":{"L":[{"S":"confused.png"}]},"voiceFileNames":{"L":[{"S":"com-charalarm-yui-5.caf"},{"S":"com-charalarm-yui-12.caf"},{"S":"com-charalarm-yui-13.caf"},{"S":"com-charalarm-yui-14.caf"}]}}}}}}' \
---profile sandbox
-```
+
+話題のニュース (X) はテーブルではなく、バッチが S3 のリソースに `trend-news/ja.json`・`trend-news/en.json` として置きます。
 
 
+## usage-table
 
+会話 (`/chat`) と音声合成 (`/tts`) の 1 日の使用量。上限を超えると 429 を返す。
+
+```json
+{
+  "usageKey": "{userID}#{日付}",
+  "chat": 12,
+  "ttsChars": 3400,
+  "expiresAt": 1767225600
+}
 ```
-aws dynamodb put-item \
---table-name chara-table \
---item '{"charaID":{"S":"com.senpu-ki-soft.momiji"},"enable":{"BOOL":true},"name":{"S":"紅葉"},"created_at":{"S":"2023-06-05"},"updated_at":{"S":"2023-06-14"},"description":{"S":"金髪紅眼の美少女。疲れ気味のあなたを心配して様々な癒しを、と考えている。その正体は幾百年を生きる鬼の末裔。あるいはあなたに恋慕を抱く彼女。ちょっと素直になりきれないものの、なんやかんやいってそばにいてくれる面倒見のいい少女。日々あなたの生活を見届けている。「わっち？　名は紅葉でありんす。主様の支えになれるよう、掃除でもみみかきでもなんでも言っておくんなんし。か、かわいい？　い、いきなりそんなこと言わないでおくんなんし！」"},"calls":{"L":[{"M":{"message":{"S":"紅葉さんの天気だね。"},"voiceFileName":{"S":"call-on-weekday-morning.caf"}}},{"M":{"message":{"S":"紅葉さんの肩凝るねー"},"voiceFileName":{"S":"call-on-weekday-afternoon.caf"}}},{"M":{"message":{"S":"紅葉さんのボイス3"},"voiceFileName":{"S":"call-holiday-scheduled-alarm.caf"}}},{"M":{"message":{"S":"紅葉さんのボイス4"},"voiceFileName":{"S":"call-holiday-no-scheduled.caf"}}},{"M":{"message":{"S":"紅葉さんのボイス"},"voiceFileName":{"S":"call-small-talk.caf"}}}]},"expressions":{"M":{"normal":{"M":{"imageFileNames":{"L":[{"S":"normal.png"}]},"voiceFileNames":{"L":[{"S":"tap-general-1.caf"},{"S":"tap-general-2.caf"},{"S":"tap-general-3.caf"},{"S":"tap-general-4.caf"},{"S":"tap-general-5.caf"}]}}}}}}' \
---profile sandbox
-```
+
+古い日の分は TTL (`expiresAt`) で消えます。

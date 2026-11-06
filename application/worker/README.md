@@ -1,6 +1,11 @@
+# worker
 
-https://haithai91.medium.com/how-to-setup-aws-config-connect-to-localstack-with-golang-bd71ac2dd9d2
+SQS (`voip-push-queue.fifo`) のメッセージを受け取り、SNS で VoIP プッシュを送る。中身は [docs/development/sqs.md](../../docs/development/sqs.md)。
 
+構成全体は [docs/system/system.md](../../docs/system/system.md)。
 
-
+```sh
+cd application
+make test               # テスト
 go fmt ./...
+```

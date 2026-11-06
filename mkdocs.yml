@@ -18,24 +18,24 @@ nav:
       - 開発: development/index.md
       - API エンドポイント: development/api-endpoint.md
       - DynamoDB: development/dynamodb.md
-      - LocalStack: development/localstack.md
+      - SQS: development/sqs.md
+      - Moto: development/moto.md
+      - 会話API設計: development/conversation-api-design.md
       - iOS: development/ios.md
       - アプリアイコン: development/app-icons.md
-      - SQS: development/sqs.md
       - サブスクリプション: development/subscription.md
+      - 端末内TTS設計: on-device-tts-architecture.md
+      - TTSの権利・ライセンス: development/tts-rights-and-licensing.md
       - キャラクター:
           - キャラクター: development/chara.md
           - 結衣: development/chara-yui.md
           - 紅葉: development/chara-momiji.md
           - ずんだもん: development/chara-zundamon.md
       - ロードマップ: development/roadmap.md
-      - 端末内TTS設計: on-device-tts-architecture.md
-      - TTSの権利・ライセンス: development/tts-rights-and-licensing.md
-      - 会話API設計: development/conversation-api-design.md
       - リポジトリ: development/repositories.md
-      - アプリアーキテクチャ: development/app-architecture.md
-      - アップデート: development/update.md
+      - 証明書などの更新: development/update.md
       - 問い合わせ対応: development/contact.md
+      - ずんだもん音声会話（記録）: development/zundamon-voice-conversation.md
   - その他:
       - 利用規約: other/teams/index.md
       - プライバシーポリシー: other/privacy/index.md

@@ -1,4 +1,4 @@
-<img src="documents/logo.png" alt="logo" width="600"/>
+<img src="docs/logo.png" alt="logo" width="600"/>
 
 **目覚ましアプリ「Charalarm」** は、2次元キャラクターからの電話で、楽しく幸せな朝の目覚めを実現するモバイルアプリです。
 お気に入りのキャラクターを選び、アラームをセットすると、その時間にキャラクターから電話がかかってきます。
@@ -6,18 +6,21 @@
 
 ---
 
-## 📚 [Documentation](documents/index.md)
+## 📚 [Documentation](docs/index.md)
 
-* インフラ・アーキテクチャ詳細
-* API エンドポイント仕様
-* DynamoDB, SQS, 証明書管理
+* [システム構成](docs/system/system.md)
+* [API エンドポイント](docs/development/api-endpoint.md)
+* [DynamoDB](docs/development/dynamodb.md), [SQS](docs/development/sqs.md), [iOS](docs/development/ios.md)
+* 開発の進め方は [CLAUDE.md](CLAUDE.md)
 
 ---
 
 ## 🛠 今後の予定
 
+* 5.0.0: 3D のキャラと、キャラと話せるモーニングコール（今日の予定・天気・話題のニュース）
 * Android版アプリ対応
-* サーバーレス移行、チャット機能の実装（Lambda/SNS/SQS, DynamoDBなど）
+
+詳しくは [ロードマップ](docs/development/roadmap.md)。
 
 ---
 
