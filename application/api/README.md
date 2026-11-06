@@ -1,6 +1,11 @@
+# api
 
-https://haithai91.medium.com/how-to-setup-aws-config-connect-to-localstack-with-golang-bd71ac2dd9d2
+アプリが使う REST API (Echo, Lambda Web Adapter)。エンドポイントは [docs/development/api-endpoint.md](../../docs/development/api-endpoint.md)。
 
+構成全体は [docs/system/system.md](../../docs/system/system.md)。
 
-
+```sh
+cd application
+make test               # テスト
 go fmt ./...
+```
