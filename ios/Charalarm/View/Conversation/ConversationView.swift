@@ -71,6 +71,7 @@ struct ConversationView: View {
                 callHeader
                 Spacer()
                 callCaption
+                CallMicIndicator(level: viewState.micLevel, isListening: viewState.status == .recognizingSpeech)
                 CallActionButton(kind: .decline, size: 68) {
                     viewState.endButtonTapped()
                 }
@@ -105,7 +106,7 @@ struct ConversationView: View {
         .ignoresSafeArea()
     }
 
-    /// 左上に相手の名前・状態・通話時間、右上に自分の小窓
+    /// 左上に相手の名前・状態・通話時間
     private var callHeader: some View {
         HStack(alignment: .top) {
             VStack(alignment: .leading, spacing: 4) {
@@ -128,37 +129,8 @@ struct ConversationView: View {
             .shadow(color: .black.opacity(0.4), radius: 4)
 
             Spacer()
-
-            selfPreview
         }
         .padding(.top, 8)
-    }
-
-    /// 自分の小窓。カメラは使わないので、聞いているあいだマイクを光らせる
-    private var selfPreview: some View {
-        let isListening = viewState.status == .recognizingSpeech
-        return RoundedRectangle(cornerRadius: 14, style: .continuous)
-            .fill(.ultraThinMaterial)
-            .frame(width: 84, height: 120)
-            .overlay {
-                Image(systemName: "person.fill")
-                    .font(.system(size: 36))
-                    .foregroundStyle(.white.opacity(0.8))
-            }
-            .overlay(alignment: .bottomTrailing) {
-                Image(systemName: isListening ? "mic.fill" : "mic")
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(.white)
-                    .padding(6)
-                    .background(isListening ? Color(.callGreen) : .black.opacity(0.4), in: Circle())
-                    .padding(6)
-            }
-            .overlay {
-                RoundedRectangle(cornerRadius: 14, style: .continuous)
-                    .strokeBorder(isListening ? Color(.callGreen) : .white.opacity(0.3), lineWidth: isListening ? 2 : 1)
-            }
-            .animation(.easeInOut(duration: 0.2), value: isListening)
-            .accessibilityHidden(true)
     }
 
     /// 字幕。話している言葉の最後のほうを出す。
