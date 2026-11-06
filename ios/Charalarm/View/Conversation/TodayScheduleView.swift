@@ -87,14 +87,17 @@ struct TodayScheduleView: View {
     private var speechPanel: some View {
         VStack(alignment: .leading, spacing: 8) {
             if !viewState.text.isEmpty {
-                Text(viewState.text)
-                    .font(.callout)
-                    .lineLimit(5)
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 8)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
-                    .shadow(color: .black.opacity(0.08), radius: 6, y: 2)
+                // 予定を読み上げるセリフは長く、キャラの左の狭い幅では何行にもなる。最後まで読めるよう行数で切らず、
+                // 予定の一覧を隠しすぎないよう高さを抑えて、入りきらなければ中をスクロールする
+                ViewThatFits(in: .vertical) {
+                    speechText
+                    ScrollView {
+                        speechText
+                    }
+                }
+                .frame(maxHeight: Self.speechMaxHeight)
+                .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                .shadow(color: .black.opacity(0.08), radius: 6, y: 2)
             }
             HStack(spacing: 10) {
                 playStopButton
@@ -112,6 +115,18 @@ struct TodayScheduleView: View {
         // キャラの幅だけ右を空ける
         .padding(.trailing, 150)
         .padding(.bottom, 8)
+    }
+
+    /// セリフの吹き出しの高さの上限。これより長いセリフは中をスクロールする
+    private static let speechMaxHeight: CGFloat = 220
+
+    private var speechText: some View {
+        Text(viewState.text)
+            .font(.callout)
+            .fixedSize(horizontal: false, vertical: true)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+            .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     /// 話しているあいだは停止、止まっていれば再生（もう一度読んでもらう）
@@ -155,6 +170,12 @@ struct TodayTimelineView: View {
 
     private let hourHeight: CGFloat = 56
     private let labelWidth: CGFloat = 48
+    /// 短い予定でも、名前が 2 行は入るよう縦に伸ばす高さ
+    private let minEventHeight: CGFloat = 44
+    /// これより高い予定は、名前の下に時刻も出す
+    private let timeVisibleHeight: CGFloat = 56
+    /// 押した予定。名前の全文・時刻・カレンダーを見せる
+    @State private var selectedEvent: TodayEvent?
     /// 右下のキャラに最後の予定が隠れないよう、下に空けておく
     private let bottomSpace: CGFloat = 200
 
@@ -188,6 +209,10 @@ struct TodayTimelineView: View {
                 }
             }
         }
+        .sheet(item: $selectedEvent) { event in
+            EventDetailView(event: event)
+                .presentationDetents([.medium])
+        }
     }
 
     private func allDaySection(_ allDayEvents: [TodayEvent]) -> some View {
@@ -199,8 +224,14 @@ struct TodayTimelineView: View {
                 .padding(.top, 6)
             VStack(spacing: 4) {
                 ForEach(allDayEvents) { event in
-                    EventBlock(event: event, showsTime: false)
-                        .frame(height: 26)
+                    // 名前が長ければ 3 行まで縦に伸ばす
+                    Button {
+                        selectedEvent = event
+                    } label: {
+                        EventBlock(event: event, showsTime: false, titleLineLimit: 3)
+                            .frame(minHeight: 26)
+                    }
+                    .buttonStyle(.plain)
                 }
             }
         }
@@ -234,9 +265,15 @@ struct TodayTimelineView: View {
                 let columnsWidth = geometry.size.width - labelWidth - 8
                 ForEach(layout(timedEvents, dayStart: dayStart)) { item in
                     let width = columnsWidth / CGFloat(item.columnCount)
-                    EventBlock(event: item.event, showsTime: item.height >= 40)
-                        .frame(width: width - 2, height: item.height)
-                        .offset(x: labelWidth + 8 + width * CGFloat(item.column), y: item.top)
+                    Button {
+                        selectedEvent = item.event
+                    } label: {
+                        // 名前は枠に入るだけ何行でも出す
+                        EventBlock(event: item.event, showsTime: item.height >= timeVisibleHeight, titleLineLimit: nil)
+                            .frame(width: width - 2, height: item.height)
+                    }
+                    .buttonStyle(.plain)
+                    .offset(x: labelWidth + 8 + width * CGFloat(item.column), y: item.top)
                 }
             }
 
@@ -280,7 +317,7 @@ struct TodayTimelineView: View {
         return max(min(firstEventHour, nowHour) - 1, 0)
     }
 
-    /// 重なる予定を横に並べる
+    /// 重なる予定を横に並べる。短い予定は名前が入るよう縦に伸ばし、伸ばした分も重なりとして扱う（上に重ねて隠さない）
     private func layout(_ events: [TodayEvent], dayStart: Date) -> [TimelineItem] {
         var items: [TimelineItem] = []
         var cluster: [TimelineItem] = []
@@ -302,15 +339,17 @@ struct TodayTimelineView: View {
             if event.start >= clusterEnd {
                 flush()
             }
+            let top = y(of: event.start, dayStart: dayStart)
+            let height = max(y(of: event.end, dayStart: dayStart) - top, minEventHeight)
+            // 画面の上で終わる時刻（縦に伸ばした分を含む）
+            let visibleEnd = max(event.end, event.start.addingTimeInterval(TimeInterval(height / hourHeight * 3600)))
             let column = columnEnds.firstIndex { $0 <= event.start } ?? columnEnds.count
             if column == columnEnds.count {
-                columnEnds.append(event.end)
+                columnEnds.append(visibleEnd)
             } else {
-                columnEnds[column] = event.end
+                columnEnds[column] = visibleEnd
             }
-            clusterEnd = max(clusterEnd, event.end)
-            let top = y(of: event.start, dayStart: dayStart)
-            let height = max(y(of: event.end, dayStart: dayStart) - top, 22)
+            clusterEnd = max(clusterEnd, visibleEnd)
             cluster.append(TimelineItem(event: event, top: top, height: height, column: column, columnCount: 1))
         }
         flush()
@@ -332,6 +371,8 @@ private struct TimelineItem: Identifiable {
 private struct EventBlock: View {
     let event: TodayEvent
     let showsTime: Bool
+    /// 名前の行数の上限。nil なら枠に入るだけ出す
+    let titleLineLimit: Int?
 
     var body: some View {
         // 長い予定でも、タイトルと時刻は上に出す（Google カレンダーと同じ）
@@ -342,7 +383,7 @@ private struct EventBlock: View {
             VStack(alignment: .leading, spacing: 1) {
                 Text(event.title)
                     .font(.caption.weight(.semibold))
-                    .lineLimit(2)
+                    .lineLimit(titleLineLimit)
                 if showsTime {
                     Text(timeText)
                         .font(.caption2.monospacedDigit())
@@ -361,11 +402,58 @@ private struct EventBlock: View {
     }
 
     private var timeText: String {
-        if event.isAllDay {
+        event.timeText
+    }
+}
+
+/// 押した予定の詳しい中身。枠に入りきらない長い名前も、ここで全部読める
+private struct EventDetailView: View {
+    let event: TodayEvent
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        NavigationStack {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 12) {
+                    Text(event.title)
+                        .font(.title3.weight(.semibold))
+                        .fixedSize(horizontal: false, vertical: true)
+                        .textSelection(.enabled)
+                    Label(event.timeText, systemImage: "clock")
+                        .foregroundStyle(.secondary)
+                    if !event.calendarTitle.isEmpty {
+                        Label {
+                            Text(event.calendarTitle)
+                        } icon: {
+                            Circle()
+                                .fill(event.calendarColor)
+                                .frame(width: 10, height: 10)
+                        }
+                        .foregroundStyle(.secondary)
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(20)
+            }
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button(String(localized: "common-close")) {
+                        dismiss()
+                    }
+                }
+            }
+        }
+    }
+}
+
+private extension TodayEvent {
+    /// 予定の時刻（終日なら「終日」）
+    var timeText: String {
+        if isAllDay {
             return String(localized: "today-schedule-all-day")
         }
         let format = Date.FormatStyle(date: .omitted, time: .shortened)
-        return "\(event.start.formatted(format))–\(event.end.formatted(format))"
+        return "\(start.formatted(format))–\(end.formatted(format))"
     }
 }
 
@@ -377,6 +465,8 @@ private struct EventBlock: View {
                    isAllDay: false, calendarTitle: "仕事", calendarColor: .blue),
         TodayEvent(id: "c", title: "1on1", start: start.addingTimeInterval(9.5 * 3600), end: start.addingTimeInterval(10.5 * 3600),
                    isAllDay: false, calendarTitle: "仕事", calendarColor: .green),
+        TodayEvent(id: "e", title: "とても長い名前の予定（プロジェクトの振り返りと来期の計画のすり合わせ）", start: start.addingTimeInterval(11 * 3600),
+                   end: start.addingTimeInterval(11.5 * 3600), isAllDay: false, calendarTitle: "仕事", calendarColor: .purple),
         TodayEvent(id: "d", title: "ランチ", start: start.addingTimeInterval(12 * 3600), end: start.addingTimeInterval(13 * 3600),
                    isAllDay: false, calendarTitle: "家族", calendarColor: .orange)
     ])

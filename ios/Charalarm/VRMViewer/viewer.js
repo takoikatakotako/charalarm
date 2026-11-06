@@ -59,6 +59,8 @@ function restPose() {
 
 // 呼吸と、表情があればまばたき
 let nextBlink = 2;
+// いまのまばたきの強さ (0〜1)。表情を出しているときも目を閉じられるよう、updateEmotion で使う
+let blinkValue = 0;
 function idle(elapsed) {
   const chest = vrm.humanoid.getNormalizedBoneNode('chest') ?? vrm.humanoid.getNormalizedBoneNode('spine');
   if (chest) chest.rotation.x = Math.sin(elapsed * 1.6) * 0.015;
@@ -68,7 +70,8 @@ function idle(elapsed) {
   const expressions = vrm.expressionManager;
   if (expressions?.getExpression('blink')) {
     const t = elapsed - nextBlink;
-    expressions.setValue('blink', t > 0 && t < 0.15 ? Math.sin((t / 0.15) * Math.PI) : 0);
+    blinkValue = t > 0 && t < 0.15 ? Math.sin((t / 0.15) * Math.PI) : 0;
+    expressions.setValue('blink', blinkValue);
     if (t >= 0.15) nextBlink = elapsed + 2 + Math.random() * 3;
   }
 }
@@ -85,6 +88,9 @@ window.setExpression = (name) => {
 const smileExpressionNames = ['微笑み・口', 'リラックス・口'];
 const smileWeights = { neutral: 0.6, relaxed: 0.6 };
 
+// 表情の強さ。まばたきの一瞬だけ弱めて出すので、もとの強さはここに持つ
+const emotionWeights = {};
+
 function updateEmotion(delta) {
   const expressions = vrm.expressionManager;
   if (!expressions) return;
@@ -94,8 +100,13 @@ function updateEmotion(delta) {
     const value = expressions.getValue(name) ?? 0;
     expressions.setValue(name, value + (target - value) * rate);
   };
+  // 笑顔などの表情は、モデルの設定 (overrideBlink: blend) で、出しているあいだまばたきを弱める。
+  // 表情を出したままだと目を閉じなくなるので、まばたきの一瞬だけ表情を弱め、目を閉じてから元の表情に戻す
   for (const name of emotions) {
-    ease(name, name === emotion ? 1 : 0);
+    if (!expressions.getExpression(name)) continue;
+    const weight = emotionWeights[name] ?? 0;
+    emotionWeights[name] = weight + ((name === emotion ? 1 : 0) - weight) * rate;
+    expressions.setValue(name, emotionWeights[name] * (1 - blinkValue));
   }
   const smileExpression = smileExpressionNames.find((name) => expressions.getExpression(name));
   if (smileExpression) ease(smileExpression, smileWeights[emotion] ?? 0);

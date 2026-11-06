@@ -78,7 +78,7 @@ struct ConfigView: View {
                         Text(String(localized: "config-mention-news-on-call-footer"))
                         // WeatherKit の利用条件: Apple Weather の表記と、データ提供元のページへのリンクを出す
                         HStack(spacing: 8) {
-                            Text("\u{F8FF} Weather")
+                            Text(verbatim: "\u{F8FF} Weather")
                             Link(String(localized: "config-weather-data-sources"), destination: Self.weatherLegalAttributionURL)
                         }
                         Text(String(localized: "config-use-calendar-footer"))
