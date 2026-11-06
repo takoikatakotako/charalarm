@@ -6,25 +6,26 @@
 
 ```
 charalarm/
-├── application/     # バックエンド (Go 1.25, Lambda)
+├── application/     # バックエンド (Go 1.27, Lambda)
 │   ├── api/         # REST API (Echo)
 │   ├── admin_api/   # 管理画面用 API (Echo, CloudFront 配下)
-│   ├── batch/       # 毎分実行バッチ (EventBridge)
+│   ├── batch/       # バッチ (EventBridge)。毎分のアラーム処理と、話題のニュース作り (trendnews)
 │   └── worker/      # プッシュ通知送信 (SQS Consumer)
 ├── admin/           # 管理画面 (Next.js 16, 静的エクスポート)
-├── ios/             # iOSアプリ (SwiftUI, iOS 16+)
+├── ios/             # iOSアプリ (SwiftUI, iOS 18+, XcodeGen)
 ├── terraform/       # インフラ (AWS)
 │   └── environment/ # development/staging/production/management
 ├── lp/              # ランディングページ
 ├── local/           # Moto開発環境 (DynamoDB/SQS/SNS)
 ├── storage/         # キャラクターリソース
-└── documents/       # ドキュメント
+└── docs/            # ドキュメント (MkDocs。mkdocs.yml で GitHub Pages に公開)
 ```
 
 ## 技術スタック
 
-**iOS**: Swift, SwiftUI, Combine, Firebase, CallKit
-**Backend**: Go 1.25, Echo v4, AWS SDK v2
+**iOS**: Swift, SwiftUI, Combine, Firebase, CallKit, PushKit, WKWebView + three-vrm (VRM 表示)
+**Backend**: Go 1.27, Echo v4, AWS SDK v2
+**外部サービス**: Gemini (Vertex AI。会話・音声合成・ニュース選び), WeatherKit REST (天気), X API News (話題のニュース), RevenueCat (課金)
 **Infra**: Lambda, DynamoDB, SQS, SNS, S3, CloudFront, API Gateway, EventBridge
 **IaC**: Terraform
 **CI/CD**: GitHub Actions (OIDC認証)
@@ -34,9 +35,16 @@ charalarm/
 
 ```
 iOS App → API Gateway → Lambda (API) → DynamoDB
+                          │  /chat, /tts → Gemini (Vertex AI) / WeatherKit
                                           ↓
 EventBridge (毎分) → Lambda (Batch) → SQS → Lambda (Worker) → SNS → iOS VoIP Push
+EventBridge (1日数回) → Lambda (Batch, job=trendNews) → X API + Gemini → S3 (trend-news/ja.json, en.json)
 ```
+
+- 会話 (`/chat`) は同期。会話の履歴・記憶・予定の中身は端末にだけ置き、サーバには保存しない
+- アラームごとの電話の設定 (`call`: 長さ・予定・天気・ニュース) は alarm-table に置き、VoIP の中身 (値はすべて文字列) で届ける
+- Secrets は SSM パラメータに置き、Lambda の環境変数に `ssm://` で書くと起動時に読む (application/environment)
+- GCP (Vertex AI) へは Workload Identity Federation で入る。GCP 側の設定は別リポジトリ gcp-iac
 
 ## 主要コマンド
 
@@ -53,8 +61,12 @@ cd application && make build-worker-image
 cd local && docker-compose up -d
 cd local && ./createTable.sh && ./createQueue.sh
 
-# iOS (Mint でツール管理)
+# iOS (Mint でツール管理。プロジェクトは XcodeGen で作る)
 cd ios && mint bootstrap
+cd ios && mint run xcodegen generate
+
+# ドキュメント
+mkdocs serve
 ```
 
 ## 環境
@@ -62,7 +74,7 @@ cd ios && mint bootstrap
 | 環境 | Bundle ID | API | 管理画面 |
 |------|-----------|-----|----------|
 | Development | com.swiswiswift.sandbox.charalarm | api.charalarm-development.swiswiswift.com | admin.charalarm-development.swiswiswift.com |
-| Staging | com.charalarm.staging | api.charalarm-staging.com | - |
+| Staging | com.charalarm.staging | api.charalarm-staging.swiswiswift.com | - |
 | Production | com.swiswiswift.CharacterAlarm | api3.charalarm.com | - |
 
 ## ブランチ戦略
@@ -77,9 +89,14 @@ Basic認証: `userID:authToken` (クライアント生成UUID、Base64エンコ�
 
 ## DynamoDBテーブル
 
-- `user-table`: ユーザー情報、プッシュトークン
-- `alarm-table`: アラーム設定
-- `chara-table`: キャラクター情報
+- `user-table`: ユーザー情報、プッシュトークン、プレミアム
+- `alarm-table`: アラーム設定 (電話の設定 `call` を含む)
+- `chara-table`: キャラクター情報 (見た目・会話・声の設定を含む)
+- `chara-tap-line-table`: キャラをタップしたときのセリフ (管理画面で作る)
+- `news-table`: アプリのお知らせ (管理画面で作る)
+- `usage-table`: 会話・音声合成の回数 (上限チェック用、TTL で消える)
+
+詳しくは docs/development/dynamodb.md
 
 ## コード品質
 
