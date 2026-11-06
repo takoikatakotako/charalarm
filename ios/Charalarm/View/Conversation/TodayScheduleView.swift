@@ -87,14 +87,17 @@ struct TodayScheduleView: View {
     private var speechPanel: some View {
         VStack(alignment: .leading, spacing: 8) {
             if !viewState.text.isEmpty {
-                Text(viewState.text)
-                    .font(.callout)
-                    .lineLimit(5)
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 8)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
-                    .shadow(color: .black.opacity(0.08), radius: 6, y: 2)
+                // 予定を読み上げるセリフは長く、キャラの左の狭い幅では何行にもなる。最後まで読めるよう行数で切らず、
+                // 予定の一覧を隠しすぎないよう高さを抑えて、入りきらなければ中をスクロールする
+                ViewThatFits(in: .vertical) {
+                    speechText
+                    ScrollView {
+                        speechText
+                    }
+                }
+                .frame(maxHeight: Self.speechMaxHeight)
+                .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                .shadow(color: .black.opacity(0.08), radius: 6, y: 2)
             }
             HStack(spacing: 10) {
                 playStopButton
@@ -112,6 +115,18 @@ struct TodayScheduleView: View {
         // キャラの幅だけ右を空ける
         .padding(.trailing, 150)
         .padding(.bottom, 8)
+    }
+
+    /// セリフの吹き出しの高さの上限。これより長いセリフは中をスクロールする
+    private static let speechMaxHeight: CGFloat = 220
+
+    private var speechText: some View {
+        Text(viewState.text)
+            .font(.callout)
+            .fixedSize(horizontal: false, vertical: true)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+            .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     /// 話しているあいだは停止、止まっていれば再生（もう一度読んでもらう）
