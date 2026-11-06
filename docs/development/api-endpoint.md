@@ -45,6 +45,7 @@ AUTH="Authorization: Basic $(echo -n $USER_ID:$AUTH_TOKEN | base64)"
 | GET | /news/list | | お知らせの一覧 |
 | POST | /chat | 🔒 | キャラとの会話 |
 | POST | /tts | 🔒 | キャラの声で読み上げ |
+| POST | /weather | 🔒 | 地域の今日の天気 (トップに出す) |
 | POST | /webhook/revenuecat | (秘密のヘッダ) | RevenueCat からの課金の通知 |
 
 ---
@@ -262,6 +263,21 @@ curl -X POST $API/alarm/delete -H "$AUTH" -H 'Content-Type: application/json' \
 ```json
 { "charaID": "com.charalarm.yui", "text": "おはよう！" }
 ```
+
+## POST: /weather 🔒
+
+地域の今日の天気 (WeatherKit)。アプリのトップに出します。地域は URL に入れるとアクセスログに残るので、ボディで送ります。
+サーバは地域ごとに 1 時間キャッシュします。WeatherKit の設定がない環境では 503 です。
+
+```json
+{ "region": "13" }
+```
+
+```json
+{ "region": "13", "conditionCode": "PartlyCloudy", "temperatureMax": 18.2, "temperatureMin": 9.4, "precipitationChance": 0.1 }
+```
+
+アプリは `conditionCode` で天気の絵を決めます。画面に出すときは Apple Weather の表記とデータ提供元のページへのリンクを添えます (WeatherKit の利用条件)。
 
 ## POST: /webhook/revenuecat
 

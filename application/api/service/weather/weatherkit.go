@@ -33,6 +33,8 @@ type Forecast struct {
 	Region Region
 	// Condition は天気 (例: 晴れ時々くもり)。分からなければ空。
 	Condition string
+	// ConditionCode は WeatherKit の天気のコード (例: Clear, Rain)。アプリはこれで絵と文言を決める。
+	ConditionCode string
 	// TemperatureMax / TemperatureMin は今日の最高・最低気温 (℃)。
 	TemperatureMax float64
 	TemperatureMin float64
@@ -148,6 +150,7 @@ func (c *Client) fetch(ctx context.Context, region Region, now time.Time) (Forec
 	return Forecast{
 		Region:              region,
 		Condition:           conditionNames[day.ConditionCode],
+		ConditionCode:       day.ConditionCode,
 		TemperatureMax:      day.TemperatureMax,
 		TemperatureMin:      day.TemperatureMin,
 		PrecipitationChance: day.PrecipitationChance,
