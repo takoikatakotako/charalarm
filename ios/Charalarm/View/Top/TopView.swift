@@ -36,10 +36,15 @@ struct TopView: View {
             }
 
             VStack(spacing: 0) {
-                // 上: 今日の予定・お知らせ
+                // 上: 天気・今日の予定・お知らせ
                 HStack(spacing: 8) {
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 8) {
+                            // 今日の天気。押すと地域を選べる
+                            TopWeatherMenu(weather: viewState.todayWeather, region: viewState.weatherRegion) { region in
+                                viewState.selectWeatherRegion(region)
+                            }
+
                             // キャラが今日の予定を読み上げる
                             Button {
                                 Task {

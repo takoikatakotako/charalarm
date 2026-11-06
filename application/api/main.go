@@ -110,6 +110,10 @@ func main() {
 		}
 		chatService.Weather = weatherClient
 	}
+	weatherService := service.Weather{
+		AWS:        awsRepository,
+		Forecaster: chatService.Weather,
+	}
 	ttsEnv := environment.LoadTTSEnvironment()
 	textToSpeechService := service.TextToSpeech{
 		AWS:   awsRepository,
@@ -149,6 +153,9 @@ func main() {
 	}
 	textToSpeechHandler := handler.TextToSpeech{
 		Service: textToSpeechService,
+	}
+	weatherHandler := handler.Weather{
+		Service: weatherService,
 	}
 	revenueCatHandler := handler.RevenueCat{
 		Service:       revenueCatService,
@@ -197,6 +204,9 @@ func main() {
 
 	// tts (キャラの発話を音声にする)
 	e.POST("/tts", textToSpeechHandler.TextToSpeechPost)
+
+	// weather (トップに出す今日の天気。地域は URL に入れずボディで受け取る)
+	e.POST("/weather", weatherHandler.WeatherPost)
 
 	// webhook (RevenueCat からの購入・更新・期限切れの知らせ)
 	e.POST("/webhook/revenuecat", revenueCatHandler.WebhookPost)

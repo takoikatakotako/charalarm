@@ -101,6 +101,13 @@ struct TopConversationChara: Identifiable {
     /// タップしたときのセリフ（吹き出しは tapLinePlayer.text）
     let tapLinePlayer = TapLinePlayer()
 
+    /// 天気の地域（設定の「天気の地域」と同じ値。トップからも変えられる）
+    var weatherRegion: WeatherRegion? = UserDefaultsRepository().getWeatherRegion()
+    /// トップに出す今日の天気。地域を選んでいないか、取れなければ nil
+    var todayWeather: TodayWeather?
+    /// 天気を取った時刻（何度も取り直さないため）
+    var weatherFetchedAt: Date?
+
     func onAppear() {
         Task {
             let granted = (try? await UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge])) ?? false
@@ -112,6 +119,7 @@ struct TopConversationChara: Identifiable {
         // 設定の画面で変えたかもしれないので読み直す
         conversationLanguage = userDefaultsRepository.getConversationLanguage()
         checkUnreadNews()
+        refreshWeather()
 
         guard let charaID = userDefaultsRepository.getCharaID() else {
             self.alert = .failedToGetCharacterSelectionInformation

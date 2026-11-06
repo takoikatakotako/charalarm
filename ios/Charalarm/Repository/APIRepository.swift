@@ -180,3 +180,14 @@ private extension APIRepository {
         return url
     }
 }
+
+extension APIRepository {
+    /// 地域の今日の天気。地域はボディで送る（URL に入れるとアクセスログに残る）
+    func fetchTodayWeather(userID: String, authToken: String, region: String) async throws -> TodayWeather {
+        let path = "/weather"
+        let url = try createURL(path: path)
+        let requestHeader = APIHeader.createAuthorizationRequestHeader(userID: userID, authToken: authToken)
+        let requestBody: Request? = WeatherRequest(region: region)
+        return try await APIClient().request(url: url, httpMethod: .post, requestHeader: requestHeader, requestBody: requestBody)
+    }
+}
