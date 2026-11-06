@@ -25,6 +25,8 @@ final class ConversationViewState: NSObject {
     var charaImage: UIImage?
     /// 「今日の予定」のとき、画面に出す今日の予定（それ以外は nil）
     var todayEvents: [TodayEvent]?
+    /// 聞いているあいだのマイクの音の大きさ (0〜1)。通話画面で、声が届いていることを見せる
+    var micLevel: Float = 0
 
     // MARK: - Constants
 

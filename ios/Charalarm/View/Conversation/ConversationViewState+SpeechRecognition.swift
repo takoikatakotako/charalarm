@@ -152,8 +152,25 @@ extension ConversationViewState {
         }
         input.installTap(onBus: 0, bufferSize: 1024, format: format) { [weak self] buffer, _ in
             self?.request?.append(buffer)
+            let level = Self.level(of: buffer)
+            Task { @MainActor in
+                self?.micLevel = level
+            }
         }
         return true
+    }
+
+    /// 音の大きさを 0〜1 にする。-50dB 以下を 0、0dB を 1 とする
+    nonisolated static func level(of buffer: AVAudioPCMBuffer) -> Float {
+        guard let samples = buffer.floatChannelData?[0], buffer.frameLength > 0 else { return 0 }
+        let count = Int(buffer.frameLength)
+        var sum: Float = 0
+        for index in 0..<count {
+            sum += samples[index] * samples[index]
+        }
+        let rms = (sum / Float(count)).squareRoot()
+        let decibels = 20 * log10(max(rms, 0.000_001))
+        return min(max((decibels + 50) / 50, 0), 1)
     }
 
     private func didRecognize(_ transcription: SFTranscription) {
@@ -233,6 +250,7 @@ extension ConversationViewState {
         silenceTimer?.invalidate()
         silenceTimer = nil
         engine.inputNode.removeTap(onBus: 0)
+        micLevel = 0
         request?.endAudio()
         task?.finish()
         request = nil
