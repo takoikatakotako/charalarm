@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// トップの上に出す今日の天気。押すと地域を選べる。
+/// トップの上に出す今日の天気（天気の絵と、降りそうな日は降水確率）。押すと地域を選べる。
 /// WeatherKit の利用条件にしたがい、Apple Weather の表記を出し、メニューにデータ提供元のページを置く
 struct TopWeatherMenu: View {
     let weather: TodayWeather?
@@ -34,8 +34,6 @@ struct TopWeatherMenu: View {
         HStack(spacing: 6) {
             Image(systemName: weather.symbolName)
                 .symbolRenderingMode(.multicolor)
-            Text(verbatim: "\(Int(weather.temperatureMax.rounded()))° / \(Int(weather.temperatureMin.rounded()))°")
-                .monospacedDigit()
             if let percent = weather.notablePrecipitationPercent {
                 HStack(spacing: 2) {
                     Image(systemName: "umbrella.fill")
@@ -44,8 +42,8 @@ struct TopWeatherMenu: View {
                 }
             }
             Text(verbatim: "\u{F8FF}Weather")
-                .font(.caption2.weight(.semibold))
-                .opacity(0.8)
+                .font(.system(size: 9, weight: .semibold))
+                .opacity(0.7)
         }
         .font(.footnote.bold())
         .foregroundStyle(Color.white)
@@ -55,6 +53,6 @@ struct TopWeatherMenu: View {
         .frame(minHeight: 40)
         .background(.black.opacity(0.3), in: Capsule())
         .accessibilityElement(children: .combine)
-        .accessibilityLabel(Text(verbatim: "\(region?.displayName ?? "") \(Int(weather.temperatureMax.rounded()))° / \(Int(weather.temperatureMin.rounded()))°, Apple Weather"))
+        .accessibilityLabel(Text(verbatim: "\(region?.displayName ?? "") \(weather.notablePrecipitationPercent.map { "☂ \($0)%" } ?? ""), Apple Weather"))
     }
 }
