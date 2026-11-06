@@ -161,16 +161,18 @@ struct ConversationView: View {
             .accessibilityHidden(true)
     }
 
-    /// 字幕。話している言葉の最後のほうを出す
+    /// 字幕。話している言葉の最後のほうを出す。
+    /// 何行にもなるので左寄せにし、文の長さで枠が伸び縮みしないよう横幅いっぱいにする
     @ViewBuilder
     private var callCaption: some View {
         if !viewState.text.isEmpty {
             Text(viewState.text)
                 .font(.callout)
                 .foregroundStyle(.white)
-                .multilineTextAlignment(.center)
+                .multilineTextAlignment(.leading)
                 .lineLimit(4)
                 .truncationMode(.head)
+                .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.horizontal, 16)
                 .padding(.vertical, 10)
                 .background(.black.opacity(0.45), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
