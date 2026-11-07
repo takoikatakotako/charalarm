@@ -115,6 +115,7 @@ extension ConversationViewState {
                 }
             }
             voicePlayerNode.play()
+            mouthTrack = VRMMouthTrack(buffer: buffer)
         }
     }
 
@@ -127,6 +128,7 @@ extension ConversationViewState {
     }
 
     func finishPlayback() {
+        mouthTrack = nil
         playbackContinuation?.resume()
         playbackContinuation = nil
     }

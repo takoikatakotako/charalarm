@@ -7,6 +7,8 @@ struct CharaVRMView: View {
     let modelFileURL: URL
     var framing: VRMWebView.Framing = .bust
     var expression: VRMExpression = .neutral
+    /// 口パク。声を流しているあいだだけ入れる
+    var mouthTrack: VRMMouthTrack?
 
     @State private var localModelFileURL: URL?
     @State private var isLoaded = false
@@ -19,6 +21,7 @@ struct CharaVRMView: View {
                     modelFileURL: localModelFileURL,
                     framing: framing,
                     expression: expression,
+                    mouthTrack: mouthTrack,
                     onLoaded: { isLoaded = true },
                     onError: { _ in failed = true }
                 )

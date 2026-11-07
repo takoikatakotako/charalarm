@@ -14,6 +14,8 @@ struct VRMWebView: UIViewRepresentable {
     let modelFileURL: URL
     var framing: Framing = .bust
     var expression: VRMExpression = .neutral
+    /// 口パク。声を流しているあいだだけ入れる
+    var mouthTrack: VRMMouthTrack?
     var onLoaded: () -> Void = {}
     var onError: (String) -> Void = { _ in }
 
@@ -30,6 +32,7 @@ struct VRMWebView: UIViewRepresentable {
         let webView = WKWebView(frame: .zero, configuration: configuration)
         context.coordinator.webView = webView
         context.coordinator.show(expression)
+        context.coordinator.speak(mouthTrack)
         webView.isOpaque = false
         webView.backgroundColor = .clear
         webView.scrollView.backgroundColor = .clear
@@ -56,6 +59,7 @@ struct VRMWebView: UIViewRepresentable {
 
     func updateUIView(_ webView: WKWebView, context: Context) {
         context.coordinator.show(expression)
+        context.coordinator.speak(mouthTrack)
     }
 
     static func dismantleUIView(_ webView: WKWebView, coordinator: Coordinator) {
@@ -69,6 +73,7 @@ struct VRMWebView: UIViewRepresentable {
         private var isLoaded = false
         /// 出す表情。モデルを読み込む前に決まったら、読み込み終えてから出す
         private var expression: VRMExpression = .neutral
+        private var mouthTrack: VRMMouthTrack?
 
         init(onLoaded: @escaping () -> Void, onError: @escaping (String) -> Void) {
             self.onLoaded = onLoaded
@@ -79,6 +84,14 @@ struct VRMWebView: UIViewRepresentable {
             guard expression != self.expression else { return }
             self.expression = expression
             applyExpression()
+        }
+
+        /// 口パクを始める・止める。読み込む前の声は、口を動かさずに流す
+        func speak(_ mouthTrack: VRMMouthTrack?) {
+            guard mouthTrack?.id != self.mouthTrack?.id else { return }
+            self.mouthTrack = mouthTrack
+            guard isLoaded else { return }
+            webView?.evaluateJavaScript(mouthTrack?.script ?? "stopSpeaking()")
         }
 
         private func applyExpression() {

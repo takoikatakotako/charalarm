@@ -151,7 +151,7 @@ struct TodayScheduleView: View {
     @ViewBuilder
     private var charaView: some View {
         if let vrmModelFileURL = viewState.vrmModelFileURL {
-            CharaVRMView(charaID: viewState.charaID, modelFileURL: vrmModelFileURL, framing: .bust, expression: viewState.expression)
+            CharaVRMView(charaID: viewState.charaID, modelFileURL: vrmModelFileURL, framing: .bust, expression: viewState.expression, mouthTrack: viewState.mouthTrack)
         } else if let charaImage = viewState.charaImage {
             // 立ち絵は全身なので、上のほう（顔から胸）を出す
             Image(uiImage: charaImage)
