@@ -47,7 +47,7 @@ API とリソースの URL は `project.yml` の `API_ENDPOINT`・`RESOURCE_ENDP
 ### VRM
 
 VRM のキャラは `CharaVRMView` (WKWebView) で `VRMViewer/` の three-vrm を動かして表示します。
-表情・瞬き・口の動きは `viewer.js` にあります。モデルの軽量化は [結衣](chara-yui.md) を参照。
+表情・瞬きは `viewer.js` にあります（発話に合わせた口パクはまだ無い: #250）。モデルの軽量化は [結衣](chara-yui.md) を参照。
 
 ## Lint とテスト
 
