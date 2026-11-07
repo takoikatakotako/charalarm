@@ -16,8 +16,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     private var callProvider: CXProvider?
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+        // App Check（App Attest）。FirebaseApp.configure() より先に決める
+        AppCheckRepository.configure()
         // Use Firebase library to configure APIs.
         FirebaseApp.configure()
+        AppCheckRepository.prefetch()
 
         // Initialize the Google Mobile Ads SDK.
         MobileAds.shared.start()

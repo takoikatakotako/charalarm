@@ -106,3 +106,21 @@ variable "weatherkit_private_key_ssm_parameter_name" {
   type    = string
   default = ""
 }
+
+# Firebase App Check (本物のアプリからのリクエストか)。
+# project_number は Firebase のプロジェクト番号 (GoogleService-Info.plist の GCM_SENDER_ID)。空なら確かめない
+variable "app_check_project_number" {
+  type    = string
+  default = ""
+}
+
+# off / monitor (記録だけ) / enforce (/chat・/tts・/weather で弾く。/user/signup は 4.x のため記録だけ)
+variable "app_check_mode" {
+  type    = string
+  default = "off"
+
+  validation {
+    condition     = contains(["off", "monitor", "enforce"], var.app_check_mode)
+    error_message = "app_check_mode は off / monitor / enforce のどれか"
+  }
+}

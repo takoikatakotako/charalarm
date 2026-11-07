@@ -11,6 +11,7 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/takoikatakotako/charalarm/api/handler"
 	"github.com/takoikatakotako/charalarm/api/service"
+	"github.com/takoikatakotako/charalarm/api/service/appcheck"
 	"github.com/takoikatakotako/charalarm/api/service/llm"
 	"github.com/takoikatakotako/charalarm/api/service/tts"
 	"github.com/takoikatakotako/charalarm/api/service/vertex"
@@ -162,6 +163,13 @@ func main() {
 		Authorization: revenueCatEnv.WebhookAuthorization,
 	}
 
+	// App Check (本物のアプリからのリクエストか)。プロジェクト番号が無ければ使わない
+	appCheckEnv := environment.LoadAppCheckEnvironment()
+	appCheck := handler.AppCheck{Mode: appCheckEnv.Mode}
+	if appCheckEnv.ProjectNumber != "" {
+		appCheck.Verifier = appcheck.NewVerifier(appCheckEnv.ProjectNumber)
+	}
+
 	e := echo.New()
 	// アクセスログには IP アドレスや User-Agent を出さない (個人情報をサーバに残さないため)
 	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
@@ -179,7 +187,7 @@ func main() {
 
 	// user
 	e.GET("/user/info", userHandler.UserInfoGet)
-	e.POST("/user/signup", userHandler.UserSignupPost)
+	e.POST("/user/signup", userHandler.UserSignupPost, appCheck.Monitor)
 	e.POST("/user/withdraw", userHandler.UserWithdrawPost)
 
 	// alarm
@@ -200,13 +208,13 @@ func main() {
 	e.GET("/news/list", newsHandler.NewsListGet)
 
 	// chat (ずんだもんとの会話)
-	e.POST("/chat", chatHandler.ChatPost)
+	e.POST("/chat", chatHandler.ChatPost, appCheck.Require)
 
 	// tts (キャラの発話を音声にする)
-	e.POST("/tts", textToSpeechHandler.TextToSpeechPost)
+	e.POST("/tts", textToSpeechHandler.TextToSpeechPost, appCheck.Require)
 
 	// weather (トップに出す今日の天気。地域は URL に入れずボディで受け取る)
-	e.POST("/weather", weatherHandler.WeatherPost)
+	e.POST("/weather", weatherHandler.WeatherPost, appCheck.Require)
 
 	// webhook (RevenueCat からの購入・更新・期限切れの知らせ)
 	e.POST("/webhook/revenuecat", revenueCatHandler.WebhookPost)
