@@ -1,6 +1,7 @@
 // キャラの VRM を表示する。Swift (VRMWebView) から ?model=<URL>&framing=<bust|full> で開く。
 // 読み込みの結果は webkit.messageHandlers.vrm に { type: "loaded" | "error", message } で返す。
 // 表情は Swift から setExpression('happy') のように変える。
+// 口パクは声を流すときに startSpeaking([口の開き具合...], コマ数/秒)、止めるときに stopSpeaking() を呼ぶ。
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { VRMLoaderPlugin, VRMUtils } from '@pixiv/three-vrm';
@@ -106,10 +107,44 @@ function updateEmotion(delta) {
     if (!expressions.getExpression(name)) continue;
     const weight = emotionWeights[name] ?? 0;
     emotionWeights[name] = weight + ((name === emotion ? 1 : 0) - weight) * rate;
-    expressions.setValue(name, emotionWeights[name] * (1 - blinkValue));
+    // 笑顔などは口の動きも弱める (overrideMouth) ので、口を開けているあいだは少し弱める
+    expressions.setValue(name, emotionWeights[name] * (1 - blinkValue) * (1 - mouthValue * 0.5));
   }
   const smileExpression = smileExpressionNames.find((name) => expressions.getExpression(name));
-  if (smileExpression) ease(smileExpression, smileWeights[emotion] ?? 0);
+  // 微笑みの口は、口を開けているあいだ弱める (口の形がぶつからないように)
+  if (smileExpression) ease(smileExpression, (smileWeights[emotion] ?? 0) * (1 - mouthValue));
+}
+
+// 口パク。Swift が声から作った口の開き具合を、流し始めた時刻から順に使う。母音の形は出さず「あ」の口で開け閉めする
+let mouthTrack = null;
+let mouthStartedAt = 0;
+// いまの口の開き具合 (0〜1)。表情と微笑みの口を弱めるのにも使う
+let mouthValue = 0;
+const mouthMaxOpen = 0.8;
+window.startSpeaking = (levels, framesPerSecond) => {
+  mouthTrack = { levels, framesPerSecond };
+  mouthStartedAt = performance.now();
+};
+window.stopSpeaking = () => {
+  mouthTrack = null;
+};
+
+function updateMouth(delta) {
+  const expressions = vrm.expressionManager;
+  if (!expressions?.getExpression('aa')) return;
+  let target = 0;
+  if (mouthTrack) {
+    const frame = Math.floor(((performance.now() - mouthStartedAt) / 1000) * mouthTrack.framesPerSecond);
+    if (frame < mouthTrack.levels.length) {
+      target = mouthTrack.levels[frame];
+    } else {
+      mouthTrack = null;
+    }
+  }
+  // 閉じるときは開くときより少しゆっくりにして、パクパクしすぎないようにする
+  const rate = Math.min(1, delta * (target > mouthValue ? 30 : 18));
+  mouthValue += (target - mouthValue) * rate;
+  expressions.setValue('aa', mouthValue * mouthMaxOpen);
 }
 
 function animate() {
@@ -117,6 +152,7 @@ function animate() {
   const delta = Math.min(clock.getDelta(), 0.1);
   if (vrm) {
     idle(clock.elapsedTime);
+    updateMouth(delta);
     updateEmotion(delta);
     vrm.update(delta);
   }

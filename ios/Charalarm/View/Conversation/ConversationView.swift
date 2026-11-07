@@ -93,7 +93,7 @@ struct ConversationView: View {
                     .clipped()
 
                 if let vrmModelFileURL = viewState.vrmModelFileURL {
-                    CharaVRMView(charaID: viewState.charaID, modelFileURL: vrmModelFileURL, framing: .bust, expression: viewState.expression)
+                    CharaVRMView(charaID: viewState.charaID, modelFileURL: vrmModelFileURL, framing: .bust, expression: viewState.expression, mouthTrack: viewState.mouthTrack)
                         .frame(width: proxy.size.width, height: proxy.size.height)
                 } else if let charaImage = viewState.charaImage {
                     Image(uiImage: charaImage)
