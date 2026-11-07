@@ -19,6 +19,19 @@ struct VRMMouthTrack: Equatable {
         self.init(levels: Self.levels(of: buffer))
     }
 
+    /// 音声ファイルのデータ (caf・wav など) から作る。読めなければ nil
+    init?(audioData: Data) {
+        let fileURL = FileManager.default.temporaryDirectory.appendingPathComponent("mouth-\(UUID().uuidString)")
+        defer { try? FileManager.default.removeItem(at: fileURL) }
+        guard (try? audioData.write(to: fileURL)) != nil,
+              let file = try? AVAudioFile(forReading: fileURL),
+              let buffer = AVAudioPCMBuffer(pcmFormat: file.processingFormat, frameCapacity: AVAudioFrameCount(file.length)),
+              (try? file.read(into: buffer)) != nil else {
+            return nil
+        }
+        self.init(buffer: buffer)
+    }
+
     /// コマごとの音の大きさを、その声のいちばん大きいところを 1 として並べる。
     /// 小さい音（息や残響）では口を開けない
     static func levels(of buffer: AVAudioPCMBuffer) -> [Float] {
