@@ -20,7 +20,7 @@ struct APIClient {
 
         var urlRequest = URLRequest(url: url)
         urlRequest.httpMethod = httpMethod.rawValue
-        urlRequest.allHTTPHeaderFields = requestHeader
+        urlRequest.allHTTPHeaderFields = requestHeader.merging(await AppCheckRepository.header()) { current, _ in current }
         if let requestBody = requestBody, let httpBody = try? JSONEncoder().encode(requestBody) {
             urlRequest.httpBody = httpBody
         }
@@ -49,7 +49,7 @@ struct APIClient {
     func requestData(url: URL, httpMethod: HttpMethod, requestHeader: [String: String], requestBody: Encodable?) async throws -> Data {
         var urlRequest = URLRequest(url: url)
         urlRequest.httpMethod = httpMethod.rawValue
-        urlRequest.allHTTPHeaderFields = requestHeader
+        urlRequest.allHTTPHeaderFields = requestHeader.merging(await AppCheckRepository.header()) { current, _ in current }
         if let requestBody = requestBody, let httpBody = try? JSONEncoder().encode(requestBody) {
             urlRequest.httpBody = httpBody
         }
@@ -69,7 +69,7 @@ struct APIClient {
     func request(url: URL, httpMethod: HttpMethod, requestHeader: [String: String], requestBody: Encodable?) async throws {
         var urlRequest = URLRequest(url: url)
         urlRequest.httpMethod = httpMethod.rawValue
-        urlRequest.allHTTPHeaderFields = requestHeader
+        urlRequest.allHTTPHeaderFields = requestHeader.merging(await AppCheckRepository.header()) { current, _ in current }
         if let requestBody = requestBody, let httpBody = try? JSONEncoder().encode(requestBody) {
             urlRequest.httpBody = httpBody
         }

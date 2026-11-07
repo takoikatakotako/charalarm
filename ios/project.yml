@@ -70,6 +70,8 @@ _commonDependencies: &commonDependencies
     product: FirebaseAuth
   - package: Firebase
     product: FirebaseCrashlytics
+  - package: Firebase
+    product: FirebaseAppCheck
   - package: KeychainAccess
     product: KeychainAccess
   - package: SDWebImageSwiftUI

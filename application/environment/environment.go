@@ -147,6 +147,22 @@ func intEnv(key string, defaultValue int) int {
 	return n
 }
 
+// AppCheckEnvironment は Firebase App Check の設定。
+type AppCheckEnvironment struct {
+	// ProjectNumber は Firebase のプロジェクト番号。空なら App Check を使わない。
+	ProjectNumber string
+	// Mode は off / monitor (記録だけ) / enforce (/chat などで弾く)。
+	Mode string
+}
+
+// LoadAppCheckEnvironment は App Check の設定を環境変数から読む。
+func LoadAppCheckEnvironment() AppCheckEnvironment {
+	return AppCheckEnvironment{
+		ProjectNumber: os.Getenv("CHARALARM_APP_CHECK_PROJECT_NUMBER"),
+		Mode:          os.Getenv("CHARALARM_APP_CHECK_MODE"),
+	}
+}
+
 // WeatherKitEnvironment は天気 (WeatherKit REST API) を取るための設定。どれかが空なら天気を使わない。
 type WeatherKitEnvironment struct {
 	TeamID    string

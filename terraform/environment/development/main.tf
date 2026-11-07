@@ -70,6 +70,10 @@ module "api" {
   weatherkit_service_id                     = "com.swiswiswift.charalarm.weatherkit"
   weatherkit_key_id                         = "F965S53HW8"
   weatherkit_private_key_ssm_parameter_name = "/charalarm/dev/weatherkit-private-key"
+
+  # Firebase App Check。まずは記録だけ (ログの app check の result を見て、enforce にする)
+  app_check_project_number = "983259461023"
+  app_check_mode           = "monitor"
 }
 
 

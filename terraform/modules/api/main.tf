@@ -27,6 +27,9 @@ resource "aws_lambda_function" "api_lambda_function" {
       "CHARALARM_WEATHERKIT_SERVICE_ID"  = var.weatherkit_service_id,
       "CHARALARM_WEATHERKIT_KEY_ID"      = var.weatherkit_key_id,
       "CHARALARM_WEATHERKIT_PRIVATE_KEY" = var.weatherkit_private_key_ssm_parameter_name == "" ? "" : "ssm://${var.weatherkit_private_key_ssm_parameter_name}"
+      # Firebase App Check。プロジェクト番号が空なら確かめない
+      "CHARALARM_APP_CHECK_PROJECT_NUMBER" = var.app_check_project_number,
+      "CHARALARM_APP_CHECK_MODE"           = var.app_check_mode
     }
   }
 

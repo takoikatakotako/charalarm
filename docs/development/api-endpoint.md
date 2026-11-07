@@ -22,6 +22,15 @@ AUTH_TOKEN=038a5e28-15ce-46b4-8f46-4934202faa85
 AUTH="Authorization: Basic $(echo -n $USER_ID:$AUTH_TOKEN | base64)"
 ```
 
+### App Check
+
+アプリは Firebase App Check (中身は App Attest) のトークンを `X-Firebase-AppCheck` ヘッダに付けます。
+サーバは Firebase の公開鍵で確かめ、結果をログ (`app check` の `result`) に出します。
+
+- `CHARALARM_APP_CHECK_MODE` が `monitor` なら記録するだけ、`enforce` なら `/chat`・`/tts`・`/weather` で正しいトークンの無いリクエストを 401 で弾く
+- `/user/signup` は 4.x のアプリ (トークンを送らない) も呼ぶので、`enforce` でも記録するだけ
+- Simulator は App Attest を使えないので、デバッグ用のトークン (Xcode のコンソールに出る) を Firebase のコンソールに登録して使う
+
 成功・失敗だけを返すエンドポイントは `{"message": "..."}` を返します。認証に失敗すると 401 です。
 
 ## 一覧
