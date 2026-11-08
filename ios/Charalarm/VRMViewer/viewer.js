@@ -107,20 +107,22 @@ function updateEmotion(delta) {
     if (!expressions.getExpression(name)) continue;
     const weight = emotionWeights[name] ?? 0;
     emotionWeights[name] = weight + ((name === emotion ? 1 : 0) - weight) * rate;
-    // 笑顔などは口の動きも弱める (overrideMouth) ので、口を開けているあいだは少し弱める
-    expressions.setValue(name, emotionWeights[name] * (1 - blinkValue) * (1 - mouthValue * 0.5));
+    // 笑顔などは口の動きも弱める (overrideMouth) ので、話しているあいだは弱める
+    expressions.setValue(name, emotionWeights[name] * (1 - blinkValue) * (1 - speakingValue * 0.7));
   }
   const smileExpression = smileExpressionNames.find((name) => expressions.getExpression(name));
-  // 微笑みの口は、口を開けているあいだ弱める (口の形がぶつからないように)
-  if (smileExpression) ease(smileExpression, (smileWeights[emotion] ?? 0) * (1 - mouthValue));
+  // 微笑みの口は口の動きを打ち消すので、話しているあいだは出さない
+  if (smileExpression) ease(smileExpression, (smileWeights[emotion] ?? 0) * (1 - speakingValue));
 }
 
 // 口パク。Swift が声から作った口の開き具合を、流し始めた時刻から順に使う。母音の形は出さず「あ」の口で開け閉めする
 let mouthTrack = null;
 let mouthStartedAt = 0;
-// いまの口の開き具合 (0〜1)。表情と微笑みの口を弱めるのにも使う
+// いまの口の開き具合 (0〜1)
 let mouthValue = 0;
-const mouthMaxOpen = 0.8;
+// 話しているあいだ 1 に近づく。微笑みの口や表情は口の動きを打ち消す (overrideMouth) ので、話しているあいだは弱める
+let speakingValue = 0;
+const mouthMaxOpen = 0.9;
 window.startSpeaking = (levels, framesPerSecond) => {
   mouthTrack = { levels, framesPerSecond };
   mouthStartedAt = performance.now();
@@ -144,6 +146,9 @@ function updateMouth(delta) {
   // 閉じるときは開くときより少しゆっくりにして、パクパクしすぎないようにする
   const rate = Math.min(1, delta * (target > mouthValue ? 30 : 18));
   mouthValue += (target - mouthValue) * rate;
+  // 文と文のあいだで微笑みに戻りきらないよう、話し終えてからはゆっくり戻す
+  const speakingTarget = mouthTrack ? 1 : 0;
+  speakingValue += (speakingTarget - speakingValue) * Math.min(1, delta * (speakingTarget > speakingValue ? 10 : 2));
   expressions.setValue('aa', mouthValue * mouthMaxOpen);
 }
 

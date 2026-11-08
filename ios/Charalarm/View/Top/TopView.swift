@@ -14,7 +14,8 @@ struct TopView: View {
 
             VStack(spacing: 0) {
                 if let vrmChara = viewState.vrmChara {
-                    CharaVRMView(charaID: vrmChara.charaID, modelFileURL: vrmChara.modelFileURL, framing: .bust)
+                    CharaVRMView(charaID: vrmChara.charaID, modelFileURL: vrmChara.modelFileURL, framing: .bust,
+                                 mouthTrack: viewState.tapLinePlayer.mouthTrack)
                         .id(vrmChara.charaID)
                         .padding(.top, 60)
                 } else {

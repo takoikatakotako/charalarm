@@ -6,6 +6,8 @@ import Foundation
 @MainActor @Observable final class TapLinePlayer {
     /// 流したセリフ（吹き出しに少しのあいだ出す）
     private(set) var text: String?
+    /// ボイスに合わせた口の動き。流しているあいだだけ入れる (3D のキャラの口パク)
+    private(set) var mouthTrack: VRMMouthTrack?
 
     private var lines: [TapLine] = []
     private var charaID: String?
@@ -14,6 +16,7 @@ import Foundation
     private var audioPlayer: AVAudioPlayer?
     private var hideTextTask: Task<Void, Never>?
     private var restoreCategoryTask: Task<Void, Never>?
+    private var closeMouthTask: Task<Void, Never>?
     private let repository = TapLineRepository()
     private let fileRepository: FileRepositoryProtocol = FileRepository()
 
@@ -89,6 +92,7 @@ import Foundation
         setAudioCategory(UserDefaultsRepository().getTapVoiceInSilentMode() ? .playback : .ambient)
         audioPlayer = try? AVAudioPlayer(data: data)
         audioPlayer?.play()
+        startMouth(data: data)
 
         // 流し終えたら、アプリのほかの音（着信音など）のためにマナーモードでも鳴る設定に戻す
         restoreCategoryTask?.cancel()
@@ -98,6 +102,22 @@ import Foundation
             // バックグラウンドで待っているあいだに電話に出ていたら、電話の音声カテゴリを上書きしない
             guard !Task.isCancelled, AnsweredCallStore.shared.call == nil else { return }
             self.setAudioCategory(.playback)
+        }
+    }
+
+    /// ボイスに合わせて口を動かし、流し終えたら閉じる
+    private func startMouth(data: Data) {
+        closeMouthTask?.cancel()
+        guard let audioPlayer, audioPlayer.isPlaying else {
+            mouthTrack = nil
+            return
+        }
+        mouthTrack = VRMMouthTrack(audioData: data)
+        let duration = audioPlayer.duration
+        closeMouthTask = Task {
+            try? await Task.sleep(for: .seconds(duration))
+            guard !Task.isCancelled else { return }
+            self.mouthTrack = nil
         }
     }
 
