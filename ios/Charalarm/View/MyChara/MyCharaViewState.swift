@@ -62,6 +62,14 @@ import Foundation
         return selectedPreset?.modelFileURL
     }
 
+    /// プレビューに出す立ち絵（3D の見た目がないプリセットのとき）
+    var previewImageURL: URL? {
+        guard previewModelFileURL == nil, let preset = selectedPreset else { return nil }
+        let expressions = preset.expressions
+        return (expressions["normal"] ?? expressions.values.first)?.imageFileURLs.first
+            ?? URL(string: preset.thumbnailUrlString)
+    }
+
     var canSave: Bool {
         selectedPreset != nil
             && !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty

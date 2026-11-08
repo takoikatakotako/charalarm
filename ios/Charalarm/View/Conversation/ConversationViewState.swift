@@ -274,8 +274,11 @@ final class ConversationViewState: NSObject {
         charaName = chara.name
         // 自分のキャラなら、その名前と見た目。ユーザーがキャラ詳細で選んだ見た目（なければ既定）が 3D なら、会話の画面にも出す
         let myCharaRepository = MyCharaRepository()
-        if let myChara = myCharaRepository.activeMyChara(charaID: charaID), let modelFileURL = myCharaRepository.modelFileURL(of: myChara) {
+        let myChara = myCharaRepository.activeMyChara(charaID: charaID)
+        if let myChara {
             charaName = myChara.name
+        }
+        if let myChara, let modelFileURL = myCharaRepository.modelFileURL(of: myChara) {
             vrmModelFileURL = modelFileURL
         } else if case .vrm(let modelFileURL) = chara.appearance(preferred: UserDefaultsRepository().getPreferredAppearance(charaID: charaID)) {
             vrmModelFileURL = modelFileURL

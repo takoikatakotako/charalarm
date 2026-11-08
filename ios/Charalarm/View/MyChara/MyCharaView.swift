@@ -135,6 +135,14 @@ struct MyCharaView: View {
         if let url = viewState.previewModelFileURL {
             CharaVRMView(charaID: viewState.baseCharaID, modelFileURL: url, framing: .full)
                 .id(url)
+        } else if let url = viewState.previewImageURL {
+            // 立ち絵のプリセット
+            AsyncImage(url: url) { image in
+                image.resizable().scaledToFit()
+            } placeholder: {
+                ProgressView()
+            }
+            .padding(.top, 8)
         } else {
             Image(systemName: "person.crop.circle.badge.questionmark")
                 .font(.system(size: 64))
