@@ -96,6 +96,7 @@ DynamoDB のテーブルと項目です。正は `application/infrastructure/dat
   "name": "井上結衣",
   "description": "{String}",
   "displayOrder": 1,
+  "preset": false,
   "profiles": [{ "title": "声優", "name": "{String}", "url": "{URL}" }],
   "expressions": {
     "normal": { "imageFileNames": ["normal.png"], "voiceFileNames": ["{String}"] }
@@ -119,6 +120,7 @@ DynamoDB のテーブルと項目です。正は `application/infrastructure/dat
 }
 ```
 
+- `preset`: 「自分のキャラ」の土台になるキャラ（プリセット）。キャラ一覧 (`/chara/list`) とランダムのアラームには出さず、`/chara/presets` で返す。ユーザーは見た目（このキャラの VRM か手持ちの VRM）と名前を端末で上書きし、声・性格・アラームのボイスはこのキャラのものを使う
 - `appearanceType`: `illustration` (立ち絵) か `vrm`。未設定なら立ち絵
 - `conversationType`: `none` (アラームだけ) / `voicevox` (端末で合成) / `gemini` (サーバで合成)。未設定なら古い項目から導く
 - `conversationLanguages`: 話せる言語。未設定なら日本語だけ。対応している言語は `ja` `en` `zh-Hans` `zh-Hant` `ko` `es` `fr` `de`

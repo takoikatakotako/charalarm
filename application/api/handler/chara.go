@@ -29,3 +29,12 @@ func (chara *Chara) CharaIDGet(c echo.Context) error {
 	}
 	return c.JSON(http.StatusOK, res)
 }
+
+// CharaPresetsGet は「自分のキャラ」の土台になるキャラの一覧を返す。
+func (chara *Chara) CharaPresetsGet(c echo.Context) error {
+	res, err := chara.Service.GetPresetList()
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, response.Message{Message: "Error!"})
+	}
+	return c.JSON(http.StatusOK, res)
+}

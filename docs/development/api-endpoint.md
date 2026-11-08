@@ -49,6 +49,7 @@ AUTH="Authorization: Basic $(echo -n $USER_ID:$AUTH_TOKEN | base64)"
 | POST | /alarm/delete | 🔒 | アラームを消す |
 | GET | /chara/list | | キャラの一覧 |
 | GET | /chara/id/:charaID | | キャラ 1 人 |
+| GET | /chara/presets | | 「自分のキャラ」の土台になるキャラ（プリセット） |
 | POST | /push-token/ios/push/add | 🔒 | 通常のプッシュのトークンを登録 |
 | POST | /push-token/ios/voip-push/add | 🔒 | VoIP プッシュのトークンを登録 |
 | GET | /news/list | | お知らせの一覧 |
@@ -211,6 +212,7 @@ curl -X POST $API/alarm/delete -H "$AUTH" -H 'Content-Type: application/json' \
 }
 ```
 
+- `/chara/list` には、`preset` のキャラ（「自分のキャラ」の土台）は出さない。プリセットは `GET /chara/presets` で同じ形で返す
 - `conversation` は会話できるキャラだけ。`voiceProvider` が `voicevox` なら端末で、`gemini` なら `/tts` で声を作る
 - `tapLines` はトップでキャラをタップしたときのセリフ。`when` の空の項目は条件にしない
 

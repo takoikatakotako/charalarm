@@ -2,6 +2,8 @@ import Foundation
 
 @MainActor @Observable final class ResourceDownloadViewState {
     private let charaID: String
+    /// 「自分のキャラ」として選ぶ（土台のキャラのリソースを入れ、自分のキャラの見た目で出す）
+    private let asMyChara: Bool
     private let apiRepository = APIRepository()
     private let fileRepository = FileRepository()
     private let userDefaultsRepository = UserDefaultsRepository()
@@ -11,8 +13,9 @@ import Foundation
     var progressMessage: String = ""
     var showDismissButton = false
 
-    init(charaID: String) {
+    init(charaID: String, asMyChara: Bool = false) {
         self.charaID = charaID
+        self.asMyChara = asMyChara
     }
 
     func onAppear() {
@@ -43,6 +46,7 @@ import Foundation
 
                 // キャラを更新する
                 userDefaultsRepository.setCharaDomain(charaDomain: charaID)
+                MyCharaRepository().setActive(asMyChara)
                 let userInfo: [String: Any] = [
                     NSNotification.setCharaUserInfoKeyCharaID: charaID
                 ]

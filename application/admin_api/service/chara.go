@@ -160,6 +160,7 @@ func applyCharaSettings(chara *database.Chara, settings output.CharaSettings) {
 		chara.Profiles = append(chara.Profiles, database.CharaProfile{Title: p.Title, Name: p.Name, URL: p.URL})
 	}
 	chara.DisplayOrder = settings.DisplayOrder
+	chara.Preset = settings.Preset
 	chara.AppearanceType = settings.AppearanceType
 	chara.VRMFileName = settings.VRMFileName
 	chara.ConversationType = settings.ConversationType
@@ -206,6 +207,7 @@ func toCharaOutput(c database.Chara) output.Chara {
 			Description:             c.Description,
 			Profiles:                profiles,
 			DisplayOrder:            c.DisplayOrder,
+			Preset:                  c.Preset,
 			AppearanceType:          c.AppearanceTypeOf(),
 			VRMFileName:             c.VRMFileName,
 			ConversationType:        c.ConversationTypeOf(),

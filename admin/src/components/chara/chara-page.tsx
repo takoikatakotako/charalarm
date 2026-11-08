@@ -68,6 +68,7 @@ const emptySettings: CharaSettings = {
   description: "",
   profiles: [],
   displayOrder: 0,
+  preset: false,
   appearanceType: "illustration",
   vrmFileName: "",
   conversationType: "none",
@@ -88,6 +89,7 @@ function toSettings(chara: Chara): CharaSettings {
     description: chara.description,
     profiles: chara.profiles,
     displayOrder: chara.displayOrder,
+    preset: chara.preset ?? false,
     appearanceType: chara.appearanceType,
     vrmFileName: chara.vrmFileName,
     conversationType: chara.conversationType,
@@ -346,6 +348,18 @@ function CharaForm({
         />
         <span className="font-medium">
           有効（アプリのキャラ一覧に出し、ランダムなアラームにも使う）
+        </span>
+      </label>
+
+      <label className="flex items-center gap-2">
+        <input
+          type="checkbox"
+          checked={settings.preset}
+          onChange={(e) => set("preset", e.target.checked)}
+          className="h-4 w-4"
+        />
+        <span className="font-medium">
+          「自分のキャラ」の土台にする（キャラ一覧とランダムなアラームには出さず、自分のキャラを作る画面のプリセットに出す）
         </span>
       </label>
 
@@ -634,6 +648,7 @@ function CharaCard({ chara, onSaved }: { chara: Chara; onSaved: () => void }) {
             <Badge variant="secondary">
               会話: {typeLabel(conversationOptions, chara.conversationType)}
             </Badge>
+            {chara.preset && <Badge>プリセット</Badge>}
             <Badge variant="outline">順 {chara.displayOrder}</Badge>
           </div>
         </button>

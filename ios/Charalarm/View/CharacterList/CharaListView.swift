@@ -4,14 +4,29 @@ struct CharaListView: View {
     @State var viewState: CharacterListViewState
     @Environment(\.dismiss) private var dismiss
     @Environment(\.openURL) private var openURL
+    @State private var myChara: MyChara?
+    @State private var isMyCharaActive = false
 
     var body: some View {
         NavigationStack {
-            List(viewState.charaList) { chara in
-                NavigationLink {
-                    CharaProfileView(viewState: CharaProfileViewState(chara: chara))
-                } label: {
-                    CharacterListRow(chara: chara)
+            List {
+                // 自分のキャラ（プリセットか手持ちの VRM の見た目に、好きな名前を付ける）
+                Section {
+                    NavigationLink {
+                        MyCharaView(viewState: MyCharaViewState())
+                    } label: {
+                        myCharaRow
+                    }
+                }
+
+                Section {
+                    ForEach(viewState.charaList) { chara in
+                        NavigationLink {
+                            CharaProfileView(viewState: CharaProfileViewState(chara: chara))
+                        } label: {
+                            CharacterListRow(chara: chara)
+                        }
+                    }
                 }
             }
             .safeAreaInset(edge: .bottom) {
@@ -26,6 +41,8 @@ struct CharaListView: View {
             }
             .onAppear {
                 viewState.fetchCharacters()
+                myChara = MyCharaRepository().load()
+                isMyCharaActive = MyCharaRepository().isActive
             }
             .alert("", isPresented: $viewState.showingAlert) {
                 Button(String(localized: "common-close")) {}
@@ -40,6 +57,28 @@ struct CharaListView: View {
                         dismiss()
                     }
                 }
+            }
+        }
+    }
+}
+
+extension CharaListView {
+    private var myCharaRow: some View {
+        HStack(spacing: 12) {
+            Image(systemName: myChara == nil ? "person.crop.circle.badge.plus" : "person.crop.circle.fill")
+                .font(.title2)
+                .foregroundStyle(Color.accentColor)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(myChara?.name ?? String(localized: "my-chara-create"))
+                Text(String(localized: "my-chara-title"))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            Spacer()
+            if isMyCharaActive {
+                Text(String(localized: "app-icon-selected"))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
             }
         }
     }

@@ -37,6 +37,8 @@ type charaSettingsJSON struct {
 	Description  string             `json:"description"`
 	Profiles     []charaProfileJSON `json:"profiles"`
 	DisplayOrder int                `json:"displayOrder"`
+	// Preset は「自分のキャラ」の土台になるキャラか (ふつうのキャラ一覧には出ない)
+	Preset bool `json:"preset"`
 	// 見た目のタイプ: "illustration" / "vrm"
 	AppearanceType string `json:"appearanceType"`
 	VRMFileName    string `json:"vrmFileName"`
@@ -153,6 +155,7 @@ func toCharaSettings(req charaSettingsJSON) output.CharaSettings {
 		Description:             req.Description,
 		Profiles:                profiles,
 		DisplayOrder:            req.DisplayOrder,
+		Preset:                  req.Preset,
 		AppearanceType:          req.AppearanceType,
 		VRMFileName:             req.VRMFileName,
 		ConversationType:        req.ConversationType,
@@ -199,6 +202,7 @@ func toCharaResponse(c output.Chara) charaResponse {
 			Description:             s.Description,
 			Profiles:                profiles,
 			DisplayOrder:            s.DisplayOrder,
+			Preset:                  s.Preset,
 			AppearanceType:          s.AppearanceType,
 			VRMFileName:             s.VRMFileName,
 			ConversationType:        s.ConversationType,
