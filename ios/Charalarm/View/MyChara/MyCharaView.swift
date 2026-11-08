@@ -122,8 +122,10 @@ struct MyCharaView: View {
         } message: {
             Text(String(localized: "my-chara-license-message"))
         }
-        .fullScreenCover(isPresented: $viewState.showingResourceDownloadView) {
-            ResourceDownloadView(viewState: ResourceDownloadViewState(charaID: viewState.baseCharaID, asMyChara: true))
+        .fullScreenCover(isPresented: $viewState.showingResourceDownloadView, onDismiss: {
+            viewState.selectionFinished()
+        }) {
+            ResourceDownloadView(viewState: ResourceDownloadViewState(charaID: viewState.downloadCharaID, myCharaPending: viewState.pendingSelection))
         }
         .onAppear {
             viewState.onAppear()

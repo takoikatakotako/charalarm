@@ -45,7 +45,6 @@ import Foundation
     var licenseConfirmation: Data?
     var showingResourceDownloadView = false
     private(set) var hasMyChara = false
-    private(set) var isActive = false
 
     private let repository = MyCharaRepository()
     private let apiRepository = APIRepository()
@@ -85,7 +84,6 @@ import Foundation
             usesImportedVRM = myChara.importedVRMFileName != nil
             importedPreviewURL = repository.modelFileURL(of: myChara).flatMap { $0.isFileURL ? $0 : nil }
         }
-        isActive = repository.isActive
         Task {
             do {
                 presets = try await apiRepository.fetchPresets()
@@ -176,35 +174,72 @@ import Foundation
 
     // MARK: - 保存・選ぶ・消す
 
-    /// 使っているあいだに、もとにするキャラを変えた（保存したら、そのキャラのリソースを入れて選び直す）
+    /// 「このキャラにする」のダウンロードで、入れ終えたら確定する保存
+    private(set) var pendingSelection: MyCharaRepository.Pending?
+
+    /// ホームで使っているあいだに、もとにするキャラを変えた（保存は、そのキャラのリソースを入れ終えてから確定する）
     var needsReselect: Bool {
-        repository.isActive && repository.load()?.baseCharaID != selectedPresetID
+        repository.isSelected && repository.load()?.baseCharaID != selectedPresetID
     }
 
-    /// 保存する。使っているあいだに、もとにするキャラを変えたときは選び直す（画面を閉じずにダウンロードを出す）
+    /// ツールバーの「保存」。使っているあいだに土台を変えたときは、ダウンロードを出して選び直す（閉じない）
     func saveFromToolbar() -> Bool {
-        let reselect = needsReselect
-        guard save() else { return false }
-        if reselect {
-            showingResourceDownloadView = true
+        if needsReselect {
+            startSelection()
             return false
         }
-        return true
+        return save()
     }
 
+    /// すぐに確定する保存（ホームで使っている土台を変えないとき）
     @discardableResult
     func save() -> Bool {
-        guard let preset = selectedPreset, canSave else { return false }
-        // もとにするキャラが変わったら、選び直すまで前のキャラのまま出す（ここでは知らせない）
-        let baseChanged = repository.load()?.baseCharaID != preset.charaID
+        guard let pending = makePending() else { return false }
+        do {
+            try repository.commit(pending)
+            didCommit(pending.myChara)
+            notifyIfSelected(pending.myChara)
+            return true
+        } catch {
+            repository.discard(pending)
+            CharalarmLogger.error("自分のキャラを保存できませんでした", error: error)
+            alert = .saveFailed
+            return false
+        }
+    }
+
+    /// このキャラにする。土台のキャラのボイスなどを入れ終えてから保存を確定する（失敗したら前のまま）
+    func select() {
+        startSelection()
+    }
+
+    private func startSelection() {
+        guard let pending = makePending() else { return }
+        pendingSelection = pending
+        showingResourceDownloadView = true
+    }
+
+    /// ダウンロードの画面を閉じた。確定していれば、保存した状態に合わせる（失敗していれば、やり直せるよう今の入力のまま）
+    func selectionFinished() {
+        pendingSelection = nil
+        guard let saved = repository.load() else { return }
+        hasMyChara = true
+        if saved.importedVRMFileName != savedVRMFileName {
+            didCommit(saved)
+        }
+    }
+
+    var downloadCharaID: String {
+        pendingSelection?.myChara.baseCharaID ?? baseCharaID
+    }
+
+    /// 保存する中身を作る。手持ちの VRM はここでファイルに書く（確定しなければ捨てる）
+    private func makePending() -> MyCharaRepository.Pending? {
+        guard let preset = selectedPreset, canSave else { return nil }
         do {
             var fileName = usesImportedVRM ? savedVRMFileName : nil
             if usesImportedVRM, let pendingVRMData {
                 fileName = try repository.saveVRM(pendingVRMData)
-            }
-            // 使わなくなった手持ちの VRM は消す
-            if let old = savedVRMFileName, old != fileName {
-                repository.removeVRM(fileName: old)
             }
             let myChara = MyChara(
                 baseCharaID: preset.charaID,
@@ -212,25 +247,18 @@ import Foundation
                 importedVRMFileName: fileName,
                 presetModelFileURL: preset.modelFileURL
             )
-            try repository.save(myChara)
-            pendingVRMData = nil
-            savedVRMFileName = fileName
-            hasMyChara = true
-            if !baseChanged {
-                notifyIfActive(myChara)
-            }
-            return true
+            return MyCharaRepository.Pending(myChara: myChara, previousVRMFileName: savedVRMFileName)
         } catch {
-            CharalarmLogger.error("自分のキャラを保存できませんでした", error: error)
+            CharalarmLogger.error("自分のキャラの VRM を保存できませんでした", error: error)
             alert = .saveFailed
-            return false
+            return nil
         }
     }
 
-    /// 保存して、このキャラにする（土台のキャラのボイスなどをダウンロードする）
-    func select() {
-        guard save() else { return }
-        showingResourceDownloadView = true
+    private func didCommit(_ myChara: MyChara) {
+        pendingVRMData = nil
+        savedVRMFileName = myChara.importedVRMFileName
+        hasMyChara = true
     }
 
     var baseCharaID: String {
@@ -238,7 +266,7 @@ import Foundation
     }
 
     func delete() -> Bool {
-        guard !repository.isActive else {
+        guard !repository.isSelected else {
             alert = .inUse
             return false
         }
@@ -246,9 +274,9 @@ import Foundation
         return true
     }
 
-    /// 使っているあいだに直したら、トップに出し直させる
-    private func notifyIfActive(_ myChara: MyChara) {
-        guard repository.isActive else { return }
+    /// ホームで使っているあいだに直したら、トップに出し直させる
+    private func notifyIfSelected(_ myChara: MyChara) {
+        guard repository.isSelected else { return }
         NotificationCenter.default.post(
             name: NSNotification.setChara,
             object: self,

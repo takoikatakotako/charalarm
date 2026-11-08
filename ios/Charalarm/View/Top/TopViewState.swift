@@ -350,7 +350,7 @@ struct TopConversationChara: Identifiable {
     private func setVRMChara(charaID: String, resource: LocalCharaResource) {
         // 自分のキャラを選んでいれば、その見た目
         let myCharaRepository = MyCharaRepository()
-        if let myChara = myCharaRepository.activeMyChara(charaID: charaID), let modelFileURL = myCharaRepository.modelFileURL(of: myChara) {
+        if let myChara = myCharaRepository.myChara(charaID: charaID), let modelFileURL = myCharaRepository.modelFileURL(of: myChara) {
             vrmChara = TopVRMChara(charaID: charaID, modelFileURL: modelFileURL)
             return
         }

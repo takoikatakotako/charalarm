@@ -3,7 +3,6 @@ import Foundation
 /// 「自分のキャラ」を端末に保存する。手持ちの VRM は Application Support/MyChara に置き、サーバには送らない
 struct MyCharaRepository {
     private static let myCharaKey = "MY_CHARA"
-    private static let activeKey = "MY_CHARA_ACTIVE"
     private let defaults = UserDefaults.standard
     private let fileManager = FileManager.default
 
@@ -22,24 +21,45 @@ struct MyCharaRepository {
             try? fileManager.removeItem(at: url)
         }
         defaults.removeObject(forKey: Self.myCharaKey)
-        defaults.removeObject(forKey: Self.activeKey)
     }
 
-    // MARK: - 選んでいるか
+    // MARK: - 自分のキャラかどうか
 
-    /// 自分のキャラを選んでいるか（キャラの選択は土台のキャラの ID で持ち、この印で自分のキャラとして見せる）
-    var isActive: Bool {
-        defaults.bool(forKey: Self.activeKey) && load() != nil
-    }
-
-    func setActive(_ active: Bool) {
-        defaults.set(active, forKey: Self.activeKey)
-    }
-
-    /// charaID のキャラを自分のキャラとして見せるときの自分のキャラ。選んでいなければ nil
-    func activeMyChara(charaID: String) -> MyChara? {
-        guard isActive, let myChara = load(), myChara.baseCharaID == charaID else { return nil }
+    /// charaID が自分のキャラの土台なら、自分のキャラ。
+    /// プリセット（土台）はキャラ一覧に出ないので、土台の ID は自分のキャラを選んだときにしか使われない。
+    /// ホームで選んでいるキャラに関係なく決まるので、自分のキャラにしたアラームの電話でも自分のキャラとして出せる
+    func myChara(charaID: String) -> MyChara? {
+        guard let myChara = load(), myChara.baseCharaID == charaID else { return nil }
         return myChara
+    }
+
+    /// ホームで自分のキャラを選んでいるか
+    var isSelected: Bool {
+        guard let charaID = UserDefaultsRepository().getCharaID() else { return false }
+        return myChara(charaID: charaID) != nil
+    }
+
+    // MARK: - 保存を確定する
+
+    /// 保存の中身。土台を変えるときは、土台のリソースを入れ終えてから確定する（失敗したら捨てて、前のままにする）
+    struct Pending {
+        let myChara: MyChara
+        /// 前に使っていた手持ちの VRM（確定したら消す）
+        let previousVRMFileName: String?
+    }
+
+    func commit(_ pending: Pending) throws {
+        try save(pending.myChara)
+        if let old = pending.previousVRMFileName, old != pending.myChara.importedVRMFileName {
+            removeVRM(fileName: old)
+        }
+    }
+
+    /// 確定しなかった保存を捨てる（このために書いた手持ちの VRM を消す）
+    func discard(_ pending: Pending) {
+        if let fileName = pending.myChara.importedVRMFileName, fileName != pending.previousVRMFileName {
+            removeVRM(fileName: fileName)
+        }
     }
 
     /// 自分のキャラの見た目（VRM）。手持ちの VRM があればそのファイル、なければ土台のキャラの VRM

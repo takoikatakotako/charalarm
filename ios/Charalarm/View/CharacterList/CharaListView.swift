@@ -42,7 +42,7 @@ struct CharaListView: View {
             .onAppear {
                 viewState.fetchCharacters()
                 myChara = MyCharaRepository().load()
-                isMyCharaActive = MyCharaRepository().isActive
+                isMyCharaActive = MyCharaRepository().isSelected
             }
             .alert("", isPresented: $viewState.showingAlert) {
                 Button(String(localized: "common-close")) {}

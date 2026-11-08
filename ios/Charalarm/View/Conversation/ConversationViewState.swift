@@ -274,7 +274,7 @@ final class ConversationViewState: NSObject {
         charaName = chara.name
         // 自分のキャラなら、その名前と見た目。ユーザーがキャラ詳細で選んだ見た目（なければ既定）が 3D なら、会話の画面にも出す
         let myCharaRepository = MyCharaRepository()
-        let myChara = myCharaRepository.activeMyChara(charaID: charaID)
+        let myChara = myCharaRepository.myChara(charaID: charaID)
         if let myChara {
             charaName = myChara.name
         }
