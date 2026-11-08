@@ -98,7 +98,7 @@ struct MyCharaView: View {
         .toolbar {
             ToolbarItem(placement: .confirmationAction) {
                 Button(String(localized: "common-save")) {
-                    if viewState.save() {
+                    if viewState.saveFromToolbar() {
                         dismiss()
                     }
                 }

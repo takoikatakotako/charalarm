@@ -16,7 +16,8 @@ struct TopView: View {
                 if let vrmChara = viewState.vrmChara {
                     CharaVRMView(charaID: vrmChara.charaID, modelFileURL: vrmChara.modelFileURL, framing: .bust,
                                  mouthTrack: viewState.tapLinePlayer.mouthTrack)
-                        .id(vrmChara.charaID)
+                        // 自分のキャラの VRM を差し替えたときも作り直す（ビューアは開いたときのモデルを持ち続けるため）
+                        .id(vrmChara.modelFileURL)
                         .padding(.top, 60)
                 } else {
                     Image(uiImage: viewState.charaImage)

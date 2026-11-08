@@ -107,12 +107,38 @@ import Foundation
             alert = .readFailed
             return
         }
+        Task {
+            switch await Self.readVRMFile(url) {
+            case .success(let data):
+                inspectImported(data)
+            case .failure(let error):
+                alert = error == .tooLarge ? .tooLarge : .readFailed
+            }
+        }
+    }
+
+    private enum ReadError: Error {
+        case tooLarge
+        case unreadable
+    }
+
+    /// 大きすぎるファイルを読み込まないよう、先に大きさを見る。読み込みは画面を止めないよう別のスレッドで
+    nonisolated private static func readVRMFile(_ url: URL) async -> Result<Data, ReadError> {
         let accessing = url.startAccessingSecurityScopedResource()
         defer { if accessing { url.stopAccessingSecurityScopedResource() } }
-        guard let data = try? Data(contentsOf: url) else {
-            alert = .readFailed
-            return
+        guard let size = try? url.resourceValues(forKeys: [.fileSizeKey]).fileSize else {
+            return .failure(.unreadable)
         }
+        guard size <= VRMFileInspector.maxFileSize else {
+            return .failure(.tooLarge)
+        }
+        guard let data = try? Data(contentsOf: url) else {
+            return .failure(.unreadable)
+        }
+        return .success(data)
+    }
+
+    private func inspectImported(_ data: Data) {
         do {
             let inspection = try VRMFileInspector.inspect(data)
             if inspection.avatarPermission == .everyone {
@@ -150,9 +176,27 @@ import Foundation
 
     // MARK: - 保存・選ぶ・消す
 
+    /// 使っているあいだに、もとにするキャラを変えた（保存したら、そのキャラのリソースを入れて選び直す）
+    var needsReselect: Bool {
+        repository.isActive && repository.load()?.baseCharaID != selectedPresetID
+    }
+
+    /// 保存する。使っているあいだに、もとにするキャラを変えたときは選び直す（画面を閉じずにダウンロードを出す）
+    func saveFromToolbar() -> Bool {
+        let reselect = needsReselect
+        guard save() else { return false }
+        if reselect {
+            showingResourceDownloadView = true
+            return false
+        }
+        return true
+    }
+
     @discardableResult
     func save() -> Bool {
         guard let preset = selectedPreset, canSave else { return false }
+        // もとにするキャラが変わったら、選び直すまで前のキャラのまま出す（ここでは知らせない）
+        let baseChanged = repository.load()?.baseCharaID != preset.charaID
         do {
             var fileName = usesImportedVRM ? savedVRMFileName : nil
             if usesImportedVRM, let pendingVRMData {
@@ -172,7 +216,9 @@ import Foundation
             pendingVRMData = nil
             savedVRMFileName = fileName
             hasMyChara = true
-            notifyIfActive(myChara)
+            if !baseChanged {
+                notifyIfActive(myChara)
+            }
             return true
         } catch {
             CharalarmLogger.error("自分のキャラを保存できませんでした", error: error)
