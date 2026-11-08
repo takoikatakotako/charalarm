@@ -142,7 +142,7 @@ func (a *AWS) GetCharaList() ([]database.Chara, error) {
 
 // GetRandomChara
 // アラームに使えるキャラ (有効で、アラームのボイスがある) からランダムに1つ取得する。
-// 準備中 (enable=false) のキャラや、ボイスをまだ用意していないキャラはアラームに使わない。
+// 準備中 (enable=false) のキャラ、ボイスをまだ用意していないキャラ、「自分のキャラ」の土台 (preset) はアラームに使わない。
 func (a *AWS) GetRandomChara() (database.Chara, error) {
 	charaList, err := a.GetCharaList()
 	if err != nil {
@@ -151,7 +151,7 @@ func (a *AWS) GetRandomChara() (database.Chara, error) {
 
 	enableCharas := make([]database.Chara, 0, len(charaList))
 	for _, chara := range charaList {
-		if chara.Enable && len(chara.Calls) > 0 {
+		if chara.Enable && !chara.Preset && len(chara.Calls) > 0 {
 			enableCharas = append(enableCharas, chara)
 		}
 	}

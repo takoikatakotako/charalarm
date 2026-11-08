@@ -74,6 +74,14 @@ extension APIRepository {
         return charaResponses.map { Chara(charaResponse: $0) }
     }
 
+    /// 「自分のキャラ」の土台になるキャラ（プリセット）
+    func fetchPresets() async throws -> [Chara] {
+        let url = try createURL(path: "/chara/presets")
+        let requestBody: Encodable? = nil
+        let charaResponses: [CharaResponse] = try await APIClient().request(url: url, httpMethod: .get, requestHeader: APIHeader.defaultHeader, requestBody: requestBody)
+        return charaResponses.map { Chara(charaResponse: $0) }
+    }
+
     func fetchCharacter(charaID: String) async throws -> Chara {
         let path = "/chara/id/\(charaID)"
         let url = try createURL(path: path)

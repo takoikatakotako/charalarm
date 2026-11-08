@@ -2433,6 +2433,346 @@
         }
       }
     },
+    "my-chara-base" : {
+      "comment" : "My Character",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Base character"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "もとにするキャラ"
+          }
+        }
+      }
+    },
+    "my-chara-base-footer" : {
+      "comment" : "My Character",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your character uses this character's voice, personality, and alarm voices."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "声・性格・アラームのボイスは、このキャラのものを使います。"
+          }
+        }
+      }
+    },
+    "my-chara-create" : {
+      "comment" : "My Character",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Create your character"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "自分のキャラを作る"
+          }
+        }
+      }
+    },
+    "my-chara-delete" : {
+      "comment" : "My Character",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete your character"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "自分のキャラを消す"
+          }
+        }
+      }
+    },
+    "my-chara-delete-in-use" : {
+      "comment" : "My Character",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You can't delete it while you're using it. Choose another character first."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "使っているあいだは消せません。ほかのキャラを選んでから消してください。"
+          }
+        }
+      }
+    },
+    "my-chara-error-not-vrm" : {
+      "comment" : "My Character",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This is not a VRM file."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "VRM のファイルではありません。"
+          }
+        }
+      }
+    },
+    "my-chara-error-read" : {
+      "comment" : "My Character",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't read the file."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ファイルを読み込めませんでした。"
+          }
+        }
+      }
+    },
+    "my-chara-error-save" : {
+      "comment" : "My Character",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't save your character."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "自分のキャラを保存できませんでした。"
+          }
+        }
+      }
+    },
+    "my-chara-error-too-large" : {
+      "comment" : "My Character",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The file is too large (up to 50 MB)."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ファイルが大きすぎます（50MB まで）。"
+          }
+        }
+      }
+    },
+    "my-chara-import" : {
+      "comment" : "My Character",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Import a VRM file"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "VRM のファイルを読み込む"
+          }
+        }
+      }
+    },
+    "my-chara-import-footer" : {
+      "comment" : "My Character",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Use a VRM made with VRoid Studio or similar. It stays on this device and is never sent to our server."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "VRoid Studio などで作った VRM を見た目にできます。ファイルはこの端末の中だけに置き、サーバには送りません。"
+          }
+        }
+      }
+    },
+    "my-chara-imported" : {
+      "comment" : "My Character",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Imported VRM"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "読み込んだ VRM"
+          }
+        }
+      }
+    },
+    "my-chara-license-message" : {
+      "comment" : "My Character",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This model may only be used as an avatar by its author or by people they allow. Use it only if you are the author or have permission."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "このモデルは、作者や作者が許可した人だけがアバターとして使える設定です。あなたが作者か、使う許可を得ている場合だけ使ってください。"
+          }
+        }
+      }
+    },
+    "my-chara-license-title" : {
+      "comment" : "My Character",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Terms of use for this model"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "このモデルの利用条件"
+          }
+        }
+      }
+    },
+    "my-chara-license-use" : {
+      "comment" : "My Character",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Use it"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "使う"
+          }
+        }
+      }
+    },
+    "my-chara-name" : {
+      "comment" : "My Character",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Name"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "名前"
+          }
+        }
+      }
+    },
+    "my-chara-name-placeholder" : {
+      "comment" : "My Character",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Character name"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "キャラの名前"
+          }
+        }
+      }
+    },
+    "my-chara-no-presets" : {
+      "comment" : "My Character",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No characters are available yet."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "選べるキャラがまだありません。"
+          }
+        }
+      }
+    },
+    "my-chara-own-vrm" : {
+      "comment" : "My Character",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your VRM"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "手持ちの VRM"
+          }
+        }
+      }
+    },
+    "my-chara-title" : {
+      "comment" : "My Character",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "My Character"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "自分のキャラ"
+          }
+        }
+      }
+    },
     "news-empty" : {
       "extractionState" : "manual",
       "localizations" : {

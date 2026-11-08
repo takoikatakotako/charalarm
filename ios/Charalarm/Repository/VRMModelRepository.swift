@@ -7,6 +7,10 @@ struct VRMModelRepository {
     private let fileManager = FileManager.default
 
     func modelFileURL(charaID: String, modelFileURL remoteURL: URL) async throws -> URL {
+        // 端末にあるファイル（自分のキャラの手持ちの VRM）はそのまま使う
+        if remoteURL.isFileURL {
+            return remoteURL
+        }
         let fileName = remoteURL.lastPathComponent
         if let bundled = bundledModelFileURL(charaID: charaID, fileName: fileName) {
             return bundled

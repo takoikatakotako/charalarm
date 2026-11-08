@@ -41,7 +41,8 @@ struct Chara: Identifiable, Hashable, Equatable {
     let enable: Bool
     let createdAt: String
     let updatedAt: String
-    let name: String
+    /// 名前。自分のキャラは、土台のキャラの名前をユーザーが付けた名前に置き換える
+    var name: String
     let description: String
     let profiles: [CharaProfile]
     let resources: [CharaResource]

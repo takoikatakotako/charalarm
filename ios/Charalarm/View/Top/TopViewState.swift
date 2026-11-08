@@ -348,6 +348,12 @@ struct TopConversationChara: Identifiable {
 
     /// ユーザーが選んだ見た目（なければ既定）が 3D なら 3D で出す。イラストを選んでも画像がなければ 3D にする
     private func setVRMChara(charaID: String, resource: LocalCharaResource) {
+        // 自分のキャラを選んでいれば、その見た目
+        let myCharaRepository = MyCharaRepository()
+        if let myChara = myCharaRepository.myChara(charaID: charaID), let modelFileURL = myCharaRepository.modelFileURL(of: myChara) {
+            vrmChara = TopVRMChara(charaID: charaID, modelFileURL: modelFileURL)
+            return
+        }
         guard let modelFileURL = resource.modelFileURL else {
             vrmChara = nil
             return

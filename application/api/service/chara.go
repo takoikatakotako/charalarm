@@ -43,15 +43,31 @@ func (c *Chara) GetCharaList() ([]output.Chara, error) {
 	// BaseURLを取得
 	baseURL := c.ResourceBaseURL
 
-	// enable のものを抽出
+	// enable で、「自分のキャラ」の土台 (preset) でないものを抽出
 	filteredCharaList := make([]database.Chara, 0)
 	for _, chara := range charaList {
-		if chara.Enable {
+		if chara.Enable && !chara.Preset {
 			filteredCharaList = append(filteredCharaList, chara)
 		}
 	}
 	sortCharas(filteredCharaList)
 	return convertToCharaOutputs(filteredCharaList, baseURL), nil
+}
+
+// GetPresetList は「自分のキャラ」の土台になるキャラ (preset) の一覧を返す。
+func (c *Chara) GetPresetList() ([]output.Chara, error) {
+	charaList, err := c.AWS.GetCharaList()
+	if err != nil {
+		return []output.Chara{}, err
+	}
+	presets := make([]database.Chara, 0)
+	for _, chara := range charaList {
+		if chara.Enable && chara.Preset {
+			presets = append(presets, chara)
+		}
+	}
+	sortCharas(presets)
+	return convertToCharaOutputs(presets, c.ResourceBaseURL), nil
 }
 
 // sortCharas は表示順 (displayOrder の昇順、同じなら charaID 順) に並べる。

@@ -33,6 +33,8 @@ type CharaSettings struct {
 	Description  string
 	Profiles     []CharaProfile
 	DisplayOrder int
+	// Preset は「自分のキャラ」の土台になるキャラか
+	Preset bool
 
 	// AppearanceType は "illustration" か "vrm"。vrm のときは VRMFileName を使う。
 	AppearanceType string

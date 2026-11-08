@@ -85,6 +85,8 @@ export interface CharaSettings {
   description: string;
   profiles: CharaProfile[];
   displayOrder: number;
+  /** 「自分のキャラ」の土台になるキャラ（ふつうのキャラ一覧には出さない） */
+  preset: boolean;
   appearanceType: AppearanceType;
   vrmFileName: string;
   conversationType: ConversationType;
