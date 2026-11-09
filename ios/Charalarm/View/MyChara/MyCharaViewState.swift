@@ -1,4 +1,5 @@
 import Foundation
+import AVFoundation
 
 /// 「自分のキャラ」を作る・直す画面
 @MainActor @Observable final class MyCharaViewState {
@@ -9,6 +10,7 @@ import Foundation
         case saveFailed
         case presetsFailed
         case inUse
+        case voiceFailed
 
         var id: Self { self }
 
@@ -20,6 +22,7 @@ import Foundation
             case .saveFailed: return String(localized: "my-chara-error-save")
             case .presetsFailed: return String(localized: "common-failed-to-connect-with-the-server")
             case .inUse: return String(localized: "my-chara-delete-in-use")
+            case .voiceFailed: return String(localized: "my-chara-error-voice")
             }
         }
     }
@@ -29,6 +32,15 @@ import Foundation
     private(set) var isLoadingPresets = true
     var selectedPresetID: String?
     var name = ""
+    var personality = ""
+    var selectedVoiceID: String?
+    private(set) var voices: [CharaVoice] = []
+    private(set) var isLoadingVoices = true
+    private(set) var isPreviewingVoice = false
+    private var voicePlayer: AVAudioPlayer?
+    private var voicePreviewTask: Task<Void, Never>?
+    private var voicePreviewID = UUID()
+    private var hasAppeared = false
     /// 手持ちの VRM を使うか
     var usesImportedVRM = false
     /// 読み込んだ VRM（まだ保存していないもの）
@@ -72,14 +84,20 @@ import Foundation
     var canSave: Bool {
         selectedPreset != nil
             && !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            && name.unicodeScalars.count <= 50 && personality.unicodeScalars.count <= 1000
+            && (hasMyChara || selectedVoiceID != nil)
             && (!usesImportedVRM || importedPreviewURL != nil)
     }
 
     func onAppear() {
+        guard !hasAppeared else { return }
+        hasAppeared = true
         if let myChara = repository.load() {
             hasMyChara = true
             selectedPresetID = myChara.baseCharaID
             name = myChara.name
+            personality = myChara.personality ?? ""
+            selectedVoiceID = myChara.voiceID
             savedVRMFileName = myChara.importedVRMFileName
             usesImportedVRM = myChara.importedVRMFileName != nil
             importedPreviewURL = repository.modelFileURL(of: myChara).flatMap { $0.isFileURL ? $0 : nil }
@@ -96,6 +114,61 @@ import Foundation
             }
             isLoadingPresets = false
         }
+        Task {
+            await loadVoices()
+        }
+    }
+
+    func loadVoices() async {
+        isLoadingVoices = true
+        defer { isLoadingVoices = false }
+        do {
+            voices = try await apiRepository.fetchCharaVoices()
+            if !hasMyChara && selectedVoiceID == nil {
+                selectedVoiceID = voices.first?.id
+            }
+        } catch {
+            alert = .presetsFailed
+        }
+    }
+
+    func previewVoice() {
+        stopVoicePreview()
+        guard let selectedVoiceID, !baseCharaID.isEmpty else { return }
+        let charaID = baseCharaID
+        let previewID = voicePreviewID
+        isPreviewingVoice = true
+        voicePreviewTask = Task {
+            defer {
+                if voicePreviewID == previewID { isPreviewingVoice = false }
+            }
+            do {
+                let keychain = KeychainRepository()
+                guard let userID = keychain.getUserID(), let token = keychain.getAuthToken() else {
+                    throw ConversationError.notAuthenticated
+                }
+                let data = try await apiRepository.postTextToSpeech(
+                    userID: userID, authToken: token, charaID: charaID,
+                    text: String(localized: "my-chara-voice-sample"), voiceID: selectedVoiceID
+                )
+                try Task.checkCancellation()
+                voicePlayer = try AVAudioPlayer(data: data)
+                voicePlayer?.play()
+            } catch where Task.isCancelled {
+                // The user changed voice or left the screen.
+            } catch {
+                alert = .voiceFailed
+            }
+        }
+    }
+
+    func stopVoicePreview() {
+        voicePreviewID = UUID()
+        voicePreviewTask?.cancel()
+        voicePreviewTask = nil
+        voicePlayer?.stop()
+        voicePlayer = nil
+        isPreviewingVoice = false
     }
 
     // MARK: - 手持ちの VRM
@@ -245,7 +318,9 @@ import Foundation
                 baseCharaID: preset.charaID,
                 name: name.trimmingCharacters(in: .whitespacesAndNewlines),
                 importedVRMFileName: fileName,
-                presetModelFileURL: preset.modelFileURL
+                presetModelFileURL: preset.modelFileURL,
+                personality: personality.trimmingCharacters(in: .whitespacesAndNewlines),
+                voiceID: selectedVoiceID
             )
             return MyCharaRepository.Pending(myChara: myChara, previousVRMFileName: savedVRMFileName)
         } catch {

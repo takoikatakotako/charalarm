@@ -200,6 +200,7 @@ func main() {
 	e.GET("/chara/list", charaHandler.CharaListGet)
 	e.GET("/chara/id/:charaID", charaHandler.CharaIDGet)
 	e.GET("/chara/presets", charaHandler.CharaPresetsGet)
+	e.GET("/chara/voices", charaHandler.CharaVoicesGet)
 
 	// push-token
 	e.POST("/push-token/ios/push/add", pushTokenHandler.PushTokenPushAdd)

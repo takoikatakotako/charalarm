@@ -1,7 +1,7 @@
 import Foundation
 
 /// backend `/chat` のリクエストボディ。charaID と会話履歴を送る。
-/// キャラの人格プロンプトはサーバ側で付与される。
+/// 通常のキャラの人格はサーバ側で付与する。自分のキャラは端末の名前・性格を送る。
 struct ChatRequest: Encodable {
     let charaID: String
     /// 会話の言語（"ja" / "en"）。キャラが話せなければサーバがキャラの言語にする。
@@ -14,6 +14,7 @@ struct ChatRequest: Encodable {
     let weatherRegion: String?
     let messages: [ChatMessage]
     let context: ChatContext
+    var myChara: MyCharaConversationSettings?
 }
 
 /// 端末のその場の情報。サーバが「今日は何曜日の何時か」をキャラに伝えるのに使う。

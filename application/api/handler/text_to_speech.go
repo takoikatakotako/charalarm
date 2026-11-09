@@ -30,7 +30,7 @@ func (h *TextToSpeech) TextToSpeechPost(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, response.Message{Message: "Bad Request"})
 	}
 
-	audio, err := h.Service.Synthesize(c.Request().Context(), userID, authToken, req.CharaID, req.Text)
+	audio, err := h.Service.Synthesize(c.Request().Context(), userID, authToken, req.CharaID, req.Text, req.VoiceID)
 	if err != nil {
 		if errors.Is(err, service.ErrTTSNotConfigured) {
 			return c.JSON(http.StatusServiceUnavailable, response.Message{Message: "Service Unavailable"})

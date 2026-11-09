@@ -11,6 +11,10 @@ type Chara struct {
 	Service service.Chara
 }
 
+func (chara *Chara) CharaVoicesGet(c echo.Context) error {
+	return c.JSON(http.StatusOK, service.MyCharaVoices())
+}
+
 func (chara *Chara) CharaListGet(c echo.Context) error {
 	res, err := chara.Service.GetCharaList()
 	if err != nil {

@@ -461,6 +461,9 @@ final class ConversationViewState: NSObject {
 
     /// キャラの声の出し方に合わせて音声合成を選ぶ。
     private static func makeTextToSpeechRepository(charaID: String, conversation: CharaConversation) -> TextToSpeechRepository {
+        if MyCharaRepository().myChara(charaID: charaID)?.voiceID != nil {
+            return BackendTextToSpeechRepository(charaID: charaID)
+        }
         switch conversation.voiceProvider {
         case .voicevox:
             return VoicevoxRepository(styleId: conversation.voicevoxStyleID)
