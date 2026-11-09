@@ -24,22 +24,7 @@ struct MyCharaView: View {
                     Text(String(localized: "my-chara-no-presets"))
                         .foregroundStyle(.secondary)
                 }
-                ForEach(viewState.presets) { preset in
-                    Button {
-                        viewState.selectedPresetID = preset.charaID
-                        viewState.usesImportedVRM = false
-                    } label: {
-                        HStack {
-                            Text(preset.name)
-                                .foregroundStyle(.primary)
-                            Spacer()
-                            if viewState.selectedPresetID == preset.charaID && !viewState.usesImportedVRM {
-                                Image(systemName: "checkmark")
-                                    .foregroundStyle(Color.accentColor)
-                            }
-                        }
-                    }
-                }
+                presetGrid
             } header: {
                 Text(String(localized: "my-chara-base"))
             } footer: {
@@ -75,8 +60,55 @@ struct MyCharaView: View {
 
             Section {
                 TextField(String(localized: "my-chara-name-placeholder"), text: $viewState.name)
+                Text("\(viewState.name.unicodeScalars.count) / 50")
+                    .font(.caption)
+                    .foregroundStyle(viewState.name.unicodeScalars.count > 50 ? .red : .secondary)
             } header: {
                 Text(String(localized: "my-chara-name"))
+            }
+
+            Section {
+                TextField(String(localized: "my-chara-personality-placeholder"), text: $viewState.personality, axis: .vertical)
+                    .lineLimit(4...8)
+                Text("\(viewState.personality.unicodeScalars.count) / 1000")
+                    .font(.caption)
+                    .foregroundStyle(viewState.personality.unicodeScalars.count > 1000 ? .red : .secondary)
+            } header: {
+                Text(String(localized: "my-chara-personality"))
+            } footer: {
+                Text(String(localized: "my-chara-personality-footer"))
+            }
+
+            Section {
+                if viewState.isLoadingVoices {
+                    ProgressView()
+                } else if viewState.voices.isEmpty {
+                    Button(String(localized: "my-chara-voices-retry")) {
+                        Task { await viewState.loadVoices() }
+                    }
+                } else {
+                    Picker(String(localized: "my-chara-voice"), selection: $viewState.selectedVoiceID) {
+                        if viewState.hasMyChara {
+                            Text(String(localized: "my-chara-voice-default")).tag(nil as String?)
+                        }
+                        ForEach(viewState.voices) { voice in
+                            Text("\(voice.name) — \(voice.description)").tag(Optional(voice.id))
+                        }
+                    }
+                    Button {
+                        viewState.previewVoice()
+                    } label: {
+                        HStack {
+                            Label(String(localized: "my-chara-voice-preview"), systemImage: "speaker.wave.2")
+                            if viewState.isPreviewingVoice { ProgressView() }
+                        }
+                    }
+                    .disabled(viewState.selectedVoiceID == nil || viewState.selectedPreset == nil || viewState.isPreviewingVoice)
+                }
+            } header: {
+                Text(String(localized: "my-chara-voice"))
+            } footer: {
+                Text(String(localized: "my-chara-voice-footer"))
             }
 
             Section {
@@ -130,6 +162,60 @@ struct MyCharaView: View {
         .onAppear {
             viewState.onAppear()
         }
+        .onChange(of: viewState.selectedVoiceID) { _, _ in
+            viewState.stopVoicePreview()
+        }
+        .onChange(of: viewState.selectedPresetID) { _, _ in
+            viewState.stopVoicePreview()
+        }
+        .onDisappear {
+            viewState.stopVoicePreview()
+        }
+    }
+
+    private var presetGrid: some View {
+        LazyVGrid(columns: [GridItem(.adaptive(minimum: 100), spacing: 12)], spacing: 12) {
+            ForEach(viewState.presets) { preset in
+                let isSelected = viewState.selectedPresetID == preset.charaID && !viewState.usesImportedVRM
+                Button {
+                    viewState.selectedPresetID = preset.charaID
+                    viewState.usesImportedVRM = false
+                } label: {
+                    VStack(spacing: 8) {
+                        AsyncImage(url: preset.presetImageURL) { image in
+                            image.resizable().scaledToFit()
+                        } placeholder: {
+                            Image(systemName: "person.crop.rectangle")
+                                .font(.largeTitle)
+                                .foregroundStyle(.secondary)
+                        }
+                        .frame(height: 150)
+                        Text(preset.name)
+                            .font(.subheadline)
+                            .foregroundStyle(.primary)
+                            .lineLimit(2)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(8)
+                    .background(isSelected ? Color.accentColor.opacity(0.12) : Color.secondary.opacity(0.06), in: RoundedRectangle(cornerRadius: 12))
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 12)
+                            .strokeBorder(isSelected ? Color.accentColor : .clear, lineWidth: 2)
+                    }
+                    .overlay(alignment: .topTrailing) {
+                        if isSelected {
+                            Image(systemName: "checkmark.circle.fill")
+                                .foregroundStyle(Color.accentColor)
+                                .padding(4)
+                        }
+                    }
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(preset.name)
+                .accessibilityAddTraits(isSelected ? .isSelected : [])
+            }
+        }
+        .padding(.vertical, 8)
     }
 
     @ViewBuilder

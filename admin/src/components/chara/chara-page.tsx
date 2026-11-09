@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
+import Image from "next/image";
 import useSWR from "swr";
 import { toast } from "sonner";
 import { useCharas } from "@/hooks/use-chara";
@@ -347,7 +348,9 @@ function CharaForm({
           className="h-4 w-4"
         />
         <span className="font-medium">
-          有効（アプリのキャラ一覧に出し、ランダムなアラームにも使う）
+          {settings.preset
+            ? "有効（自分のキャラの見た目一覧に出す）"
+            : "有効（アプリのキャラ一覧に出し、ランダムなアラームにも使う）"}
         </span>
       </label>
 
@@ -359,9 +362,17 @@ function CharaForm({
           className="h-4 w-4"
         />
         <span className="font-medium">
-          「自分のキャラ」の土台にする（キャラ一覧とランダムなアラームには出さず、自分のキャラを作る画面のプリセットに出す）
+          「自分のキャラ」の見た目プリセットにする
         </span>
       </label>
+
+      {settings.preset && (
+        <p className="rounded-md bg-muted p-3 text-muted-foreground">
+          名前は見た目の選択肢のラベルです。ユーザーは自分の名前・性格・声を別々に設定します。
+          「リソース」で画像をアップロードし、normal の画像に設定してください。
+          下の会話と声の設定は、未設定のときや古いアプリ向けの既定値です。
+        </p>
+      )}
 
       <div className="grid gap-4 sm:grid-cols-[1fr_8rem]">
         <Field label="名前">
@@ -618,21 +629,50 @@ function availableAppearances(chara: Chara): AppearanceType[] {
   return types.length > 0 ? types : [chara.appearanceType];
 }
 
-function CharaCard({ chara, onSaved }: { chara: Chara; onSaved: () => void }) {
+function CharaCard({ chara, onSaved, gallery = false }: { chara: Chara; onSaved: () => void; gallery?: boolean }) {
   const [open, setOpen] = useState(false);
   const [tab, setTab] = useState<"settings" | "resources" | "tapLines">("settings");
+  const { data: resources } = useSWR(
+    chara.preset ? ["chara-preview", chara.charaID] : null,
+    () => fetchResourceFiles(chara.charaID),
+  );
+  const previewFile = (chara.expressions.normal ?? Object.values(chara.expressions)[0])?.imageFileNames[0];
+  const previewURL = resources && previewFile
+    ? `${resources.baseURL}/${encodeURIComponent(chara.charaID)}/${encodeURIComponent(previewFile)}`
+    : undefined;
 
   return (
-    <Card>
+    <Card className={gallery && open ? "sm:col-span-2 xl:col-span-3" : ""}>
+      {gallery && (
+        previewURL ? (
+          <a href={previewURL} target="_blank" rel="noreferrer" aria-label={`${chara.name}の画像を拡大`} className="mx-4 block rounded-lg bg-muted transition-colors hover:bg-accent">
+            <Image src={previewURL} alt={chara.name} width={320} height={480} unoptimized className="h-80 w-full object-contain p-4" />
+          </a>
+        ) : (
+          <div className="mx-4 flex h-80 items-center justify-center rounded-lg bg-muted text-sm text-muted-foreground">
+            {resources ? "画像がありません" : "画像を読み込み中..."}
+          </div>
+        )
+      )}
       <CardHeader>
         <button
           type="button"
           onClick={() => setOpen((v) => !v)}
-          className="flex w-full items-start justify-between gap-4 text-left"
+          className={`flex w-full items-start justify-between gap-4 text-left ${gallery ? "flex-col" : ""}`}
         >
+          {!gallery && previewURL && (
+            <Image
+              src={previewURL}
+              alt={chara.name}
+              width={72}
+              height={108}
+              unoptimized
+              className="h-28 w-20 shrink-0 rounded bg-muted object-contain"
+            />
+          )}
           <div className="space-y-1">
             <CardTitle>{chara.name}</CardTitle>
-            <p className="font-mono text-xs text-muted-foreground">
+            <p className="break-all font-mono text-xs text-muted-foreground">
               {chara.charaID}
             </p>
           </div>
@@ -652,6 +692,11 @@ function CharaCard({ chara, onSaved }: { chara: Chara; onSaved: () => void }) {
             <Badge variant="outline">順 {chara.displayOrder}</Badge>
           </div>
         </button>
+        {gallery && (
+          <Button variant="outline" onClick={() => setOpen((value) => !value)} aria-expanded={open}>
+            {open ? "設定を閉じる" : "設定・画像を編集"}
+          </Button>
+        )}
       </CardHeader>
       {open && (
         <CardContent className="space-y-4">
@@ -689,13 +734,33 @@ function CharaCard({ chara, onSaved }: { chara: Chara; onSaved: () => void }) {
 export function CharaPage() {
   const { data, error, isLoading, mutate } = useCharas();
   const [adding, setAdding] = useState(false);
+  const [filter, setFilter] = useState<"all" | "characters" | "presets">("all");
   const charas = data?.charas ?? [];
+  const visibleCharas = charas.filter((chara) =>
+    filter === "all" || (filter === "presets" ? chara.preset : !chara.preset),
+  );
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6">
+    <div className={`mx-auto space-y-6 ${filter === "presets" ? "max-w-6xl" : "max-w-3xl"}`}>
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">キャラクター</h1>
         {!adding && <Button onClick={() => setAdding(true)}>キャラを追加</Button>}
+      </div>
+
+      {filter === "presets" && (
+        <p className="text-sm text-muted-foreground">画像を押すと拡大できます。「設定・画像を編集」から名前・表示順・画像などを変更できます。</p>
+      )}
+
+      <div className="flex flex-wrap gap-2" aria-label="キャラクターの種類">
+        {([
+          ["all", "すべて", charas.length],
+          ["characters", "通常のキャラ", charas.filter((c) => !c.preset).length],
+          ["presets", "見た目プリセット", charas.filter((c) => c.preset).length],
+        ] as const).map(([value, label, count]) => (
+          <Button key={value} variant={filter === value ? "default" : "outline"} onClick={() => setFilter(value)} aria-pressed={filter === value}>
+            {label}（{count}）
+          </Button>
+        ))}
       </div>
 
       {adding && (
@@ -725,12 +790,13 @@ export function CharaPage() {
         <p className="text-muted-foreground">キャラクターがいません</p>
       )}
 
-      <div className="space-y-4">
-        {charas.map((chara) => (
+      <div className={filter === "presets" ? "grid items-start gap-4 sm:grid-cols-2 xl:grid-cols-3" : "space-y-4"}>
+        {visibleCharas.map((chara) => (
           <CharaCard
             key={chara.charaID}
             chara={chara}
             onSaved={() => mutate()}
+            gallery={filter === "presets"}
           />
         ))}
       </div>

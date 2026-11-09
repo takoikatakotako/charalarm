@@ -20,7 +20,8 @@ type Chara struct {
 	DisplayOrder int `dynamodbav:"displayOrder"`
 
 	// Preset は「自分のキャラ」の土台になるキャラ (置き換え用キャラ)。ふつうのキャラ一覧やランダムのアラームには出さず、
-	// /chara/presets で返す。ユーザーは見た目 (このキャラの VRM か手持ちの VRM) と名前を上書きして使い、声・性格・アラームのボイスはこのキャラのものを使う。
+	// /chara/presets で返す。ユーザーは見た目・名前・性格・会話の声を端末で選ぶ。
+	// 性格と声の設定は会話のリクエストにだけ付ける。未指定の声と録音ボイスはこのキャラの設定を使う。
 	Preset bool `dynamodbav:"preset"`
 
 	// AppearanceType は見た目のタイプ。空なら illustration。AppearanceTypeOf で読む。

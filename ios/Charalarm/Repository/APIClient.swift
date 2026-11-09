@@ -28,7 +28,7 @@ struct APIClient {
         let (data, urlResponse) = try await URLSession.shared.data(for: urlRequest)
 
         #if DEBUG
-        CharalarmLogger.debug(urlRequest.curlString)
+        CharalarmLogger.debug("API \(httpMethod.rawValue) \(url.path)")
         #endif
 
         guard let urlResponse = urlResponse as? HTTPURLResponse else {

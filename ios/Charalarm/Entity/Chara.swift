@@ -33,6 +33,11 @@ struct Chara: Identifiable, Hashable, Equatable {
         return "\(Variables.resourceEndpoint)/\(charaID)/self-introduction.caf"
     }
 
+    var presetImageURL: URL? {
+        (expressions["normal"] ?? expressions.values.first)?.imageFileURLs.first
+            ?? URL(string: thumbnailUrlString)
+    }
+
     static func charaDomainToThmbnailUrlString(charaDomain: String) -> String {
         return "\(String(describing: Variables.resourceEndpoint))/\(charaDomain)/thumbnail.png"
     }

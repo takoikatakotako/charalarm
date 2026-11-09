@@ -164,17 +164,26 @@ extension APIRepository {
         let path = "/chat"
         let url = try createURL(path: path)
         let requestHeader: [String: String] = APIHeader.createAuthorizationRequestHeader(userID: userID, authToken: authToken)
-        let requestBody: Encodable? = ChatRequest(charaID: charaID, language: language.rawValue, capabilities: capabilities, todayEvents: todayEvents, weatherRegion: weatherRegion, messages: messages, context: context)
+        let myChara = MyCharaRepository().myChara(charaID: charaID)
+        let requestBody: Encodable? = ChatRequest(charaID: charaID, language: language.rawValue, capabilities: capabilities, todayEvents: todayEvents, weatherRegion: weatherRegion, messages: messages, context: context, myChara: myChara?.conversationSettings)
         return try await APIClient().request(url: url, httpMethod: .post, requestHeader: requestHeader, requestBody: requestBody)
     }
 
     /// キャラの発話を backend `/tts`（Gemini TTS）で音声（WAV）にする。
-    func postTextToSpeech(userID: String, authToken: String, charaID: String, text: String) async throws -> Data {
+    func postTextToSpeech(userID: String, authToken: String, charaID: String, text: String, voiceID: String? = nil) async throws -> Data {
         let path = "/tts"
         let url = try createURL(path: path)
         let requestHeader: [String: String] = APIHeader.createAuthorizationRequestHeader(userID: userID, authToken: authToken)
-        let requestBody: Encodable? = TextToSpeechRequest(charaID: charaID, text: text)
+        let selectedVoiceID = voiceID ?? MyCharaRepository().myChara(charaID: charaID)?.voiceID
+        let requestBody: Encodable? = TextToSpeechRequest(charaID: charaID, text: text, voiceID: selectedVoiceID)
         return try await APIClient().requestData(url: url, httpMethod: .post, requestHeader: requestHeader, requestBody: requestBody)
+    }
+}
+
+extension APIRepository {
+    func fetchCharaVoices() async throws -> [CharaVoice] {
+        let url = try createURL(path: "/chara/voices")
+        return try await APIClient().request(url: url, httpMethod: .get, requestHeader: APIHeader.defaultHeader, requestBody: nil)
     }
 }
 

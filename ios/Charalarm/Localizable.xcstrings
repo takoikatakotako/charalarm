@@ -2439,13 +2439,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Base character"
+            "value" : "Appearance presets"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "もとにするキャラ"
+            "value" : "見た目のプリセット"
           }
         }
       }
@@ -2456,13 +2456,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Your character uses this character's voice, personality, and alarm voices."
+            "value" : "Choose an appearance. You can set the name, personality and voice separately."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "声・性格・アラームのボイスは、このキャラのものを使います。"
+            "value" : "好きな見た目を選んでください。名前・性格・声は、それぞれ自由に設定できます。"
           }
         }
       }
@@ -2752,6 +2752,176 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "手持ちの VRM"
+          }
+        }
+      }
+    },
+    "my-chara-error-voice" : {
+      "comment" : "My Character",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Could not play the voice. Check your connection and daily speech limit, then try again."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "声を再生できませんでした。通信状況と1日の読み上げ上限を確認して、もう一度お試しください。"
+          }
+        }
+      }
+    },
+    "my-chara-personality" : {
+      "comment" : "My Character",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Personality"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "性格・話し方"
+          }
+        }
+      }
+    },
+    "my-chara-personality-footer" : {
+      "comment" : "My Character",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Describe personality, tone and your relationship in up to 1,000 characters. Leave blank for a warm, friendly character."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "性格・口調・あなたとの関係を1,000文字以内で書けます。空欄なら、親しみやすく思いやりのあるキャラになります。"
+          }
+        }
+      }
+    },
+    "my-chara-personality-placeholder" : {
+      "comment" : "My Character",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "For example: A caring friend who speaks casually and gently encourages me in the morning."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "例：面倒見のよい友達。親しみやすい口調で、朝は優しく励ましてくれる。"
+          }
+        }
+      }
+    },
+    "my-chara-voice" : {
+      "comment" : "My Character",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Voice"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "声"
+          }
+        }
+      }
+    },
+    "my-chara-voice-default" : {
+      "comment" : "My Character",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Default voice"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "既定の声"
+          }
+        }
+      }
+    },
+    "my-chara-voice-footer" : {
+      "comment" : "My Character",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose a voice independently of appearance. Previews count toward your daily speech limit."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "見た目とは別に、会話で使う声を選べます。試聴は1日の読み上げ回数に含まれます。"
+          }
+        }
+      }
+    },
+    "my-chara-voice-preview" : {
+      "comment" : "My Character",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Listen to this voice"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "この声を聴く"
+          }
+        }
+      }
+    },
+    "my-chara-voice-sample" : {
+      "comment" : "My Character",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Good morning! I hope you have a lovely day. Let us take it one step at a time."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "おはよう！今日も素敵な一日になりますように。一緒に少しずつ頑張ろうね。"
+          }
+        }
+      }
+    },
+    "my-chara-voices-retry" : {
+      "comment" : "My Character",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reload voices"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "声の一覧を再読み込み"
           }
         }
       }
