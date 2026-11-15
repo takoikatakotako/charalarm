@@ -56,10 +56,6 @@ func (s *TextToSpeech) Synthesize(ctx context.Context, userID string, authToken 
 	if user.UserID != userID || user.AuthToken != authToken {
 		return tts.Audio{}, errors.New(common.ErrorAuthenticationFailure)
 	}
-	if err := s.Usage.Use(user, 0, utf8.RuneCountInString(text), time.Now()); err != nil {
-		return tts.Audio{}, err
-	}
-
 	// Gemini TTS で話すキャラだけ合成する (VOICEVOX のキャラは端末内で合成する)
 	chara, err := s.AWS.GetChara(charaID)
 	if err != nil {
@@ -70,6 +66,11 @@ func (s *TextToSpeech) Synthesize(ctx context.Context, userID string, authToken 
 	}
 	voice, err := myCharaVoice(chara, voiceID, s.Voice)
 	if err != nil {
+		return tts.Audio{}, err
+	}
+
+	// 一覧外の声など、合成できない設定で利用枠を減らさない。
+	if err := s.Usage.Use(user, 0, utf8.RuneCountInString(text), time.Now()); err != nil {
 		return tts.Audio{}, err
 	}
 

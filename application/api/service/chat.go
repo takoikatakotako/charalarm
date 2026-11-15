@@ -155,10 +155,6 @@ func (s *Chat) Reply(ctx context.Context, userID string, authToken string, input
 	if user.UserID != userID || user.AuthToken != authToken {
 		return ChatReply{}, errors.New(common.ErrorAuthenticationFailure)
 	}
-	if err := s.Usage.Use(user, 1, 0, time.Now()); err != nil {
-		return ChatReply{}, err
-	}
-
 	// キャラの人格プロンプトはサーバ側で管理する (アプリ更新なしで性格を変えられる)
 	// 会話の言語は、ユーザーが選んだ言語をキャラが話せればその言語、話せなければキャラの言語にする
 	persona := ""
@@ -173,6 +169,11 @@ func (s *Chat) Reply(ctx context.Context, userID string, authToken string, input
 		} else if input.MyChara != nil {
 			return ChatReply{}, errors.New(common.ErrorInvalidValue)
 		}
+	}
+
+	// 設定の不備で拒否した会話は、1日の利用量に含めない。
+	if err := s.Usage.Use(user, 1, 0, time.Now()); err != nil {
+		return ChatReply{}, err
 	}
 
 	input.forecast = s.forecast(ctx, input)
