@@ -31,7 +31,7 @@ type TextToSpeech struct {
 
 // Synthesize はユーザーを認証したうえで text を合成する。
 // 発話テキストはログに出さない。
-func (s *TextToSpeech) Synthesize(ctx context.Context, userID string, authToken string, charaID string, text string) (tts.Audio, error) {
+func (s *TextToSpeech) Synthesize(ctx context.Context, userID string, authToken string, charaID string, text string, voiceID string) (tts.Audio, error) {
 	if s.Client == nil {
 		return tts.Audio{}, ErrTTSNotConfigured
 	}
@@ -56,19 +56,23 @@ func (s *TextToSpeech) Synthesize(ctx context.Context, userID string, authToken 
 	if user.UserID != userID || user.AuthToken != authToken {
 		return tts.Audio{}, errors.New(common.ErrorAuthenticationFailure)
 	}
-	if err := s.Usage.Use(user, 0, utf8.RuneCountInString(text), time.Now()); err != nil {
-		return tts.Audio{}, err
-	}
-
 	// Gemini TTS で話すキャラだけ合成する (VOICEVOX のキャラは端末内で合成する)
 	chara, err := s.AWS.GetChara(charaID)
 	if err != nil {
 		return tts.Audio{}, invalidValue("tts: chara not found", slog.String("chara", charaID), slog.String("error", err.Error()))
 	}
-	if !isConversationChara(chara) || chara.ConversationTypeOf() != database.ConversationTypeGemini {
+	if !isConversationChara(chara) || (chara.ConversationTypeOf() != database.ConversationTypeGemini && voiceID == "") {
 		return tts.Audio{}, invalidValue("tts: chara does not use gemini tts", slog.String("chara", charaID))
 	}
-	voice := voiceOf(chara, s.Voice)
+	voice, err := myCharaVoice(chara, voiceID, s.Voice)
+	if err != nil {
+		return tts.Audio{}, err
+	}
+
+	// 一覧外の声など、合成できない設定で利用枠を減らさない。
+	if err := s.Usage.Use(user, 0, utf8.RuneCountInString(text), time.Now()); err != nil {
+		return tts.Audio{}, err
+	}
 
 	start := time.Now()
 	audio, err := s.Client.Synthesize(ctx, text, voice)

@@ -118,6 +118,7 @@ type ChatContext struct {
 // ChatInput は Reply の入力。
 type ChatInput struct {
 	CharaID string
+	MyChara *MyCharaSettings
 	// Language は会話の言語 ("ja" / "en")。空なら日本語。
 	Language string
 	// Capabilities は端末で使える道具 (例: calendar.read)。ユーザーが許可したものだけ送られる。
@@ -154,19 +155,25 @@ func (s *Chat) Reply(ctx context.Context, userID string, authToken string, input
 	if user.UserID != userID || user.AuthToken != authToken {
 		return ChatReply{}, errors.New(common.ErrorAuthenticationFailure)
 	}
-	if err := s.Usage.Use(user, 1, 0, time.Now()); err != nil {
-		return ChatReply{}, err
-	}
-
 	// キャラの人格プロンプトはサーバ側で管理する (アプリ更新なしで性格を変えられる)
 	// 会話の言語は、ユーザーが選んだ言語をキャラが話せればその言語、話せなければキャラの言語にする
 	persona := ""
 	if input.CharaID != "" {
 		chara, err := s.AWS.GetChara(input.CharaID)
 		if err == nil {
-			persona = chara.ConversationPrompt
+			persona, err = myCharaPersona(chara, input.MyChara)
+			if err != nil {
+				return ChatReply{}, err
+			}
 			input.Language = chara.ConversationLanguageFor(input.Language)
+		} else if input.MyChara != nil {
+			return ChatReply{}, errors.New(common.ErrorInvalidValue)
 		}
+	}
+
+	// 設定の不備で拒否した会話は、1日の利用量に含めない。
+	if err := s.Usage.Use(user, 1, 0, time.Now()); err != nil {
+		return ChatReply{}, err
 	}
 
 	input.forecast = s.forecast(ctx, input)
@@ -256,6 +263,12 @@ func hasCapability(input ChatInput, capability string) bool {
 // validateChatInput は端末から送られた値を検証する。
 // 端末の値は書き換えられる前提で、件数・長さの上限と role を確かめる。
 func validateChatInput(input ChatInput) error {
+	if err := input.MyChara.validate(); err != nil {
+		return err
+	}
+	if input.MyChara != nil && input.CharaID == "" {
+		return errors.New(common.ErrorInvalidValue)
+	}
 	if len(input.Messages) == 0 || len(input.Messages) > chatMaxMessages {
 		return invalidValue("chat: message count", slog.Int("messages", len(input.Messages)), slog.Int("max", chatMaxMessages))
 	}

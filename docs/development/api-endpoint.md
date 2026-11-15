@@ -50,6 +50,7 @@ AUTH="Authorization: Basic $(echo -n $USER_ID:$AUTH_TOKEN | base64)"
 | GET | /chara/list | | キャラの一覧 |
 | GET | /chara/id/:charaID | | キャラ 1 人 |
 | GET | /chara/presets | | 「自分のキャラ」の土台になるキャラ（プリセット） |
+| GET | /chara/voices | | 「自分のキャラ」で選べる声の一覧 |
 | POST | /push-token/ios/push/add | 🔒 | 通常のプッシュのトークンを登録 |
 | POST | /push-token/ios/voip-push/add | 🔒 | VoIP プッシュのトークンを登録 |
 | GET | /news/list | | お知らせの一覧 |
@@ -256,6 +257,7 @@ curl -X POST $API/alarm/delete -H "$AUTH" -H 'Content-Type: application/json' \
 ```
 
 - `language`: 会話の言語。キャラが話せなければキャラの言語になる
+- `myChara`: 自分のキャラの場合だけ `{ "name": "好きな名前", "personality": "性格・口調" }` を送れる。有効な会話対応のプリセットに限り、土台の人格を置き換える。名前は空白以外で50文字以内、性格は1,000文字以内（空なら親しみやすい口調）。保存・ログ出力はしない
 - `capabilities`: 端末で使える道具 (許可があるものだけ)
 - `todayEvents`・`weatherRegion`: 電話の最初のひとことで、設定がオンのときだけ送る。`weatherRegion` は都道府県コード (`01`〜`47`)。天気は WeatherKit から取る
 - `messages[].role`: `system` / `user` / `assistant` / `tool`。道具を使ったときは `toolCalls`・`toolCallID` を入れる
@@ -274,6 +276,14 @@ curl -X POST $API/alarm/delete -H "$AUTH" -H 'Content-Type: application/json' \
 ```json
 { "charaID": "com.charalarm.yui", "text": "おはよう！" }
 ```
+
+自分のキャラは `voiceID` を指定できる。有効な会話対応のプリセットで、`GET /chara/voices` にあるIDだけを受け付ける。見た目の声や話し方は引き継がない。省略時は従来どおりキャラの既定の声を使う。通常キャラに指定すると400。
+
+```json
+{ "charaID": "com.charalarm.preset.hinata", "text": "おはよう！", "voiceID": "Kore" }
+```
+
+声の一覧は `[{ "id": "Zephyr", "name": "Zephyr", "description": "明るい声 / Bright" }, ...]` の形で返す。試聴にも認証と利用上限が適用される。
 
 ## POST: /weather 🔒
 

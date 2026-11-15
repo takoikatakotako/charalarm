@@ -1,0 +1,115 @@
+{
+  "generator": "Built-in image_gen",
+  "characters": [
+    {
+      "id": "hinata",
+      "charaID": "com.charalarm.preset.hinata",
+      "name": "ひなた",
+      "description": "女性・ブラウンのボブ・カーディガン",
+      "gender": "female",
+      "displayOrder": 10,
+      "image": "images/hinata.png",
+      "prompt": "Use case: stylized-concept. Asset type: transparent standing character illustration for Charalarm, a friendly morning alarm and voice conversation mobile app. Create ONE original adult female anime character, early twenties, warm brown medium-length bob hair, amber eyes, gentle welcoming smile, modest cream cardigan over coral blouse and long ivory skirt, small leaf hair clip. Contemporary Japanese anime visual novel standing art, refined clean linework, soft cel shading, pleasing polished commercial character art. Full body from head to shoes, front facing relaxed natural standing pose, hands visible at sides, centered, complete hair and feet within canvas with generous transparent margin. Portrait composition. Genuinely transparent background. No scenery, floor, shadows outside character, panels, circles, lettering, watermark, branding, speech bubbles, or other people. Friendly age-appropriate fully clothed design. This is appearance only, no written personality or voice.",
+      "sha256": "ba6972523376501d1046f000398d3655febc27cb88103f56bb530e2685410ee4"
+    },
+    {
+      "id": "aoi",
+      "charaID": "com.charalarm.preset.aoi",
+      "name": "あおい",
+      "description": "女性・ネイビーのロングヘア・ジャケット",
+      "gender": "female",
+      "displayOrder": 20,
+      "image": "images/aoi.png",
+      "prompt": "Use case: stylized-concept. Asset type: transparent standing character illustration for Charalarm, friendly morning alarm and voice conversation app. Create ONE original adult woman, mid twenties, long straight dark navy hair, blue eyes, composed soft smile, elegant navy tailored jacket over pale blue blouse, flowing charcoal midi skirt and ankle boots. Contemporary polished Japanese anime visual novel standing art, refined clean linework, soft cel shading, slim adult proportions, clear eyes. Whole complete body including shoes, front facing natural standing relaxed pose with hands at sides. Centered portrait composition with full hair and feet inside canvas and generous margin. Background completely transparent, no glow, no vignette, no gradient or cast shadow. No scenery, floor, panels, circles, lettering, watermark, branding, speech bubbles, other people. Fully clothed modest family-friendly design. Appearance only, no personality or voice text.",
+      "sha256": "0bb7e6d954bce19fd982baf2050d3c107486b6f864ce7d676f6069939332f3f1"
+    },
+    {
+      "id": "akari",
+      "charaID": "com.charalarm.preset.akari",
+      "name": "あかり",
+      "description": "女性・オレンジのポニーテール・スポーティー",
+      "gender": "female",
+      "displayOrder": 30,
+      "image": "images/akari.png",
+      "prompt": "Use case: stylized-concept. Asset type: transparent standing character illustration for Charalarm, friendly morning alarm and voice conversation app. Create ONE original adult woman, early twenties, copper orange hair in a high ponytail, bright green eyes, energetic friendly grin, modest teal sporty zip jacket over white tee, dark navy jogger trousers and sneakers. Contemporary polished Japanese anime visual novel standing art, refined clean linework, soft cel shading, slim adult proportions, clear eyes. Whole complete body including shoes, front facing natural standing relaxed pose with hands at sides. Centered portrait composition with full hair and feet inside canvas and generous margin. Background completely transparent, no glow, no vignette, no gradient or cast shadow. No scenery, floor, panels, circles, lettering, watermark, branding, speech bubbles, other people. Fully clothed modest family-friendly design. Appearance only, no personality or voice text.",
+      "sha256": "42a777b98541ea8308edb94f79b8d4f080931689b004c5d6074b336d2e2eb379"
+    },
+    {
+      "id": "rin",
+      "charaID": "com.charalarm.preset.rin",
+      "name": "りん",
+      "description": "女性・シルバーのボブ・眼鏡・ニット",
+      "gender": "female",
+      "displayOrder": 40,
+      "image": "images/rin.png",
+      "prompt": "Use case: stylized-concept. Asset type: transparent standing character illustration for Charalarm, friendly morning alarm and voice conversation app. Create ONE original adult woman, late twenties, chin length silver ash bob, violet eyes, tasteful thin round glasses, calm intelligent friendly expression, lavender knit sweater over white collared shirt, navy pleated midi skirt and simple flats. Contemporary polished Japanese anime visual novel standing art, refined clean linework, soft cel shading, slim adult proportions, clear eyes. Whole complete body including shoes, front facing natural standing relaxed pose with hands at sides. Centered portrait composition with full hair and feet inside canvas and generous margin. Background completely transparent, no glow, no vignette, no gradient or cast shadow. No scenery, floor, panels, circles, lettering, watermark, branding, speech bubbles, other people. Fully clothed modest family-friendly design. Appearance only, no personality or voice text.",
+      "sha256": "f8275395b87936e9a0154578c4664ed90ea19dee5697dc673cbe14e6b8b32ebe"
+    },
+    {
+      "id": "sakura",
+      "charaID": "com.charalarm.preset.sakura",
+      "name": "さくら",
+      "description": "女性・ピンクのロングヘア・ワンピース",
+      "gender": "female",
+      "displayOrder": 50,
+      "image": "images/sakura.png",
+      "prompt": "Use case: stylized-concept. Asset type: transparent standing character illustration for Charalarm morning alarm and voice conversation app. ONE original adult woman in her twenties, dusty pink long wavy hair, rose brown eyes, friendly smile, modest ivory high-neck blouse, dusty rose ankle length pinafore dress and brown ankle boots. Japanese anime visual novel standing art, polished clean delicate linework, soft cel shading, elegant adult proportions. Complete full body head to shoes in a front facing relaxed standing natural pose with hands visible at sides. Centered portrait composition, generous clear margin around complete hair and feet. Fully transparent background, no cast shadows or glow or vignette. No scenery, floor, panels, text, watermark, other people. Fully clothed family-friendly design.",
+      "sha256": "1b3c562e2aa2e620730405b0b965058fc307730133a22e24b35dfc11f6c0a8bd"
+    },
+    {
+      "id": "yuzuki",
+      "charaID": "com.charalarm.preset.yuzuki",
+      "name": "ゆづき",
+      "description": "女性・黒髪・若草色の着物",
+      "gender": "female",
+      "displayOrder": 60,
+      "image": "images/yuzuki.png",
+      "prompt": "Use case: stylized-concept. Asset type: transparent standing character illustration for Charalarm morning alarm and voice conversation app. ONE original adult woman in her twenties, long black hair tied loosely with a simple red ribbon, dark brown eyes, serene smile, tasteful traditional pale green kimono with muted terracotta obi and flat zori sandals, everyday modest styling. Japanese anime visual novel standing art, polished clean delicate linework, soft cel shading, elegant adult proportions. Complete full body head to shoes in a front facing relaxed standing natural pose with hands visible at sides. Centered portrait composition, generous clear margin around complete hair and feet. Fully transparent background, no cast shadows or glow or vignette. No scenery, floor, panels, text, watermark, other people. Fully clothed family-friendly design.",
+      "sha256": "cf2286b5c3bc6b245b0792f86d07237058f5fca07a93c1fe05b0141b7b75f460"
+    },
+    {
+      "id": "luna",
+      "charaID": "com.charalarm.preset.luna",
+      "name": "るな",
+      "description": "女性・ラベンダーのショートヘア・パーカー",
+      "gender": "female",
+      "displayOrder": 70,
+      "image": "images/luna.png",
+      "prompt": "Use case: stylized-concept. Asset type: transparent standing character illustration for Charalarm morning alarm and voice conversation app. ONE original adult woman in her twenties, short lavender hair, teal eyes, small star-shaped barrette, cheerful subtle smile, light blue hooded casual jacket over white shirt, modest dark wide-leg trousers and white sneakers. Japanese anime visual novel standing art, polished clean delicate linework, soft cel shading, elegant adult proportions. Complete full body head to shoes in a front facing relaxed standing natural pose with hands visible at sides. Centered portrait composition, generous clear margin around complete hair and feet. Fully transparent background, no cast shadows or glow or vignette. No scenery, floor, panels, text, watermark, other people. Fully clothed family-friendly design.",
+      "sha256": "7e89233e70f353699a6af5d4badcfc31bd911cf2fdea180430a3c5a327a6b7a3"
+    },
+    {
+      "id": "haruto",
+      "charaID": "com.charalarm.preset.haruto",
+      "name": "はると",
+      "description": "男性・ブラウンのショートヘア・カジュアル",
+      "gender": "male",
+      "displayOrder": 80,
+      "image": "images/haruto.png",
+      "prompt": "Use case: stylized-concept. Asset type: transparent standing character illustration for Charalarm morning alarm and voice conversation app. ONE original adult man in his twenties, short soft chestnut brown hair, warm brown eyes, friendly relaxed smile, modest light sage casual overshirt over white tee, tan chinos and clean white sneakers. Handsome approachable Japanese anime visual novel male character standing art, clean delicate linework, soft cel shading, elegant adult proportions, clearly adult masculine face and silhouette. Full complete body head to shoes, front facing natural relaxed standing pose with both hands visible at sides. Centered portrait composition with generous clear margin around complete hair and feet. Genuinely transparent background, no glow, gradient, vignette, scenery, floor, panels, text, watermark, other people. Fully clothed family-friendly design.",
+      "sha256": "a6b05be8cf1be1abc32851cce913b8ba25b38a35f6eff0ab1a6e597bef6fb581"
+    },
+    {
+      "id": "ren",
+      "charaID": "com.charalarm.preset.ren",
+      "name": "れん",
+      "description": "男性・黒髪・ジャケット・タートルネック",
+      "gender": "male",
+      "displayOrder": 90,
+      "image": "images/ren.png",
+      "prompt": "Use case: stylized-concept. Asset type: transparent standing character illustration for Charalarm morning alarm and voice conversation app. ONE original adult man in his late twenties, neatly styled short black hair, cool gray blue eyes, composed slight smile, navy tailored blazer over a light gray turtleneck, slim charcoal trousers and brown leather shoes. Handsome approachable Japanese anime visual novel male character standing art, clean delicate linework, soft cel shading, elegant adult proportions, clearly adult masculine face and silhouette. Full complete body head to shoes, front facing natural relaxed standing pose with both hands visible at sides. Centered portrait composition with generous clear margin around complete hair and feet. Genuinely transparent background, no glow, gradient, vignette, scenery, floor, panels, text, watermark, other people. Fully clothed family-friendly design.",
+      "sha256": "98685988d91671d025df53a8de53504287c8e2f2b81935efd6c5dac5c1b5d20c"
+    },
+    {
+      "id": "sora",
+      "charaID": "com.charalarm.preset.sora",
+      "name": "そら",
+      "description": "男性・ブロンドのショートヘア・パーカー",
+      "gender": "male",
+      "displayOrder": 100,
+      "image": "images/sora.png",
+      "prompt": "Use case: stylized-concept. Asset type: transparent standing character illustration for Charalarm morning alarm and voice conversation app. ONE original adult man in his twenties, short tousled sandy blond hair, green eyes, bright friendly smile, light blue casual hooded zip jacket over white tee, dark navy straight-leg jeans and white sneakers. Handsome approachable Japanese anime visual novel male character standing art, clean delicate linework, soft cel shading, elegant adult proportions, clearly adult masculine face and silhouette. Full complete body head to shoes, front facing natural relaxed standing pose with both hands visible at sides. Centered portrait composition with generous clear margin around complete hair and feet. Genuinely transparent background, no glow, gradient, vignette, scenery, floor, panels, text, watermark, other people. Fully clothed family-friendly design.",
+      "sha256": "6b5bca9d87f9c20bf60f4c2fe518486553e3ba535cb8e36cdcdaa5d2e67589f8"
+    }
+  ]
+}

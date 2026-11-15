@@ -1,5 +1,7 @@
 package request
 
+import "github.com/takoikatakotako/charalarm/api/service"
+
 // ChatMessage は会話の1メッセージ (role: system/user/assistant/tool)。
 type ChatMessage struct {
 	Role    string `json:"role"`
@@ -30,7 +32,8 @@ type ChatContext struct {
 // CharaID を指定すると、そのキャラの人格プロンプトをサーバ側で先頭に付与する。
 // Memory は端末に保存してあるキャラごとの記憶 (サーバには保存しない)。
 type Chat struct {
-	CharaID string `json:"charaID"`
+	CharaID string                   `json:"charaID"`
+	MyChara *service.MyCharaSettings `json:"myChara"`
 	// Language はユーザーが選んだ会話の言語 ("ja" / "en")。省略すると日本語。キャラが話せなければキャラの言語になる。
 	Language string `json:"language"`
 	// Capabilities は端末で使える道具 (例: calendar.read)。許可がないものは含めない。

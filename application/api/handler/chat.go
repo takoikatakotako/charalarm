@@ -33,6 +33,7 @@ func (h *Chat) ChatPost(c echo.Context) error {
 
 	input := service.ChatInput{
 		CharaID:  req.CharaID,
+		MyChara:  req.MyChara,
 		Language: req.Language,
 		Memory:   req.Memory,
 		Messages: make([]llm.Message, 0, len(req.Messages)),
