@@ -1,6 +1,10 @@
 import SwiftUI
 
 struct CharaListView: View {
+    // ブラッシュアップ中は作成・編集の入口だけを隠す。再開するときは true に戻す。
+    // 作成済みのキャラや、そのキャラを使うアラーム・会話には影響させない。
+    private static let showsMyCharaEditor = false
+
     @State var viewState: CharacterListViewState
     @Environment(\.dismiss) private var dismiss
     @Environment(\.openURL) private var openURL
@@ -10,12 +14,13 @@ struct CharaListView: View {
     var body: some View {
         NavigationStack {
             List {
-                // 自分のキャラ（プリセットか手持ちの VRM の見た目に、好きな名前を付ける）
-                Section {
-                    NavigationLink {
-                        MyCharaView(viewState: MyCharaViewState())
-                    } label: {
-                        myCharaRow
+                if Self.showsMyCharaEditor {
+                    Section {
+                        NavigationLink {
+                            MyCharaView(viewState: MyCharaViewState())
+                        } label: {
+                            myCharaRow
+                        }
                     }
                 }
 
@@ -41,8 +46,10 @@ struct CharaListView: View {
             }
             .onAppear {
                 viewState.fetchCharacters()
-                myChara = MyCharaRepository().load()
-                isMyCharaActive = MyCharaRepository().isSelected
+                if Self.showsMyCharaEditor {
+                    myChara = MyCharaRepository().load()
+                    isMyCharaActive = MyCharaRepository().isSelected
+                }
             }
             .alert("", isPresented: $viewState.showingAlert) {
                 Button(String(localized: "common-close")) {}
