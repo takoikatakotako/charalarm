@@ -63,21 +63,12 @@ import SwiftUI
     func onAppear() {
         Task { @MainActor in
             do {
-                // キャラクター一覧取得。自分のキャラがあれば先頭に足す（一覧の API にはプリセットが出ないため、土台のキャラを取る）
-                var characters = try await apiRepository.getCharaList()
-                let myChara = MyCharaRepository().load()
-                if let myChara, var base = try? await apiRepository.fetchCharacter(charaID: myChara.baseCharaID) {
-                    base.name = myChara.name
-                    characters.insert(base, at: 0)
-                }
-                self.characters = characters
+                // キャラクター一覧取得
+                self.characters = try await apiRepository.getCharaList()
 
                 // 現在のキャラを取得
                 if alarm.charaID.isNotEmpty {
-                    var chara = try await apiRepository.fetchCharacter(charaID: alarm.charaID)
-                    if let myChara, myChara.baseCharaID == chara.charaID {
-                        chara.name = myChara.name
-                    }
+                    let chara = try await apiRepository.fetchCharacter(charaID: alarm.charaID)
                     self.selectedChara = chara
 
                     // CharaCallを設定
