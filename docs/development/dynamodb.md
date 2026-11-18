@@ -120,7 +120,7 @@ DynamoDB のテーブルと項目です。正は `application/infrastructure/dat
 }
 ```
 
-- `preset`: 「自分のキャラ」の見た目のプリセット。キャラ一覧 (`/chara/list`) とランダムのアラームには出さず、`/chara/presets` で返す。ユーザーは見た目（立ち絵・VRM・手持ちのVRM）、名前、性格、会話の声を端末で設定する。名前・性格は `/chat` の `myChara`、声は `/tts` の `voiceID` で送り、サーバには保存しない。声が未指定の場合と録音ボイスは従来のキャラの設定を使う
+- `preset`: 「自分のキャラ」の見た目のプリセット。キャラ一覧 (`/chara/list`) とランダムのアラームには出さず、`/chara/presets` で返す。旧iOSでは見た目（立ち絵・VRM・手持ちのVRM）、名前、性格、会話の声を端末で設定していた。現行iOSでは機能を削除し、起動時に端末データを削除して選択中の自分のキャラ・そのキャラを指定した既存アラームを井上結衣へ移す。APIは旧バージョンとの互換性のため維持している。名前・性格は `/chat` の `myChara`、声は `/tts` の `voiceID` で送り、サーバには保存しない。声が未指定の場合と録音ボイスは従来のキャラの設定を使う
 - `appearanceType`: `illustration` (立ち絵) か `vrm`。未設定なら立ち絵
 - `conversationType`: `none` (アラームだけ) / `voicevox` (端末で合成) / `gemini` (サーバで合成)。未設定なら古い項目から導く
 - `conversationLanguages`: 話せる言語。未設定なら日本語だけ。対応している言語は `ja` `en` `zh-Hans` `zh-Hant` `ko` `es` `fr` `de`

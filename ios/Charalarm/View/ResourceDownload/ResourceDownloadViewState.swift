@@ -2,8 +2,6 @@ import Foundation
 
 @MainActor @Observable final class ResourceDownloadViewState {
     private let charaID: String
-    /// 「自分のキャラ」として選ぶとき、リソースを入れ終えてから確定する保存
-    private let myCharaPending: MyCharaRepository.Pending?
     private let apiRepository = APIRepository()
     private let fileRepository = FileRepository()
     private let userDefaultsRepository = UserDefaultsRepository()
@@ -13,9 +11,8 @@ import Foundation
     var progressMessage: String = ""
     var showDismissButton = false
 
-    init(charaID: String, myCharaPending: MyCharaRepository.Pending? = nil) {
+    init(charaID: String) {
         self.charaID = charaID
-        self.myCharaPending = myCharaPending
     }
 
     func onAppear() {
@@ -45,19 +42,12 @@ import Foundation
                 showDismissButton = true
 
                 // キャラを更新する
-                if let myCharaPending {
-                    try MyCharaRepository().commit(myCharaPending)
-                }
                 userDefaultsRepository.setCharaDomain(charaDomain: charaID)
                 let userInfo: [String: Any] = [
                     NSNotification.setCharaUserInfoKeyCharaID: charaID
                 ]
                 NotificationCenter.default.post(name: NSNotification.setChara, object: self, userInfo: userInfo)
             } catch {
-                // 自分のキャラの保存は確定せず、前のままにする（やり直せるように）
-                if let myCharaPending {
-                    MyCharaRepository().discard(myCharaPending)
-                }
                 mainMessage = "ダウンロードに失敗しました"
                 showDismissButton = true
 

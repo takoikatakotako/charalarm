@@ -272,15 +272,8 @@ final class ConversationViewState: NSObject {
         recognizer = SFSpeechRecognizer(locale: language.locale)
         CharalarmLogger.breadcrumb("会話: 設定を取得 language=\(language.rawValue) voice=\(conversation.voiceProvider.rawValue)")
         charaName = chara.name
-        // 自分のキャラなら、その名前と見た目。ユーザーがキャラ詳細で選んだ見た目（なければ既定）が 3D なら、会話の画面にも出す
-        let myCharaRepository = MyCharaRepository()
-        let myChara = myCharaRepository.myChara(charaID: charaID)
-        if let myChara {
-            charaName = myChara.name
-        }
-        if let myChara, let modelFileURL = myCharaRepository.modelFileURL(of: myChara) {
-            vrmModelFileURL = modelFileURL
-        } else if case .vrm(let modelFileURL) = chara.appearance(preferred: UserDefaultsRepository().getPreferredAppearance(charaID: charaID)) {
+        // ユーザーが選んだ見た目（なければ既定）が 3D なら、会話の画面にも出す
+        if case .vrm(let modelFileURL) = chara.appearance(preferred: UserDefaultsRepository().getPreferredAppearance(charaID: charaID)) {
             vrmModelFileURL = modelFileURL
         } else {
             charaImage = Self.loadCharaImage(charaID: charaID)
@@ -461,9 +454,6 @@ final class ConversationViewState: NSObject {
 
     /// キャラの声の出し方に合わせて音声合成を選ぶ。
     private static func makeTextToSpeechRepository(charaID: String, conversation: CharaConversation) -> TextToSpeechRepository {
-        if MyCharaRepository().myChara(charaID: charaID)?.voiceID != nil {
-            return BackendTextToSpeechRepository(charaID: charaID)
-        }
         switch conversation.voiceProvider {
         case .voicevox:
             return VoicevoxRepository(styleId: conversation.voicevoxStyleID)
